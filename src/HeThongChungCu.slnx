@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="HeThongChungCu.Application/HeThongChungCu.Application.csproj" />
+  <Project Path="HeThongChungCu.Domain/HeThongChungCu.Domain.csproj" />
+  <Project Path="HeThongChungCu.Infrastructure/HeThongChungCu.Infrastructure.csproj" />
+  <Project Path="HeThongChungCu.WebAPI/HeThongChungCu.WebAPI.csproj" />
+</Solution>
