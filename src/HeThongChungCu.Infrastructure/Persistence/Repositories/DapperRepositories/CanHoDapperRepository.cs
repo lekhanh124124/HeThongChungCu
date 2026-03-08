@@ -31,15 +31,13 @@ public class CanHoDapperRepository : DapperDbContext, ICanHoDapperRepository
         var sortDirection = (isAsc.HasValue && !isAsc.Value) ? "DESC" : "ASC";
         var offset = (pageNumber - 1) * pageSize;
 
-        var countSql = """
+        var sql = $"""
             SELECT COUNT(*)
             FROM CanHos c
             WHERE c.IsDeleted = 0
               AND (@ToaNhaId IS NULL OR c.ToaNhaId = @ToaNhaId)
-              AND (@Keyword IS NULL OR c.MaCanHo LIKE '%' + @Keyword + '%')
-            """;
+              AND (@Keyword IS NULL OR c.MaCanHo LIKE '%' + @Keyword + '%');
 
-        var dataSql = $"""
             SELECT c.Id, c.ToaNhaId, t.TenToaNha, c.MaCanHo, c.DienTich, c.Tang, c.SoPhongNgu, c.SoPhongTam, c.TinhTrangCanHoId
             FROM CanHos c
             INNER JOIN ToaNhas t ON t.Id = c.ToaNhaId
@@ -47,7 +45,7 @@ public class CanHoDapperRepository : DapperDbContext, ICanHoDapperRepository
               AND (@ToaNhaId IS NULL OR c.ToaNhaId = @ToaNhaId)
               AND (@Keyword IS NULL OR c.MaCanHo LIKE '%' + @Keyword + '%')
             ORDER BY c.{orderColumn} {sortDirection}
-            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
+            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
             """;
 
         var parameters = new
@@ -58,8 +56,9 @@ public class CanHoDapperRepository : DapperDbContext, ICanHoDapperRepository
             PageSize = pageSize
         };
 
-        var totalCount = await connection.ExecuteScalarAsync<int>(countSql, parameters);
-        var items = await connection.QueryAsync<CanHoDetailResponse>(dataSql, parameters);
+        using var multi = await connection.QueryMultipleAsync(sql, parameters);
+        var totalCount = await multi.ReadFirstAsync<int>();
+        var items = await multi.ReadAsync<CanHoDetailResponse>();
 
         return (totalCount, items.ToList());
     }

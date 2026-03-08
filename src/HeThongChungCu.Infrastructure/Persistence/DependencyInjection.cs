@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.AddScoped<IToaNhaDapperRepository, ToaNhaDapperRepository>();
         services.AddScoped<ICanHoEFRepository, CanHoEFRepository>();
         services.AddScoped<ICanHoDapperRepository, CanHoDapperRepository>();
+        services.AddScoped<IQuanHeCuTruDapperRepository, QuanHeCuTruDapperRepository>();
         services.AddScoped<IUserDapperRepository, UserDapperRepository>();
 
         return services;

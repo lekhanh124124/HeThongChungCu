@@ -39,6 +39,7 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .LessThan(_dateTimeProvider.Now.Date).WithMessage("Ngày sinh phải là ngày trong quá khứ.");
 
         RuleFor(x => x.GioiTinhId)
-            .GreaterThan(0).WithMessage("Giới tính không hợp lệ.");
+            .Must(id => GioiTinh.GetAll().Any(g => g.Value == id))
+            .WithMessage($"Giới tính không hợp lệ. Các giá trị hợp lệ: {GioiTinh.Nam.Value} ({GioiTinh.Nam.Name}), {GioiTinh.Nu.Value} ({GioiTinh.Nu.Name}), {GioiTinh.Khac.Value} ({GioiTinh.Khac.Name}).");
     }
 }
