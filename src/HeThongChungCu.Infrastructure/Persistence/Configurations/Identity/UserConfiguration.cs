@@ -39,8 +39,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.LastName).IsRequired().HasMaxLength(100);
 
         // Unique constraints
-        builder.HasIndex(u => u.Email).IsUnique();
         builder.HasIndex(u => u.Username).IsUnique();
-        builder.HasIndex(u => u.IdCard).IsUnique();
     }
 }

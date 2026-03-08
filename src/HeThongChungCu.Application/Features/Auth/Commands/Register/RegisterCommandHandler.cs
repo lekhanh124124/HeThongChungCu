@@ -36,8 +36,9 @@ public class RegisterCommandHandler : ICommandHandler<RegisterCommand, AuthRespo
 
         var hashedPassword = _passwordHasher.HashPassword(request.Password);
         var user = new User(request.Username, request.Email, hashedPassword, request.FirstName, request.LastName, request.PhoneNumber, request.IdCard, request.Dob, request.GioiTinhId);
-
-        user.ChangeRole(Role.Resident);
+        
+        var userRole = Role.Guest;
+        user.ChangeRole(userRole);
 
         user.AddDomainEvent(new Domain.Events.UserRegisteredEvent(user.Id, user.Username));
 
@@ -45,7 +46,7 @@ public class RegisterCommandHandler : ICommandHandler<RegisterCommand, AuthRespo
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var roles = new List<string> { Role.Resident.Name };
+        var roles = new List<string> { userRole.Name };
         var accessToken = _jwtTokenGenerator.GenerateToken(user.Id, user.Username, roles);
         var refreshTokenString = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
 

@@ -1,6 +1,5 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.ChungCu.DTOs;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.ChungCu.Commands.CreateToaNha;
 

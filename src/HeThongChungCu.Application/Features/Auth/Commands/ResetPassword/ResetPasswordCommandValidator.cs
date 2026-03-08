@@ -13,5 +13,8 @@ public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordComm
         RuleFor(x => x.NewPassword)
             .NotEmpty().WithMessage("Mật khẩu mới không được để trống.")
             .MinimumLength(6).WithMessage("Mật khẩu phải có ít nhất 6 ký tự.");
+
+        RuleFor(x => x.ConfirmPassword)
+            .Equal(x => x.NewPassword).WithMessage("Mật khẩu xác nhận không khớp.");
     }
 }

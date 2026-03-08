@@ -1,0 +1,34 @@
+using FluentValidation;
+
+namespace HeThongChungCu.Application.Features.Auth.Commands.UpdateProfile;
+
+public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileCommand>
+{
+    private readonly IDateTimeProvider _dateTimeProvider;
+    public UpdateProfileCommandValidator(IDateTimeProvider dateTimeProvider)
+    {
+        _dateTimeProvider = dateTimeProvider;
+        RuleFor(x => x.FirstName)
+            .NotEmpty().WithMessage("Họ và tên đệm không được để trống.")
+            .MaximumLength(50).WithMessage("Họ và tên đệm không quá 50 ký tự.");
+
+        RuleFor(x => x.LastName)
+            .NotEmpty().WithMessage("Tên không được để trống.")
+            .MaximumLength(50).WithMessage("Tên không quá 50 ký tự.");
+
+        RuleFor(x => x.PhoneNumber)
+            .NotEmpty().WithMessage("Số điện thoại không được để trống.")
+            .Matches(@"^\d{10,11}$").WithMessage("Số điện thoại không hợp lệ.");
+
+        RuleFor(x => x.IdCard)
+            .NotEmpty().WithMessage("CMND/CCCD không được để trống.")
+            .MaximumLength(20).WithMessage("CMND/CCCD không quá 20 ký tự.");
+
+        RuleFor(x => x.Dob)
+            .NotEmpty().WithMessage("Ngày sinh không được để trống.")
+            .LessThan(_dateTimeProvider.Now.Date).WithMessage("Ngày sinh không được lớn hơn ngày hiện tại.");
+
+        RuleFor(x => x.GioiTinhId)
+            .GreaterThan(0).WithMessage("Giới tính không hợp lệ.");
+    }
+}

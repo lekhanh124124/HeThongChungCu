@@ -15,12 +15,20 @@ public class ToaNhaEFRepository : IToaNhaEFRepository
 
     public async Task<ToaNha?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Set<ToaNha>().FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        return await _dbContext.Set<ToaNha>()
+            .FirstOrDefaultAsync(t => 
+                t.Id == id &&
+                !t.IsDeleted, 
+                cancellationToken);
     }
 
     public async Task<bool> AnyAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Set<ToaNha>().AnyAsync(t => t.Id == id, cancellationToken);
+        return await _dbContext.Set<ToaNha>()
+            .AnyAsync(t => 
+                t.Id == id &&
+                !t.IsDeleted, 
+                cancellationToken);
     }
 
     public async Task<bool> MaToaNhaExistsAsync(string maToaNha, CancellationToken cancellationToken = default)
@@ -31,7 +39,9 @@ public class ToaNhaEFRepository : IToaNhaEFRepository
     public async Task<IReadOnlyList<ToaNha>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<ToaNha>()
-            .Where(t => ids.Contains(t.Id))
+            .Where(t => 
+                ids.Contains(t.Id) &&
+                !t.IsDeleted)
             .ToListAsync(cancellationToken);
     }
 

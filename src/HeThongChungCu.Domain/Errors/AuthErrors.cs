@@ -6,7 +6,7 @@ public static class AuthErrors
 {
     public static readonly Error InvalidCredentials = new(
         "Auth.InvalidCredentials",
-        "Email hoặc mật khẩu không chính xác.");
+        "Tên đăng nhập hoặc mật khẩu không chính xác.");
 
     public static readonly Error InvalidRefreshToken = new(
         "Auth.InvalidRefreshToken",
@@ -23,4 +23,12 @@ public static class AuthErrors
     public static readonly Error AccountLocked = new(
          "Auth.AccountLocked",
          "Tài khoản bị khóa.");
+
+    public static readonly Error Unauthorized = new(
+        "Auth.Unauthorized",
+        "Bạn chưa đăng nhập.");
+
+    public static readonly Error Forbidden = new(
+        "Auth.Forbidden",
+        "Bạn không có quyền truy cập tài nguyên này.");
 }

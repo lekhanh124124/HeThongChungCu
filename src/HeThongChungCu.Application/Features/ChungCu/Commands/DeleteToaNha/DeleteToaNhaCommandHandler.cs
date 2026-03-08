@@ -41,8 +41,6 @@ public class DeleteToaNhaCommandHandler : ICommandHandler<DeleteToaNhaCommand, I
             _toaNhaRepository.Remove(toaNha);
         }
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
         return Result.Success<IReadOnlyList<ToaNhaResponse>>(response);
     }
 }

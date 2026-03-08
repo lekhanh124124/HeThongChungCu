@@ -1,4 +1,3 @@
-using HeThongChungCu.Application.Common.Interfaces.Data;
 using Microsoft.Data.SqlClient;
 using System.Data;
 

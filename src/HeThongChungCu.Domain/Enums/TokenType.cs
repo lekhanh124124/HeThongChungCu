@@ -1,13 +1,13 @@
+using HeThongChungCu.Domain.Common;
+
 namespace HeThongChungCu.Domain.Enums;
 
-using Ardalis.SmartEnum;
-
-public sealed class TokenType : SmartEnum<TokenType>
+public sealed class TokenType : BaseEnum<TokenType, int>
 {
-    public static readonly TokenType RefreshToken = new(nameof(RefreshToken), 1);
-    public static readonly TokenType ResetPasswordCode = new(nameof(ResetPasswordCode), 2);
-
-    private TokenType(string name, int value) : base(name, value)
+    public static readonly TokenType RefreshToken = new(1, nameof(RefreshToken));
+    public static readonly TokenType ResetPasswordCode = new(2, nameof(ResetPasswordCode));
+    
+    private TokenType(int value, string name) : base(value, name)
     {
     }
 }

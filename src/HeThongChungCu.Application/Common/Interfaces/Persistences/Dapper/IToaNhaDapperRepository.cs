@@ -6,10 +6,10 @@ public interface IToaNhaDapperRepository
 {
     Task<(int TotalCount, IReadOnlyList<ToaNhaDetailResponse> Items)> GetAllAsync(
         string? keyword,
-        string? sortBy,
-        bool isDescending,
-        int pageNumber,
-        int pageSize,
+        string? sortCol,
+        bool? isAsc,
+        int? pageNumber,
+        int? pageSize,
         CancellationToken cancellationToken = default);
 
     Task<ToaNhaDetailResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default);

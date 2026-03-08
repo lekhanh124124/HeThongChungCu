@@ -301,12 +301,6 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("IdCard")
-                        .IsUnique();
-
                     b.HasIndex("Username")
                         .IsUnique();
 

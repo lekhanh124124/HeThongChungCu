@@ -1,8 +1,6 @@
 using Dapper;
-using HeThongChungCu.Application.Common.Interfaces.Data;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Features.ChungCu.DTOs;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
 
@@ -16,10 +14,10 @@ public class ToaNhaDapperRepository : DapperDbContext, IToaNhaDapperRepository
 
     public async Task<(int TotalCount, IReadOnlyList<ToaNhaDetailResponse> Items)> GetAllAsync(
         string? keyword,
-        string? sortBy,
-        bool isDescending,
-        int pageNumber,
-        int pageSize,
+        string? sortCol,
+        bool? isAsc,
+        int? pageNumber,
+        int? pageSize,
         CancellationToken cancellationToken = default)
     {
         using (var connection = CreateConnection())
@@ -29,8 +27,12 @@ public class ToaNhaDapperRepository : DapperDbContext, IToaNhaDapperRepository
                 "Id", "MaToaNha", "TenToaNha", "SoTang"
             };
 
-            var orderColumn = allowedSortColumns.Contains(sortBy ?? "") ? sortBy : "Id";
-            var sortDirection = isDescending ? "DESC" : "ASC";
+            var orderColumn = allowedSortColumns.Contains(sortCol ?? "") ? sortCol : "Id";
+            var sortDirection = "ASC";
+            if (isAsc.HasValue && !isAsc.Value)
+            {
+                sortDirection = "DESC";
+            }
             var offset = (pageNumber - 1) * pageSize;
 
             var countSql = """
@@ -60,7 +62,7 @@ public class ToaNhaDapperRepository : DapperDbContext, IToaNhaDapperRepository
             var items = await connection.QueryAsync<ToaNhaDetailResponse>(dataSql, parameters);
 
             return (totalCount, items.ToList());
-        }   
+        }
     }
 
     public async Task<ToaNhaDetailResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)

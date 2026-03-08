@@ -17,8 +17,8 @@ public class GetAllToaNhasQueryHandler : IQueryHandler<GetAllToaNhasQuery, Paged
     {
         var (totalCount, items) = await _queryRepository.GetAllAsync(
             request.Keyword,
-            request.SortBy,
-            request.IsDescending,
+            request.SortCol,
+            request.IsAsc,
             request.PageNumber,
             request.PageSize,
             cancellationToken);

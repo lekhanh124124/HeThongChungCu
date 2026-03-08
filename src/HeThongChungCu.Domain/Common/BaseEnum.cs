@@ -1,3 +1,4 @@
+using HeThongChungCu.Domain.Exceptions;
 using System.Reflection;
 
 namespace HeThongChungCu.Domain.Common;
@@ -30,16 +31,30 @@ public abstract class BaseEnum<TEnum, TValue> : IEquatable<BaseEnum<TEnum, TValu
             .ToList();
     }
 
-    public static TEnum? FromValue(TValue value)
+    public static TEnum? FromValue(
+        TValue value,
+        Func<TValue, Exception>? exceptionFactory = null)
     {
-        if (value is null) return null;
+        if (value is null)
+        {
+            if (exceptionFactory is not null)
+                throw exceptionFactory(value!);
+            throw new NotFoundException(typeof(TEnum).Name, value!);
+        }
         _fromValue.Value.TryGetValue(value, out var matchingItem);
         return matchingItem;
     }
 
-    public static TEnum? FromName(string name)
+    public static TEnum? FromName(
+        string name,
+        Func<string, Exception>? exceptionFactory = null)
     {
-        if (string.IsNullOrEmpty(name)) return null;
+        if (string.IsNullOrEmpty(name))
+        {
+            if (exceptionFactory is not null)
+                throw exceptionFactory(name);
+            throw new NotFoundException(typeof(TEnum).Name, name);
+        }
         _fromName.Value.TryGetValue(name, out var matchingItem);
         return matchingItem;
     }

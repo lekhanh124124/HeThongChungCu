@@ -1,3 +1,7 @@
+using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.WebAPI.Common.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 
@@ -12,18 +16,47 @@ public static class DependencyInjection
 
         services.AddHttpContextAccessor();
 
-        services.Configure<Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerOptions>(
-            Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme,
+        services.Configure<JwtBearerOptions>(
+            JwtBearerDefaults.AuthenticationScheme,
             options =>
         {
-            options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+            options.Events = new JwtBearerEvents
             {
-                OnChallenge = context =>
+                OnAuthenticationFailed = async context =>
                 {
-                    // Chặn phản hồi mặc định của JwtBearerHandler
+                    context.NoResult();
+
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+                    await context.Response.WriteAsJsonAsync(new ApiResponse<object>
+                    {
+                        IsOk = false,
+                        Errors = [AuthErrors.InvalidToken]
+                    });
+                },
+
+                OnChallenge = async context =>
+                {
                     context.HandleResponse();
-                    // Ném ngoại lệ để GlobalExceptionMiddleware bắt và xử lý
-                    throw new UnauthorizedAccessException();
+
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+                    await context.Response.WriteAsJsonAsync(new ApiResponse<object>
+                    {
+                        IsOk = false,
+                        Errors = [AuthErrors.Unauthorized]
+                    });
+                },
+
+                OnForbidden = async context =>
+                {
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+
+                    await context.Response.WriteAsJsonAsync(new ApiResponse<object>
+                    {
+                        IsOk = false,
+                        Errors = [AuthErrors.Forbidden]
+                    });
                 }
             };
         });

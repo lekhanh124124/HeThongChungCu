@@ -5,7 +5,7 @@ namespace HeThongChungCu.Application.Features.ChungCu.Queries.GetAllToaNhas;
 
 public record GetAllToaNhasQuery(
     string? Keyword = null,
-    string? SortBy = null,
-    bool IsDescending = false,
-    int PageNumber = 1,
-    int PageSize = 10) : IQuery<PagedResult<ToaNhaDetailResponse>>;
+    string? SortCol = null,
+    bool? IsAsc = false,
+    int? PageNumber = 1,
+    int? PageSize = 20) : IQuery<PagedResult<ToaNhaDetailResponse>>;
