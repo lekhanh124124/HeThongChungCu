@@ -112,7 +112,7 @@ public class AuthController : ApiControllerBase
     /// <summary>
     /// Lấy thông tin cá nhân của người dùng đang đăng nhập
     /// </summary>
-    [HttpGet("profile")]
+    [HttpPost("profile")]
     [ProducesResponseType(typeof(ApiResponse<UserProfileDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetProfile(CancellationToken cancellationToken)

@@ -5,6 +5,7 @@ using HeThongChungCu.Application.Features.QuanHeCuTru.Commands.ThietLapCuTru;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayCuDanByCanHoId;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayLichSuCuTru;
+using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayUserByUsername;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -75,6 +76,17 @@ public class QuanHeCuTruController : ApiControllerBase
     [ProducesResponseType(typeof(ApiResponse<PagedResult<LichSuCuTruResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> LayLichSuCuTru([FromBody] LayLichSuCuTruQuery query, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(query, cancellationToken));
+    }
+
+    /// <summary>
+    /// Tìm kiếm người dùng theo username (chỉ Resident hoặc Guest)
+    /// </summary>
+    [HttpPost("search-user")]
+    [ProducesResponseType(typeof(ApiResponse<SearchUserByUsernameResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> TimKiemNguoiDung([FromBody] GetUserByUsernameQuery query, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(query, cancellationToken));
     }

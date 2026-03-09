@@ -22,10 +22,6 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
 
     public async Task<Result<CuDanResponse>> Handle(ThietLapCuTruCommand request, CancellationToken cancellationToken)
     {
-        // Validate LoaiQuanHeCuTruId
-        if (!LoaiQuanHeCuTru.GetAll().Any(l => l.Value == request.LoaiQuanHeCuTruId))
-            return Result.Failure<CuDanResponse>(QuanHeCuTruErrors.LoaiQuanHeKhongHopLe);
-
         // Load CanHo with its residents
         var canHo = await _canHoRepository.GetByIdWithQuanHeAsync(request.CanHoId, cancellationToken);
         if (canHo is null)
@@ -34,7 +30,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
         // Validate User exists
         var userExists = await _userRepository.AnyAsync(u => u.Id == request.UserId, cancellationToken);
         if (!userExists)
-            return Result.Failure<CuDanResponse>(new Error("User.NotFound", $"Không tìm thấy cư dân với ID '{request.UserId}'."));
+            return Result.Failure<CuDanResponse>(UserErrors.NotFoundById(request.UserId));
 
         // Check user not already an active resident
         var alreadyResident = canHo.QuanHeCuTrus

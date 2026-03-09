@@ -30,11 +30,15 @@ namespace HeThongChungCu.WebAPI
             // 2. Configure the HTTP request pipeline.
             app.UseMiddleware<Middlewares.GlobalExceptionMiddleware>();
 
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            //if (app.Environment.IsDevelopment())
+            //{
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI();
+            //}
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
 
             app.UseRouting();
 

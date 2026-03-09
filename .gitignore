@@ -56,3 +56,4 @@ nunit-*.xml
 .agent
 .vscode
 .vs
+.github

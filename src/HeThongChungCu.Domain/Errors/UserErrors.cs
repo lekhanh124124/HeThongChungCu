@@ -23,4 +23,8 @@ public static class UserErrors
     public static Error NotFoundById(int id) => new(
         "User.NotFound",
         $"Không tìm thấy người dùng với ID '{id}'.");
+
+    public static Error NotFoundByUsername(string username) => new(
+        "User.NotFound",
+        $"Không tìm thấy người dùng với username '{username}' hoặc không có vai trò Cư dân/Khách.");
 }

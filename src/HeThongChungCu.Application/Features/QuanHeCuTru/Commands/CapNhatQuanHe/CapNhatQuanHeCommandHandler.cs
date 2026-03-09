@@ -16,9 +16,6 @@ public class CapNhatQuanHeCommandHandler : ICommandHandler<CapNhatQuanHeCommand,
 
     public async Task<Result<bool>> Handle(CapNhatQuanHeCommand request, CancellationToken cancellationToken)
     {
-        if (!LoaiQuanHeCuTru.GetAll().Any(l => l.Value == request.LoaiQuanHeCuTruId))
-            return Result.Failure<bool>(QuanHeCuTruErrors.LoaiQuanHeKhongHopLe);
-
         var canHo = await _canHoRepository.GetByIdWithQuanHeForRecordAsync(request.QuanHeCuTruId, cancellationToken);
         if (canHo is null)
             return Result.Failure<bool>(QuanHeCuTruErrors.NotFoundById(request.QuanHeCuTruId));
@@ -32,7 +29,8 @@ public class CapNhatQuanHeCommandHandler : ICommandHandler<CapNhatQuanHeCommand,
 
         quanHe.ThayDoiLoaiQuanHe(request.LoaiQuanHeCuTruId);
         _canHoRepository.Update(canHo);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // TransactionBehavior will automatically save changes when the scope ends, so there is no need to call _unitOfWork.SaveChangesAsync() here
 
         return Result.Success(true);
     }

@@ -40,6 +40,7 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 
         RuleFor(x => x.GioiTinhId)
             .Must(id => GioiTinh.GetAll().Any(g => g.Value == id))
-            .WithMessage($"Giới tính không hợp lệ. Các giá trị hợp lệ: {GioiTinh.Nam.Value} ({GioiTinh.Nam.Name}), {GioiTinh.Nu.Value} ({GioiTinh.Nu.Name}), {GioiTinh.Khac.Value} ({GioiTinh.Khac.Name}).");
+            .WithMessage($"Giới tính không hợp lệ. Các giá trị hợp lệ: " +
+                         $"{string.Join(", ", GioiTinh.GetAll().Select(l => $"{l.Value} ({l.Name})"))}.");
     }
 }

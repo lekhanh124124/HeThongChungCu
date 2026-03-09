@@ -1,5 +1,4 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QuanHeCuTru.Commands.KetThucCuTru;
 
@@ -29,7 +28,8 @@ public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, b
 
         quanHe.KetThucCuTru(request.NgayKetThuc);
         _canHoRepository.Update(canHo);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // TransactionBehavior will automatically save changes when the scope ends, so there is no need to call _unitOfWork.SaveChangesAsync() here
 
         return Result.Success(true);
     }

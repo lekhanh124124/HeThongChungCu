@@ -1,6 +1,5 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayCuDanByCanHoId;
 
