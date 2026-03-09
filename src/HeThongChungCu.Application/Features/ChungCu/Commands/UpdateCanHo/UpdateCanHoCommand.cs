@@ -8,4 +8,5 @@ public record UpdateCanHoCommand(
     int Tang,
     int SoPhongNgu,
     int SoPhongTam,
+    int LoaiCanHoId,
     int TinhTrangCanHoId) : ICommand<CanHoResponse>;

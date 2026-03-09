@@ -6,18 +6,27 @@ public class CanHo : AggregateRoot
 {
     public int ToaNhaId { get; private set; }
     public string MaCanHo { get; private set; } = null!;
+
     public decimal DienTich { get; private set; }
     public int Tang { get; private set; }
     public int SoPhongNgu { get; private set; }
     public int SoPhongTam { get; private set; }
+
+    public int LoaiCanHoId { get; private set; }
     public int TinhTrangCanHoId { get; private set; }
 
     private readonly List<QuanHeCuTru> _quanHeCuTrus = new();
     public IReadOnlyCollection<QuanHeCuTru> QuanHeCuTrus => _quanHeCuTrus.AsReadOnly();
 
+    private readonly List<CanHoHinhAnh> _hinhAnhs = new();
+    public IReadOnlyCollection<CanHoHinhAnh> HinhAnhs => _hinhAnhs.AsReadOnly();
+
+    private readonly List<ChiSoTieuThu> _chiSoTieuThus = new();
+    public IReadOnlyCollection<ChiSoTieuThu> ChiSoTieuThus => _chiSoTieuThus.AsReadOnly();
+
     private CanHo() { } // EF Core
 
-    public CanHo(int toaNhaId, string maCanHo, decimal dienTich, int tang, int soPhongNgu, int soPhongTam, int tinhTrangCanHoId)
+    public CanHo(int toaNhaId, string maCanHo, decimal dienTich, int tang, int soPhongNgu, int soPhongTam, int loaiCanHoId, int tinhTrangCanHoId)
     {
         ToaNhaId = toaNhaId;
         MaCanHo = maCanHo;
@@ -25,15 +34,17 @@ public class CanHo : AggregateRoot
         Tang = tang;
         SoPhongNgu = soPhongNgu;
         SoPhongTam = soPhongTam;
+        LoaiCanHoId = loaiCanHoId;
         TinhTrangCanHoId = tinhTrangCanHoId;
     }
 
-    public void UpdateInfo(decimal dienTich, int tang, int soPhongNgu, int soPhongTam)
+    public void UpdateInfo(decimal dienTich, int tang, int soPhongNgu, int soPhongTam, int loaiCanHoId)
     {
         DienTich = dienTich;
         Tang = tang;
         SoPhongNgu = soPhongNgu;
         SoPhongTam = soPhongTam;
+        LoaiCanHoId = loaiCanHoId;
     }
 
     public void UpdateStatus(int tinhTrangCanHoId)
@@ -50,5 +61,23 @@ public class CanHo : AggregateRoot
     public void RemoveQuanHeCuTru(QuanHeCuTru quanHeCuTru)
     {
         _quanHeCuTrus.Remove(quanHeCuTru);
+    }
+
+    public void AddHinhAnh(CanHoHinhAnh hinhAnh)
+    {
+        _hinhAnhs.Add(hinhAnh);
+    }
+
+    public void AddChiSoTieuThu(ChiSoTieuThu chiSo)
+    {
+        _chiSoTieuThus.Add(chiSo);
+    }
+
+    private readonly List<PhuongTien.PhuongTien> _phuongTiens = new();
+    public IReadOnlyCollection<PhuongTien.PhuongTien> PhuongTiens => _phuongTiens.AsReadOnly();
+
+    public void AddPhuongTien(PhuongTien.PhuongTien phuongTien)
+    {
+        _phuongTiens.Add(phuongTien);
     }
 }

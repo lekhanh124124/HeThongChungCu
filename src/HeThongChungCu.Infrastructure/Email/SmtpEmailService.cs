@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Common.Interfaces.Services;
+using HeThongChungCu.Application.Common.Options;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Logging;

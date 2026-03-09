@@ -5,4 +5,8 @@ namespace HeThongChungCu.Application.Features.ChungCu.Commands.UpdateToaNha;
 public record UpdateToaNhaCommand(
     int Id,
     string TenToaNha,
-    int SoTang) : ICommand<ToaNhaResponse>;
+    int SoTang,
+    int SoTangHam,
+    string DiaChi,
+    string? MoTa,
+    int TrangThaiToaNhaId) : ICommand<ToaNhaResponse>;

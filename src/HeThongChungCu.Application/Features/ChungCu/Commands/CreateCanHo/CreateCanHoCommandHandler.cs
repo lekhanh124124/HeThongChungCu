@@ -37,6 +37,7 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
             request.Tang,
             request.SoPhongNgu,
             request.SoPhongTam,
+            request.LoaiCanHoId,
             request.TinhTrangCanHoId);
 
         await _canHoRepository.AddAsync(canHo, cancellationToken);

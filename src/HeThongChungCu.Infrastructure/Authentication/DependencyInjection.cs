@@ -1,8 +1,7 @@
 using HeThongChungCu.Application.Common.Interfaces.Services;
+using HeThongChungCu.Application.Common.Options;
 using HeThongChungCu.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;

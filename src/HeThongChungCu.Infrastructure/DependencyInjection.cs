@@ -1,5 +1,6 @@
 using HeThongChungCu.Infrastructure.Authentication;
 using HeThongChungCu.Infrastructure.Email;
+using HeThongChungCu.Infrastructure.FileStorage;
 using HeThongChungCu.Infrastructure.HealthChecks;
 using HeThongChungCu.Infrastructure.Persistence;
 using HeThongChungCu.Infrastructure.Qdrant;
@@ -17,6 +18,7 @@ public static class DependencyInjection
         services.AddHealthChecks(configuration);
         services.AddEmail(configuration);
         services.AddQdrantVectorStore(configuration);
+        services.AddFileStorage(configuration);
 
         return services;
     }

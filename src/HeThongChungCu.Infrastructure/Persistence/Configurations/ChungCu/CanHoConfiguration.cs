@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Entities.ChungCu;
+using HeThongChungCu.Domain.Entities.PhuongTien;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -34,6 +35,9 @@ public class CanHoConfiguration : IEntityTypeConfiguration<CanHo>
         builder.Property(c => c.SoPhongTam)
             .IsRequired();
 
+        builder.Property(c => c.LoaiCanHoId)
+            .IsRequired();
+
         builder.Property(c => c.TinhTrangCanHoId)
             .IsRequired();
 
@@ -41,5 +45,10 @@ public class CanHoConfiguration : IEntityTypeConfiguration<CanHo>
             .WithMany(t => t.CanHos)
             .HasForeignKey(c => c.ToaNhaId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(c => c.PhuongTiens)
+            .WithOne()
+            .HasForeignKey(p => p.CanHoId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

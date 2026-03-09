@@ -11,4 +11,5 @@ public record RegisterCommand(
     string PhoneNumber,
     string IdCard,
     DateTime Dob,
-    int GioiTinhId) : ICommand<AuthResponse>;
+    int GioiTinhId,
+    string DiaChi) : ICommand<AuthResponse>;

@@ -26,7 +26,6 @@ public class ResetPasswordCommandHandler : ICommandHandler<ResetPasswordCommand,
             return Result.Failure<string>(UserErrors.NotFound);
         }
 
-        // TÃ¬m token há»£p lá»‡
         var token = user.Tokens.FirstOrDefault(t =>
             t.TokenType == TokenType.ResetPasswordCode &&
             t.RefreshToken == request.ResetCode &&

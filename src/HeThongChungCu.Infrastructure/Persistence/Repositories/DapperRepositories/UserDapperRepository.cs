@@ -1,6 +1,6 @@
 using Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
-using HeThongChungCu.Application.Features.Auth.DTOs;
+using HeThongChungCu.Application.Features.Profile.DTOs;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
 using HeThongChungCu.Domain.Enums;
 

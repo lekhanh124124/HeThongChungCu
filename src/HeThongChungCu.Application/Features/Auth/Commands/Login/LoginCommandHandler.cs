@@ -57,7 +57,11 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, AuthResponse>
         return Result.Success(new AuthResponse
         {
             UserId = user.Id,
+            Username = user.Username,
             Email = user.Email,
+            AnhDaiDienUrl = user.AnhDaiDienUrl ?? string.Empty,
+            Role = role.Name,
+            FullName = $"{user.LastName} {user.FirstName}",
             AccessToken = accessToken,
             RefreshToken = refreshTokenString
         });

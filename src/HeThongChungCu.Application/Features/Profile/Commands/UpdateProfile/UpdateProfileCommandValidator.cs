@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace HeThongChungCu.Application.Features.Auth.Commands.UpdateProfile;
+namespace HeThongChungCu.Application.Features.Profile.Commands.UpdateProfile;
 
 public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileCommand>
 {

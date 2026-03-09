@@ -1,4 +1,4 @@
-namespace HeThongChungCu.Application.Features.Auth.Commands.ChangePassword;
+namespace HeThongChungCu.Application.Features.Profile.Commands.ChangePassword;
 
 public record ChangePasswordCommand(
     string OldPassword,

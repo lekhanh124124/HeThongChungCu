@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Common.Interfaces.Services;
+using HeThongChungCu.Application.Common.Options;
 
 namespace HeThongChungCu.Infrastructure.Email;
 

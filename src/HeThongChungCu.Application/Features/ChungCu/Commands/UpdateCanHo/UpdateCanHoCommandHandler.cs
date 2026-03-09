@@ -21,7 +21,7 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
         if (canHo is null)
             return Result.Failure<CanHoResponse>(CanHoErrors.NotFoundById(request.Id));
 
-        canHo.UpdateInfo(request.DienTich, request.Tang, request.SoPhongNgu, request.SoPhongTam);
+        canHo.UpdateInfo(request.DienTich, request.Tang, request.SoPhongNgu, request.SoPhongTam, request.LoaiCanHoId);
         canHo.UpdateStatus(request.TinhTrangCanHoId);
         _canHoRepository.Update(canHo);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

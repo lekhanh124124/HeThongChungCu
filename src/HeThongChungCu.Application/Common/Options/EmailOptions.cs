@@ -1,4 +1,4 @@
-namespace HeThongChungCu.Infrastructure.Email;
+namespace HeThongChungCu.Application.Common.Options;
 
 public sealed class EmailOptions
 {

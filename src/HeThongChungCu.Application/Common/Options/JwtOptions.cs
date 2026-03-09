@@ -1,4 +1,4 @@
-namespace HeThongChungCu.Infrastructure.Authentication;
+namespace HeThongChungCu.Application.Common.Options;
 
 public class JwtOptions
 {

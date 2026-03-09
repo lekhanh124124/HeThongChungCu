@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Entities.ChungCu;
 using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Domain.Entities.Identity;
@@ -8,12 +9,18 @@ public class User : AggregateRoot
     public string Username { get; private set; } = null!;
     public string Email { get; private set; } = null!;
     public string PasswordHash { get; private set; } = null!;
+
     public string FirstName { get; private set; } = null!;
     public string LastName { get; private set; } = null!;
     public string PhoneNumber { get; private set; } = null!;
+
     public string IdCard { get; private set; } = null!;
     public DateTime Dob { get; private set; }
     public int GioiTinhId { get; private set; }
+    public string? AnhDaiDienUrl { get; private set; }
+    public string DiaChi { get; private set; } = null!;
+
+
     public bool IsActive { get; private set; }
 
     // Navigation property
@@ -22,9 +29,12 @@ public class User : AggregateRoot
     private readonly List<Tokens> _tokens = new();
     public IReadOnlyCollection<Tokens> Tokens => _tokens.AsReadOnly();
 
+    private readonly List<QuanHeCuTru> _quanHeCuTrus = new();
+    public IReadOnlyCollection<QuanHeCuTru> QuanHeCuTrus => _quanHeCuTrus.AsReadOnly();
+
     private User() { } // EF Core
 
-    public User(string username, string email, string passwordHash, string firstName, string lastName, string phoneNumber, string idCard, DateTime dob, int gioiTinhId)
+    public User(string username, string email, string passwordHash, string firstName, string lastName, string phoneNumber, string idCard, DateTime dob, int gioiTinhId, string diaChi)
     {
         Username = username;
         Email = email;
@@ -35,10 +45,11 @@ public class User : AggregateRoot
         IdCard = idCard;
         Dob = dob;
         GioiTinhId = gioiTinhId;
+        DiaChi = diaChi;
         IsActive = true;
     }
 
-    public void UpdateProfile(string firstName, string lastName, string phoneNumber, string idCard, DateTime dob, int gioiTinhId)
+    public void UpdateProfile(string firstName, string lastName, string phoneNumber, string idCard, DateTime dob, int gioiTinhId, string diaChi)
     {
         FirstName = firstName;
         LastName = lastName;
@@ -46,6 +57,12 @@ public class User : AggregateRoot
         IdCard = idCard;
         Dob = dob;
         GioiTinhId = gioiTinhId;
+        DiaChi = diaChi;
+    }
+
+    public void UpdateAvatar(string? url)
+    {
+        AnhDaiDienUrl = url;
     }
 
     public void UpdatePassword(string newPasswordHash)

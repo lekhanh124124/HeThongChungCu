@@ -1,8 +1,8 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Services;
-using HeThongChungCu.Application.Features.Auth.DTOs;
+using HeThongChungCu.Application.Features.Profile.DTOs;
 
-namespace HeThongChungCu.Application.Features.Auth.Queries.GetProfile;
+namespace HeThongChungCu.Application.Features.Profile.Queries.GetProfile;
 
 public class GetProfileQueryHandler : IQueryHandler<GetProfileQuery, UserProfileDetailResponse>
 {

@@ -1,6 +1,6 @@
-﻿using System.Security.Cryptography;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.Auth.DTOs;
+using System.Security.Cryptography;
 
 namespace HeThongChungCu.Application.Features.Auth.Commands.Register;
 
@@ -35,8 +35,8 @@ public class RegisterCommandHandler : ICommandHandler<RegisterCommand, AuthRespo
         }
 
         var hashedPassword = _passwordHasher.HashPassword(request.Password);
-        var user = new User(request.Username, request.Email, hashedPassword, request.FirstName, request.LastName, request.PhoneNumber, request.IdCard, request.Dob, request.GioiTinhId);
-        
+        var user = new User(request.Username, request.Email, hashedPassword, request.FirstName, request.LastName, request.PhoneNumber, request.IdCard, request.Dob, request.GioiTinhId, request.DiaChi);
+
         var userRole = Role.Guest;
         user.ChangeRole(userRole);
 
@@ -56,7 +56,11 @@ public class RegisterCommandHandler : ICommandHandler<RegisterCommand, AuthRespo
         return Result.Success(new AuthResponse
         {
             UserId = user.Id,
+            Username = user.Username,
             Email = user.Email,
+            AnhDaiDienUrl = user.AnhDaiDienUrl ?? string.Empty,
+            Role = userRole.Name,
+            FullName = $"{user.LastName} {user.FirstName}",
             AccessToken = accessToken,
             RefreshToken = refreshTokenString
         });

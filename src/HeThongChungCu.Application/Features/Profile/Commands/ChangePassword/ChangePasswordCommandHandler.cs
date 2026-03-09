@@ -1,6 +1,6 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 
-namespace HeThongChungCu.Application.Features.Auth.Commands.ChangePassword;
+namespace HeThongChungCu.Application.Features.Profile.Commands.ChangePassword;
 
 public class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordCommand, string>
 {

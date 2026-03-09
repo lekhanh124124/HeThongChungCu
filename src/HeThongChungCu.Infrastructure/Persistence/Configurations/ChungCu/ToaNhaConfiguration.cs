@@ -24,5 +24,18 @@ public class ToaNhaConfiguration : IEntityTypeConfiguration<ToaNha>
 
         builder.Property(t => t.SoTang)
             .IsRequired();
+
+        builder.Property(t => t.SoTangHam)
+            .IsRequired();
+
+        builder.Property(t => t.DiaChi)
+            .IsRequired()
+            .HasMaxLength(255);
+
+        builder.Property(t => t.MoTa)
+            .HasMaxLength(500);
+
+        builder.Property(t => t.TrangThaiToaNhaId)
+            .IsRequired();
     }
 }

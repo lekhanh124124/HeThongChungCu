@@ -1,7 +1,8 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-using HeThongChungCu.Application.Features.Auth.DTOs;
+using HeThongChungCu.Application.Common.Interfaces.Services;
+using HeThongChungCu.Application.Features.Profile.DTOs;
 
-namespace HeThongChungCu.Application.Features.Auth.Commands.UpdateProfile;
+namespace HeThongChungCu.Application.Features.Profile.Commands.UpdateProfile;
 
 public class UpdateProfileCommandHandler : ICommandHandler<UpdateProfileCommand, UserProfileDetailResponse>
 {
@@ -48,11 +49,12 @@ public class UpdateProfileCommandHandler : ICommandHandler<UpdateProfileCommand,
             request.PhoneNumber,
             request.IdCard,
             request.Dob,
-            request.GioiTinhId);
+            request.GioiTinhId,
+            request.DiaChi);
 
         _userRepository.Update(user);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+        // TransactionBehavior will automatically commit if no exception is thrown, otherwise it will rollback
         var response = new UserProfileDetailResponse
         {
             Id = user.Id,

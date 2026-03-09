@@ -21,7 +21,7 @@ public class UpdateToaNhaCommandHandler : ICommandHandler<UpdateToaNhaCommand, T
         if (toaNha is null)
             return Result.Failure<ToaNhaResponse>(ToaNhaErrors.NotFoundById(request.Id));
 
-        toaNha.Update(request.TenToaNha, request.SoTang);
+        toaNha.Update(request.TenToaNha, request.SoTang, request.SoTangHam, request.DiaChi, request.MoTa, request.TrangThaiToaNhaId);
         _toaNhaRepository.Update(toaNha);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

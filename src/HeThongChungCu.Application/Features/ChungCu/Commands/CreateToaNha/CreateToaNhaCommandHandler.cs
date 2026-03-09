@@ -20,7 +20,7 @@ public class CreateToaNhaCommandHandler : ICommandHandler<CreateToaNhaCommand, T
         if (exists)
             return Result.Failure<ToaNhaResponse>(ToaNhaErrors.MaToaNhaAlreadyExists);
 
-        var toaNha = new ToaNha(request.MaToaNha, request.TenToaNha, request.SoTang);
+        var toaNha = new ToaNha(request.MaToaNha, request.TenToaNha, request.SoTang, request.SoTangHam, request.DiaChi, request.MoTa, request.TrangThaiToaNhaId);
         await _toaNhaRepository.AddAsync(toaNha, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

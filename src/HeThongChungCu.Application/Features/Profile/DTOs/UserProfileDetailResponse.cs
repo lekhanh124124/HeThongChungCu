@@ -1,4 +1,4 @@
-namespace HeThongChungCu.Application.Features.Auth.DTOs;
+namespace HeThongChungCu.Application.Features.Profile.DTOs;
 
 public class UserProfileDetailResponse
 {
