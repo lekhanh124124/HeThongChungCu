@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.ChungCu.DTOs;
+using HeThongChungCu.Application.Features.CanHo.DTOs;
 
 namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 
@@ -13,5 +13,5 @@ public interface ICanHoDapperRepository
         int? pageSize,
         CancellationToken cancellationToken = default);
 
-    Task<CanHoDetailResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<CanHoResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 }

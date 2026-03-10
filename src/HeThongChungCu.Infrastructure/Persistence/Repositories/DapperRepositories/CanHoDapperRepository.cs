@@ -1,14 +1,16 @@
 using Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
-using HeThongChungCu.Application.Features.ChungCu.DTOs;
+using HeThongChungCu.Application.Features.CanHo.DTOs;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
 
-public class CanHoDapperRepository : DapperDbContext, ICanHoDapperRepository
+public class CanHoDapperRepository : ICanHoDapperRepository
 {
-    public CanHoDapperRepository(IConfiguration configuration)
-        : base(configuration)
+    private readonly DapperDbContext _context;
+    public CanHoDapperRepository(DapperDbContext context)
     {
+        _context = context;
     }
 
     public async Task<(int TotalCount, IReadOnlyList<CanHoDetailResponse> Items)> GetAllAsync(
@@ -20,7 +22,7 @@ public class CanHoDapperRepository : DapperDbContext, ICanHoDapperRepository
         int? pageSize,
         CancellationToken cancellationToken = default)
     {
-        using var connection = CreateConnection();
+        using var connection = _context.CreateConnection();
 
         var allowedSortColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -63,17 +65,54 @@ public class CanHoDapperRepository : DapperDbContext, ICanHoDapperRepository
         return (totalCount, items.ToList());
     }
 
-    public async Task<CanHoDetailResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<CanHoResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        using var connection = CreateConnection();
+        using var connection = _context.CreateConnection();
 
         const string sql = """
-            SELECT c.Id, c.ToaNhaId, t.TenToaNha, c.MaCanHo, c.DienTich, c.Tang, c.SoPhongNgu, c.SoPhongTam, c.TinhTrangCanHoId
+            SELECT c.Id, c.ToaNhaId, c.MaCanHo, c.DienTich, c.Tang, c.SoPhongNgu, c.SoPhongTam, c.LoaiCanHoId, c.TinhTrangCanHoId
             FROM CanHos c
-            INNER JOIN ToaNhas t ON t.Id = c.ToaNhaId
-            WHERE c.Id = @Id AND c.IsDeleted = 0
+            WHERE c.Id = @Id AND c.IsDeleted = 0;
+
+            SELECT q.Id, q.CanHoId, q.UserId, u.LastName + ' ' + u.FirstName AS FullName, q.LoaiQuanHeCuTruId, q.NgayBatDau, q.NgayKetThuc, q.IsKetThuc
+            FROM QuanHeCuTrus q
+            INNER JOIN Users u ON u.Id = q.UserId
+            WHERE q.CanHoId = @Id AND q.IsDeleted = 0;
             """;
 
-        return await connection.QueryFirstOrDefaultAsync<CanHoDetailResponse>(sql, new { Id = id });
+        using var multi = await connection.QueryMultipleAsync(sql, new { Id = id });
+        var canHo = await multi.ReadFirstOrDefaultAsync<CanHoResponse>();
+
+        if (canHo is null)
+            return null;
+
+        var quanHeCuTrus = (await multi.ReadAsync<QuanHeCuTruDetailResponse>()).ToList();
+
+        // Map SmartEnums for QuanHeCuTru
+        foreach (var q in quanHeCuTrus)
+        {
+            var lq = LoaiQuanHeCuTru.FromValue(q.LoaiQuanHeCuTruId);
+            if (lq != null)
+            {
+                q.TenLoaiQuanHeCuTru = lq.Name;
+            }
+        }
+
+        canHo.QuanHeCuTrus = quanHeCuTrus;
+
+        // Map SmartEnums for CanHo
+        var lc = LoaiCanHo.FromValue(canHo.LoaiCanHoId);
+        if (lc != null)
+        {
+            canHo.TenLoaiCanHo = lc.Name;
+        }
+
+        var tc = TinhTrangCanHo.FromValue(canHo.TinhTrangCanHoId);
+        if (tc != null)
+        {
+            canHo.TenTinhTrangCanHo = tc.Name;
+        }
+
+        return canHo;
     }
 }

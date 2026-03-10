@@ -18,9 +18,6 @@ public class CanHo : AggregateRoot
     private readonly List<QuanHeCuTru> _quanHeCuTrus = new();
     public IReadOnlyCollection<QuanHeCuTru> QuanHeCuTrus => _quanHeCuTrus.AsReadOnly();
 
-    private readonly List<CanHoHinhAnh> _hinhAnhs = new();
-    public IReadOnlyCollection<CanHoHinhAnh> HinhAnhs => _hinhAnhs.AsReadOnly();
-
     private readonly List<ChiSoTieuThu> _chiSoTieuThus = new();
     public IReadOnlyCollection<ChiSoTieuThu> ChiSoTieuThus => _chiSoTieuThus.AsReadOnly();
 
@@ -61,11 +58,6 @@ public class CanHo : AggregateRoot
     public void RemoveQuanHeCuTru(QuanHeCuTru quanHeCuTru)
     {
         _quanHeCuTrus.Remove(quanHeCuTru);
-    }
-
-    public void AddHinhAnh(CanHoHinhAnh hinhAnh)
-    {
-        _hinhAnhs.Add(hinhAnh);
     }
 
     public void AddChiSoTieuThu(ChiSoTieuThu chiSo)

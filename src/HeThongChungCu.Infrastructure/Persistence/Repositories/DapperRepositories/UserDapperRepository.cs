@@ -6,18 +6,21 @@ using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
 
-public class UserDapperRepository : DapperDbContext, IUserDapperRepository
+public class UserDapperRepository : IUserDapperRepository
 {
-    public UserDapperRepository(IConfiguration configuration) : base(configuration)
+    private readonly DapperDbContext _context;
+
+    public UserDapperRepository(DapperDbContext context)
     {
+        _context = context;
     }
 
     public async Task<UserProfileDetailResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        using (var connection = CreateConnection())
+        using (var connection = _context.CreateConnection())
         {
             const string sql = """
-            SELECT Id, Username, Email, FirstName, LastName, PhoneNumber, IdCard, Dob, GioiTinhId, RoleId
+            SELECT Id, Username, Email, FirstName, LastName, PhoneNumber, IdCard, Dob, DiaChi, GioiTinhId, RoleId, AnhDaiDienUrl
             FROM Users
             WHERE Id = @Id
             """;
@@ -31,7 +34,7 @@ public class UserDapperRepository : DapperDbContext, IUserDapperRepository
         var roleKhach = Role.Guest.Value;
         var roleCuDan = Role.Resident.Value;
 
-        using (var connection = CreateConnection())
+        using (var connection = _context.CreateConnection())
         {
             const string sql = """
             SELECT Id, Username, Email, FirstName, LastName, PhoneNumber, IdCard, Dob, GioiTinhId, RoleId

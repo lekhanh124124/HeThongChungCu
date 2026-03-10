@@ -63,7 +63,7 @@ public class ProfileController : ApiControllerBase
     [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateAvatar(IFormFile avatar, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateAvatar(IFormFile? avatar, CancellationToken cancellationToken)
     {
         if (avatar == null || avatar.Length == 0)
         {

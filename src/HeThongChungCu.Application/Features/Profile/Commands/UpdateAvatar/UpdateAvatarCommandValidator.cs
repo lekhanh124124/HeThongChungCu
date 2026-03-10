@@ -6,13 +6,16 @@ public class UpdateAvatarCommandValidator : AbstractValidator<UpdateAvatarComman
     {
         ".jpg",
         ".jpeg",
-        ".png"
+        ".png",
+        ".webp"
     };
 
     private static readonly string[] AllowedContentTypes =
     {
         "image/jpeg",
-        "image/png"
+        "image/png",
+        "image/jpg",
+        "image/webp"
     };
 
     public UpdateAvatarCommandValidator()
@@ -20,12 +23,12 @@ public class UpdateAvatarCommandValidator : AbstractValidator<UpdateAvatarComman
         RuleFor(x => x.FileName)
             .NotEmpty()
             .Must(HaveValidExtension)
-            .WithMessage("Chỉ cho phép các định dạng file .jpg, .jpeg, .png.");
+            .WithMessage("Chỉ cho phép các định dạng file .jpg, .jpeg, .png, .webp.");
 
         RuleFor(x => x.ContentType)
             .NotEmpty()
             .Must(x => AllowedContentTypes.Contains(x))
-            .WithMessage("Chỉ cho phép định dạng ảnh (image/jpeg, image/png).");
+            .WithMessage("Chỉ cho phép định dạng ảnh (image/jpeg, image/png, image/jpg, image/webp).");
 
         RuleFor(x => x.AvatarStream)
             .NotNull()

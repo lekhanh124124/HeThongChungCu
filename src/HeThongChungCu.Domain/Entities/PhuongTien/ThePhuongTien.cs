@@ -8,7 +8,7 @@ public class ThePhuongTien : AuditableEntity
     public string MaThe { get; private set; } = null!;
     public DateTime NgayBatDau { get; private set; }
     public DateTime? NgayKetThuc { get; private set; }
-    public bool TrangThai { get; private set; }
+    public bool IsLocked { get; private set; }
 
     private ThePhuongTien() { } // EF Core
 
@@ -17,12 +17,12 @@ public class ThePhuongTien : AuditableEntity
         PhuongTienId = phuongTienId;
         MaThe = maThe;
         NgayBatDau = ngayBatDau;
-        TrangThai = true;
+        IsLocked = false;
     }
 
     public void KhoaThe(DateTime ngayKetThuc)
     {
         NgayKetThuc = ngayKetThuc;
-        TrangThai = false;
+        IsLocked = true;
     }
 }

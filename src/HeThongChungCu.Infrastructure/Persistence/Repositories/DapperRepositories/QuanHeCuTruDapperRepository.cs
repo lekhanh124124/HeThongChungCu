@@ -5,18 +5,19 @@ using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
 
-public class QuanHeCuTruDapperRepository : DapperDbContext, IQuanHeCuTruDapperRepository
+public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
 {
-    public QuanHeCuTruDapperRepository(IConfiguration configuration)
-        : base(configuration)
+    private readonly DapperDbContext _context;
+    public QuanHeCuTruDapperRepository(DapperDbContext context)
     {
+        _context = context;
     }
 
     public async Task<IReadOnlyList<CuDanResponse>> GetCuDanByCanHoIdAsync(
         int canHoId,
         CancellationToken cancellationToken = default)
     {
-        using var connection = CreateConnection();
+        using var connection = _context.CreateConnection();
 
         const string sql = """
             SELECT
@@ -30,7 +31,7 @@ public class QuanHeCuTruDapperRepository : DapperDbContext, IQuanHeCuTruDapperRe
             FROM QuanHeCuTrus q
             INNER JOIN Users u ON u.Id = q.UserId
             WHERE q.CanHoId = @CanHoId
-              AND q.TrangThai = 1
+              AND q.IsKetThuc = 0
             ORDER BY q.NgayBatDau
             """;
 
@@ -55,7 +56,7 @@ public class QuanHeCuTruDapperRepository : DapperDbContext, IQuanHeCuTruDapperRe
         int? pageSize,
         CancellationToken cancellationToken = default)
     {
-        using var connection = CreateConnection();
+        using var connection = _context.CreateConnection();
 
         var offset = (pageNumber - 1) * pageSize;
         var (orderColumn, sortDirection) = ResolveSortParams(sortCol, isAsc);
@@ -76,7 +77,7 @@ public class QuanHeCuTruDapperRepository : DapperDbContext, IQuanHeCuTruDapperRe
                 q.LoaiQuanHeCuTruId,
                 q.NgayBatDau,
                 q.NgayKetThuc,
-                q.TrangThai
+                q.IsKetThuc
             FROM QuanHeCuTrus q
             INNER JOIN CanHos   c ON c.Id = q.CanHoId
             INNER JOIN ToaNhas  t ON t.Id = c.ToaNhaId
@@ -103,7 +104,7 @@ public class QuanHeCuTruDapperRepository : DapperDbContext, IQuanHeCuTruDapperRe
         int? pageSize,
         CancellationToken cancellationToken = default)
     {
-        using var connection = CreateConnection();
+        using var connection = _context.CreateConnection();
 
         var offset = (pageNumber - 1) * pageSize;
         var (orderColumn, sortDirection) = ResolveSortParams(sortCol, isAsc);
@@ -124,7 +125,7 @@ public class QuanHeCuTruDapperRepository : DapperDbContext, IQuanHeCuTruDapperRe
                 q.LoaiQuanHeCuTruId,
                 q.NgayBatDau,
                 q.NgayKetThuc,
-                q.TrangThai
+                q.IsKetThuc
             FROM QuanHeCuTrus q
             INNER JOIN CanHos   c ON c.Id = q.CanHoId
             INNER JOIN ToaNhas  t ON t.Id = c.ToaNhaId
@@ -145,7 +146,7 @@ public class QuanHeCuTruDapperRepository : DapperDbContext, IQuanHeCuTruDapperRe
 
     private static readonly HashSet<string> AllowedSortColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        "NgayBatDau", "NgayKetThuc", "MaCanHo", "TrangThai", "LoaiQuanHeCuTruId"
+        "NgayBatDau", "NgayKetThuc", "MaCanHo", "IsKetThuc", "LoaiQuanHeCuTruId"
     };
 
     private static (string Column, string Direction) ResolveSortParams(string? sortCol, bool? isAsc)

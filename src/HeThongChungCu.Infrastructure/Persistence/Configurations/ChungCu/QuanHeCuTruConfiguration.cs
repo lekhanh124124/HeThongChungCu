@@ -27,7 +27,7 @@ public class QuanHeCuTruConfiguration : IEntityTypeConfiguration<QuanHeCuTru>
 
         builder.Property(q => q.NgayKetThuc);
 
-        builder.Property(q => q.TrangThai)
+        builder.Property(q => q.IsKetThuc)
             .IsRequired();
 
         builder.HasOne<CanHo>()

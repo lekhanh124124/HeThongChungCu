@@ -1,4 +1,6 @@
+using HeThongChungCu.Application.Common.Options;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 using System.Data;
 
 namespace HeThongChungCu.Infrastructure.Persistence;
@@ -6,12 +8,11 @@ namespace HeThongChungCu.Infrastructure.Persistence;
 public class DapperDbContext
 {
     private readonly string _connectionString;
-    private readonly IConfiguration _configuration;
-    public DapperDbContext(IConfiguration configuration)
+
+    public DapperDbContext(IOptions<PersistenceOptions> options)
     {
-        _configuration = configuration;
-        _connectionString = _configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
+        _connectionString = options.Value.DefaultConnection
+            ?? throw new InvalidOperationException("DefaultConnection is not configured.");
     }
 
     public IDbConnection CreateConnection()

@@ -34,7 +34,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
 
         // Check user not already an active resident
         var alreadyResident = canHo.QuanHeCuTrus
-            .Any(q => q.UserId == request.UserId && q.TrangThai);
+            .Any(q => q.UserId == request.UserId && !q.IsKetThuc);
         if (alreadyResident)
             return Result.Failure<CuDanResponse>(QuanHeCuTruErrors.UserAlreadyResident);
 
@@ -43,7 +43,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var newRecord = canHo.QuanHeCuTrus
-            .Where(q => q.UserId == request.UserId && q.TrangThai)
+            .Where(q => q.UserId == request.UserId && !q.IsKetThuc)
             .OrderByDescending(q => q.NgayBatDau)
             .First();
 

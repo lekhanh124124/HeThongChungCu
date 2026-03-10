@@ -65,10 +65,12 @@ public class UpdateProfileCommandHandler : ICommandHandler<UpdateProfileCommand,
             PhoneNumber = user.PhoneNumber,
             IdCard = user.IdCard,
             Dob = user.Dob,
+            DiaChi = user.DiaChi,
             GioiTinhId = user.GioiTinhId,
             GioiTinhName = GioiTinh.FromValue(user.GioiTinhId)?.Name ?? string.Empty,
             RoleId = user.RoleId,
-            RoleName = Role.FromValue(user.RoleId)?.Name ?? string.Empty
+            RoleName = Role.FromValue(user.RoleId)?.Name ?? string.Empty,
+            AnhDaiDienUrl = user.AnhDaiDienUrl ?? string.Empty
         };
 
         return Result.Success(response);

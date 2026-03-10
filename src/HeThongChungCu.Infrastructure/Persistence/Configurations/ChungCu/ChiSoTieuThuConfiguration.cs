@@ -12,10 +12,10 @@ public class ChiSoTieuThuConfiguration : IEntityTypeConfiguration<ChiSoTieuThu>
 
         builder.HasKey(c => c.Id);
 
-        builder.Property(c => c.ChiSoCu)
+        builder.Property(c => c.ChiSo)
             .IsRequired();
 
-        builder.Property(c => c.ChiSoMoi)
+        builder.Property(c => c.IsLock)
             .IsRequired();
 
         builder.Property(c => c.Thang)

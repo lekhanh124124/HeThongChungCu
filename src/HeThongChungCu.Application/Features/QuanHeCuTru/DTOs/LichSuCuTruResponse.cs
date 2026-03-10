@@ -13,5 +13,5 @@ public class LichSuCuTruResponse
     public string LoaiQuanHeTen { get; set; } = null!;
     public DateTime NgayBatDau { get; set; }
     public DateTime? NgayKetThuc { get; set; }
-    public bool TrangThai { get; set; }
+    public bool IsKetThuc { get; set; }
 }

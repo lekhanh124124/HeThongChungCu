@@ -9,7 +9,7 @@ public class QuanHeCuTru : AuditableEntity
     public int LoaiQuanHeCuTruId { get; private set; }
     public DateTime NgayBatDau { get; private set; }
     public DateTime? NgayKetThuc { get; private set; }
-    public bool TrangThai { get; private set; }
+    public bool IsKetThuc { get; private set; }
 
     private QuanHeCuTru() { } // EF Core
 
@@ -19,7 +19,7 @@ public class QuanHeCuTru : AuditableEntity
         UserId = userId;
         LoaiQuanHeCuTruId = loaiQuanHeCuTruId;
         NgayBatDau = ngayBatDau;
-        TrangThai = true;
+        IsKetThuc = false;
     }
 
     public void ThayDoiLoaiQuanHe(int loaiQuanHeCuTruId)
@@ -30,6 +30,6 @@ public class QuanHeCuTru : AuditableEntity
     public void KetThucCuTru(DateTime ngayKetThuc)
     {
         NgayKetThuc = ngayKetThuc;
-        TrangThai = false;
+        IsKetThuc = true;
     }
 }

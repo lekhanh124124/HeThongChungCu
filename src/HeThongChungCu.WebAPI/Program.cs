@@ -8,7 +8,7 @@ namespace HeThongChungCu.WebAPI
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +26,14 @@ namespace HeThongChungCu.WebAPI
 
             // ================== BUILD APP ==================
             var app = builder.Build();
+
+            // Initialise and seed database
+            using (var scope = app.Services.CreateScope())
+            {
+                var initialiser = scope.ServiceProvider.GetRequiredService<HeThongChungCu.Infrastructure.Persistence.ApplicationDbContextInitialiser>();
+                await initialiser.InitialiseAsync();
+                await initialiser.SeedAsync();
+            }
 
             // 2. Configure the HTTP request pipeline.
             app.UseMiddleware<Middlewares.GlobalExceptionMiddleware>();

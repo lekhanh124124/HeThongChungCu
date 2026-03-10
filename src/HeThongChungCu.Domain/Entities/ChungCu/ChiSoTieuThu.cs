@@ -6,31 +6,36 @@ public class ChiSoTieuThu : AuditableEntity
 {
     public int CanHoId { get; private set; }
     public int LoaiDichVuId { get; private set; }
-    public double ChiSoCu { get; private set; }
-    public double ChiSoMoi { get; private set; }
+    public double ChiSo { get; private set; }
     public int Thang { get; private set; }
     public int Nam { get; private set; }
     public DateTime NgayChot { get; private set; }
+    public bool IsLock { get; private set; }
 
     private ChiSoTieuThu() { } // EF Core
 
-    public ChiSoTieuThu(int canHoId, int loaiDichVuId, double chiSoCu, double chiSoMoi, int thang, int nam, DateTime ngayChot)
+    public ChiSoTieuThu(int canHoId, int loaiDichVuId, double chiSo, int thang, int nam, DateTime ngayChot)
     {
         CanHoId = canHoId;
         LoaiDichVuId = loaiDichVuId;
-        ChiSoCu = chiSoCu;
-        ChiSoMoi = chiSoMoi;
+        ChiSo = chiSo;
+        Thang = thang;
+        Nam = nam;
+        NgayChot = ngayChot;
+        IsLock = false;
+    }
+
+    public void Update(double chiSo, int thang, int nam, DateTime ngayChot)
+    {
+        if (IsLock) return;
+        ChiSo = chiSo;
         Thang = thang;
         Nam = nam;
         NgayChot = ngayChot;
     }
 
-    public void Update(double chiSoCu, double chiSoMoi, int thang, int nam, DateTime ngayChot)
+    public void Lock()
     {
-        ChiSoCu = chiSoCu;
-        ChiSoMoi = chiSoMoi;
-        Thang = thang;
-        Nam = nam;
-        NgayChot = ngayChot;
+        IsLock = true;
     }
 }

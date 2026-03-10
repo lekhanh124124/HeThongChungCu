@@ -22,14 +22,14 @@ public class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, A
 
     public async Task<Result<AuthResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetByRefreshTokenAsync(request.Token, cancellationToken);
+        var user = await _userRepository.GetByRefreshTokenAsync(request.RefreshToken, cancellationToken);
 
         if (user is null)
         {
             return Result.Failure<AuthResponse>(AuthErrors.InvalidRefreshToken);
         }
 
-        var existingToken = user.Tokens.FirstOrDefault(rt => rt.RefreshToken == request.Token);
+        var existingToken = user.Tokens.FirstOrDefault(rt => rt.RefreshToken == request.RefreshToken);
 
         if (existingToken is null || !existingToken.IsActive)
         {

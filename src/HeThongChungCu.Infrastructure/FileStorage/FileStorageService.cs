@@ -1,20 +1,16 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using HeThongChungCu.Application.Common.Interfaces.Services;
-using HeThongChungCu.Application.Common.Options;
-using Microsoft.Extensions.Options;
 
 namespace HeThongChungCu.Infrastructure.FileStorage;
 
 public class FileStorageService : IFileStorageService
 {
     private readonly BlobServiceClient _blobServiceClient;
-    private readonly FileStorageOptions _options;
 
-    public FileStorageService(BlobServiceClient blobServiceClient, IOptions<FileStorageOptions> options)
+    public FileStorageService(BlobServiceClient blobServiceClient)
     {
         _blobServiceClient = blobServiceClient;
-        _options = options.Value;
     }
 
     public async Task<string> UploadFileAsync(
@@ -61,13 +57,13 @@ public class FileStorageService : IFileStorageService
         var extension = Path.GetExtension(fileName);
         var nameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
 
-        // Chuẩn hóa tên: lower, thay khoảng trắng/ký tự lạ bằng dấu gạch ngang
-        // Cho phép chữ cái, số, gạch ngang, gạch dưới, dấu chấm
+        // NormalizedName: lowercase, replace spaces/special chars with hyphens, allow letters, numbers, hyphens, underscores, dots
+        // Allowed chars: a-z, 0-9, ., _, -
         var normalizedName = nameWithoutExtension.ToLower().Trim();
         normalizedName = System.Text.RegularExpressions.Regex.Replace(normalizedName, @"[^a-z0-9._-]", "-");
         normalizedName = System.Text.RegularExpressions.Regex.Replace(normalizedName, @"-+", "-");
 
-        // Định dạng thời gian: yymmdd-HHmmss
+        // Format: 240927-153045
         var timeStr = timestamp.ToString("yyMMdd-HHmmss");
 
         return $"{normalizedName}-{timeStr}{extension}";

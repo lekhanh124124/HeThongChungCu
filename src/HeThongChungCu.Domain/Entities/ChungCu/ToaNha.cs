@@ -13,12 +13,8 @@ public class ToaNha : AggregateRoot
     public string? MoTa { get; private set; }
     public int TrangThaiToaNhaId { get; private set; }
 
-
     private readonly List<CanHo> _canHos = new();
     public IReadOnlyCollection<CanHo> CanHos => _canHos.AsReadOnly();
-
-    private readonly List<ToaNhaHinhAnh> _hinhAnhs = new();
-    public IReadOnlyCollection<ToaNhaHinhAnh> HinhAnhs => _hinhAnhs.AsReadOnly();
 
     private ToaNha() { } // EF Core
 
@@ -33,23 +29,18 @@ public class ToaNha : AggregateRoot
         TrangThaiToaNhaId = trangThaiToaNhaId;
     }
 
-    public void Update(string tenToaNha, int soTang, int soTangHam, string diaChi, string? moTa, int trangThaiToaNhaId)
+    public void Update(string tenToaNha, int? soTang, int? soTangHam, string diaChi, string? moTa, int? trangThaiToaNhaId)
     {
-        TenToaNha = tenToaNha;
-        SoTang = soTang;
-        SoTangHam = soTangHam;
-        DiaChi = diaChi;
-        MoTa = moTa;
-        TrangThaiToaNhaId = trangThaiToaNhaId;
+        TenToaNha = tenToaNha ?? TenToaNha;
+        SoTang = soTang ?? SoTang;
+        SoTangHam = soTangHam ?? SoTangHam;
+        DiaChi = diaChi ?? DiaChi;
+        MoTa = moTa ?? MoTa;
+        TrangThaiToaNhaId = trangThaiToaNhaId ?? TrangThaiToaNhaId;
     }
 
     public void AddCanHo(CanHo canHo)
     {
         _canHos.Add(canHo);
-    }
-
-    public void AddHinhAnh(ToaNhaHinhAnh hinhAnh)
-    {
-        _hinhAnhs.Add(hinhAnh);
     }
 }

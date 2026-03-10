@@ -5,12 +5,10 @@ namespace HeThongChungCu.Application.Features.QuanHeCuTru.Commands.KetThucCuTru;
 public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, bool>
 {
     private readonly ICanHoEFRepository _canHoRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public KetThucCuTruCommandHandler(ICanHoEFRepository canHoRepository, IUnitOfWork unitOfWork)
+    public KetThucCuTruCommandHandler(ICanHoEFRepository canHoRepository)
     {
         _canHoRepository = canHoRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<bool>> Handle(KetThucCuTruCommand request, CancellationToken cancellationToken)
@@ -23,7 +21,7 @@ public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, b
         if (quanHe is null)
             return Result.Failure<bool>(QuanHeCuTruErrors.NotFoundById(request.QuanHeCuTruId));
 
-        if (!quanHe.TrangThai)
+        if (quanHe.IsKetThuc)
             return Result.Failure<bool>(QuanHeCuTruErrors.CuTruDaKetThuc);
 
         quanHe.KetThucCuTru(request.NgayKetThuc);

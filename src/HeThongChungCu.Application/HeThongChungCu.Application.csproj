@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\ChungCu\**" />
+    <EmbeddedResource Remove="Features\ChungCu\**" />
+    <None Remove="Features\ChungCu\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.1.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="MediatR" Version="14.1.0" />
@@ -19,8 +25,6 @@
 
   <ItemGroup>
     <Folder Include="Features\Auth\Queries\" />
-    <Folder Include="Features\ChungCu\Queries\GetAllCanHos\" />
-    <Folder Include="Features\ChungCu\Queries\GetCanHoById\" />
     <Folder Include="Features\QuanHeCuTru\Commands\KetThucCuTru\" />
     <Folder Include="Features\QuanHeCuTru\Commands\CapNhatQuanHe\" />
     <Folder Include="Features\QuanHeCuTru\Commands\ThietLapCuTru\" />

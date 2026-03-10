@@ -2,4 +2,4 @@
 
 namespace HeThongChungCu.Application.Features.Auth.Commands.RefreshToken;
 
-public record RefreshTokenCommand(string Token) : ICommand<AuthResponse>;
+public record RefreshTokenCommand(string RefreshToken) : ICommand<AuthResponse>;
