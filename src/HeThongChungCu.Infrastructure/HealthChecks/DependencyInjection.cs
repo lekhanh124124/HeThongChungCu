@@ -13,7 +13,7 @@ public static class DependencyInjection
             // DATABASE
             // ═══════════════════════════════════════════════════════════════
             // SQL Server check
-            .AddDbContextCheck<Persistence.EFDbContext>(
+            .AddDbContextCheck<Persistence.AppDbContext>(
                 name: "sql-server",
                 failureStatus: HealthStatus.Unhealthy,
                 tags: new[] { "db", "sql", "sqlserver", "ready" })

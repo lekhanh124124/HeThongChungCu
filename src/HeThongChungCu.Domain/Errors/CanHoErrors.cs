@@ -12,6 +12,14 @@ public static class CanHoErrors
         "CanHo.MaCanHoExists",
         "Đã tồn tại căn hộ với mã này.");
 
+    public static readonly Error TangKhongHopLe = new(
+        "CanHo.TangKhongHopLe",
+        "Tầng của căn hộ không hợp lệ so với quy mô của tòa nhà.");
+
+    public static readonly Error CanHoInBasement = new(
+        "CanHo.CanHoInBasement",
+        "Không thể tạo căn hộ ở tầng hầm.");
+
     public static Error NotFoundById(int id) => new(
         "CanHo.NotFound",
         $"Không tìm thấy căn hộ với ID '{id}'.");

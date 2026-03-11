@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
+using HeThongChungCu.Application.Features.Catalog.DTOs;
 
 namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 
@@ -13,4 +14,6 @@ public interface IToaNhaDapperRepository
         CancellationToken cancellationToken = default);
 
     Task<ToaNhaResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<CauTrucToaNhaResponse>> GetCauTrucChungCuAsync(string? keyword, CancellationToken cancellationToken = default);
 }

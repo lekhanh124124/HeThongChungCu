@@ -1,6 +1,3 @@
-using Bogus;
-using HeThongChungCu.Domain.Entities.ChungCu;
-using HeThongChungCu.Domain.Entities.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -9,9 +6,9 @@ namespace HeThongChungCu.Infrastructure.Persistence;
 public class ApplicationDbContextInitialiser
 {
     private readonly ILogger<ApplicationDbContextInitialiser> _logger;
-    private readonly EFDbContext _context;
+    private readonly AppDbContext _context;
 
-    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, EFDbContext context)
+    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, AppDbContext context)
     {
         _logger = logger;
         _context = context;
@@ -19,17 +16,20 @@ public class ApplicationDbContextInitialiser
 
     public async Task InitialiseAsync()
     {
+        if (!_context.Database.IsSqlServer())
+            return;
+
         try
         {
-            if (_context.Database.IsSqlServer())
-            {
-                await _context.Database.MigrateAsync();
-            }
+            _logger.LogInformation("Starting database migration...");
+
+            await _context.Database.MigrateAsync();
+
+            _logger.LogInformation("Database migration completed.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while initialising the database.");
-            throw;
+            _logger.LogError(ex, "Database migration failed. Application will continue to start.");
         }
     }
 
@@ -51,10 +51,22 @@ public class ApplicationDbContextInitialiser
         // Default data
         // Seed, if necessary
         await HeThongChungCu.Infrastructure.Persistence.Seed.UserSeeder.SeedAsync(_context, _logger);
+        _logger.LogInformation("Seeded Users.");
+
         await HeThongChungCu.Infrastructure.Persistence.Seed.ToaNhaSeeder.SeedAsync(_context, _logger);
+        _logger.LogInformation("Seeded ToaNhas.");
+
+        await HeThongChungCu.Infrastructure.Persistence.Seed.TangSeeder.SeedAsync(_context, _logger);
+        _logger.LogInformation("Seeded Tangs.");
+
         await HeThongChungCu.Infrastructure.Persistence.Seed.CanHoSeeder.SeedAsync(_context, _logger);
+        _logger.LogInformation("Seeded CanHos.");
+
         await HeThongChungCu.Infrastructure.Persistence.Seed.QuanHeCuTruSeeder.SeedAsync(_context, _logger);
+        _logger.LogInformation("Seeded QuanHeCuTrus.");
+
         await HeThongChungCu.Infrastructure.Persistence.Seed.PhuongTienSeeder.SeedAsync(_context, _logger);
+        _logger.LogInformation("Seeded PhuongTiens.");
 
         _logger.LogInformation("Database Seeding Completed.");
     }

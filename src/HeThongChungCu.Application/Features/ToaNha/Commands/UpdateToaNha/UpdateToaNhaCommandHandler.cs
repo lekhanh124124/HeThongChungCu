@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
 using HeThongChungCu.Domain.Errors;
 
@@ -24,8 +24,6 @@ public class UpdateToaNhaCommandHandler : ICommandHandler<UpdateToaNhaCommand, T
 
         toaNha.Update(
             request.TenToaNha,
-            request.SoTang,
-            request.SoTangHam,
             request.DiaChi,
             request.MoTa,
             trangThaiToaNha!.Value);
@@ -38,8 +36,6 @@ public class UpdateToaNhaCommandHandler : ICommandHandler<UpdateToaNhaCommand, T
             Id = toaNha.Id,
             MaToaNha = toaNha.MaToaNha,
             TenToaNha = toaNha.TenToaNha,
-            SoTang = toaNha.SoTang,
-            SoTangHam = toaNha.SoTangHam,
             DiaChi = toaNha.DiaChi,
             MoTa = toaNha.MoTa,
             TrangThaiToaNhaId = trangThaiToaNha!.Value,

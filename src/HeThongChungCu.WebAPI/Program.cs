@@ -1,8 +1,10 @@
 using HealthChecks.UI.Client;
 using HeThongChungCu.Application;
 using HeThongChungCu.Infrastructure;
+using HeThongChungCu.Infrastructure.Persistence;
 using HeThongChungCu.WebAPI.Common.Logging;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace HeThongChungCu.WebAPI
 {
@@ -30,9 +32,21 @@ namespace HeThongChungCu.WebAPI
             // Initialise and seed database
             using (var scope = app.Services.CreateScope())
             {
-                var initialiser = scope.ServiceProvider.GetRequiredService<HeThongChungCu.Infrastructure.Persistence.ApplicationDbContextInitialiser>();
-                await initialiser.InitialiseAsync();
-                await initialiser.SeedAsync();
+                var logger = scope.ServiceProvider
+                    .GetRequiredService<ILogger<Program>>();
+
+                try
+                {
+                    var initialiser = scope.ServiceProvider
+                        .GetRequiredService<ApplicationDbContextInitialiser>();
+
+                    await initialiser.InitialiseAsync();
+                    await initialiser.SeedAsync();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Database initialisation failed.");
+                }
             }
 
             // 2. Configure the HTTP request pipeline.
@@ -76,6 +90,22 @@ namespace HeThongChungCu.WebAPI
             {
                 ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
             });
+
+            app.MapGet("/debug/apis", (ISwaggerProvider swaggerProvider) =>
+            {
+                var doc = swaggerProvider.GetSwagger("v1");
+
+                var apis = doc.Paths
+                    .SelectMany(path => path.Value.Operations.Select(op => new
+                    {
+                        Route = path.Key,
+                        Method = op.Key.ToString().ToUpper(),
+                        Summary = op.Value.Summary,
+                        Description = op.Value.Description
+                    }));
+
+                return Results.Ok(apis);
+            }).ExcludeFromDescription();
 
             app.Run();
         }

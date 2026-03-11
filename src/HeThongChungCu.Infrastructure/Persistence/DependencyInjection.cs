@@ -13,28 +13,39 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddScoped<AuditableEntitySaveChangesInterceptor>();
+
         services.Configure<PersistenceOptions>(
             configuration.GetSection(PersistenceOptions.SectionName));
 
-        services.AddDbContext<EFDbContext>((provider, options) =>
+        services.AddDbContext<AppDbContext>((provider, options) =>
         {
             var persistenceOptions = provider
                 .GetRequiredService<IOptions<PersistenceOptions>>()
                 .Value;
 
-            options.UseSqlServer(
-                persistenceOptions.DefaultConnection,
-                b => b.MigrationsAssembly(typeof(EFDbContext).Assembly.FullName));
+            options
+                .UseSqlServer(
+                    persistenceOptions.DefaultConnection,
+                    sqlOptions =>
+                    {
+                        sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
+
+                        sqlOptions.EnableRetryOnFailure(
+                            maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(10),
+                            errorNumbersToAdd: null);
+                    });
         });
 
-        services.AddScoped<AuditableEntitySaveChangesInterceptor>();
         services.AddScoped<ApplicationDbContextInitialiser>();
-        services.AddScoped<DapperDbContext>();
-        services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<EFDbContext>());
+        services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<AppDbContext>());
         services.AddScoped<IUserEFRepository, UserEFRepository>();
         services.AddScoped<IToaNhaEFRepository, ToaNhaEFRepository>();
         services.AddScoped<IToaNhaDapperRepository, ToaNhaDapperRepository>();
         services.AddScoped<ICanHoEFRepository, CanHoEFRepository>();
+        services.AddScoped<ITangEFRepository, TangEFRepository>();
+        services.AddScoped<ITangDapperRepository, TangDapperRepository>();
         services.AddScoped<ICanHoDapperRepository, CanHoDapperRepository>();
         services.AddScoped<IQuanHeCuTruDapperRepository, QuanHeCuTruDapperRepository>();
         services.AddScoped<IUserDapperRepository, UserDapperRepository>();

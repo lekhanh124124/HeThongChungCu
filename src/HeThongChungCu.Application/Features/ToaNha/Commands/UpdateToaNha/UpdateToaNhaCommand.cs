@@ -1,12 +1,10 @@
-﻿using HeThongChungCu.Application.Features.ToaNha.DTOs;
+using HeThongChungCu.Application.Features.ToaNha.DTOs;
 
 namespace HeThongChungCu.Application.Features.ToaNha.Commands.UpdateToaNha;
 
 public record UpdateToaNhaCommand(
     int Id,
     string TenToaNha,
-    int SoTang,
-    int SoTangHam,
     string DiaChi,
     string? MoTa,
     int TrangThaiToaNhaId) : ICommand<ToaNhaDetailResponse>;

@@ -6,9 +6,9 @@ namespace HeThongChungCu.Infrastructure.Persistence.Repositories.EFRepositories;
 
 public class CanHoEFRepository : ICanHoEFRepository
 {
-    private readonly EFDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
 
-    public CanHoEFRepository(EFDbContext dbContext)
+    public CanHoEFRepository(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }

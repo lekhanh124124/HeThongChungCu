@@ -1,5 +1,4 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.Profile.DTOs;
 
 namespace HeThongChungCu.Application.Features.Profile.Commands.UpdateProfile;

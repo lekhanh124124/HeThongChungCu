@@ -6,9 +6,9 @@ namespace HeThongChungCu.Infrastructure.HealthChecks;
 
 internal sealed class DatabaseMigrationHealthCheck : IHealthCheck
 {
-    private readonly EFDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
 
-    public DatabaseMigrationHealthCheck(EFDbContext dbContext)
+    public DatabaseMigrationHealthCheck(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }

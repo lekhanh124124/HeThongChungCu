@@ -6,41 +6,37 @@ public class ToaNha : AggregateRoot
 {
     public string MaToaNha { get; private set; } = null!;
     public string TenToaNha { get; private set; } = null!;
-    public int SoTang { get; private set; }
-    public int SoTangHam { get; private set; }
 
     public string DiaChi { get; private set; } = null!;
     public string? MoTa { get; private set; }
     public int TrangThaiToaNhaId { get; private set; }
 
-    private readonly List<CanHo> _canHos = new();
-    public IReadOnlyCollection<CanHo> CanHos => _canHos.AsReadOnly();
+    private readonly List<Tang> _tangs = new();
+    public IReadOnlyCollection<Tang> Tangs => _tangs.AsReadOnly();
+
 
     private ToaNha() { } // EF Core
 
-    public ToaNha(string maToaNha, string tenToaNha, int soTang, int soTangHam, string diaChi, string? moTa, int trangThaiToaNhaId)
+    public ToaNha(string maToaNha, string tenToaNha, string diaChi, string? moTa, int trangThaiToaNhaId)
     {
         MaToaNha = maToaNha;
         TenToaNha = tenToaNha;
-        SoTang = soTang;
-        SoTangHam = soTangHam;
         DiaChi = diaChi;
         MoTa = moTa;
         TrangThaiToaNhaId = trangThaiToaNhaId;
     }
 
-    public void Update(string tenToaNha, int? soTang, int? soTangHam, string diaChi, string? moTa, int? trangThaiToaNhaId)
+    public void Update(string tenToaNha, string diaChi, string? moTa, int? trangThaiToaNhaId)
     {
         TenToaNha = tenToaNha ?? TenToaNha;
-        SoTang = soTang ?? SoTang;
-        SoTangHam = soTangHam ?? SoTangHam;
         DiaChi = diaChi ?? DiaChi;
         MoTa = moTa ?? MoTa;
         TrangThaiToaNhaId = trangThaiToaNhaId ?? TrangThaiToaNhaId;
     }
 
-    public void AddCanHo(CanHo canHo)
+    public void AddTang(Tang tang)
     {
-        _canHos.Add(canHo);
+        _tangs.Add(tang);
     }
+
 }

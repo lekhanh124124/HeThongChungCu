@@ -1,4 +1,4 @@
-﻿namespace HeThongChungCu.Application.Features.CanHo.Commands.UpdateCanHo;
+namespace HeThongChungCu.Application.Features.CanHo.Commands.UpdateCanHo;
 
 public class UpdateCanHoCommandValidator : AbstractValidator<UpdateCanHoCommand>
 {
@@ -10,8 +10,8 @@ public class UpdateCanHoCommandValidator : AbstractValidator<UpdateCanHoCommand>
         RuleFor(x => x.DienTich)
             .GreaterThan(0).WithMessage("Diện tích phải lớn hơn 0.");
 
-        RuleFor(x => x.Tang)
-            .GreaterThan(0).WithMessage("Tầng phải lớn hơn 0.");
+        RuleFor(x => x.TangId)
+            .GreaterThan(0).WithMessage("ID tầng không hợp lệ.");
 
         RuleFor(x => x.SoPhongNgu)
             .GreaterThanOrEqualTo(0).WithMessage("Số phòng ngủ không được âm.");

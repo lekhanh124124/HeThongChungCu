@@ -25,6 +25,10 @@
 
   <ItemGroup>
     <Folder Include="Features\Auth\Queries\" />
+    <Folder Include="Features\Catalog\Commands\" />
+    <Folder Include="Features\PhuongTien\Commands\" />
+    <Folder Include="Features\PhuongTien\DTOs\" />
+    <Folder Include="Features\PhuongTien\Queries\" />
     <Folder Include="Features\QuanHeCuTru\Commands\KetThucCuTru\" />
     <Folder Include="Features\QuanHeCuTru\Commands\CapNhatQuanHe\" />
     <Folder Include="Features\QuanHeCuTru\Commands\ThietLapCuTru\" />

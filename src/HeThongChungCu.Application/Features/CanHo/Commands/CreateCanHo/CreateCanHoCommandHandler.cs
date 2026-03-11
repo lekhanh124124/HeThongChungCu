@@ -1,5 +1,6 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
+using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.CanHo.Commands.CreateCanHo;
@@ -7,24 +8,23 @@ namespace HeThongChungCu.Application.Features.CanHo.Commands.CreateCanHo;
 public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, CanHoDetailResponse>
 {
     private readonly ICanHoEFRepository _canHoRepository;
-    private readonly IToaNhaEFRepository _toaNhaRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly ITangEFRepository _tangRepository;
 
     public CreateCanHoCommandHandler(
         ICanHoEFRepository canHoRepository,
-        IToaNhaEFRepository toaNhaRepository,
-        IUnitOfWork unitOfWork)
+        ITangEFRepository tangRepository)
     {
         _canHoRepository = canHoRepository;
-        _toaNhaRepository = toaNhaRepository;
-        _unitOfWork = unitOfWork;
+        _tangRepository = tangRepository;
     }
-
     public async Task<Result<CanHoDetailResponse>> Handle(CreateCanHoCommand request, CancellationToken cancellationToken)
     {
-        var toaNhaExists = await _toaNhaRepository.AnyAsync(request.ToaNhaId, cancellationToken);
-        if (!toaNhaExists)
-            return Result.Failure<CanHoDetailResponse>(ToaNhaErrors.NotFound);
+        var tang = await _tangRepository.GetByIdAsync(request.TangId, cancellationToken);
+        if (tang == null)
+            return Result.Failure<CanHoDetailResponse>(CanHoErrors.NotFound);
+
+        if (tang.LoaiTangId == LoaiTang.TangHam.Value)
+            return Result.Failure<CanHoDetailResponse>(CanHoErrors.CanHoInBasement);
 
         var maExists = await _canHoRepository.MaCanHoExistsAsync(request.MaCanHo, cancellationToken);
         if (maExists)
@@ -33,11 +33,10 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
         var loaiCanHo = LoaiCanHo.FromValue(request.LoaiCanHoId);
         var tinhTrangCanHo = TinhTrangCanHo.Trong;
 
-        var canHo = new HeThongChungCu.Domain.Entities.ChungCu.CanHo(
-            request.ToaNhaId,
+        var canHo = new Domain.Entities.ChungCu.CanHo(
             request.MaCanHo,
             request.DienTich,
-            request.Tang,
+            request.TangId,
             request.SoPhongNgu,
             request.SoPhongTam,
             loaiCanHo!.Value,
@@ -48,10 +47,10 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
         return Result.Success(new CanHoDetailResponse
         {
             Id = canHo.Id,
-            ToaNhaId = canHo.ToaNhaId,
             MaCanHo = canHo.MaCanHo,
             DienTich = canHo.DienTich,
-            Tang = canHo.Tang,
+            TangId = canHo.TangId,
+            TenTang = canHo.Tang?.TenTang ?? string.Empty,
             SoPhongNgu = canHo.SoPhongNgu,
             SoPhongTam = canHo.SoPhongTam,
             LoaiCanHoId = canHo.LoaiCanHoId,

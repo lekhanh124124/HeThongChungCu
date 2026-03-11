@@ -4,16 +4,17 @@ namespace HeThongChungCu.Domain.Entities.ChungCu;
 
 public class CanHo : AggregateRoot
 {
-    public int ToaNhaId { get; private set; }
     public string MaCanHo { get; private set; } = null!;
 
     public decimal DienTich { get; private set; }
-    public int Tang { get; private set; }
     public int SoPhongNgu { get; private set; }
     public int SoPhongTam { get; private set; }
 
     public int LoaiCanHoId { get; private set; }
     public int TinhTrangCanHoId { get; private set; }
+
+    public int TangId { get; private set; }
+    public Tang Tang { get; private set; } = null!;
 
     private readonly List<QuanHeCuTru> _quanHeCuTrus = new();
     public IReadOnlyCollection<QuanHeCuTru> QuanHeCuTrus => _quanHeCuTrus.AsReadOnly();
@@ -23,22 +24,21 @@ public class CanHo : AggregateRoot
 
     private CanHo() { } // EF Core
 
-    public CanHo(int toaNhaId, string maCanHo, decimal dienTich, int tang, int soPhongNgu, int soPhongTam, int loaiCanHoId, int tinhTrangCanHoId)
+    public CanHo(string maCanHo, decimal dienTich, int tangId, int soPhongNgu, int soPhongTam, int loaiCanHoId, int tinhTrangCanHoId)
     {
-        ToaNhaId = toaNhaId;
         MaCanHo = maCanHo;
         DienTich = dienTich;
-        Tang = tang;
+        TangId = tangId;
         SoPhongNgu = soPhongNgu;
         SoPhongTam = soPhongTam;
         LoaiCanHoId = loaiCanHoId;
         TinhTrangCanHoId = tinhTrangCanHoId;
     }
 
-    public void UpdateInfo(decimal dienTich, int tang, int soPhongNgu, int soPhongTam, int loaiCanHoId)
+    public void UpdateInfo(decimal dienTich, int tangId, int soPhongNgu, int soPhongTam, int loaiCanHoId)
     {
         DienTich = dienTich;
-        Tang = tang;
+        TangId = tangId;
         SoPhongNgu = soPhongNgu;
         SoPhongTam = soPhongTam;
         LoaiCanHoId = loaiCanHoId;

@@ -1,11 +1,11 @@
-﻿namespace HeThongChungCu.Application.Features.CanHo.DTOs;
+namespace HeThongChungCu.Application.Features.CanHo.DTOs;
 
 public class CanHoDetailResponse
 {
     public int Id { get; set; }
-    public int ToaNhaId { get; set; }
     public string MaCanHo { get; set; } = null!;
-    public int Tang { get; set; }
+    public int TangId { get; set; }
+    public string TenTang { get; set; } = null!;
     public decimal DienTich { get; set; }
     public int SoPhongNgu { get; set; }
     public int SoPhongTam { get; set; }

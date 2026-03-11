@@ -5,17 +5,19 @@ using HeThongChungCu.Domain.Entities.Identity;
 using HeThongChungCu.Infrastructure.Persistence.Interceptors;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using System.Data.Common;
 using System.Reflection;
 
 namespace HeThongChungCu.Infrastructure.Persistence;
 
-public class EFDbContext : DbContext, IUnitOfWork
+public class AppDbContext : DbContext, IUnitOfWork
 {
     private readonly AuditableEntitySaveChangesInterceptor _auditableEntitySaveChangesInterceptor;
     private readonly IPublisher _publisher;
 
-    public EFDbContext(
-        DbContextOptions<EFDbContext> options,
+    public AppDbContext(
+        DbContextOptions<AppDbContext> options,
         AuditableEntitySaveChangesInterceptor auditableEntitySaveChangesInterceptor,
         IPublisher publisher)
         : base(options)
@@ -27,6 +29,7 @@ public class EFDbContext : DbContext, IUnitOfWork
     public DbSet<User> Users => Set<User>();
     public DbSet<Tokens> Tokens => Set<Tokens>();
     public DbSet<ToaNha> ToaNhas => Set<ToaNha>();
+    public DbSet<Tang> Tangs => Set<Tang>();
     public DbSet<CanHo> CanHos => Set<CanHo>();
     public DbSet<QuanHeCuTru> QuanHeCuTrus => Set<QuanHeCuTru>();
 
@@ -50,7 +53,7 @@ public class EFDbContext : DbContext, IUnitOfWork
             // Kiểm tra kế thừa AuditableEntity (để áp dụng SoftDelete)
             if (typeof(AuditableEntity).IsAssignableFrom(entityType.ClrType))
             {
-                var method = typeof(EFDbContext)
+                var method = typeof(AppDbContext)
                     .GetMethod(nameof(ApplySoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Instance)
                     ?.MakeGenericMethod(entityType.ClrType);
 
@@ -120,5 +123,21 @@ public class EFDbContext : DbContext, IUnitOfWork
         {
             await Database.CurrentTransaction.RollbackAsync(cancellationToken);
         }
+    }
+
+    public DbConnection GetDbConnection()
+    {
+        return Database.GetDbConnection();
+    }
+
+    public DbTransaction? GetDbTransaction()
+    {
+        return Database.CurrentTransaction?.GetDbTransaction();
+    }
+
+    public async Task<TResponse> ExecuteAsync<TResponse>(Func<Task<TResponse>> action)
+    {
+        var strategy = Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(action);
     }
 }

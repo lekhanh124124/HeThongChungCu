@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
 
 namespace HeThongChungCu.Application.Features.CanHo.Commands.DeleteCanHo;
@@ -30,10 +30,10 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
         var response = canHos.Select(c => new CanHoDetailResponse
         {
             Id = c.Id,
-            ToaNhaId = c.ToaNhaId,
             MaCanHo = c.MaCanHo,
             DienTich = c.DienTich,
-            Tang = c.Tang,
+            TangId = c.TangId,
+            TenTang = c.Tang?.TenTang ?? string.Empty,
             SoPhongNgu = c.SoPhongNgu,
             SoPhongTam = c.SoPhongTam,
             LoaiCanHoId = c.LoaiCanHoId,

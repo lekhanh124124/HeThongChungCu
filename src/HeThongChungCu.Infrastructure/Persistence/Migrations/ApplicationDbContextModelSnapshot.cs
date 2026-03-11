@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(EFDbContext))]
+    [DbContext(typeof(AppDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -65,13 +65,10 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Property<int>("SoPhongTam")
                         .HasColumnType("int");
 
-                    b.Property<int>("Tang")
+                    b.Property<int>("TangId")
                         .HasColumnType("int");
 
                     b.Property<int>("TinhTrangCanHoId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ToaNhaId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -79,7 +76,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.HasIndex("MaCanHo")
                         .IsUnique();
 
-                    b.HasIndex("ToaNhaId");
+                    b.HasIndex("TangId");
 
                     b.ToTable("CanHos", (string)null);
                 });
@@ -196,6 +193,55 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.ToTable("QuanHeCuTrus", (string)null);
                 });
 
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.Tang", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LoaiTangId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MaTang")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TenTang")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("ToaNhaId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ToaNhaId");
+
+                    b.ToTable("Tangs", (string)null);
+                });
+
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.ToaNha", b =>
                 {
                     b.Property<int>("Id")
@@ -234,12 +280,6 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<int?>("ModifiedBy")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SoTang")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SoTangHam")
                         .HasColumnType("int");
 
                     b.Property<string>("TenToaNha")
@@ -497,11 +537,13 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.CanHo", b =>
                 {
-                    b.HasOne("HeThongChungCu.Domain.Entities.ChungCu.ToaNha", null)
+                    b.HasOne("HeThongChungCu.Domain.Entities.ChungCu.Tang", "Tang")
                         .WithMany("CanHos")
-                        .HasForeignKey("ToaNhaId")
+                        .HasForeignKey("TangId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Tang");
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.ChiSoTieuThu", b =>
@@ -530,6 +572,17 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.HasOne("HeThongChungCu.Domain.Entities.Identity.User", null)
                         .WithMany("QuanHeCuTrus")
                         .HasForeignKey("UserId1");
+                });
+
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.Tang", b =>
+                {
+                    b.HasOne("HeThongChungCu.Domain.Entities.ChungCu.ToaNha", "ToaNha")
+                        .WithMany("Tangs")
+                        .HasForeignKey("ToaNhaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ToaNha");
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.Identity.Tokens", b =>
@@ -570,9 +623,14 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Navigation("QuanHeCuTrus");
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.ToaNha", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.Tang", b =>
                 {
                     b.Navigation("CanHos");
+                });
+
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.ToaNha", b =>
+                {
+                    b.Navigation("Tangs");
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.Identity.User", b =>

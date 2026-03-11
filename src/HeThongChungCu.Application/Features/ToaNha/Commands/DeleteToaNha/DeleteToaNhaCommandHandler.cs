@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
 using HeThongChungCu.Domain.Errors;
 
@@ -33,8 +33,6 @@ public class DeleteToaNhaCommandHandler : ICommandHandler<DeleteToaNhaCommand, I
             Id = t.Id,
             MaToaNha = t.MaToaNha,
             TenToaNha = t.TenToaNha,
-            SoTang = t.SoTang,
-            SoTangHam = t.SoTangHam,
             DiaChi = t.DiaChi,
             MoTa = t.MoTa,
             TrangThaiToaNhaId = TrangThaiToaNha.FromValue(t.TrangThaiToaNhaId)?.Value ?? 0,

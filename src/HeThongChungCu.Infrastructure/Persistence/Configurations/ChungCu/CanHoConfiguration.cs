@@ -19,15 +19,18 @@ public class CanHoConfiguration : IEntityTypeConfiguration<CanHo>
 
         builder.HasIndex(c => c.MaCanHo).IsUnique();
 
-        builder.Property(c => c.ToaNhaId)
-            .IsRequired();
 
         builder.Property(c => c.DienTich)
             .HasColumnType("decimal(18,2)")
             .IsRequired();
 
-        builder.Property(c => c.Tang)
+        builder.Property(c => c.TangId)
             .IsRequired();
+
+        builder.HasOne(c => c.Tang)
+            .WithMany(t => t.CanHos)
+            .HasForeignKey(c => c.TangId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(c => c.SoPhongNgu)
             .IsRequired();
@@ -41,10 +44,6 @@ public class CanHoConfiguration : IEntityTypeConfiguration<CanHo>
         builder.Property(c => c.TinhTrangCanHoId)
             .IsRequired();
 
-        builder.HasOne<ToaNha>()
-            .WithMany(t => t.CanHos)
-            .HasForeignKey(c => c.ToaNhaId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(c => c.PhuongTiens)
             .WithOne()

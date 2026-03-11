@@ -28,6 +28,10 @@ public class QuanHeCuTruController : ApiControllerBase
     /// <summary>
     /// Thiết lập cư trú – thêm cư dân vào căn hộ
     /// </summary>
+    /// <remarks>
+    /// API dùng để tạo một liên kết cư trú giữa một `User` và một `CanHo`.
+    /// Yêu cầu cung cấp `UserId`, `CanHoId`, ID biểu thị loại quan hệ (`LoaiQuanHeCuTruId`) và Ngày bắt đầu (`NgayBatDau`).
+    /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<CuDanResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -39,6 +43,10 @@ public class QuanHeCuTruController : ApiControllerBase
     /// <summary>
     /// Kết thúc cư trú – đánh dấu cư dân đã chuyển đi
     /// </summary>
+    /// <remarks>
+    /// API dùng để kết thúc khoảng thời gian sinh sống của cư dân tại căn hộ.
+    /// Yêu cầu truyền vào `QuanHeCuTruId` và `NgayKetThuc`. Hệ thống sẽ cập nhật trạng thái `IsKetThuc` thành true.
+    /// </remarks>
     [HttpPut("ket-thuc")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -50,6 +58,10 @@ public class QuanHeCuTruController : ApiControllerBase
     /// <summary>
     /// Cập nhật quan hệ cư trú (loại quan hệ trong căn hộ)
     /// </summary>
+    /// <remarks>
+    /// API dùng để sửa thông tin lịch sử cư trú hiện tại.
+    /// Cho phép đổi loại quan hệ (`LoaiQuanHeCuTruId`) hoặc chỉnh sửa `NgayBatDau`, `NgayKetThuc` của bản ghi `QuanHeCuTru` đó.
+    /// </remarks>
     [HttpPut("cap-nhat")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -61,6 +73,9 @@ public class QuanHeCuTruController : ApiControllerBase
     /// <summary>
     /// Lấy danh sách cư dân đang sống tại một căn hộ
     /// </summary>
+    /// <remarks>
+    /// API truy vấn danh sách những cư dân hiện tại (chưa kết thúc cư trú) thuộc về một `CanHo` cụ thể.
+    /// </remarks>
     [HttpPost("cu-dan")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<CuDanResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -72,6 +87,12 @@ public class QuanHeCuTruController : ApiControllerBase
     /// <summary>
     /// Lấy lịch sử cư trú theo căn hộ hoặc theo cư dân (phải truyền CanHoId hoặc UserId)
     /// </summary>
+    /// <remarks>
+    /// Dùng để tra cứu lịch sử cư trú. 
+    /// - Nếu truyền `CanHoId`: Trả về lịch sử tất cả cư dân (kể cả đã chuyển đi) của căn hộ đó.
+    /// - Nếu truyền `UserId`: Trả về lịch sử các căn hộ mà người đó đã/đang ở.
+    /// Hỗ trợ tìm kiếm, lọc trạng thái, phân trang và sắp xếp.
+    /// </remarks>
     [HttpPost("lich-su")]
     [ProducesResponseType(typeof(ApiResponse<PagedResult<LichSuCuTruResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -83,6 +104,10 @@ public class QuanHeCuTruController : ApiControllerBase
     /// <summary>
     /// Tìm kiếm người dùng theo username (chỉ Resident hoặc Guest)
     /// </summary>
+    /// <remarks>
+    /// Dùng khi cần tra cứu nhanh người dùng trong hệ thống (nhằm thêm cư dân vào căn hộ).
+    /// Chỉ trả về những user có quyền Resident/Guest, hỗ trợ tìm kiếm theo Username.
+    /// </remarks>
     [HttpPost("search-user")]
     [ProducesResponseType(typeof(ApiResponse<SearchUserByUsernameResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

@@ -22,12 +22,6 @@ public class ToaNhaConfiguration : IEntityTypeConfiguration<ToaNha>
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(t => t.SoTang)
-            .IsRequired();
-
-        builder.Property(t => t.SoTangHam)
-            .IsRequired();
-
         builder.Property(t => t.DiaChi)
             .IsRequired()
             .HasMaxLength(255);
@@ -37,5 +31,10 @@ public class ToaNhaConfiguration : IEntityTypeConfiguration<ToaNha>
 
         builder.Property(t => t.TrangThaiToaNhaId)
             .IsRequired();
+
+        builder.HasMany(t => t.Tangs)
+            .WithOne(t => t.ToaNha)
+            .HasForeignKey(t => t.ToaNhaId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

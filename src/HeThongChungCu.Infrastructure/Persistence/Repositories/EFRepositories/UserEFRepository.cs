@@ -7,9 +7,9 @@ namespace HeThongChungCu.Infrastructure.Persistence.Repositories.EFRepositories;
 
 public class UserEFRepository : IUserEFRepository
 {
-    private readonly EFDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
 
-    public UserEFRepository(EFDbContext dbContext)
+    public UserEFRepository(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }

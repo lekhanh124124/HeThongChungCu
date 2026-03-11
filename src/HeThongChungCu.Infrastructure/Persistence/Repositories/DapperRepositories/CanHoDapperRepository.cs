@@ -2,19 +2,20 @@ using Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
 using HeThongChungCu.Domain.Enums;
+using System.Data;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
 
 public class CanHoDapperRepository : ICanHoDapperRepository
 {
-    private readonly DapperDbContext _context;
-    public CanHoDapperRepository(DapperDbContext context)
+    private readonly AppDbContext _dbContext;
+    public CanHoDapperRepository(AppDbContext dbContext)
     {
-        _context = context;
+        _dbContext = dbContext;
     }
 
     public async Task<(int TotalCount, IReadOnlyList<CanHoDetailResponse> Items)> GetAllAsync(
-        int? toaNhaId,
+        int? tangId,
         string? keyword,
         string? sortCol,
         bool? isAsc,
@@ -22,11 +23,14 @@ public class CanHoDapperRepository : ICanHoDapperRepository
         int? pageSize,
         CancellationToken cancellationToken = default)
     {
-        using var connection = _context.CreateConnection();
+        var connection = _dbContext.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync();
 
         var allowedSortColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            "Id", "MaCanHo", "DienTich", "Tang", "SoPhongNgu", "SoPhongTam", "TinhTrangCanHoId"
+            "Id", "MaCanHo", "DienTich", "SoPhongNgu", "SoPhongTam", "TinhTrangCanHoId"
         };
 
         var orderColumn = allowedSortColumns.Contains(sortCol ?? "") ? sortCol : "Id";
@@ -37,14 +41,14 @@ public class CanHoDapperRepository : ICanHoDapperRepository
             SELECT COUNT(*)
             FROM CanHos c
             WHERE c.IsDeleted = 0
-              AND (@ToaNhaId IS NULL OR c.ToaNhaId = @ToaNhaId)
+              AND (@TangId IS NULL OR c.TangId = @TangId)
               AND (@Keyword IS NULL OR c.MaCanHo LIKE '%' + @Keyword + '%');
 
-            SELECT c.Id, c.ToaNhaId, t.TenToaNha, c.MaCanHo, c.DienTich, c.Tang, c.SoPhongNgu, c.SoPhongTam, c.TinhTrangCanHoId
+            SELECT c.Id, c.TangId, t.TenTang, c.MaCanHo, c.DienTich, c.SoPhongNgu, c.SoPhongTam, c.TinhTrangCanHoId
             FROM CanHos c
-            INNER JOIN ToaNhas t ON t.Id = c.ToaNhaId
+            INNER JOIN Tangs t ON t.Id = c.TangId
             WHERE c.IsDeleted = 0
-              AND (@ToaNhaId IS NULL OR c.ToaNhaId = @ToaNhaId)
+              AND (@TangId IS NULL OR c.TangId = @TangId)
               AND (@Keyword IS NULL OR c.MaCanHo LIKE '%' + @Keyword + '%')
             ORDER BY c.{orderColumn} {sortDirection}
             OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
@@ -52,7 +56,7 @@ public class CanHoDapperRepository : ICanHoDapperRepository
 
         var parameters = new
         {
-            ToaNhaId = toaNhaId,
+            TangId = tangId,
             Keyword = string.IsNullOrWhiteSpace(keyword) ? null : keyword,
             Offset = offset,
             PageSize = pageSize
@@ -62,16 +66,26 @@ public class CanHoDapperRepository : ICanHoDapperRepository
         var totalCount = await multi.ReadFirstAsync<int>();
         var items = await multi.ReadAsync<CanHoDetailResponse>();
 
-        return (totalCount, items.ToList());
+        var result = items.ToList();
+        foreach (var item in result)
+        {
+            item.TenLoaiCanHo = LoaiCanHo.FromValue(item.LoaiCanHoId)?.Name ?? string.Empty;
+            item.TenTinhTrangCanHo = TinhTrangCanHo.FromValue(item.TinhTrangCanHoId)?.Name ?? string.Empty;
+        }
+
+        return (totalCount, result);
     }
 
     public async Task<CanHoResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        using var connection = _context.CreateConnection();
+        var connection = _dbContext.GetDbConnection();
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync();
 
         const string sql = """
-            SELECT c.Id, c.ToaNhaId, c.MaCanHo, c.DienTich, c.Tang, c.SoPhongNgu, c.SoPhongTam, c.LoaiCanHoId, c.TinhTrangCanHoId
+            SELECT c.Id, c.TangId, t.TenTang, c.MaCanHo, c.DienTich, c.SoPhongNgu, c.SoPhongTam, c.LoaiCanHoId, c.TinhTrangCanHoId
             FROM CanHos c
+            INNER JOIN Tangs t ON t.Id = c.TangId
             WHERE c.Id = @Id AND c.IsDeleted = 0;
 
             SELECT q.Id, q.CanHoId, q.UserId, u.LastName + ' ' + u.FirstName AS FullName, q.LoaiQuanHeCuTruId, q.NgayBatDau, q.NgayKetThuc, q.IsKetThuc

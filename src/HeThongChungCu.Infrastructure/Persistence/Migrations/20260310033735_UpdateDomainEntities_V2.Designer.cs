@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(EFDbContext))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20260310033735_UpdateDomainEntities_V2")]
     partial class UpdateDomainEntities_V2
     {

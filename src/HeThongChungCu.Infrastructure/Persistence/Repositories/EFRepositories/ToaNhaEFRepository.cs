@@ -6,9 +6,9 @@ namespace HeThongChungCu.Infrastructure.Persistence.Repositories.EFRepositories;
 
 public class ToaNhaEFRepository : IToaNhaEFRepository
 {
-    private readonly EFDbContext _dbContext;
+    private readonly AppDbContext _dbContext;
 
-    public ToaNhaEFRepository(EFDbContext dbContext)
+    public ToaNhaEFRepository(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }

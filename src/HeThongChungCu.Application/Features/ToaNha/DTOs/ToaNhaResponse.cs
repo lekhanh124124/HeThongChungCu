@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Features.CanHo.DTOs;
+using HeThongChungCu.Application.Features.CanHo.DTOs;
 namespace HeThongChungCu.Application.Features.ToaNha.DTOs
 {
     public class ToaNhaResponse
@@ -6,8 +6,6 @@ namespace HeThongChungCu.Application.Features.ToaNha.DTOs
         public int Id { get; set; }
         public string MaToaNha { get; set; } = null!;
         public string TenToaNha { get; set; } = null!;
-        public int SoTang { get; set; }
-        public int SoTangHam { get; set; }
         public int SoCanHo { get; set; }
         public string DiaChi { get; set; } = null!;
         public string? MoTa { get; set; }

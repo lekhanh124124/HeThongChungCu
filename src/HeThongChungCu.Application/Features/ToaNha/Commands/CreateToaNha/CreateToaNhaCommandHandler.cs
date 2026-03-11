@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
 
 namespace HeThongChungCu.Application.Features.ToaNha.Commands.CreateToaNha;
@@ -22,8 +22,6 @@ public class CreateToaNhaCommandHandler : ICommandHandler<CreateToaNhaCommand, T
         var toaNha = new HeThongChungCu.Domain.Entities.ChungCu.ToaNha(
             request.MaToaNha,
             request.TenToaNha,
-            request.SoTang,
-            request.SoTangHam,
             request.DiaChi,
             request.MoTa,
             trangThaiToaNha.Value);
@@ -37,8 +35,6 @@ public class CreateToaNhaCommandHandler : ICommandHandler<CreateToaNhaCommand, T
             Id = toaNha.Id,
             MaToaNha = toaNha.MaToaNha,
             TenToaNha = toaNha.TenToaNha,
-            SoTang = toaNha.SoTang,
-            SoTangHam = toaNha.SoTangHam,
             DiaChi = toaNha.DiaChi,
             MoTa = toaNha.MoTa,
             TrangThaiToaNhaId = toaNha.TrangThaiToaNhaId,

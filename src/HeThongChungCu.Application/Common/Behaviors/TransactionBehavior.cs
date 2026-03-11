@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 
 namespace HeThongChungCu.Application.Common.Behaviors;
 
@@ -20,21 +20,24 @@ public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
             return await next();
         }
 
-        await _unitOfWork.BeginTransactionAsync(cancellationToken);
-
-        try
+        return await _unitOfWork.ExecuteAsync(async () =>
         {
-            var response = await next();
+            await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            await _unitOfWork.CommitTransactionAsync(cancellationToken);
+            try
+            {
+                var response = await next();
 
-            return response;
-        }
-        catch
-        {
-            await _unitOfWork.RollbackTransactionAsync(cancellationToken);
-            throw;
-        }
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                await _unitOfWork.CommitTransactionAsync(cancellationToken);
+
+                return response;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+                throw;
+            }
+        });
     }
 }

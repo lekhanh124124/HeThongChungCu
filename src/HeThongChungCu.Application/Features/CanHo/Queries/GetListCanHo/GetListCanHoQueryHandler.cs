@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
 
@@ -16,7 +16,7 @@ public class GetListCanHoQueryHandler : IQueryHandler<GetListCanHoQuery, PagedRe
     public async Task<Result<PagedResult<CanHoDetailResponse>>> Handle(GetListCanHoQuery request, CancellationToken cancellationToken)
     {
         var (totalCount, items) = await _queryRepository.GetAllAsync(
-            request.ToaNhaId,
+            request.TangId,
             request.Keyword,
             request.SortCol,
             request.IsAsc,

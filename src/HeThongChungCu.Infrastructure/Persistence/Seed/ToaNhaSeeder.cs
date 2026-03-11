@@ -7,7 +7,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class ToaNhaSeeder
 {
-    public static async Task SeedAsync(EFDbContext context, ILogger logger)
+    public static async Task SeedAsync(AppDbContext context, ILogger logger)
     {
         if (!await context.ToaNhas.AnyAsync())
         {
@@ -17,8 +17,6 @@ public class ToaNhaSeeder
                 .CustomInstantiator(f => new ToaNha(
                     maToaNha: f.Random.Replace("TN-##"),
                     tenToaNha: $"Tòa nhà {f.Address.BuildingNumber()}",
-                    soTang: f.Random.Int(10, 30),
-                    soTangHam: f.Random.Int(1, 3),
                     diaChi: f.Address.StreetAddress(),
                     moTa: f.Lorem.Sentence(),
                     trangThaiToaNhaId: 1 // HoatDong

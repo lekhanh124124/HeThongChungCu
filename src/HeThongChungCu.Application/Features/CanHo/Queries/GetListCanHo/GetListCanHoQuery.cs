@@ -1,10 +1,10 @@
-﻿using HeThongChungCu.Application.Common.Models;
+using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
 
 namespace HeThongChungCu.Application.Features.CanHo.Queries.GetListCanHo;
 
 public record GetListCanHoQuery(
-    int? ToaNhaId = null,
+    int? TangId = null,
     string? Keyword = null,
     string? SortCol = null,
     bool? IsAsc = false,

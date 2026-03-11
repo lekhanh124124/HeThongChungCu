@@ -1,23 +1,30 @@
 using Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
+using HeThongChungCu.Application.Features.Profile.DTOs;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
 using HeThongChungCu.Domain.Enums;
+using System.Data;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
 
 public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
 {
-    private readonly DapperDbContext _context;
-    public QuanHeCuTruDapperRepository(DapperDbContext context)
+    private readonly AppDbContext _dbContext;
+    public QuanHeCuTruDapperRepository(AppDbContext dbContext)
     {
-        _context = context;
+        _dbContext = dbContext;
     }
 
     public async Task<IReadOnlyList<CuDanResponse>> GetCuDanByCanHoIdAsync(
         int canHoId,
         CancellationToken cancellationToken = default)
     {
-        using var connection = _context.CreateConnection();
+        var connection = _dbContext.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync();
+
+        var transaction = _dbContext.GetDbTransaction();
 
         const string sql = """
             SELECT
@@ -56,7 +63,12 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         int? pageSize,
         CancellationToken cancellationToken = default)
     {
-        using var connection = _context.CreateConnection();
+        var connection = _dbContext.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync();
+
+        var transaction = _dbContext.GetDbTransaction();
 
         var offset = (pageNumber - 1) * pageSize;
         var (orderColumn, sortDirection) = ResolveSortParams(sortCol, isAsc);
@@ -104,7 +116,12 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         int? pageSize,
         CancellationToken cancellationToken = default)
     {
-        using var connection = _context.CreateConnection();
+        var connection = _dbContext.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync();
+
+        var transaction = _dbContext.GetDbTransaction();
 
         var offset = (pageNumber - 1) * pageSize;
         var (orderColumn, sortDirection) = ResolveSortParams(sortCol, isAsc);
@@ -164,5 +181,48 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
                 .FirstOrDefault(l => l.Value == item.LoaiQuanHeCuTruId)?.Name ?? string.Empty;
         }
         return items;
+    }
+
+    public async Task<IReadOnlyList<LayQuanHeCuTruResponse>> GetActiveByUserIdAsync(
+        int userId,
+        CancellationToken cancellationToken = default)
+    {
+        var connection = _dbContext.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync();
+
+        var transaction = _dbContext.GetDbTransaction();
+
+        const string sql = """
+            SELECT
+                q.Id         AS QuanHeCuTruId,
+                q.CanHoId,
+                c.MaCanHo,
+                c.ToaNhaId,
+                t.TenToaNha,
+                q.LoaiQuanHeCuTruId,
+                q.NgayBatDau,
+                q.IsKetThuc,
+                c.DienTich,
+                c.Tang
+            FROM QuanHeCuTrus q
+            INNER JOIN CanHos   c ON c.Id = q.CanHoId
+            INNER JOIN ToaNhas  t ON t.Id = c.ToaNhaId
+            WHERE q.UserId = @UserId
+              AND q.IsKetThuc = 0;
+            """;
+
+        var items = await connection.QueryAsync<LayQuanHeCuTruResponse>(sql, new { UserId = userId });
+
+        // Enrich LoaiQuanHeTen
+        var result = items.Select(item =>
+        {
+            item.LoaiQuanHeTen = LoaiQuanHeCuTru.GetAll()
+                .FirstOrDefault(l => l.Value == item.LoaiQuanHeCuTruId)?.Name ?? string.Empty;
+            return item;
+        }).ToList();
+
+        return result;
     }
 }

@@ -6,7 +6,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class QuanHeCuTruSeeder
 {
-    public static async Task SeedAsync(EFDbContext context, ILogger logger)
+    public static async Task SeedAsync(AppDbContext context, ILogger logger)
     {
         if (!await context.QuanHeCuTrus.AnyAsync())
         {

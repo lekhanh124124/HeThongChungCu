@@ -5,7 +5,7 @@ namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 public interface ICanHoDapperRepository
 {
     Task<(int TotalCount, IReadOnlyList<CanHoDetailResponse> Items)> GetAllAsync(
-        int? toaNhaId,
+        int? tangId,
         string? keyword,
         string? sortCol,
         bool? isAsc,

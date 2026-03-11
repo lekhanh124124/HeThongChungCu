@@ -1,6 +1,4 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-using HeThongChungCu.Application.Common.Interfaces.Services;
-using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Common.Options;
 using Microsoft.Extensions.Options;
 
