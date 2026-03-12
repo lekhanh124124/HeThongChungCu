@@ -1,6 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QuanHeCuTru.Commands.ThietLapCuTru;
 
@@ -57,7 +55,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
             Email = string.Empty,
             PhoneNumber = string.Empty,
             LoaiQuanHeCuTruId = newRecord.LoaiQuanHeCuTruId,
-            LoaiQuanHeTen = loai.Name,
+            TenLoaiQuanHeCuTru = loai.Name,
             NgayBatDau = newRecord.NgayBatDau
         });
     }

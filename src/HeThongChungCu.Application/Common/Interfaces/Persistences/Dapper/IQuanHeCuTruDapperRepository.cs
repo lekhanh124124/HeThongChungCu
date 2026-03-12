@@ -1,31 +1,22 @@
 using HeThongChungCu.Application.Features.Profile.DTOs;
+using HeThongChungCu.Application.Features.Profile.Queries.LayQuanHeCuTru;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
+using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayCuDanByCanHoId;
+using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayLichSuCuTru;
 
 namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 
 public interface IQuanHeCuTruDapperRepository
 {
     Task<IReadOnlyList<CuDanResponse>> GetCuDanByCanHoIdAsync(
-        int canHoId,
+        LayCuDanByCanHoIdSpecification spec,
         CancellationToken cancellationToken = default);
 
-    Task<(int TotalCount, IReadOnlyList<LichSuCuTruResponse> Items)> GetLichSuByCanHoIdAsync(
-        int canHoId,
-        string? sortCol,
-        bool? isAsc,
-        int? pageNumber,
-        int? pageSize,
-        CancellationToken cancellationToken = default);
-
-    Task<(int TotalCount, IReadOnlyList<LichSuCuTruResponse> Items)> GetLichSuByUserIdAsync(
-        int userId,
-        string? sortCol,
-        bool? isAsc,
-        int? pageNumber,
-        int? pageSize,
+    Task<PagedResult<LichSuCuTruResponse>> GetLichSuAsync(
+        LayLichSuCuTruSpecification spec,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<LayQuanHeCuTruResponse>> GetActiveByUserIdAsync(
-        int userId,
+        LayQuanHeCuTruSpecification spec,
         CancellationToken cancellationToken = default);
 }

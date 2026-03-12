@@ -1,6 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-
-namespace HeThongChungCu.Application.Features.Auth.Commands.ResetPassword;
+﻿namespace HeThongChungCu.Application.Features.Auth.Commands.ResetPassword;
 
 public class ResetPasswordCommandHandler : ICommandHandler<ResetPasswordCommand, string>
 {

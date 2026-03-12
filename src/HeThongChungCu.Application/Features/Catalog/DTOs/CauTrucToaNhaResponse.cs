@@ -8,5 +8,5 @@ public class CauTrucToaNhaResponse
     public int TrangThaiId { get; set; }
     public string TenTrangThai { get; set; } = null!;
 
-    public IReadOnlyList<CauTrucTangResponse> CauTrucTangs { get; set; } = new List<CauTrucTangResponse>();
+    public List<CauTrucTangResponse> CauTrucTangs { get; set; } = new();
 }

@@ -1,4 +1,3 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Features.Catalog.DTOs;
 
 namespace HeThongChungCu.Application.Features.Catalog.Queries.LayCauTrucChungCu;
@@ -14,7 +13,8 @@ public class LayCauTrucChungCuQueryHandler : IQueryHandler<LayCauTrucChungCuQuer
 
     public async Task<Result<IReadOnlyList<CauTrucToaNhaResponse>>> Handle(LayCauTrucChungCuQuery request, CancellationToken cancellationToken)
     {
-        var result = await _toaNhaDapperRepository.GetCauTrucChungCuAsync(request.Keyword, cancellationToken);
+        var spec = new LayCauTrucChungCuSpecification(request.Keyword);
+        var result = await _toaNhaDapperRepository.GetCauTrucChungCuAsync(spec, cancellationToken);
         return Result.Success(result);
     }
 

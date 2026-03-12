@@ -1,5 +1,4 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-using HeThongChungCu.Domain.Entities.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 

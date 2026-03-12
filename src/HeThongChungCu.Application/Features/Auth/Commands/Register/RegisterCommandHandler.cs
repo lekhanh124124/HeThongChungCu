@@ -1,5 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-using HeThongChungCu.Application.Features.Auth.DTOs;
+﻿using HeThongChungCu.Application.Features.Auth.DTOs;
 using System.Security.Cryptography;
 
 namespace HeThongChungCu.Application.Features.Auth.Commands.Register;

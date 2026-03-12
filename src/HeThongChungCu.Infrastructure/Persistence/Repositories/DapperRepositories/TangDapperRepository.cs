@@ -1,8 +1,10 @@
 using Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
+using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
 using HeThongChungCu.Application.Features.Tang.DTOs;
-using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Application.Features.Tang.Queries.GetListTang;
+using HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories.Helpers;
 using System.Data;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
@@ -16,72 +18,70 @@ public class TangDapperRepository : ITangDapperRepository
         _dbContext = dbContext;
     }
 
-    public async Task<(int TotalCount, IReadOnlyList<TangDetailResponse> Items)> GetAllAsync(
-        int? toaNhaId,
-        string? keyword,
-        string? sortCol,
-        bool? isAsc,
-        int? pageNumber,
-        int? pageSize,
+    public async Task<PagedResult<TangDetailResponse>> GetAllAsync(
+        GetListTangSpecification spec,
         CancellationToken cancellationToken = default)
     {
         var connection = _dbContext.GetDbConnection();
 
         if (connection.State != ConnectionState.Open)
-            await connection.OpenAsync();
+            await connection.OpenAsync(cancellationToken);
 
-        var allowedSortColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            "Id", "MaTang", "TenTang", "ToaNhaId", "LoaiTangId"
+            { "Id", "t.Id" },
+            { "MaTang", "t.MaTang" },
+            { "TenTang", "t.TenTang" },
+            { "ToaNhaId", "t.ToaNhaId" },
+            { "LoaiTangId", "t.LoaiTangId" },
+            { "IsDeleted", "t.IsDeleted" }
         };
 
-        var orderColumn = allowedSortColumns.Contains(sortCol ?? "") ? sortCol : "Id";
-        var sortDirection = (isAsc.HasValue && !isAsc.Value) ? "DESC" : "ASC";
-        var offset = ((pageNumber ?? 1) - 1) * (pageSize ?? 20);
+        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
+        var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sql = $"""
             SELECT COUNT(*)
             FROM Tangs t
-            WHERE t.IsDeleted = 0
-              AND (@ToaNhaId IS NULL OR t.ToaNhaId = @ToaNhaId)
-              AND (@Keyword IS NULL OR t.MaTang LIKE '%' + @Keyword + '%' OR t.TenTang LIKE '%' + @Keyword + '%');
+            {sqlWhere};
 
             SELECT t.Id, t.MaTang, t.TenTang, t.LoaiTangId, t.ToaNhaId, tn.TenToaNha
             FROM Tangs t
             INNER JOIN ToaNhas tn ON tn.Id = t.ToaNhaId
-            WHERE t.IsDeleted = 0
-              AND (@ToaNhaId IS NULL OR t.ToaNhaId = @ToaNhaId)
-              AND (@Keyword IS NULL OR t.MaTang LIKE '%' + @Keyword + '%' OR t.TenTang LIKE '%' + @Keyword + '%')
-            ORDER BY t.{orderColumn} {sortDirection}
-            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
+            {sqlWhere}
+            {sqlOrderBy}
+            {sqlPagination};
             """;
-
-        var parameters = new
-        {
-            ToaNhaId = toaNhaId,
-            Keyword = string.IsNullOrWhiteSpace(keyword) ? null : keyword,
-            Offset = offset,
-            PageSize = pageSize ?? 20
-        };
 
         using var multi = await connection.QueryMultipleAsync(sql, parameters);
         var totalCount = await multi.ReadFirstAsync<int>();
         var items = await multi.ReadAsync<TangDetailResponse>();
 
         var result = items.ToList();
+        var loaiTangMap = LoaiTang.ToDictionary();
         foreach (var item in result)
         {
-            item.TenLoaiTang = LoaiTang.FromValue(item.LoaiTangId)?.Name ?? string.Empty;
+            item.TenLoaiTang = loaiTangMap.GetValueOrDefault(item.LoaiTangId, string.Empty);
         }
 
-        return (totalCount, result);
+        return new PagedResult<TangDetailResponse>
+        {
+            Items = result,
+            PagingInfo = new PagingInfo
+            {
+                PageNumber = spec.PageNumber ?? 1,
+                PageSize = spec.PageSize ?? result.Count,
+                TotalItems = totalCount
+            }
+        };
     }
 
     public async Task<TangResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var connection = _dbContext.GetDbConnection();
         if (connection.State != ConnectionState.Open)
-            await connection.OpenAsync();
+            await connection.OpenAsync(cancellationToken);
 
         const string sql = """
             SELECT t.Id, t.MaTang, t.TenTang, t.LoaiTangId, t.ToaNhaId, tn.TenToaNha
@@ -102,31 +102,17 @@ public class TangDapperRepository : ITangDapperRepository
             return null;
 
         var canHos = (await multi.ReadAsync<CanHoDetailResponse>()).ToList();
+        var loaiCanHoDict = LoaiCanHo.ToDictionary();
+        var tinhTrangCanHoDict = TinhTrangCanHo.ToDictionary();
 
-        // Map SmartEnums for CanHo
-        foreach (var c in canHos)
+        foreach (var item in canHos)
         {
-            var lc = LoaiCanHo.FromValue(c.LoaiCanHoId);
-            if (lc != null)
-            {
-                c.TenLoaiCanHo = lc.Name;
-            }
-
-            var tc = TinhTrangCanHo.FromValue(c.TinhTrangCanHoId);
-            if (tc != null)
-            {
-                c.TenTinhTrangCanHo = tc.Name;
-            }
+            item.TenLoaiCanHo = loaiCanHoDict.GetValueOrDefault(item.LoaiCanHoId, string.Empty);
+            item.TenTinhTrangCanHo = loaiCanHoDict.GetValueOrDefault(item.TinhTrangCanHoId, string.Empty);
         }
 
         tang.CanHos = canHos;
-
-        // Map SmartEnums for Tang
-        var lt = LoaiTang.FromValue(tang.LoaiTangId);
-        if (lt != null)
-        {
-            tang.TenLoaiTang = lt.Name;
-        }
+        tang.TenLoaiTang = LoaiTang.ToDictionary().GetValueOrDefault(tang.LoaiTangId, string.Empty);
 
         return tang;
     }

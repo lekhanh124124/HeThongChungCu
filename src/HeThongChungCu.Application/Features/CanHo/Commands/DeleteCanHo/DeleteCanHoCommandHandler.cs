@@ -1,4 +1,3 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
 
 namespace HeThongChungCu.Application.Features.CanHo.Commands.DeleteCanHo;

@@ -1,5 +1,3 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
-using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.Tang.DTOs;
 
 namespace HeThongChungCu.Application.Features.Tang.Queries.GetListTang;
@@ -15,24 +13,16 @@ public class GetListTangQueryHandler : IQueryHandler<GetListTangQuery, PagedResu
 
     public async Task<Result<PagedResult<TangDetailResponse>>> Handle(GetListTangQuery request, CancellationToken cancellationToken)
     {
-        var (totalCount, items) = await _queryRepository.GetAllAsync(
+        var spec = new GetListTangSpecification(
             request.ToaNhaId,
             request.Keyword,
             request.SortCol,
             request.IsAsc,
             request.PageNumber,
-            request.PageSize,
-            cancellationToken);
+            request.PageSize);
 
-        return Result.Success(new PagedResult<TangDetailResponse>
-        {
-            Items = items,
-            PagingInfo = new PagingInfo
-            {
-                PageNumber = request.PageNumber ?? 1,
-                PageSize = request.PageSize ?? 20,
-                TotalItems = totalCount
-            }
-        });
+        var result = await _queryRepository.GetAllAsync(spec, cancellationToken);
+        
+        return Result.Success(result);
     }
 }

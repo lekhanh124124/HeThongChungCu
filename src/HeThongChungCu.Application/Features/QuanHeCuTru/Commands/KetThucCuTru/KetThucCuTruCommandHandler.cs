@@ -1,5 +1,3 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-
 namespace HeThongChungCu.Application.Features.QuanHeCuTru.Commands.KetThucCuTru;
 
 public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, bool>

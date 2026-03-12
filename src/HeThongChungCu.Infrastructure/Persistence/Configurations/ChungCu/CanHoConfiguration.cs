@@ -17,6 +17,10 @@ public class CanHoConfiguration : IEntityTypeConfiguration<CanHo>
             .IsRequired()
             .HasMaxLength(20);
 
+        builder.Property(c => c.TenCanHo)
+            .IsRequired()
+            .HasMaxLength(100);
+
         builder.HasIndex(c => c.MaCanHo).IsUnique();
 
 

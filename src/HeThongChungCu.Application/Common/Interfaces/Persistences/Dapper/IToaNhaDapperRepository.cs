@@ -1,19 +1,19 @@
-using HeThongChungCu.Application.Features.ToaNha.DTOs;
 using HeThongChungCu.Application.Features.Catalog.DTOs;
+using HeThongChungCu.Application.Features.Catalog.Queries.LayCauTrucChungCu;
+using HeThongChungCu.Application.Features.ToaNha.DTOs;
+using HeThongChungCu.Application.Features.ToaNha.Queries.GetListToaNha;
 
 namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 
 public interface IToaNhaDapperRepository
 {
-    Task<(int TotalCount, IReadOnlyList<ToaNhaDetailResponse> Items)> GetAllAsync(
-        string? keyword,
-        string? sortCol,
-        bool? isAsc,
-        int? pageNumber,
-        int? pageSize,
+    Task<PagedResult<ToaNhaDetailResponse>> GetAllAsync(
+        GetListToaNhaSpecification spec,
         CancellationToken cancellationToken = default);
 
     Task<ToaNhaResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<CauTrucToaNhaResponse>> GetCauTrucChungCuAsync(string? keyword, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<CauTrucToaNhaResponse>> GetCauTrucChungCuAsync(
+        LayCauTrucChungCuSpecification spec,
+        CancellationToken cancellationToken = default);
 }

@@ -1,7 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
-using HeThongChungCu.Domain.Enums;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.CanHo.Commands.CreateCanHo;
 
@@ -35,6 +32,7 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
 
         var canHo = new Domain.Entities.ChungCu.CanHo(
             request.MaCanHo,
+            request.TenCanHo,
             request.DienTich,
             request.TangId,
             request.SoPhongNgu,
@@ -48,6 +46,7 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
         {
             Id = canHo.Id,
             MaCanHo = canHo.MaCanHo,
+            TenCanHo = canHo.TenCanHo,
             DienTich = canHo.DienTich,
             TangId = canHo.TangId,
             TenTang = canHo.Tang?.TenTang ?? string.Empty,

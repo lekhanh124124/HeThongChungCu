@@ -34,7 +34,7 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
         var loaiCanHo = LoaiCanHo.FromValue(request.LoaiCanHoId);
         var tinhTrangCanHo = TinhTrangCanHo.FromValue(request.TinhTrangCanHoId);
 
-        canHo.UpdateInfo(request.DienTich, request.TangId, request.SoPhongNgu, request.SoPhongTam, loaiCanHo!.Value);
+        canHo.UpdateInfo(request.TenCanHo, request.DienTich, request.TangId, request.SoPhongNgu, request.SoPhongTam, loaiCanHo!.Value);
         canHo.UpdateStatus(tinhTrangCanHo!.Value);
 
         _canHoRepository.Update(canHo);
@@ -43,6 +43,7 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
         {
             Id = canHo.Id,
             MaCanHo = canHo.MaCanHo,
+            TenCanHo = canHo.TenCanHo,
             DienTich = canHo.DienTich,
             TangId = canHo.TangId,
             TenTang = canHo.Tang?.TenTang ?? string.Empty,

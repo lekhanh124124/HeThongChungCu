@@ -1,5 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 namespace HeThongChungCu.Application.Features.Auth.Commands.ForgotPassword;
 

@@ -1,5 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
-using HeThongChungCu.Application.Features.CanHo.DTOs;
+﻿using HeThongChungCu.Application.Features.CanHo.DTOs;
 
 namespace HeThongChungCu.Application.Features.CanHo.Queries.GetCanHoById;
 

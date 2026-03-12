@@ -33,8 +33,6 @@
     <Folder Include="Features\QuanHeCuTru\Commands\CapNhatQuanHe\" />
     <Folder Include="Features\QuanHeCuTru\Commands\ThietLapCuTru\" />
     <Folder Include="Features\QuanHeCuTru\DTOs\" />
-    <Folder Include="Features\QuanHeCuTru\Queries\LayCuDanByCanHoId\" />
-    <Folder Include="Features\QuanHeCuTru\Queries\LayLichSuCuTru\" />
   </ItemGroup>
 
 </Project>

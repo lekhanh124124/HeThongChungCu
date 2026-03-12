@@ -1,5 +1,4 @@
 using Bogus;
-using HeThongChungCu.Domain.Entities.ChungCu;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -7,7 +6,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class ToaNhaSeeder
 {
-    public static async Task SeedAsync(AppDbContext context, ILogger logger)
+    public static async Task SeedAsync(AppDbContext context, ILogger logger, int count)
     {
         if (!await context.ToaNhas.AnyAsync())
         {
@@ -22,7 +21,7 @@ public class ToaNhaSeeder
                     trangThaiToaNhaId: 1 // HoatDong
                 ));
 
-            var toaNhas = toaNhaFaker.Generate(3);
+            var toaNhas = toaNhaFaker.Generate(count);
             await context.ToaNhas.AddRangeAsync(toaNhas);
             await context.SaveChangesAsync();
         }

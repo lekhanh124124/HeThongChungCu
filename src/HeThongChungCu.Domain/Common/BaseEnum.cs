@@ -22,14 +22,21 @@ public abstract class BaseEnum<TEnum, TValue> : IEquatable<BaseEnum<TEnum, TValu
     private static readonly Lazy<Dictionary<string, TEnum>> _fromName =
         new(() => GetAll().ToDictionary(e => e.Name, StringComparer.OrdinalIgnoreCase));
 
-    public static IReadOnlyCollection<TEnum> GetAll()
-    {
-        return typeof(TEnum)
+    private static readonly Lazy<IReadOnlyDictionary<TValue, string>> _valueNameMap =
+        new(() => GetAll().ToDictionary(e => e.Value, e => e.Name));
+
+    private static readonly Lazy<IReadOnlyCollection<TEnum>> _all =
+        new(() => typeof(TEnum)
             .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
             .Select(f => f.GetValue(null))
             .Cast<TEnum>()
-            .ToList();
-    }
+            .ToList());
+
+    public static IReadOnlyCollection<TEnum> GetAll()
+        => _all.Value;
+
+    public static IReadOnlyDictionary<TValue, string> ToDictionary()
+        => _valueNameMap.Value;
 
     public static TEnum? FromValue(
         TValue value,

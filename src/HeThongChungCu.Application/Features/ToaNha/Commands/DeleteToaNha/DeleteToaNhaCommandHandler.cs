@@ -1,18 +1,14 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.ToaNha.Commands.DeleteToaNha;
 
 public class DeleteToaNhaCommandHandler : ICommandHandler<DeleteToaNhaCommand, IReadOnlyList<ToaNhaDetailResponse>>
 {
     private readonly IToaNhaEFRepository _toaNhaRepository;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteToaNhaCommandHandler(IToaNhaEFRepository toaNhaRepository, IUnitOfWork unitOfWork)
+    public DeleteToaNhaCommandHandler(IToaNhaEFRepository toaNhaRepository)
     {
         _toaNhaRepository = toaNhaRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<IReadOnlyList<ToaNhaDetailResponse>>> Handle(DeleteToaNhaCommand request, CancellationToken cancellationToken)
@@ -25,7 +21,7 @@ public class DeleteToaNhaCommandHandler : ICommandHandler<DeleteToaNhaCommand, I
             var ids = string.Join(", ", notFoundIds);
             return Result.Failure<IReadOnlyList<ToaNhaDetailResponse>>(new Error(
                 "ToaNha.NotFound",
-                $"KhÃ´ng tÃ¬m tháº¥y tÃ²a nhÃ  vá»›i ID: {ids}."));
+                $"Không tìm thấy tòa nhà với ID: {ids}."));
         }
 
         var response = toaNhas.Select(t => new ToaNhaDetailResponse

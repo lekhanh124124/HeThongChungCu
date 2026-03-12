@@ -12,14 +12,4 @@ public class GioiTinh : BaseEnum<GioiTinh, int>
     private GioiTinh(int value, string name) : base(value, name)
     {
     }
-
-    public static GioiTinh? FromValue(int value)
-    {
-        return FromValue(value, v => new BusinessException($"Không có giới tính nào với giá trị {v}."));
-    }
-
-    public static GioiTinh? FromName(string name)
-    {
-        return FromName(name, n => new BusinessException($"Không có giới tính nào với tên '{n}'."));
-    }
 }

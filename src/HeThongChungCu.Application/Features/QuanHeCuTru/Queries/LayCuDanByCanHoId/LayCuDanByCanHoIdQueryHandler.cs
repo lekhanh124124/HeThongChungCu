@@ -1,4 +1,3 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
 
 namespace HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayCuDanByCanHoId;
@@ -22,7 +21,8 @@ public class LayCuDanByCanHoIdQueryHandler : IQueryHandler<LayCuDanByCanHoIdQuer
         if (canHo is null)
             return Result.Failure<IReadOnlyList<CuDanResponse>>(CanHoErrors.NotFoundById(request.CanHoId));
 
-        var cuDans = await _queryRepository.GetCuDanByCanHoIdAsync(request.CanHoId, cancellationToken);
+        var spec = new LayCuDanByCanHoIdSpecification(request.CanHoId);
+        var cuDans = await _queryRepository.GetCuDanByCanHoIdAsync(spec, cancellationToken);
         return Result.Success(cuDans);
     }
 }

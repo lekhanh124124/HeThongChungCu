@@ -1,4 +1,3 @@
-using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
 
 namespace HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayLichSuCuTru;

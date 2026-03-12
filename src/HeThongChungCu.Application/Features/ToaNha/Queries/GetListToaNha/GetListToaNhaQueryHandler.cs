@@ -1,5 +1,3 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
-using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
 
 namespace HeThongChungCu.Application.Features.ToaNha.Queries.GetListToaNha;
@@ -15,24 +13,16 @@ public class GetListToaNhaQueryHandler : IQueryHandler<GetListToaNhaQuery, Paged
 
     public async Task<Result<PagedResult<ToaNhaDetailResponse>>> Handle(GetListToaNhaQuery request, CancellationToken cancellationToken)
     {
-        var (totalCount, items) = await _queryRepository.GetAllAsync(
+        var spec = new GetListToaNhaSpecification(
             request.Keyword,
             request.SortCol,
             request.IsAsc,
             request.PageNumber,
-            request.PageSize,
-            cancellationToken);
+            request.PageSize);
 
-        return Result.Success(new PagedResult<ToaNhaDetailResponse>
-        {
-            Items = items,
-            PagingInfo = new PagingInfo
-            {
-                PageNumber = request.PageNumber,
-                PageSize = request.PageSize,
-                TotalItems = totalCount
-            }
-        });
+        var result = await _queryRepository.GetAllAsync(spec, cancellationToken);
+
+        return Result.Success(result);
     }
 }
 

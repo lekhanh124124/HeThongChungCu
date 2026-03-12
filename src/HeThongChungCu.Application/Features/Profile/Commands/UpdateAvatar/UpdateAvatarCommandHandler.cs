@@ -1,5 +1,3 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-using HeThongChungCu.Application.Common.Options;
 using Microsoft.Extensions.Options;
 
 namespace HeThongChungCu.Application.Features.Profile.Commands.UpdateAvatar;

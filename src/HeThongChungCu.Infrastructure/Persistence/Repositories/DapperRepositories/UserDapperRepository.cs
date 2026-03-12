@@ -2,7 +2,6 @@ using Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Features.Profile.DTOs;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
-using HeThongChungCu.Domain.Enums;
 using System.Data;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
@@ -31,7 +30,24 @@ public class UserDapperRepository : IUserDapperRepository
             WHERE Id = @Id
             """;
 
-        return await connection.QueryFirstOrDefaultAsync<UserProfileDetailResponse>(sql, new { Id = id });
+        using var result = await connection.QueryMultipleAsync(sql,
+                new
+                {
+                    Id = id,
+                });
+
+        var gioiTinhMap = GioiTinh.ToDictionary();
+        var roleMap = Role.ToDictionary();
+
+        var user = await result.ReadFirstOrDefaultAsync<UserProfileDetailResponse>();
+
+        if (user is not null)
+        {
+            user.GioiTinhName = gioiTinhMap.GetValueOrDefault(user.GioiTinhId, string.Empty);
+            user.RoleName = roleMap.GetValueOrDefault(user.RoleId, string.Empty);
+        }
+
+        return user;
     }
 
     public async Task<SearchUserByUsernameResponse?> SearchResidentOrGuestByUsernameAsync(string username, CancellationToken cancellationToken = default)
@@ -39,7 +55,7 @@ public class UserDapperRepository : IUserDapperRepository
         var connection = _dbContext.GetDbConnection();
 
         if (connection.State != ConnectionState.Open)
-            await connection.OpenAsync();
+            await connection.OpenAsync(cancellationToken);
 
         var transaction = _dbContext.GetDbTransaction();
 
@@ -52,13 +68,25 @@ public class UserDapperRepository : IUserDapperRepository
             WHERE Username = @Username AND (RoleId = @RoleKhach OR RoleId = @RoleCuDan)
             """;
 
-        return await connection
-            .QueryFirstOrDefaultAsync<SearchUserByUsernameResponse>(sql, 
-                new 
-                { 
-                    Username = username, 
-                    RoleKhach = roleKhach, 
-                    RoleCuDan = roleCuDan 
+        using var result = await connection.QueryMultipleAsync(sql,
+                new
+                {
+                    Username = username,
+                    RoleKhach = roleKhach,
+                    RoleCuDan = roleCuDan
                 });
+
+        var gioiTinhMap = GioiTinh.ToDictionary();
+        var roleMap = Role.ToDictionary();
+
+        var user = await result.ReadFirstOrDefaultAsync<SearchUserByUsernameResponse>();
+
+        if (user is not null)
+        {
+            user.GioiTinhName = gioiTinhMap.GetValueOrDefault(user.GioiTinhId, string.Empty);
+            user.RoleName = roleMap.GetValueOrDefault(user.RoleId, string.Empty);
+        }
+
+        return user;
     }
 }

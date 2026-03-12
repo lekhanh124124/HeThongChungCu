@@ -1,6 +1,3 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-using HeThongChungCu.Domain.Errors;
-
 namespace HeThongChungCu.Application.Features.QuanHeCuTru.Commands.CapNhatQuanHe;
 
 public class CapNhatQuanHeCommandHandler : ICommandHandler<CapNhatQuanHeCommand, bool>

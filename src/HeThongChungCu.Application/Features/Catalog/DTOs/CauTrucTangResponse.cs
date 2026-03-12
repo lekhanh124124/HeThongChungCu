@@ -6,5 +6,5 @@ public class CauTrucTangResponse
     public string MaTang { get; set; } = null!;
     public string TenTang { get; set; } = null!;
 
-    public IReadOnlyList<CauTrucCanHoResponse> CauTrucCanHos { get; set; } = new List<CauTrucCanHoResponse>();
+    public List<CauTrucCanHoResponse> CauTrucCanHos { get; set; } = new();
 }

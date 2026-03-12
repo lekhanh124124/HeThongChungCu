@@ -1,4 +1,3 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.Profile.DTOs;
 
 namespace HeThongChungCu.Application.Features.Profile.Commands.UpdateProfile;
@@ -7,16 +6,13 @@ public class UpdateProfileCommandHandler : ICommandHandler<UpdateProfileCommand,
 {
     private readonly IUserEFRepository _userRepository;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IUnitOfWork _unitOfWork;
 
     public UpdateProfileCommandHandler(
         IUserEFRepository userRepository,
-        ICurrentUserService currentUserService,
-        IUnitOfWork unitOfWork)
+        ICurrentUserService currentUserService)
     {
         _userRepository = userRepository;
         _currentUserService = currentUserService;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<UserProfileDetailResponse>> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
@@ -54,6 +50,10 @@ public class UpdateProfileCommandHandler : ICommandHandler<UpdateProfileCommand,
         _userRepository.Update(user);
 
         // TransactionBehavior will automatically commit if no exception is thrown, otherwise it will rollback
+
+        var gioiTinhMap = GioiTinh.ToDictionary();
+        var roleMap = Role.ToDictionary();
+
         var response = new UserProfileDetailResponse
         {
             Id = user.Id,
@@ -66,9 +66,9 @@ public class UpdateProfileCommandHandler : ICommandHandler<UpdateProfileCommand,
             Dob = user.Dob,
             DiaChi = user.DiaChi,
             GioiTinhId = user.GioiTinhId,
-            GioiTinhName = GioiTinh.FromValue(user.GioiTinhId)?.Name ?? string.Empty,
+            GioiTinhName = gioiTinhMap.GetValueOrDefault(user.GioiTinhId, string.Empty),
             RoleId = user.RoleId,
-            RoleName = Role.FromValue(user.RoleId)?.Name ?? string.Empty,
+            RoleName = roleMap.GetValueOrDefault(user.RoleId, string.Empty),
             AnhDaiDienUrl = user.AnhDaiDienUrl ?? string.Empty
         };
 

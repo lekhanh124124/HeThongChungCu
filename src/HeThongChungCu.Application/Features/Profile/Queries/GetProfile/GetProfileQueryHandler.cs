@@ -1,5 +1,3 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
-using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.Profile.DTOs;
 
 namespace HeThongChungCu.Application.Features.Profile.Queries.GetProfile;
@@ -27,10 +25,6 @@ public class GetProfileQueryHandler : IQueryHandler<GetProfileQuery, UserProfile
         {
             return Result.Failure<UserProfileDetailResponse>(AuthErrors.InvalidCredentials);
         }
-
-        // Map Enum names
-        profile.GioiTinhName = GioiTinh.FromValue(profile.GioiTinhId)?.Name ?? string.Empty;
-        profile.RoleName = Role.FromValue(profile.RoleId)?.Name ?? string.Empty;
 
         return Result.Success(profile);
     }

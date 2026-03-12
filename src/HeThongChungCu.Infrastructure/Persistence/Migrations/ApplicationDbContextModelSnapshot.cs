@@ -68,6 +68,11 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Property<int>("TangId")
                         .HasColumnType("int");
 
+                    b.Property<string>("TenCanHo")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<int>("TinhTrangCanHoId")
                         .HasColumnType("int");
 

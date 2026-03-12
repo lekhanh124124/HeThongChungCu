@@ -1,8 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Services;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Features.Profile.DTOs;
-using HeThongChungCu.Domain.Common;
-using MediatR;
 
 namespace HeThongChungCu.Application.Features.Profile.Queries.LayQuanHeCuTru;
 
@@ -25,7 +21,8 @@ public class LayQuanHeCuTruQueryHandler : IQueryHandler<LayQuanHeCuTruQuery, IRe
             return Result.Failure<IReadOnlyList<LayQuanHeCuTruResponse>>(new Error("User.NotFound", "User not found in context."));
         }
 
-        var result = await _repository.GetActiveByUserIdAsync(userId.Value, cancellationToken);
+        var spec = new LayQuanHeCuTruSpecification(userId.Value);
+        var result = await _repository.GetActiveByUserIdAsync(spec, cancellationToken);
         return Result.Success(result);
     }
 }

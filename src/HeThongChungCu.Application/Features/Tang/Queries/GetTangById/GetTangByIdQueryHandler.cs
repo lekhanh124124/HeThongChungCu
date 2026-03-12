@@ -1,6 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Features.Tang.DTOs;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.Tang.Queries.GetTangById;
 

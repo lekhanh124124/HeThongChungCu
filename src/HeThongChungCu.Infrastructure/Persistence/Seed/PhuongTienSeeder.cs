@@ -1,5 +1,4 @@
 using Bogus;
-using HeThongChungCu.Domain.Entities.PhuongTien;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -7,7 +6,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class PhuongTienSeeder
 {
-    public static async Task SeedAsync(AppDbContext context, ILogger logger)
+    public static async Task SeedAsync(AppDbContext context, ILogger logger, int count)
     {
         if (!await context.Set<PhuongTien>().AnyAsync())
         {
@@ -26,7 +25,7 @@ public class PhuongTienSeeder
                         mauXe: f.Commerce.Color()
                     ));
 
-                var phuongTiens = phuongTienFaker.Generate(30);
+                var phuongTiens = phuongTienFaker.Generate(count);
 
                 // Add some cards to a few vehicles
                 var faker = new Faker("vi");

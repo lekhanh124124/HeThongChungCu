@@ -39,6 +39,7 @@ public static class DependencyInjection
         });
 
         services.AddScoped<ApplicationDbContextInitialiser>();
+        services.AddScoped<IDatabaseSeeder, HeThongChungCu.Infrastructure.Persistence.Seed.DatabaseSeeder>();
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<AppDbContext>());
         services.AddScoped<IUserEFRepository, UserEFRepository>();
         services.AddScoped<IToaNhaEFRepository, ToaNhaEFRepository>();

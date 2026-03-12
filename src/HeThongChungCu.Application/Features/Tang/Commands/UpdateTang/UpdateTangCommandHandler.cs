@@ -1,7 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.Tang.DTOs;
-using HeThongChungCu.Domain.Enums;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.Tang.Commands.UpdateTang;
 

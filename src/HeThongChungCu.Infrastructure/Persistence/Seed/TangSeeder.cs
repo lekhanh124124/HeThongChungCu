@@ -7,7 +7,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class TangSeeder
 {
-    public static async Task SeedAsync(AppDbContext context, ILogger logger)
+    public static async Task SeedAsync(AppDbContext context, ILogger logger, int count)
     {
         if (!await context.Tangs.AnyAsync())
         {
@@ -31,7 +31,7 @@ public class TangSeeder
                 }
 
                 // Seed floors
-                for (int i = 1; i <= 10; i++)
+                for (int i = 1; i <= count; i++)
                 {
                     tangs.Add(new Tang(
                         maTang: $"TN{toaNhaId}-F{i}",
@@ -45,7 +45,7 @@ public class TangSeeder
             }
 
             await context.SaveChangesAsync();
-            logger.LogInformation("Seeded {Count} Tangs.", toaNhaIds.Count * 12); // 2 basements + 10 floors per building
+            logger.LogInformation("Seeded {Count} Tangs.", toaNhaIds.Count * (2 + count)); // basements + floors per building
         }
     }
 }

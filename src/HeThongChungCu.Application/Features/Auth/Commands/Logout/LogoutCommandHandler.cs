@@ -1,6 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-
-namespace HeThongChungCu.Application.Features.Auth.Commands.Logout;
+﻿namespace HeThongChungCu.Application.Features.Auth.Commands.Logout;
 
 public class LogoutCommandHandler : ICommandHandler<LogoutCommand, bool>
 {

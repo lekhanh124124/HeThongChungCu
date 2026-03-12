@@ -1,5 +1,4 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-using HeThongChungCu.Domain.Entities.ChungCu;
 using Microsoft.EntityFrameworkCore;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.EFRepositories;

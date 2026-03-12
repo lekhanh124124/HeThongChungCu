@@ -1,7 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
-using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
-using HeThongChungCu.Domain.Common;
 
 namespace HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayLichSuCuTru;
 
@@ -21,29 +18,16 @@ public class LayLichSuCuTruQueryHandler : IQueryHandler<LayLichSuCuTruQuery, Pag
                 "QuanHeCuTru.InvalidFilter",
                 "Phải cung cấp ít nhất CanHoId hoặc UserId để lấy lịch sử cư trú."));
 
-        int totalCount;
-        IReadOnlyList<LichSuCuTruResponse> items;
+        var spec = new LayLichSuCuTruSpecification(
+            request.CanHoId,
+            request.UserId,
+            request.SortCol,
+            request.IsAsc,
+            request.PageNumber,
+            request.PageSize);
 
-        if (request.CanHoId.HasValue)
-        {
-            (totalCount, items) = await _queryRepository.GetLichSuByCanHoIdAsync(
-                request.CanHoId.Value, request.SortCol, request.IsAsc, request.PageNumber, request.PageSize, cancellationToken);
-        }
-        else
-        {
-            (totalCount, items) = await _queryRepository.GetLichSuByUserIdAsync(
-                request.UserId!.Value, request.SortCol, request.IsAsc, request.PageNumber, request.PageSize, cancellationToken);
-        }
+        var result = await _queryRepository.GetLichSuAsync(spec, cancellationToken);
 
-        return Result.Success(new PagedResult<LichSuCuTruResponse>
-        {
-            Items = items,
-            PagingInfo = new PagingInfo
-            {
-                PageNumber = request.PageNumber,
-                PageSize = request.PageSize,
-                TotalItems = totalCount
-            }
-        });
+        return Result.Success(result);
     }
 }

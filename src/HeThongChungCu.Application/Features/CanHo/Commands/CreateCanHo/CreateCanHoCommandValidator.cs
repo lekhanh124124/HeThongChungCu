@@ -9,6 +9,10 @@ public class CreateCanHoCommandValidator : AbstractValidator<CreateCanHoCommand>
             .NotEmpty().WithMessage("Mã căn hộ không được để trống.")
             .MaximumLength(20).WithMessage("Mã căn hộ không được vượt quá 20 ký tự.");
 
+        RuleFor(x => x.TenCanHo)
+            .NotEmpty().WithMessage("Tên căn hộ không được để trống.")
+            .MaximumLength(100).WithMessage("Tên căn hộ không được vượt quá 100 ký tự.");
+
         RuleFor(x => x.DienTich)
             .GreaterThan(0).WithMessage("Diện tích phải lớn hơn 0.");
 

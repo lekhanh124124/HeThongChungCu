@@ -4,6 +4,7 @@ public class CanHoDetailResponse
 {
     public int Id { get; set; }
     public string MaCanHo { get; set; } = null!;
+    public string TenCanHo { get; set; } = null!;
     public int TangId { get; set; }
     public string TenTang { get; set; } = null!;
     public decimal DienTich { get; set; }

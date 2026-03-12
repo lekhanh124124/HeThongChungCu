@@ -1,9 +1,11 @@
 using HealthChecks.UI.Client;
 using HeThongChungCu.Application;
+using HeThongChungCu.Application.Common.Options;
 using HeThongChungCu.Infrastructure;
 using HeThongChungCu.Infrastructure.Persistence;
-using HeThongChungCu.WebAPI.Common.Logging;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace HeThongChungCu.WebAPI
@@ -14,22 +16,40 @@ namespace HeThongChungCu.WebAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // 1. Core Services Definition
+            // ================= CORE SERVICES =================
             builder.Services.AddApplicationCore();
             builder.Services.AddInfrastructureLayer(builder.Configuration);
-            builder.Services.AddWebAPIServices();
+            builder.Services.AddWebAPIServices(builder.Configuration);
 
-            // 1.1 Logging setup
-            builder.Logging.ClearProviders();
-            builder.Logging.AddConsole();
-            var logPath = Path.Combine(builder.Environment.ContentRootPath, "Logs", "app_log.txt");
-            Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
-            builder.Logging.AddFileLogger(logPath);
+            // ================= LOGGING =================
+            builder.Host.UseSerilog((context, services, configuration) =>
+            {
+                configuration
+                    .MinimumLevel.Information()
+                    .Enrich.FromLogContext()
+                    .Enrich.WithMachineName()
+                    .Enrich.WithEnvironmentName()
+                    .WriteTo.Console()
+                    .WriteTo.File(
+                        path: Path.Combine(context.HostingEnvironment.ContentRootPath, "Logs", "app_log-.txt"),
+                        rollingInterval: RollingInterval.Day,
+                        retainedFileCountLimit: 7,
+                        outputTemplate:
+                        "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+                    );
+
+                if (!context.HostingEnvironment.IsDevelopment())
+                {
+                    configuration.WriteTo.ApplicationInsights(
+                        services.GetRequiredService<TelemetryConfiguration>(),
+                        TelemetryConverter.Traces);
+                }
+            });
 
             // ================== BUILD APP ==================
             var app = builder.Build();
 
-            // Initialise and seed database
+            // ================== INITIALISE AND SEED DATABASE ==================
             using (var scope = app.Services.CreateScope())
             {
                 var logger = scope.ServiceProvider
@@ -49,8 +69,10 @@ namespace HeThongChungCu.WebAPI
                 }
             }
 
-            // 2. Configure the HTTP request pipeline.
+            // ================== CONFIGURE THE HTTP REQUEST PIPELINE ==================
             app.UseMiddleware<Middlewares.GlobalExceptionMiddleware>();
+
+            app.UseSerilogRequestLogging();
 
             //if (app.Environment.IsDevelopment())
             //{
@@ -73,7 +95,7 @@ namespace HeThongChungCu.WebAPI
 
             app.MapControllers();
 
-            // Map Endpoint cho Health Checks
+            // ================== MAP ENDPOINT FOR HEALTH CHECKS ==================
             app.MapHealthChecks("/health/live", new HealthCheckOptions
             {
                 Predicate = _ => false,

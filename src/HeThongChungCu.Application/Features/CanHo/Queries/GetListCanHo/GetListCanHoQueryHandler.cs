@@ -1,5 +1,3 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
-using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
 
 namespace HeThongChungCu.Application.Features.CanHo.Queries.GetListCanHo;
@@ -15,24 +13,16 @@ public class GetListCanHoQueryHandler : IQueryHandler<GetListCanHoQuery, PagedRe
 
     public async Task<Result<PagedResult<CanHoDetailResponse>>> Handle(GetListCanHoQuery request, CancellationToken cancellationToken)
     {
-        var (totalCount, items) = await _queryRepository.GetAllAsync(
+        var spec = new GetListCanHoSpecification(
             request.TangId,
             request.Keyword,
             request.SortCol,
             request.IsAsc,
             request.PageNumber,
-            request.PageSize,
-            cancellationToken);
+            request.PageSize);
 
-        return Result.Success(new PagedResult<CanHoDetailResponse>
-        {
-            Items = items,
-            PagingInfo = new PagingInfo
-            {
-                PageNumber = request.PageNumber,
-                PageSize = request.PageSize,
-                TotalItems = totalCount
-            }
-        });
+        var result = await _queryRepository.GetAllAsync(spec, cancellationToken);
+
+        return Result.Success(result);
     }
 }

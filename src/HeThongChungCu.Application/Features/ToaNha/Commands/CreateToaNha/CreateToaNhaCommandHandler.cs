@@ -1,4 +1,3 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
 
 namespace HeThongChungCu.Application.Features.ToaNha.Commands.CreateToaNha;

@@ -8,7 +8,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class CanHoSeeder
 {
-    public static async Task SeedAsync(AppDbContext context, ILogger logger)
+    public static async Task SeedAsync(AppDbContext context, ILogger logger, int count)
     {
         if (!await context.CanHos.AnyAsync())
         {
@@ -26,8 +26,10 @@ public class CanHoSeeder
                     .CustomInstantiator(f =>
                     {
                         var maCanHo = $"{tang.MaTang}-{apartmentIndex++:D2}";
+                        var tenCanHo = $"Căn hộ {maCanHo}";
                         return new CanHo(
                             maCanHo: maCanHo,
+                            tenCanHo: tenCanHo,
                             dienTich: f.Random.Decimal(45m, 120m),
                             tangId: tang.Id,
                             soPhongNgu: f.Random.Int(1, 3),
@@ -37,7 +39,7 @@ public class CanHoSeeder
                         );
                     });
 
-                var canHos = canHoFaker.Generate(new Random().Next(4, 7));
+                var canHos = canHoFaker.Generate(count);
                 allCanHos.AddRange(canHos);
             }
 

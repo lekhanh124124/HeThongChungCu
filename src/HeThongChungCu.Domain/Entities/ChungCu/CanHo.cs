@@ -5,6 +5,7 @@ namespace HeThongChungCu.Domain.Entities.ChungCu;
 public class CanHo : AggregateRoot
 {
     public string MaCanHo { get; private set; } = null!;
+    public string TenCanHo { get; private set; } = null!;
 
     public decimal DienTich { get; private set; }
     public int SoPhongNgu { get; private set; }
@@ -24,9 +25,10 @@ public class CanHo : AggregateRoot
 
     private CanHo() { } // EF Core
 
-    public CanHo(string maCanHo, decimal dienTich, int tangId, int soPhongNgu, int soPhongTam, int loaiCanHoId, int tinhTrangCanHoId)
+    public CanHo(string maCanHo, string tenCanHo, decimal dienTich, int tangId, int soPhongNgu, int soPhongTam, int loaiCanHoId, int tinhTrangCanHoId)
     {
         MaCanHo = maCanHo;
+        TenCanHo = tenCanHo;
         DienTich = dienTich;
         TangId = tangId;
         SoPhongNgu = soPhongNgu;
@@ -35,8 +37,9 @@ public class CanHo : AggregateRoot
         TinhTrangCanHoId = tinhTrangCanHoId;
     }
 
-    public void UpdateInfo(decimal dienTich, int tangId, int soPhongNgu, int soPhongTam, int loaiCanHoId)
+    public void UpdateInfo(string tenCanHo, decimal dienTich, int tangId, int soPhongNgu, int soPhongTam, int loaiCanHoId)
     {
+        TenCanHo = tenCanHo;
         DienTich = dienTich;
         TangId = tangId;
         SoPhongNgu = soPhongNgu;

@@ -1,4 +1,4 @@
-using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Application.Common.Options;
 using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.WebAPI.Common.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,10 +9,15 @@ namespace HeThongChungCu.WebAPI;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddWebAPIServices(this IServiceCollection services)
+    public static IServiceCollection AddWebAPIServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddControllers();
         services.AddEndpointsApiExplorer();
+
+        services.Configure<ApplicationInsightsOptions>(
+            configuration.GetSection(ApplicationInsightsOptions.SectionName));
+
+        services.AddApplicationInsightsTelemetry();
 
         services.AddHttpContextAccessor();
 
