@@ -24,7 +24,7 @@ public class UpdateToaNhaCommandHandler : ICommandHandler<UpdateToaNhaCommand, T
             request.TenToaNha,
             request.DiaChi,
             request.MoTa,
-            trangThaiToaNha!.Value);
+            trangThaiToaNha);
 
         _toaNhaRepository.Update(toaNha);
 
@@ -36,8 +36,8 @@ public class UpdateToaNhaCommandHandler : ICommandHandler<UpdateToaNhaCommand, T
             TenToaNha = toaNha.TenToaNha,
             DiaChi = toaNha.DiaChi,
             MoTa = toaNha.MoTa,
-            TrangThaiToaNhaId = trangThaiToaNha!.Value,
-            TenTrangThaiToaNha = trangThaiToaNha!.Name
+            TrangThaiToaNhaId = toaNha.TrangThaiToaNhaId.Value,
+            TenTrangThaiToaNha = toaNha.TrangThaiToaNhaId.Name
         });
     }
 }

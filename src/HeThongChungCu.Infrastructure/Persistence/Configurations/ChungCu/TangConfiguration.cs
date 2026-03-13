@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Entities.ChungCu;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -21,6 +22,10 @@ public class TangConfiguration : IEntityTypeConfiguration<Tang>
             .HasMaxLength(100);
 
         builder.Property(t => t.LoaiTangId)
+            .HasConversion(
+                v => v.Value,
+                v => LoaiTang.FromValue(v, null)!
+            )
             .IsRequired();
 
         builder.HasOne(t => t.ToaNha)

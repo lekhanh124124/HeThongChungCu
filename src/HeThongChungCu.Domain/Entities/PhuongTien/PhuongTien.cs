@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Domain.Entities.PhuongTien;
 
@@ -6,7 +7,7 @@ public class PhuongTien : AggregateRoot
 {
     public int CanHoId { get; private set; }
     public string TenPhuongTien { get; private set; } = null!;
-    public int LoaiPhuongTienId { get; private set; }
+    public LoaiPhuongTien LoaiPhuongTienId { get; private set; } = null!;
     public string BienSo { get; private set; } = null!;
     public string MauXe { get; private set; } = null!;
 
@@ -15,7 +16,7 @@ public class PhuongTien : AggregateRoot
 
     private PhuongTien() { } // EF Core
 
-    public PhuongTien(int canHoId, string tenPhuongTien, int loaiPhuongTienId, string bienSo, string mauXe)
+    public PhuongTien(int canHoId, string tenPhuongTien, LoaiPhuongTien loaiPhuongTienId, string bienSo, string mauXe)
     {
         CanHoId = canHoId;
         TenPhuongTien = tenPhuongTien;
@@ -24,7 +25,7 @@ public class PhuongTien : AggregateRoot
         MauXe = mauXe;
     }
 
-    public void Update(string tenPhuongTien, int loaiPhuongTienId, string bienSo, string mauXe)
+    public void Update(string tenPhuongTien, LoaiPhuongTien loaiPhuongTienId, string bienSo, string mauXe)
     {
         TenPhuongTien = tenPhuongTien;
         LoaiPhuongTienId = loaiPhuongTienId;

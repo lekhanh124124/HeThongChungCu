@@ -12,6 +12,10 @@ public static class UserErrors
         "User.EmailExists",
         "Đã tồn tại người dùng với email này.");
 
+    public static readonly Error PhoneNumberAlreadyExists = new(
+        "User.PhoneNumberExists",
+        "Đã tồn tại người dùng với số điện thoại này.");
+
     public static readonly Error UsernameAlreadyExists = new(
         "User.UsernameExists",
         "Đã tồn tại người dùng với username này.");
@@ -27,4 +31,8 @@ public static class UserErrors
     public static Error NotFoundByUsername(string username) => new(
         "User.NotFound",
         $"Không tìm thấy người dùng với username '{username}' hoặc không có vai trò Cư dân/Khách.");
+
+    public static Error NotFoundByPhoneNumber(string phoneNumber) => new(
+        "User.NotFound",
+        $"Không tìm thấy người dùng với số điện thoại '{phoneNumber}' hoặc không có vai trò Cư dân/Khách.");
 }

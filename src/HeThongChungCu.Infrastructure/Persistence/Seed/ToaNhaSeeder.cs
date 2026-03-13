@@ -1,4 +1,6 @@
 using Bogus;
+using HeThongChungCu.Domain.Entities.ChungCu;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -18,7 +20,7 @@ public class ToaNhaSeeder
                     tenToaNha: $"Tòa nhà {f.Address.BuildingNumber()}",
                     diaChi: f.Address.StreetAddress(),
                     moTa: f.Lorem.Sentence(),
-                    trangThaiToaNhaId: 1 // HoatDong
+                    trangThaiToaNhaId: TrangThaiToaNha.DangHoatDong
                 ));
 
             var toaNhas = toaNhaFaker.Generate(count);

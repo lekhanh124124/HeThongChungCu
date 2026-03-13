@@ -1,5 +1,6 @@
-using Bogus;
+using bog = Bogus;
 using HeThongChungCu.Domain.Entities.Identity;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using HeThongChungCu.Infrastructure.Authentication;
@@ -15,7 +16,7 @@ public class UserSeeder
         {
             logger.LogInformation("Seeding Users...");
 
-            var userFaker = new Faker<User>("vi")
+            var userFaker = new bog.Faker<User>("vi")
                 .CustomInstantiator(f => new User(
                     username: f.Internet.UserName(),
                     email: f.Internet.Email(),
@@ -25,11 +26,23 @@ public class UserSeeder
                     phoneNumber: f.Phone.PhoneNumber("0#########"),
                     idCard: f.Random.Replace("0010########"),
                     dob: f.Date.PastOffset(30, DateTime.Now.AddYears(-18)).Date,
-                    gioiTinhId: f.Random.Int(1, 2),
+                    gioiTinhId: f.PickRandom(GioiTinh.GetAll().ToArray()),
                     diaChi: f.Address.FullAddress()
-                ));
+                ))
+                .RuleFor(u => u.PhoneNumber, f => f.Phone.PhoneNumber("0#########"));
 
-            var users = userFaker.Generate(count);
+            var users = new List<User>();
+            var phoneNumbers = new HashSet<string>();
+            
+            // Generate unique phone numbers
+            while (users.Count < count)
+            {
+                var user = userFaker.Generate();
+                if (phoneNumbers.Add(user.PhoneNumber))
+                {
+                    users.Add(user);
+                }
+            }
 
             // Hardcode 1 admin for easy login
             if (users.Count > 0)
@@ -43,7 +56,7 @@ public class UserSeeder
                     "0987654321",
                     "001090123456",
                     new DateTime(1990, 1, 1),
-                    1,
+                    GioiTinh.Nam,
                     "Hà Nội");
                 users[0].ChangeRole(Role.Admin);
 

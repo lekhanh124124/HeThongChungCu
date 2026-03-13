@@ -1,4 +1,5 @@
 using Bogus;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -28,7 +29,7 @@ public class QuanHeCuTruSeeder
 
                     if (usedPairs.Add((canHo.Id, userId)))
                     {
-                        canHo.AddQuanHeCuTru(userId, 1, faker.Date.Past(1));
+                        canHo.AddQuanHeCuTru(userId, LoaiQuanHeCuTru.ChuHo, faker.Date.Past(1));
                     }
                 }
 

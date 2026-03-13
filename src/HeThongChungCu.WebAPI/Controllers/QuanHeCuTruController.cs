@@ -5,7 +5,7 @@ using HeThongChungCu.Application.Features.QuanHeCuTru.Commands.ThietLapCuTru;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayCuDanByCanHoId;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayLichSuCuTru;
-using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayUserByUsername;
+using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayUserByPhoneNumber;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -102,16 +102,16 @@ public class QuanHeCuTruController : ApiControllerBase
     }
 
     /// <summary>
-    /// Tìm kiếm người dùng theo username (chỉ Resident hoặc Guest)
+    /// Tìm kiếm người dùng theo số điện thoại (chỉ Resident hoặc Guest)
     /// </summary>
     /// <remarks>
     /// Dùng khi cần tra cứu nhanh người dùng trong hệ thống (nhằm thêm cư dân vào căn hộ).
-    /// Chỉ trả về những user có quyền Resident/Guest, hỗ trợ tìm kiếm theo Username.
+    /// Chỉ trả về những user có quyền Resident/Guest, hỗ trợ tìm kiếm theo PhoneNumber.
     /// </remarks>
     [HttpPost("search-user")]
     [ProducesResponseType(typeof(ApiResponse<SearchUserByUsernameResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> TimKiemNguoiDung([FromBody] GetUserByUsernameQuery query, CancellationToken cancellationToken)
+    public async Task<IActionResult> TimKiemNguoiDung([FromBody] GetUserByPhoneNumberQuery query, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(query, cancellationToken));
     }

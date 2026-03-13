@@ -2,10 +2,11 @@ using Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Features.Profile.DTOs;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
-using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayUserByUsername;
+using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayUserByPhoneNumber;
 using HeThongChungCu.Infrastructure.Persistence.Helpers;
 using System.Data;
 using HeThongChungCu.Application.Features.Profile.Queries.GetProfile;
+using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayUserByPhoneNumber;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
 
@@ -52,8 +53,8 @@ public class UserDapperRepository : IUserDapperRepository
         return user;
     }
 
-    public async Task<SearchUserByUsernameResponse?> SearchResidentOrGuestByUsernameAsync(
-        GetUserByUsernameSpecification spec,
+    public async Task<SearchUserByUsernameResponse?> SearchResidentOrGuestByPhoneNumberAsync(
+        GetUserByPhoneNumberSpecification spec,
         CancellationToken cancellationToken = default)
     {
         var connection = _dbContext.GetDbConnection();
@@ -63,7 +64,7 @@ public class UserDapperRepository : IUserDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            {  nameof(User.Username), "Username" },
+            {  nameof(User.PhoneNumber), "PhoneNumber" },
             {  nameof(User.RoleId), "RoleId" },
             {  nameof(User.IsDeleted), "IsDeleted" }
 

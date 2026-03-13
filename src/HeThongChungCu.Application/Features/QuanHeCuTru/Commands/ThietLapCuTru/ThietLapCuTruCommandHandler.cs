@@ -37,7 +37,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
         if (alreadyResident)
             return Result.Failure<CuDanResponse>(QuanHeCuTruErrors.UserAlreadyResident);
 
-        Role userRole = Role.FromValue(user.RoleId)!;
+        Role userRole = user.RoleId;
 
         if (userRole == Role.Guest)
         {
@@ -46,7 +46,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
 
         var loaiQuanHe = LoaiQuanHeCuTru.FromValue(request.LoaiQuanHeCuTruId);
         var now = _dateTimeProvider.Now.DateTime;
-        canHo.AddQuanHeCuTru(user.Id, loaiQuanHe!.Value, now);
+        canHo.AddQuanHeCuTru(user.Id, loaiQuanHe!, now);
 
         _canHoRepository.Update(canHo);
 
@@ -64,8 +64,8 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
             HoTen = $"{user.FirstName} {user.LastName}", 
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
-            LoaiQuanHeCuTruId = newRecord.LoaiQuanHeCuTruId,
-            TenLoaiQuanHeCuTru = loaiQuanHe.Name,
+            LoaiQuanHeCuTruId = newRecord.LoaiQuanHeCuTruId.Value,
+            TenLoaiQuanHeCuTru = newRecord.LoaiQuanHeCuTruId.Name,
             NgayBatDau = newRecord.NgayBatDau
         });
     }

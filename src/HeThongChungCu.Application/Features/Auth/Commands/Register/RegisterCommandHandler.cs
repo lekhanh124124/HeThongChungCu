@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Features.Auth.DTOs;
+using HeThongChungCu.Application.Features.Auth.DTOs;
 using System.Security.Cryptography;
 
 namespace HeThongChungCu.Application.Features.Auth.Commands.Register;
@@ -33,11 +33,26 @@ public class RegisterCommandHandler : ICommandHandler<RegisterCommand, AuthRespo
             return Result.Failure<AuthResponse>(UserErrors.UsernameAlreadyExists);
         }
 
-        var hashedPassword = _passwordHasher.HashPassword(request.Password);
-        var user = new User(request.Username, request.Email, hashedPassword, request.FirstName, request.LastName, request.PhoneNumber, request.IdCard, request.Dob, request.GioiTinhId, request.DiaChi);
+        var phoneNumberExists = await _userRepository.AnyAsync(u => u.PhoneNumber == request.PhoneNumber, cancellationToken);
+        if (phoneNumberExists)
+        {
+            return Result.Failure<AuthResponse>(UserErrors.PhoneNumberAlreadyExists);
+        }
 
-        var userRole = Role.Guest;
-        user.ChangeRole(userRole);
+        var hashedPassword = _passwordHasher.HashPassword(request.Password);
+        var user = new User(
+            request.Username, 
+            request.Email, 
+            hashedPassword, 
+            request.FirstName, 
+            request.LastName, 
+            request.PhoneNumber,
+            request.IdCard, 
+            request.Dob, 
+            GioiTinh.FromValue(request.GioiTinhId)!, 
+            request.DiaChi);
+
+        Role userRole = user.RoleId;
 
         user.AddDomainEvent(new Domain.Events.UserRegisteredEvent(user.Id, user.Username));
 

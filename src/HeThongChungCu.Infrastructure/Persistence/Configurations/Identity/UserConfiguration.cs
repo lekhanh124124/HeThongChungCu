@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Entities.Identity;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -32,6 +33,17 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired();
 
         builder.Property(u => u.GioiTinhId)
+            .HasConversion(
+                v => v.Value,
+                v => GioiTinh.FromValue(v, null)!
+            )
+            .IsRequired();
+
+        builder.Property(u => u.RoleId)
+            .HasConversion(
+                v => v.Value,
+                v => Role.FromValue(v, null)!
+            )
             .IsRequired();
 
         builder.Property(u => u.PasswordHash).IsRequired();
@@ -40,5 +52,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         // Unique constraints
         builder.HasIndex(u => u.Username).IsUnique();
+        builder.HasIndex(u => u.PhoneNumber).IsUnique();
     }
 }

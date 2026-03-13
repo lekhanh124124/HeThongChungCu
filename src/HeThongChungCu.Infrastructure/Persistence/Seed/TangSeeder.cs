@@ -25,7 +25,7 @@ public class TangSeeder
                     tangs.Add(new Tang(
                         maTang: $"TN{toaNhaId}-B{i}",
                         tenTang: $"Tầng hầm {i}",
-                        loaiTangId: LoaiTang.TangHam.Value,
+                        loaiTangId: LoaiTang.TangHam,
                         toaNhaId: toaNhaId
                     ));
                 }
@@ -36,7 +36,7 @@ public class TangSeeder
                     tangs.Add(new Tang(
                         maTang: $"TN{toaNhaId}-F{i}",
                         tenTang: $"Tầng {i}",
-                        loaiTangId: LoaiTang.TangLau.Value,
+                        loaiTangId: LoaiTang.TangLau,
                         toaNhaId: toaNhaId
                     ));
                 }

@@ -20,7 +20,7 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
         if (tang == null)
             return Result.Failure<CanHoDetailResponse>(CanHoErrors.NotFound);
 
-        if (tang.LoaiTangId == LoaiTang.TangHam.Value)
+        if (tang.LoaiTangId == LoaiTang.TangHam)
             return Result.Failure<CanHoDetailResponse>(CanHoErrors.CanHoInBasement);
 
         var maExists = await _canHoRepository.MaCanHoExistsAsync(request.MaCanHo, cancellationToken);
@@ -37,8 +37,8 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
             request.TangId,
             request.SoPhongNgu,
             request.SoPhongTam,
-            loaiCanHo!.Value,
-            tinhTrangCanHo.Value);
+            loaiCanHo!,
+            tinhTrangCanHo);
 
         await _canHoRepository.AddAsync(canHo, cancellationToken);
 
@@ -52,10 +52,10 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
             TenTang = canHo.Tang?.TenTang ?? string.Empty,
             SoPhongNgu = canHo.SoPhongNgu,
             SoPhongTam = canHo.SoPhongTam,
-            LoaiCanHoId = canHo.LoaiCanHoId,
-            TenLoaiCanHo = LoaiCanHo.FromValue(canHo.LoaiCanHoId)?.Name ?? string.Empty,
-            TinhTrangCanHoId = canHo.TinhTrangCanHoId,
-            TenTinhTrangCanHo = TinhTrangCanHo.FromValue(canHo.TinhTrangCanHoId)?.Name ?? string.Empty
+            LoaiCanHoId = canHo.LoaiCanHoId.Value,
+            TenLoaiCanHo = canHo.LoaiCanHoId.Name,
+            TinhTrangCanHoId = canHo.TinhTrangCanHoId.Value,
+            TenTinhTrangCanHo = canHo.TinhTrangCanHoId.Name
         });
     }
 }

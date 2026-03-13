@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Features.Auth.DTOs;
+using HeThongChungCu.Application.Features.Auth.DTOs;
 using System.Security.Cryptography;
 
 namespace HeThongChungCu.Application.Features.Auth.Commands.RefreshToken;
@@ -38,7 +38,7 @@ public class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, A
         var newRefreshTokenString = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
         existingToken.Revoke(_dateTimeProvider.UtcNow, ReasonRevoked.ReplacedByNewToken, newRefreshTokenString);
 
-        var roles = new List<string> { Role.FromValue(user.RoleId)!.Name };
+        var roles = new List<string> { user.RoleId.Name };
         var newAccessToken = _jwtTokenGenerator.GenerateToken(user.Id, user.Username, roles);
 
         var newRefreshToken = Tokens.CreateRefreshToken(user.Id, newRefreshTokenString, _dateTimeProvider.UtcNow.AddDays(7));

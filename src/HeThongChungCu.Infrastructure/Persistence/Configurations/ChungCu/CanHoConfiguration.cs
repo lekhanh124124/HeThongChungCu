@@ -1,5 +1,6 @@
 using HeThongChungCu.Domain.Entities.ChungCu;
 using HeThongChungCu.Domain.Entities.PhuongTien;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -43,9 +44,17 @@ public class CanHoConfiguration : IEntityTypeConfiguration<CanHo>
             .IsRequired();
 
         builder.Property(c => c.LoaiCanHoId)
+            .HasConversion(
+                v => v.Value,
+                v => LoaiCanHo.FromValue(v, null)!
+            )
             .IsRequired();
 
         builder.Property(c => c.TinhTrangCanHoId)
+            .HasConversion(
+                v => v.Value,
+                v => TinhTrangCanHo.FromValue(v, null)!
+            )
             .IsRequired();
 
 

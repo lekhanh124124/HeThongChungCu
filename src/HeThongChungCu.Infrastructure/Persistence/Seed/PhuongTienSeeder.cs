@@ -1,4 +1,6 @@
 using Bogus;
+using HeThongChungCu.Domain.Entities.PhuongTien;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -20,7 +22,7 @@ public class PhuongTienSeeder
                     .CustomInstantiator(f => new PhuongTien(
                         canHoId: f.PickRandom(canHoIds),
                         tenPhuongTien: f.Vehicle.Model(),
-                        loaiPhuongTienId: f.Random.Int(1, 2), // 1: Xe máy, 2: Ô tô
+                        loaiPhuongTienId: f.PickRandom(LoaiPhuongTien.GetAll().ToArray()),
                         bienSo: $"{f.Random.Int(11, 99)}{f.Random.String2(1, "ABCDEFGHIJKLMNOPQRSTUVWXYZ")}-{f.Random.Int(10000, 99999)}",
                         mauXe: f.Commerce.Color()
                     ));

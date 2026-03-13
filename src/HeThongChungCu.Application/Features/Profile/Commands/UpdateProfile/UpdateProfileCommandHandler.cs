@@ -44,15 +44,12 @@ public class UpdateProfileCommandHandler : ICommandHandler<UpdateProfileCommand,
             request.PhoneNumber,
             request.IdCard,
             request.Dob,
-            request.GioiTinhId,
+            GioiTinh.FromValue(request.GioiTinhId)!,
             request.DiaChi);
 
         _userRepository.Update(user);
 
         // TransactionBehavior will automatically commit if no exception is thrown, otherwise it will rollback
-
-        var gioiTinhMap = GioiTinh.ToDictionary();
-        var roleMap = Role.ToDictionary();
 
         var response = new UserProfileDetailResponse
         {
@@ -65,10 +62,10 @@ public class UpdateProfileCommandHandler : ICommandHandler<UpdateProfileCommand,
             IdCard = user.IdCard,
             Dob = user.Dob,
             DiaChi = user.DiaChi,
-            GioiTinhId = user.GioiTinhId,
-            GioiTinhName = gioiTinhMap.GetValueOrDefault(user.GioiTinhId, string.Empty),
-            RoleId = user.RoleId,
-            RoleName = roleMap.GetValueOrDefault(user.RoleId, string.Empty),
+            GioiTinhId = user.GioiTinhId.Value,
+            GioiTinhName = user.GioiTinhId.Name,
+            RoleId = user.RoleId.Value,
+            RoleName = user.RoleId.Name,
             AnhDaiDienUrl = user.AnhDaiDienUrl ?? string.Empty
         };
 

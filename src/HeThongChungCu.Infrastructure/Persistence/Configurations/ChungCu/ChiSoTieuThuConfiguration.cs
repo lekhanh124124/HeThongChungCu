@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Entities.ChungCu;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,6 +12,13 @@ public class ChiSoTieuThuConfiguration : IEntityTypeConfiguration<ChiSoTieuThu>
         builder.ToTable("ChiSoTieuThus");
 
         builder.HasKey(c => c.Id);
+
+        builder.Property(c => c.LoaiDichVuId)
+            .HasConversion(
+                v => v.Value,
+                v => LoaiDichVu.FromValue(v, null)!
+            )
+            .IsRequired();
 
         builder.Property(c => c.ChiSo)
             .IsRequired();

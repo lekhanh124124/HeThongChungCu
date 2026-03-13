@@ -1,11 +1,12 @@
-﻿using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Domain.Entities.ChungCu;
 
 public class ChiSoTieuThu : AuditableEntity
 {
     public int CanHoId { get; private set; }
-    public int LoaiDichVuId { get; private set; }
+    public LoaiDichVu LoaiDichVuId { get; private set; } = null!;
     public double ChiSo { get; private set; }
     public int Thang { get; private set; }
     public int Nam { get; private set; }
@@ -14,7 +15,7 @@ public class ChiSoTieuThu : AuditableEntity
 
     private ChiSoTieuThu() { } // EF Core
 
-    public ChiSoTieuThu(int canHoId, int loaiDichVuId, double chiSo, int thang, int nam, DateTime ngayChot)
+    public ChiSoTieuThu(int canHoId, LoaiDichVu loaiDichVuId, double chiSo, int thang, int nam, DateTime ngayChot)
     {
         CanHoId = canHoId;
         LoaiDichVuId = loaiDichVuId;

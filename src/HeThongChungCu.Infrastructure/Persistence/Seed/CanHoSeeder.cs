@@ -1,4 +1,6 @@
 using Bogus;
+using HeThongChungCu.Domain.Entities.ChungCu;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -13,7 +15,7 @@ public class CanHoSeeder
             logger.LogInformation("Seeding CanHos...");
 
             var tangs = await context.Tangs
-                .Where(t => t.LoaiTangId != LoaiTang.TangHam.Value)
+                .Where(t => t.LoaiTangId != LoaiTang.TangHam)
                 .ToListAsync();
             var allCanHos = new List<CanHo>();
 
@@ -32,8 +34,8 @@ public class CanHoSeeder
                             tangId: tang.Id,
                             soPhongNgu: f.Random.Int(1, 3),
                             soPhongTam: f.Random.Int(1, 2),
-                            loaiCanHoId: f.Random.Int(1, 3),
-                            tinhTrangCanHoId: f.Random.Int(1, 2)
+                            loaiCanHoId: f.PickRandom(LoaiCanHo.GetAll().ToArray()),
+                            tinhTrangCanHoId: f.PickRandom(TinhTrangCanHo.GetAll().ToArray())
                         );
                     });
 

@@ -37,7 +37,8 @@ public class UpdateTangCommandHandler : ICommandHandler<UpdateTangCommand, TangD
                 return Result.Failure<TangDetailResponse>(TangErrors.ToaNhaNotFound);
         }
 
-        tang.Update(request.MaTang, request.TenTang, request.LoaiTangId);
+        var loaiTang = LoaiTang.FromValue(request.LoaiTangId);
+        tang.Update(request.MaTang, request.TenTang, loaiTang!);
         
         // Cập nhật lại ToaNhaId qua field
         var type = typeof(Domain.Entities.ChungCu.Tang);
@@ -57,8 +58,8 @@ public class UpdateTangCommandHandler : ICommandHandler<UpdateTangCommand, TangD
             Id = tang.Id,
             MaTang = tang.MaTang,
             TenTang = tang.TenTang,
-            LoaiTangId = tang.LoaiTangId,
-            TenLoaiTang = LoaiTang.FromValue(tang.LoaiTangId)?.Name ?? string.Empty,
+            LoaiTangId = tang.LoaiTangId.Value,
+            TenLoaiTang = tang.LoaiTangId.Name,
             ToaNhaId = tang.ToaNhaId,
             TenToaNha = toaNha?.TenToaNha ?? string.Empty
         });

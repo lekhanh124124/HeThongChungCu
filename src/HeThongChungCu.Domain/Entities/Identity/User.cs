@@ -16,15 +16,14 @@ public class User : AggregateRoot
 
     public string IdCard { get; private set; } = null!;
     public DateTime Dob { get; private set; }
-    public int GioiTinhId { get; private set; }
+    public GioiTinh GioiTinhId { get; private set; } = null!;
     public string? AnhDaiDienUrl { get; private set; }
     public string DiaChi { get; private set; } = null!;
 
 
     public bool IsActive { get; private set; }
 
-    // Navigation property
-    public int RoleId { get; private set; }
+    public Role RoleId { get; private set; } = null!;
 
     private readonly List<Tokens> _tokens = new();
     public IReadOnlyCollection<Tokens> Tokens => _tokens.AsReadOnly();
@@ -34,7 +33,7 @@ public class User : AggregateRoot
 
     private User() { } // EF Core
 
-    public User(string username, string email, string passwordHash, string firstName, string lastName, string phoneNumber, string idCard, DateTime dob, int gioiTinhId, string diaChi)
+    public User(string username, string email, string passwordHash, string firstName, string lastName, string phoneNumber, string idCard, DateTime dob, GioiTinh gioiTinhId, string diaChi)
     {
         Username = username;
         Email = email;
@@ -47,9 +46,10 @@ public class User : AggregateRoot
         GioiTinhId = gioiTinhId;
         DiaChi = diaChi;
         IsActive = true;
+        RoleId = Role.Guest; // Mặc định là Guest khi tạo mới
     }
 
-    public void UpdateProfile(string firstName, string lastName, string phoneNumber, string idCard, DateTime dob, int gioiTinhId, string diaChi)
+    public void UpdateProfile(string firstName, string lastName, string phoneNumber, string idCard, DateTime dob, GioiTinh gioiTinhId, string diaChi)
     {
         FirstName = firstName;
         LastName = lastName;
@@ -77,7 +77,7 @@ public class User : AggregateRoot
 
     public void ChangeRole(Role role)
     {
-        RoleId = role.Value;
+        RoleId = role;
     }
 
     public void AddToken(Tokens token)

@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Domain.Entities.ChungCu;
 
@@ -9,7 +10,7 @@ public class ToaNha : AggregateRoot
 
     public string DiaChi { get; private set; } = null!;
     public string? MoTa { get; private set; }
-    public int TrangThaiToaNhaId { get; private set; }
+    public TrangThaiToaNha TrangThaiToaNhaId { get; private set; } = null!;
 
     private readonly List<Tang> _tangs = new();
     public IReadOnlyCollection<Tang> Tangs => _tangs.AsReadOnly();
@@ -17,7 +18,7 @@ public class ToaNha : AggregateRoot
 
     private ToaNha() { } // EF Core
 
-    public ToaNha(string maToaNha, string tenToaNha, string diaChi, string? moTa, int trangThaiToaNhaId)
+    public ToaNha(string maToaNha, string tenToaNha, string diaChi, string? moTa, TrangThaiToaNha trangThaiToaNhaId)
     {
         MaToaNha = maToaNha;
         TenToaNha = tenToaNha;
@@ -26,7 +27,7 @@ public class ToaNha : AggregateRoot
         TrangThaiToaNhaId = trangThaiToaNhaId;
     }
 
-    public void Update(string tenToaNha, string diaChi, string? moTa, int? trangThaiToaNhaId)
+    public void Update(string tenToaNha, string diaChi, string? moTa, TrangThaiToaNha? trangThaiToaNhaId)
     {
         TenToaNha = tenToaNha ?? TenToaNha;
         DiaChi = diaChi ?? DiaChi;

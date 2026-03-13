@@ -35,10 +35,10 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
             TenTang = c.Tang?.TenTang ?? string.Empty,
             SoPhongNgu = c.SoPhongNgu,
             SoPhongTam = c.SoPhongTam,
-            LoaiCanHoId = c.LoaiCanHoId,
-            TenLoaiCanHo = LoaiCanHo.FromValue(c.LoaiCanHoId)?.Name ?? string.Empty,
-            TinhTrangCanHoId = c.TinhTrangCanHoId,
-            TenTinhTrangCanHo = TinhTrangCanHo.FromValue(c.TinhTrangCanHoId)?.Name ?? string.Empty
+            LoaiCanHoId = c.LoaiCanHoId.Value,
+            TenLoaiCanHo = c.LoaiCanHoId.Name,
+            TinhTrangCanHoId = c.TinhTrangCanHoId.Value,
+            TenTinhTrangCanHo = c.TinhTrangCanHoId.Name
         }).ToList();
 
         foreach (var canHo in canHos)

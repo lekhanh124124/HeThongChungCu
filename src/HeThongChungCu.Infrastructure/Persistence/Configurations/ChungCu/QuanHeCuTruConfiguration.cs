@@ -1,5 +1,6 @@
 using HeThongChungCu.Domain.Entities.ChungCu;
 using HeThongChungCu.Domain.Entities.Identity;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -20,6 +21,10 @@ public class QuanHeCuTruConfiguration : IEntityTypeConfiguration<QuanHeCuTru>
             .IsRequired();
 
         builder.Property(q => q.LoaiQuanHeCuTruId)
+            .HasConversion(
+                v => v.Value,
+                v => LoaiQuanHeCuTru.FromValue(v, null)!
+            )
             .IsRequired();
 
         builder.Property(q => q.NgayBatDau)

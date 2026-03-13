@@ -28,14 +28,14 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
         if (tang == null)
             return Result.Failure<CanHoDetailResponse>(CanHoErrors.NotFound);
 
-        if (tang.LoaiTangId == LoaiTang.TangHam.Value)
+        if (tang.LoaiTangId == LoaiTang.TangHam)
             return Result.Failure<CanHoDetailResponse>(CanHoErrors.CanHoInBasement);
 
         var loaiCanHo = LoaiCanHo.FromValue(request.LoaiCanHoId);
         var tinhTrangCanHo = TinhTrangCanHo.FromValue(request.TinhTrangCanHoId);
 
-        canHo.UpdateInfo(request.TenCanHo, request.DienTich, request.TangId, request.SoPhongNgu, request.SoPhongTam, loaiCanHo!.Value);
-        canHo.UpdateStatus(tinhTrangCanHo!.Value);
+        canHo.UpdateInfo(request.TenCanHo, request.DienTich, request.TangId, request.SoPhongNgu, request.SoPhongTam, loaiCanHo!);
+        canHo.UpdateStatus(tinhTrangCanHo!);
 
         _canHoRepository.Update(canHo);
 
@@ -49,10 +49,10 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
             TenTang = canHo.Tang?.TenTang ?? string.Empty,
             SoPhongNgu = canHo.SoPhongNgu,
             SoPhongTam = canHo.SoPhongTam,
-            LoaiCanHoId = loaiCanHo.Value,
-            TenLoaiCanHo = loaiCanHo.Name,
-            TinhTrangCanHoId = tinhTrangCanHo.Value,
-            TenTinhTrangCanHo = tinhTrangCanHo.Name
+            LoaiCanHoId = canHo.LoaiCanHoId.Value,
+            TenLoaiCanHo = canHo.LoaiCanHoId.Name,
+            TinhTrangCanHoId = canHo.TinhTrangCanHoId.Value,
+            TenTinhTrangCanHo = canHo.TinhTrangCanHoId.Name
         });
     }
 }

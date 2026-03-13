@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Features.Auth.DTOs;
+using HeThongChungCu.Application.Features.Auth.DTOs;
 using System.Security.Cryptography;
 
 namespace HeThongChungCu.Application.Features.Auth.Commands.Login;
@@ -39,11 +39,7 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, AuthResponse>
         }
 
         // Get Roles
-        var role = Role.FromValue(user.RoleId);
-        if (role is null)
-        {
-            return Result.Failure<AuthResponse>(AuthErrors.InvalidCredentials);
-        }
+        Role role = user.RoleId;
 
         var roles = new List<string> { role.Name };
 

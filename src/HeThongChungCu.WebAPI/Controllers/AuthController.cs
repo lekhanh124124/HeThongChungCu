@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HeThongChungCu.WebAPI.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/auth")]
 public class AuthController : ApiControllerBase
@@ -33,7 +32,6 @@ public class AuthController : ApiControllerBase
     /// - Kết quả: Trả về Access Token (thời hạn ngắn, dùng để gọi các API yêu cầu quyền) và Refresh Token (thời hạn dài, dùng để cấp lại Access Token khi hết hạn).
     /// </remarks>
     [HttpPost("login")]
-    [AllowAnonymous]
     [ProducesResponseType(typeof(ApiResponse<AuthResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Login([FromBody] LoginCommand command, CancellationToken cancellationToken)
@@ -50,7 +48,6 @@ public class AuthController : ApiControllerBase
     /// Các trường bắt buộc bao gồm: Username, Email, Password, FirstName, LastName, PhoneNumber, IdCard, Dob, GioiTinhId, và DiaChi.
     /// </remarks>
     [HttpPost("register")]
-    [AllowAnonymous]
     [ProducesResponseType(typeof(ApiResponse<AuthResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] RegisterCommand command, CancellationToken cancellationToken)
@@ -67,7 +64,6 @@ public class AuthController : ApiControllerBase
     /// Hệ thống sẽ vô hiệu hóa Refresh Token cũ và tạo ra một cặp Access Token và Refresh Token mới để duy trì đăng nhập.
     /// </remarks>
     [HttpPost("refresh-token")]
-    [AllowAnonymous]
     [ProducesResponseType(typeof(ApiResponse<AuthResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command, CancellationToken cancellationToken)
@@ -84,6 +80,7 @@ public class AuthController : ApiControllerBase
     /// Hệ thống sẽ tìm và vô hiệu hóa (revoke) Refresh Token hiện tại đang được sử dụng gắn với tài khoản này để ngăn chặn việc cấp lại Access Token trong tương lai.
     /// </remarks>
     [HttpPost("logout")]
+    [Authorize]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Logout(CancellationToken cancellationToken)
@@ -99,7 +96,6 @@ public class AuthController : ApiControllerBase
     /// Gửi lên tên đăng nhập của người dùng. Hệ thống sẽ kiểm tra và nếu tồn tại, sẽ sinh ra một mã khôi phục (OTP/Token) và gửi vào hộp thư Email của người dùng đó.
     /// </remarks>
     [HttpPost("forgot-password")]
-    [AllowAnonymous]
     [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command, CancellationToken cancellationToken)
@@ -115,7 +111,6 @@ public class AuthController : ApiControllerBase
     /// Yêu cầu cung cấp `Email`, `ResetCode` (mã từ email), `NewPassword` và `ConfirmPassword`.
     /// </remarks>
     [HttpPost("reset-password")]
-    [AllowAnonymous]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command, CancellationToken cancellationToken)

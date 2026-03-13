@@ -22,7 +22,8 @@ public class CapNhatQuanHeCommandHandler : ICommandHandler<CapNhatQuanHeCommand,
         if (quanHe.IsKetThuc)
             return Result.Failure<bool>(QuanHeCuTruErrors.CuTruDaKetThuc);
 
-        quanHe.ThayDoiLoaiQuanHe(request.LoaiQuanHeCuTruId);
+        var loaiQuanHe = LoaiQuanHeCuTru.FromValue(request.LoaiQuanHeCuTruId);
+        quanHe.ThayDoiLoaiQuanHe(loaiQuanHe!);
         _canHoRepository.Update(canHo);
 
         // TransactionBehavior will automatically save changes when the scope ends, so there is no need to call _unitOfWork.SaveChangesAsync() here

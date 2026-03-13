@@ -23,7 +23,7 @@ public class CreateToaNhaCommandHandler : ICommandHandler<CreateToaNhaCommand, T
             request.TenToaNha,
             request.DiaChi,
             request.MoTa,
-            trangThaiToaNha.Value);
+            trangThaiToaNha);
 
         await _toaNhaRepository.AddAsync(toaNha, cancellationToken);
 
@@ -36,7 +36,7 @@ public class CreateToaNhaCommandHandler : ICommandHandler<CreateToaNhaCommand, T
             TenToaNha = toaNha.TenToaNha,
             DiaChi = toaNha.DiaChi,
             MoTa = toaNha.MoTa,
-            TrangThaiToaNhaId = toaNha.TrangThaiToaNhaId,
+            TrangThaiToaNhaId = toaNha.TrangThaiToaNhaId.Value,
             TenTrangThaiToaNha = trangThaiToaNha.Name
         });
     }

@@ -31,8 +31,8 @@ public class DeleteToaNhaCommandHandler : ICommandHandler<DeleteToaNhaCommand, I
             TenToaNha = t.TenToaNha,
             DiaChi = t.DiaChi,
             MoTa = t.MoTa,
-            TrangThaiToaNhaId = TrangThaiToaNha.FromValue(t.TrangThaiToaNhaId)?.Value ?? 0,
-            TenTrangThaiToaNha = TrangThaiToaNha.FromValue(t.TrangThaiToaNhaId)?.Name ?? string.Empty
+            TrangThaiToaNhaId = t.TrangThaiToaNhaId.Value,
+            TenTrangThaiToaNha = t.TrangThaiToaNhaId.Name
         }).ToList();
 
         foreach (var toaNha in toaNhas)

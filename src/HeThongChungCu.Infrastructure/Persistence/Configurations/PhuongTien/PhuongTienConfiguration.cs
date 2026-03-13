@@ -1,5 +1,6 @@
 using HeThongChungCu.Domain.Entities.ChungCu;
 using HeThongChungCu.Domain.Entities.PhuongTien;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -23,6 +24,13 @@ public class PhuongTienConfiguration : IEntityTypeConfiguration<Domain.Entities.
 
         builder.Property(p => p.MauXe)
             .HasMaxLength(50);
+
+        builder.Property(p => p.LoaiPhuongTienId)
+            .HasConversion(
+                v => v.Value,
+                v => LoaiPhuongTien.FromValue(v, null)!
+            )
+            .IsRequired();
 
         builder.HasOne<CanHo>()
             .WithMany(c => c.PhuongTiens)

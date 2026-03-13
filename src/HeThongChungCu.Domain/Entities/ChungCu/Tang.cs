@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Domain.Entities.ChungCu;
 
@@ -6,7 +7,7 @@ public class Tang : AuditableEntity
 {
     public string MaTang { get; private set; } = null!;
     public string TenTang { get; private set; } = null!;
-    public int LoaiTangId { get; private set; }
+    public LoaiTang LoaiTangId { get; private set; } = null!;
     public int ToaNhaId { get; private set; }
 
     // Navigation properties
@@ -16,7 +17,7 @@ public class Tang : AuditableEntity
 
     private Tang() { } // EF Core
 
-    public Tang(string maTang, string tenTang, int loaiTangId, int toaNhaId)
+    public Tang(string maTang, string tenTang, LoaiTang loaiTangId, int toaNhaId)
     {
         MaTang = maTang;
         TenTang = tenTang;
@@ -24,7 +25,7 @@ public class Tang : AuditableEntity
         ToaNhaId = toaNhaId;
     }
 
-    public void Update(string maTang, string tenTang, int loaiTangId)
+    public void Update(string maTang, string tenTang, LoaiTang loaiTangId)
     {
         MaTang = maTang;
         TenTang = tenTang;

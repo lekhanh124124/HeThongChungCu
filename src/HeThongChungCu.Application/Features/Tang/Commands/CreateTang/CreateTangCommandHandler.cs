@@ -30,7 +30,7 @@ public class CreateTangCommandHandler : ICommandHandler<CreateTangCommand, TangD
         var tang = new Domain.Entities.ChungCu.Tang(
             request.MaTang,
             request.TenTang,
-            loaiTang!.Value,
+            loaiTang!,
             request.ToaNhaId);
 
         await _tangRepository.AddAsync(tang, cancellationToken);
@@ -40,8 +40,8 @@ public class CreateTangCommandHandler : ICommandHandler<CreateTangCommand, TangD
             Id = tang.Id,
             MaTang = tang.MaTang,
             TenTang = tang.TenTang,
-            LoaiTangId = tang.LoaiTangId,
-            TenLoaiTang = LoaiTang.FromValue(tang.LoaiTangId)?.Name ?? string.Empty,
+            LoaiTangId = tang.LoaiTangId.Value,
+            TenLoaiTang = tang.LoaiTangId.Name,
             ToaNhaId = tang.ToaNhaId,
             TenToaNha = toaNha.TenToaNha
         });

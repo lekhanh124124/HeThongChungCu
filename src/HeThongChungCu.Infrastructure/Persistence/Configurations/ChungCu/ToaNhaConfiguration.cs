@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Entities.ChungCu;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -30,6 +31,10 @@ public class ToaNhaConfiguration : IEntityTypeConfiguration<ToaNha>
             .HasMaxLength(500);
 
         builder.Property(t => t.TrangThaiToaNhaId)
+            .HasConversion(
+                v => v.Value,
+                v => TrangThaiToaNha.FromValue(v, null)!
+            )
             .IsRequired();
 
         builder.HasMany(t => t.Tangs)
