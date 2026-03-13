@@ -1,5 +1,4 @@
 namespace HeThongChungCu.Application.Features.QuanHeCuTru.Commands.KetThucCuTru;
 
 public record KetThucCuTruCommand(
-    int QuanHeCuTruId,
-    DateTime NgayKetThuc) : ICommand<bool>;
+    int QuanHeCuTruId) : ICommand<bool>;

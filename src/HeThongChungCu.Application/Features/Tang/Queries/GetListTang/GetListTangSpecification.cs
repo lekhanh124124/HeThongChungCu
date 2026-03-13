@@ -1,12 +1,14 @@
-using HeThongChungCu.Application.Common.Models;
-
 namespace HeThongChungCu.Application.Features.Tang.Queries.GetListTang;
 
 public class GetListTangSpecification : BaseSpecification
 {
     public override HashSet<string> AllowedSortColumns => new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "MaTang", "TenTang", "ToaNhaId", "LoaiTangId"
+        nameof(Domain.Entities.ChungCu.Tang.Id),
+        nameof(Domain.Entities.ChungCu.Tang.MaTang),
+        nameof(Domain.Entities.ChungCu.Tang.TenTang),
+        nameof(Domain.Entities.ChungCu.Tang.ToaNhaId),
+        nameof(Domain.Entities.ChungCu.Tang.LoaiTangId)
     };
 
     public GetListTangSpecification(
@@ -18,17 +20,17 @@ public class GetListTangSpecification : BaseSpecification
         int? pageSize) 
         : base(sortCol, isAsc, pageNumber, pageSize)
     {
-        AddFilter("IsDeleted", FilterOperator.Equal, false);
+        AddFilter(nameof(Domain.Entities.ChungCu.Tang.IsDeleted), FilterOperator.Equal, false);
 
         if (toaNhaId.HasValue)
         {
-            AddFilter("ToaNhaId", FilterOperator.Equal, toaNhaId.Value);
+            AddFilter(nameof(Domain.Entities.ChungCu.Tang.ToaNhaId), FilterOperator.Equal, toaNhaId.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(keyword))
         {
-            AddKeyword("MaTang", FilterOperator.Contains, keyword);
-            AddKeyword("TenTang", FilterOperator.Contains, keyword);
+            AddKeyword(nameof(Domain.Entities.ChungCu.Tang.MaTang), FilterOperator.Contains, keyword);
+            AddKeyword(nameof(Domain.Entities.ChungCu.Tang.TenTang), FilterOperator.Contains, keyword);
         }
     }
 }

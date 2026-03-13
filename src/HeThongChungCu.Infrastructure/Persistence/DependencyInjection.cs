@@ -4,6 +4,7 @@ using HeThongChungCu.Application.Common.Options;
 using HeThongChungCu.Infrastructure.Persistence.Interceptors;
 using HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
 using HeThongChungCu.Infrastructure.Persistence.Repositories.EFRepositories;
+using HeThongChungCu.Infrastructure.Persistence.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -39,7 +40,7 @@ public static class DependencyInjection
         });
 
         services.AddScoped<ApplicationDbContextInitialiser>();
-        services.AddScoped<IDatabaseSeeder, HeThongChungCu.Infrastructure.Persistence.Seed.DatabaseSeeder>();
+        services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<AppDbContext>());
         services.AddScoped<IUserEFRepository, UserEFRepository>();
         services.AddScoped<IToaNhaEFRepository, ToaNhaEFRepository>();

@@ -2,7 +2,7 @@ using Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Common.Models;
 
-namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories.Helpers;
+namespace HeThongChungCu.Infrastructure.Persistence.Helpers;
 
 public static class DapperQueryBuilder
 {
@@ -104,7 +104,7 @@ public static class DapperQueryBuilder
     public static string BuildOrderBy(
         IDapperSpecification spec, 
         Dictionary<string, string> propertyToColumnMap,
-        string defaultSortCol = "Id")
+        string defaultSortCol = nameof(BaseEntity.Id))
     {
         var propertyName = spec.SortCol;
         
@@ -115,9 +115,6 @@ public static class DapperQueryBuilder
 
         if (!propertyToColumnMap.TryGetValue(propertyName, out var columnName))
         {
-            // Nếu là defaultSortCol mà không có mapping, ta dùng chính nó (thường là "Id")
-            // Nhưng nếu là sortCol người dùng truyền mà không có mapping (dù đã qua Allowed check) 
-            // thì vẫn nên báo lỗi technical.
             if (propertyName == defaultSortCol && !propertyName.Contains("."))
             {
                 columnName = propertyName;

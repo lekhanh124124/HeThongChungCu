@@ -1,6 +1,4 @@
 using Bogus;
-using HeThongChungCu.Domain.Entities.ChungCu;
-using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 

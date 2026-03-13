@@ -8,6 +8,10 @@ public static class AuthErrors
         "Auth.InvalidCredentials",
         "Tên đăng nhập hoặc mật khẩu không chính xác.");
 
+    public static readonly Error InvalidOldPassword = new(
+        "Auth.InvalidPassword",
+        "Mật khẩu cũ không chính xác.");
+
     public static readonly Error InvalidRefreshToken = new(
         "Auth.InvalidRefreshToken",
         "Refresh token không chính xác hoặc đã hết hạn.");

@@ -31,7 +31,7 @@ public class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordComman
 
         if (!_passwordHasher.VerifyPassword(request.OldPassword, user.PasswordHash))
         {
-            return Result.Failure<string>(AuthErrors.InvalidCredentials);
+            return Result.Failure<string>(AuthErrors.InvalidOldPassword);
         }
 
         var newPasswordHash = _passwordHasher.HashPassword(request.NewPassword);

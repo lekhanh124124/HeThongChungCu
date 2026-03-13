@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
+// Removed invalid using
 
 namespace HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayUserByUsername;
 
@@ -13,7 +14,11 @@ public class GetUserByUsernameQueryHandler : IQueryHandler<GetUserByUsernameQuer
 
     public async Task<Result<SearchUserByUsernameResponse>> Handle(GetUserByUsernameQuery request, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.SearchResidentOrGuestByUsernameAsync(request.Username, cancellationToken);
+        var spec = new GetUserByUsernameSpecification(
+            username: request.Username,
+            roleIds: new List<int> { Role.Guest.Value, Role.Resident.Value });
+
+        var user = await _userRepository.SearchResidentOrGuestByUsernameAsync(spec, cancellationToken);
 
         if (user is null)
         {

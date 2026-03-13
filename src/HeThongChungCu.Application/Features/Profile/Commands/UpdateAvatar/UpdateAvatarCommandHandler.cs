@@ -9,19 +9,22 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
     private readonly IFileStorageService _fileStorageService;
     private readonly FileStorageOptions _fileStorageOptions;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
     public UpdateAvatarCommandHandler(
         IUserEFRepository userRepository,
         ICurrentUserService currentUserService,
         IFileStorageService fileStorageService,
         IOptions<FileStorageOptions> fileStorageOptions,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IDateTimeProvider dateTimeProvider)
     {
         _userRepository = userRepository;
         _currentUserService = currentUserService;
         _fileStorageService = fileStorageService;
         _fileStorageOptions = fileStorageOptions.Value;
         _unitOfWork = unitOfWork;
+        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task<Result<string>> Handle(UpdateAvatarCommand request, CancellationToken cancellationToken)
@@ -51,7 +54,7 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
 
         var normalizedFileName = _fileStorageService.UrlNormalization(
             fileName,
-            DateTime.UtcNow);
+            _dateTimeProvider.UtcNow.DateTime);
 
         var avatarUrl = await _fileStorageService.UploadFileAsync(
             request.AvatarStream,

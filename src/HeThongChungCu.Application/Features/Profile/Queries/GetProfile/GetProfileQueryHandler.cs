@@ -20,7 +20,8 @@ public class GetProfileQueryHandler : IQueryHandler<GetProfileQuery, UserProfile
             return Result.Failure<UserProfileDetailResponse>(AuthErrors.InvalidCredentials);
         }
 
-        var profile = await _userRepository.GetByIdAsync(_currentUserService.UserId.Value, cancellationToken);
+        var spec = new GetProfileSpecification(_currentUserService.UserId.Value);
+        var profile = await _userRepository.GetByIdAsync(spec, cancellationToken);
         if (profile is null)
         {
             return Result.Failure<UserProfileDetailResponse>(AuthErrors.InvalidCredentials);

@@ -1,5 +1,4 @@
 using HeThongChungCu.Domain.Common;
-using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Domain.Entities.ChungCu;
 

@@ -8,7 +8,7 @@ public abstract class BaseSpecification : IDapperSpecification
     public bool? IsAsc { get; set; }
     public int? PageNumber { get; set; }
     public int? PageSize { get; set; }
-    public virtual HashSet<string> AllowedSortColumns => new(StringComparer.OrdinalIgnoreCase) { "Id" };
+    public virtual HashSet<string> AllowedSortColumns => new(StringComparer.OrdinalIgnoreCase) { nameof(BaseEntity.Id) };
 
     private readonly List<FilterCriterion> _filters = new();
     public IReadOnlyList<FilterCriterion> Filters => _filters;
@@ -27,7 +27,7 @@ public abstract class BaseSpecification : IDapperSpecification
         {
             throw new ValidationException(new List<ValidationFailure>
             {
-                new("SortCol", $"Property '{SortCol}' is not allowed for sorting content. Allowed properties: {string.Join(", ", AllowedSortColumns)}")
+                new("SortCol", $"Không thể sắp xếp theo trường '{sortCol}'")
             });
         }
     }

@@ -13,7 +13,8 @@ public class GetTangByIdQueryHandler : IQueryHandler<GetTangByIdQuery, TangRespo
 
     public async Task<Result<TangResponse>> Handle(GetTangByIdQuery request, CancellationToken cancellationToken)
     {
-        var tang = await _queryRepository.GetByIdAsync(request.Id, cancellationToken);
+        var spec = new GetTangByIdSpecification(request.Id);
+        var tang = await _queryRepository.GetByIdAsync(spec, cancellationToken);
 
         if (tang is null)
             return Result.Failure<TangResponse>(TangErrors.NotFound);

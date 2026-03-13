@@ -6,7 +6,8 @@ using HeThongChungCu.Application.Features.Profile.Queries.LayQuanHeCuTru;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayCuDanByCanHoId;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayLichSuCuTru;
-using HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories.Helpers;
+using HeThongChungCu.Infrastructure.Persistence.Helpers;
+using HeThongChungCu.Infrastructure.Persistence.ReadModels;
 using System.Data;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
@@ -30,8 +31,8 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "CanHoId", "q.CanHoId" },
-            { "IsKetThuc", "q.IsKetThuc" }
+            { nameof(QuanHeCuTru.CanHoId), "q.CanHoId" },
+            { nameof(QuanHeCuTru.IsKetThuc), "q.IsKetThuc" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
@@ -52,15 +53,22 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
             {sqlOrderBy}
             """;
 
-        var items = await connection.QueryAsync<CuDanResponse>(sql, parameters);
+        var rows = await connection.QueryAsync<GetCuDanByCanHoIdReadModel>(sql, parameters);
 
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
-        foreach (var item in items)
+        var items = rows.Select(r => new CuDanResponse
         {
-            item.TenLoaiQuanHeCuTru = loaiQuanHeMap.GetValueOrDefault(item.LoaiQuanHeCuTruId, string.Empty);
-        }
+            QuanHeCuTruId = r.QuanHeCuTruId,
+            UserId = r.UserId,
+            HoTen = r.HoTen,
+            Email = r.Email,
+            PhoneNumber = r.PhoneNumber,
+            LoaiQuanHeCuTruId = r.LoaiQuanHeCuTruId,
+            NgayBatDau = r.NgayBatDau,
+            TenLoaiQuanHeCuTru = loaiQuanHeMap.GetValueOrDefault(r.LoaiQuanHeCuTruId, string.Empty)
+        }).ToList();
 
-        return items.ToList();
+        return items;
     }
 
     public async Task<PagedResult<LichSuCuTruResponse>> GetLichSuAsync(
@@ -74,13 +82,14 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "CanHoId", "q.CanHoId" },
-            { "UserId", "q.UserId" },
-            { "NgayBatDau", "q.NgayBatDau" },
-            { "NgayKetThuc", "q.NgayKetThuc" },
-            { "IsKetThuc", "q.IsKetThuc" },
-            { "LoaiQuanHeCuTruId", "q.LoaiQuanHeCuTruId" },
-            { "MaCanHo", "c.MaCanHo" }
+            { nameof(QuanHeCuTru.CanHoId), "q.CanHoId" },
+            { nameof(QuanHeCuTru.UserId), "q.UserId" },
+            { nameof(QuanHeCuTru.NgayBatDau), "q.NgayBatDau" },
+            { nameof(QuanHeCuTru.NgayKetThuc), "q.NgayKetThuc" },
+            { nameof(QuanHeCuTru.IsKetThuc), "q.IsKetThuc" },
+            { nameof(QuanHeCuTru.LoaiQuanHeCuTruId), "q.LoaiQuanHeCuTruId" },
+            { nameof(CanHo.MaCanHo), "c.MaCanHo" },
+            { nameof(QuanHeCuTru.IsDeleted), "q.IsDeleted" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
@@ -88,12 +97,8 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sql = $"""
-            SELECT COUNT(*)
-            FROM QuanHeCuTrus q
-            INNER JOIN CanHos c ON c.Id = q.CanHoId
-            {sqlWhere};
-
             SELECT
+                COUNT(*) OVER() AS TotalCount,
                 q.Id         AS QuanHeCuTruId,
                 q.CanHoId,
                 c.MaCanHo,
@@ -114,14 +119,25 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
             {sqlPagination};
             """;
 
-        using var multi = await connection.QueryMultipleAsync(sql, parameters);
-        var totalCount = await multi.ReadFirstAsync<int>();
-        var items = (await multi.ReadAsync<LichSuCuTruResponse>()).ToList();
+        var rows = (await connection.QueryAsync<GetLichSuCuTruReadModel>(sql, parameters)).ToList();
+        var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
+
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
-        foreach (var item in items)
+        var items = rows.Select(r => new LichSuCuTruResponse
         {
-            item.LoaiQuanHeTen = loaiQuanHeMap.GetValueOrDefault(item.LoaiQuanHeCuTruId, string.Empty);
-        }
+            QuanHeCuTruId = r.QuanHeCuTruId,
+            CanHoId = r.CanHoId,
+            MaCanHo = r.MaCanHo,
+            ToaNhaId = r.ToaNhaId,
+            TenToaNha = r.TenToaNha,
+            UserId = r.UserId,
+            HoTen = r.HoTen,
+            LoaiQuanHeCuTruId = r.LoaiQuanHeCuTruId,
+            NgayBatDau = r.NgayBatDau,
+            NgayKetThuc = r.NgayKetThuc,
+            IsKetThuc = r.IsKetThuc,
+            LoaiQuanHeTen = loaiQuanHeMap.GetValueOrDefault(r.LoaiQuanHeCuTruId, string.Empty)
+        }).ToList();
 
         return new PagedResult<LichSuCuTruResponse>
         {
@@ -146,8 +162,9 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "UserId", "q.UserId" },
-            { "IsKetThuc", "q.IsKetThuc" }
+            { nameof(QuanHeCuTru.CanHoId), "q.CanHoId" },
+            { nameof(QuanHeCuTru.IsKetThuc), "q.IsKetThuc" },
+            { nameof(QuanHeCuTru.IsDeleted), "q.IsDeleted" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
@@ -170,14 +187,24 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
             {sqlWhere}
             """;
 
-        var items = await connection.QueryAsync<LayQuanHeCuTruResponse>(sql, parameters);
+        var rows = await connection.QueryAsync<GetActiveQuanHeCuTruReadModel>(sql, parameters);
 
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
-        foreach (var item in items)
+        var items = rows.Select(r => new LayQuanHeCuTruResponse
         {
-            item.LoaiQuanHeTen = loaiQuanHeMap.GetValueOrDefault(item.LoaiQuanHeCuTruId, string.Empty);
-        }
+            QuanHeCuTruId = r.QuanHeCuTruId,
+            CanHoId = r.CanHoId,
+            MaCanHo = r.MaCanHo,
+            ToaNhaId = r.ToaNhaId,
+            TenToaNha = r.TenToaNha,
+            LoaiQuanHeCuTruId = r.LoaiQuanHeCuTruId,
+            NgayBatDau = r.NgayBatDau,
+            IsKetThuc = r.IsKetThuc,
+            DienTich = r.DienTich,
+            Tang = r.Tang,
+            LoaiQuanHeTen = loaiQuanHeMap.GetValueOrDefault(r.LoaiQuanHeCuTruId, string.Empty)
+        }).ToList();
 
-        return items.ToList();
+        return items;
     }
 }

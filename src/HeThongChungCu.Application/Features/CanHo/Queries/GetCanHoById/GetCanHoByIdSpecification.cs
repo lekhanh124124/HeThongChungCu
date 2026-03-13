@@ -1,0 +1,15 @@
+namespace HeThongChungCu.Application.Features.CanHo.Queries.GetCanHoById;
+
+public class GetCanHoByIdSpecification : BaseSpecification
+{
+    public GetCanHoByIdSpecification(int id)
+        : base(null, null, null, null)
+    {
+        AddFilter(nameof(Domain.Entities.ChungCu.CanHo.Id), FilterOperator.Equal, id);
+        AddFilter("CanHoIsDeleted", FilterOperator.Equal, false);
+        AddFilter("TangIsDeleted", FilterOperator.Equal, false);
+        AddFilter("QuanHeCuTruIsDeleted", FilterOperator.Equal, false);
+        AddFilter("UserIsDeleted", FilterOperator.Equal, false);
+
+    }
+}

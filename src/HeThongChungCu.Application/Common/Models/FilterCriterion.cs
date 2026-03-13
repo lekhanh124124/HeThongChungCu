@@ -1,19 +1,5 @@
 namespace HeThongChungCu.Application.Common.Models;
 
-public enum FilterOperator
-{
-    Equal,
-    NotEqual,
-    GreaterThan,
-    LessThan,
-    GreaterThanOrEqual,
-    LessThanOrEqual,
-    Contains,
-    StartsWith,
-    EndsWith,
-    In
-}
-
 public class FilterCriterion
 {
     public string PropertyName { get; }

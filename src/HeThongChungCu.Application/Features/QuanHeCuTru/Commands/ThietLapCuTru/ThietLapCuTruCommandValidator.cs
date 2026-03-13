@@ -14,9 +14,5 @@ public class ThietLapCuTruCommandValidator : AbstractValidator<ThietLapCuTruComm
             .Must(id => LoaiQuanHeCuTru.GetAll().Any(l => l.Value == id))
             .WithMessage($"Loại quan hệ cư trú không hợp lệ. Các giá trị hợp lệ: " +
                          $"{string.Join(", ", LoaiQuanHeCuTru.GetAll().Select(l => $"{l.Value} ({l.Name})"))}.");
-
-        RuleFor(x => x.NgayBatDau)
-            .NotEmpty().WithMessage("Ngày bắt đầu không được để trống.")
-            .LessThanOrEqualTo(DateTime.Today).WithMessage("Ngày bắt đầu không được lớn hơn ngày hôm nay.");
     }
 }

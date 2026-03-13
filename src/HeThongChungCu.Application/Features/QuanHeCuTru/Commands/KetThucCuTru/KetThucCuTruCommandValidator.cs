@@ -6,9 +6,5 @@ public class KetThucCuTruCommandValidator : AbstractValidator<KetThucCuTruComman
     {
         RuleFor(x => x.QuanHeCuTruId)
             .GreaterThan(0).WithMessage("ID quan hệ cư trú không hợp lệ.");
-
-        RuleFor(x => x.NgayKetThuc)
-            .NotEmpty().WithMessage("Ngày kết thúc không được để trống.")
-            .LessThanOrEqualTo(DateTime.Today).WithMessage("Ngày kết thúc không được lớn hơn ngày hôm nay.");
     }
 }

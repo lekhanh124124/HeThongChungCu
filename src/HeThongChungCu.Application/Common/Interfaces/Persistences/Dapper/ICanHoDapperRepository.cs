@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Features.CanHo.DTOs;
+using HeThongChungCu.Application.Features.CanHo.Queries.GetCanHoById;
 using HeThongChungCu.Application.Features.CanHo.Queries.GetListCanHo;
 
 namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
@@ -9,5 +10,5 @@ public interface ICanHoDapperRepository
         GetListCanHoSpecification spec,
         CancellationToken cancellationToken = default);
 
-    Task<CanHoResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<CanHoResponse?> GetByIdAsync(GetCanHoByIdSpecification spec, CancellationToken cancellationToken = default);
 }
