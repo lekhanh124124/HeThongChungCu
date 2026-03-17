@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Features.CanHo.DTOs;
+using HeThongChungCu.Domain.Policies;
 
 namespace HeThongChungCu.Application.Features.CanHo.Commands.DeleteCanHo;
 
@@ -6,11 +7,19 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
 {
     private readonly ICanHoEFRepository _canHoRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IQuanHeCuTruEFRepository _quanHeCuTruRepository;
+    private readonly ICanHoPolicy _canHoPolicy;
 
-    public DeleteCanHoCommandHandler(ICanHoEFRepository canHoRepository, IUnitOfWork unitOfWork)
+    public DeleteCanHoCommandHandler(
+        ICanHoEFRepository canHoRepository, 
+        IUnitOfWork unitOfWork,
+        IQuanHeCuTruEFRepository quanHeCuTruRepository,
+        ICanHoPolicy canHoPolicy)
     {
         _canHoRepository = canHoRepository;
         _unitOfWork = unitOfWork;
+        _quanHeCuTruRepository = quanHeCuTruRepository;
+        _canHoPolicy = canHoPolicy;
     }
 
     public async Task<Result<IReadOnlyList<CanHoDetailResponse>>> Handle(DeleteCanHoCommand request, CancellationToken cancellationToken)
@@ -31,6 +40,7 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
             Id = c.Id,
             MaCanHo = c.MaCanHo,
             DienTich = c.DienTich,
+            TenCanHo = c.TenCanHo,
             TangId = c.TangId,
             TenTang = c.Tang?.TenTang ?? string.Empty,
             SoPhongNgu = c.SoPhongNgu,
@@ -43,6 +53,10 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
 
         foreach (var canHo in canHos)
         {
+            var relations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
+            bool hasActiveResidents = relations.Any(r => !r.IsKetThuc);
+            
+            canHo.Delete(_canHoPolicy, hasActiveResidents);
             _canHoRepository.Remove(canHo);
         }
 

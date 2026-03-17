@@ -1,8 +1,8 @@
-using HeThongChungCu.Application.Features.Profile.DTOs;
+using HeThongChungCu.Application.Features.CuDan.DTOs;
 
-namespace HeThongChungCu.Application.Features.Profile.Queries.LayQuanHeCuTru;
+namespace HeThongChungCu.Application.Features.CuDan.Queries.LayQuanHeCuTru;
 
-public class LayQuanHeCuTruQueryHandler : IQueryHandler<LayQuanHeCuTruQuery, IReadOnlyList<LayQuanHeCuTruResponse>>
+public class LayQuanHeCuTruQueryHandler : IQueryHandler<LayQuanHeCuTruQuery, IReadOnlyList<QuanHeCuTruResponse>>
 {
     private readonly IQuanHeCuTruDapperRepository _repository;
     private readonly ICurrentUserService _currentUserService;
@@ -13,12 +13,12 @@ public class LayQuanHeCuTruQueryHandler : IQueryHandler<LayQuanHeCuTruQuery, IRe
         _currentUserService = currentUserService;
     }
 
-    public async Task<Result<IReadOnlyList<LayQuanHeCuTruResponse>>> Handle(LayQuanHeCuTruQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<QuanHeCuTruResponse>>> Handle(LayQuanHeCuTruQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId;
         if (userId == null)
         {
-            return Result.Failure<IReadOnlyList<LayQuanHeCuTruResponse>>(new Error("User.NotFound", "User not found in context."));
+            return Result.Failure<IReadOnlyList<QuanHeCuTruResponse>>(UserErrors.NotFound);
         }
 
         var spec = new LayQuanHeCuTruSpecification(userId.Value);

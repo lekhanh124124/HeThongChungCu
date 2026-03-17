@@ -32,14 +32,14 @@ public class ToaNhaDapperRepository : IToaNhaDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { nameof(ToaNha.Id), "Id" },
-            { nameof(ToaNha.MaToaNha), "MaToaNha" },
-            { nameof(ToaNha.TenToaNha), "TenToaNha" },
-            { nameof(ToaNha.IsDeleted), "IsDeleted" }
+            { "Id", "Id" },
+            { "MaToaNha", "MaToaNha" },
+            { "TenToaNha", "TenToaNha" },
+            { "IsDeleted", "IsDeleted" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, nameof(ToaNha.Id));
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sql = $"""
@@ -52,6 +52,9 @@ public class ToaNhaDapperRepository : IToaNhaDapperRepository
             """;
 
         var rows = (await connection.QueryAsync<GetListToaNhaReadModel>(sql, parameters)).ToList();
+
+        Console.WriteLine(sql);
+
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var trangThaiToaNhaMap = TrangThaiToaNha.ToDictionary();
@@ -89,8 +92,8 @@ public class ToaNhaDapperRepository : IToaNhaDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { nameof(ToaNha.Id), "tn.Id" },
-            { nameof(ToaNha.IsDeleted), "tn.IsDeleted" }
+            { "Id", "tn.Id" },
+            { "IsDeleted", "tn.IsDeleted" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
@@ -124,7 +127,7 @@ public class ToaNhaDapperRepository : IToaNhaDapperRepository
         };
 
         var loaiCanHoMap = LoaiCanHo.ToDictionary();
-        var tinhTrangCanHoMap = TinhTrangCanHo.ToDictionary();
+        var tinhTrangCanHoMap = TrangThaiCanHo.ToDictionary();
 
         var canHos = rows
             .Where(r => r.CanHoId.HasValue)
@@ -132,6 +135,7 @@ public class ToaNhaDapperRepository : IToaNhaDapperRepository
             {
                 Id = r.CanHoId!.Value,
                 MaCanHo = r.MaCanHo ?? string.Empty,
+                TenCanHo = r.MaCanHo ?? string.Empty,
                 TangId = r.TangId!.Value,
                 TenTang = r.TenTang ?? string.Empty,
                 DienTich = r.DienTich ?? 0,
@@ -160,17 +164,14 @@ public class ToaNhaDapperRepository : IToaNhaDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { nameof(ToaNha.MaToaNha), "t.MaToaNha" },
-            { nameof(ToaNha.TenToaNha), "t.TenToaNha" },
-            { nameof(Tang.MaTang), "f.MaTang" },
-            { nameof(Tang.TenTang), "f.TenTang" },
-            { nameof(CanHo.MaCanHo), "c.MaCanHo" },
-            { nameof(CanHo.TenCanHo), "c.TenCanHo" },
+            { "MaToaNha", "t.MaToaNha" },
+            { "TenToaNha", "t.TenToaNha" },
+            { "MaTang", "f.MaTang" },
+            { "TenTang", "f.TenTang" },
+            { "MaCanHo", "c.MaCanHo" },
+            { "TenCanHo", "c.TenCanHo" },
 
-            { "ToaNhaIsDeleted", "t.IsDeleted" },
-            { "CanHoIsDeleted", "c.IsDeleted" },
-            { "TangIsDeleted", "f.IsDeleted" }
-
+            { "ToaNhaIsDeleted", "t.IsDeleted" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
@@ -181,19 +182,19 @@ public class ToaNhaDapperRepository : IToaNhaDapperRepository
                 f.Id AS TangId, f.MaTang, f.TenTang,
                 c.Id AS CanHoId, c.MaCanHo, c.TinhTrangCanHoId AS CanHoTrangThaiId
             FROM ToaNhas t
-            LEFT JOIN Tangs f ON f.ToaNhaId = t.Id
-            LEFT JOIN CanHos c ON c.TangId = f.Id
+            LEFT JOIN Tangs f ON f.ToaNhaId = t.Id AND f.IsDeleted = 0
+            LEFT JOIN CanHos c ON c.TangId = f.Id AND c.IsDeleted = 0
             {sqlWhere}
             ORDER BY t.TenToaNha, f.Id, c.MaCanHo
             """;
 
-        var rows = await connection.QueryAsync<Persistence.ReadModels.GetCauTrucChungCuReadModel>(sql, parameters);
+        var rows = await connection.QueryAsync<GetCauTrucChungCuReadModel>(sql, parameters);
 
         var toaNhaMap = new Dictionary<int, CauTrucToaNhaResponse>();
         var tangMap = new Dictionary<int, CauTrucTangResponse>();
 
         var trangThaiToaNhaMap = TrangThaiToaNha.ToDictionary();
-        var tinhTrangCanHoMap = TinhTrangCanHo.ToDictionary();
+        var tinhTrangCanHoMap = TrangThaiCanHo.ToDictionary();
 
         foreach (var r in rows)
         {

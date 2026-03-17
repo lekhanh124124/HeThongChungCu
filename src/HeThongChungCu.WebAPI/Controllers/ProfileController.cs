@@ -1,9 +1,8 @@
 using HeThongChungCu.Application.Features.Profile.Commands.ChangePassword;
 using HeThongChungCu.Application.Features.Profile.Commands.UpdateAvatar;
 using HeThongChungCu.Application.Features.Profile.Commands.UpdateProfile;
-using HeThongChungCu.Application.Features.Profile.Queries.GetProfile;
-using HeThongChungCu.Application.Features.Profile.Queries.LayQuanHeCuTru;
 using HeThongChungCu.Application.Features.Profile.DTOs;
+using HeThongChungCu.Application.Features.Profile.Queries.GetProfile;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
@@ -22,20 +21,6 @@ public class ProfileController : ApiControllerBase
     public ProfileController(ISender sender)
     {
         _sender = sender;
-    }
-
-    /// <summary>
-    /// Lấy quan hệ cư trú của người dùng đang đăng nhập
-    /// </summary>
-    /// <remarks>
-    /// API trả về danh sách các quan hệ cư trú đang hoạt động của người dùng, bao gồm thông tin căn hộ.
-    /// </remarks>
-    [HttpPost("quan-he-cu-tru")]
-    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<LayQuanHeCuTruResponse>>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetQuanHeCuTru(CancellationToken cancellationToken)
-    {
-        return HandleResult(await _sender.Send(new LayQuanHeCuTruQuery(), cancellationToken));
     }
 
     /// <summary>

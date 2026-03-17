@@ -1,8 +1,7 @@
-using HeThongChungCu.Domain.Entities.PhuongTien;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace HeThongChungCu.Infrastructure.Persistence.Configurations.PhuongTien;
+namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
 public class ThePhuongTienConfiguration : IEntityTypeConfiguration<ThePhuongTien>
 {
@@ -16,7 +15,7 @@ public class ThePhuongTienConfiguration : IEntityTypeConfiguration<ThePhuongTien
             .IsRequired()
             .HasMaxLength(50);
 
-        builder.HasOne<Domain.Entities.PhuongTien.PhuongTien>()
+        builder.HasOne<PhuongTien>()
             .WithMany(p => p.ThePhuongTiens)
             .HasForeignKey(t => t.PhuongTienId)
             .OnDelete(DeleteBehavior.Cascade);

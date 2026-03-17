@@ -1,7 +1,4 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-using HeThongChungCu.Domain.Common;
-using HeThongChungCu.Domain.Entities.ChungCu;
-using HeThongChungCu.Domain.Entities.Identity;
 using HeThongChungCu.Infrastructure.Persistence.Interceptors;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +29,9 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<Tang> Tangs => Set<Tang>();
     public DbSet<CanHo> CanHos => Set<CanHo>();
     public DbSet<QuanHeCuTru> QuanHeCuTrus => Set<QuanHeCuTru>();
+    public DbSet<PhuongTien> PhuongTiens => Set<PhuongTien>();
+    public DbSet<ThePhuongTien> ThePhuongTiens => Set<ThePhuongTien>();
+    public DbSet<ChiSoTieuThu> ChiSoTieuThus => Set<ChiSoTieuThu>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

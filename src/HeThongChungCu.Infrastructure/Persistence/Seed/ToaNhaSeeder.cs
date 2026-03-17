@@ -1,19 +1,21 @@
 using Bogus;
-using HeThongChungCu.Domain.Entities.ChungCu;
-using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Policies;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class ToaNhaSeeder
 {
-    public static async Task SeedAsync(AppDbContext context, ILogger logger, int count)
+    public static async Task SeedAsync(AppDbContext context, ILogger logger, int buildingCount, int floorCount)
     {
         if (!await context.ToaNhas.AnyAsync())
         {
-            logger.LogInformation("Seeding ToaNhas...");
+            logger.LogInformation("Seeding ToaNhas and Tangs...");
 
+            var toaNhaPolicy = new ToaNhaPolicy();
             var toaNhaFaker = new Faker<ToaNha>("vi")
                 .CustomInstantiator(f => new ToaNha(
                     maToaNha: f.Random.Replace("TN-##"),
@@ -23,9 +25,26 @@ public class ToaNhaSeeder
                     trangThaiToaNhaId: TrangThaiToaNha.DangHoatDong
                 ));
 
-            var toaNhas = toaNhaFaker.Generate(count);
+            var toaNhas = toaNhaFaker.Generate(buildingCount);
+
+            foreach (var toaNha in toaNhas)
+            {
+                // Add basements
+                for (int i = 1; i <= 2; i++)
+                {
+                    toaNha.AddTang($"TN{toaNha.MaToaNha}-B{i}", $"Tầng hầm {i}", LoaiTang.TangHam, toaNhaPolicy);
+                }
+
+                // Add floors
+                for (int i = 1; i <= floorCount; i++)
+                {
+                    toaNha.AddTang($"TN{toaNha.MaToaNha}-F{i}", $"Tầng {i}", LoaiTang.TangLau, toaNhaPolicy);
+                }
+            }
+
             await context.ToaNhas.AddRangeAsync(toaNhas);
             await context.SaveChangesAsync();
+            logger.LogInformation("Seeded {Count} ToaNhas with their floors.", toaNhas.Count);
         }
     }
 }

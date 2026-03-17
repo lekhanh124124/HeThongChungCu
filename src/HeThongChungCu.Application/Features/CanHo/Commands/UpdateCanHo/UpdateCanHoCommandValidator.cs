@@ -7,15 +7,19 @@ public class UpdateCanHoCommandValidator : AbstractValidator<UpdateCanHoCommand>
         RuleFor(x => x.Id)
             .GreaterThan(0).WithMessage("ID căn hộ không hợp lệ.");
 
+        RuleFor(x => x.TangId)
+            .GreaterThan(0).WithMessage("ID tầng không hợp lệ.");
+
+        RuleFor(x => x.MaCanHo)
+            .NotEmpty().WithMessage("Mã căn hộ không được để trống.")
+            .MaximumLength(20).WithMessage("Mã căn hộ không được vượt quá 20 ký tự.");
+
         RuleFor(x => x.TenCanHo)
             .NotEmpty().WithMessage("Tên căn hộ không được để trống.")
             .MaximumLength(100).WithMessage("Tên căn hộ không được vượt quá 100 ký tự.");
 
         RuleFor(x => x.DienTich)
             .GreaterThan(0).WithMessage("Diện tích phải lớn hơn 0.");
-
-        RuleFor(x => x.TangId)
-            .GreaterThan(0).WithMessage("ID tầng không hợp lệ.");
 
         RuleFor(x => x.SoPhongNgu)
             .GreaterThanOrEqualTo(0).WithMessage("Số phòng ngủ không được âm.");
@@ -29,8 +33,8 @@ public class UpdateCanHoCommandValidator : AbstractValidator<UpdateCanHoCommand>
                          $"{string.Join(", ", LoaiCanHo.GetAll().Select(l => $"{l.Value} ({l.Name})"))}.");
 
         RuleFor(x => x.TinhTrangCanHoId)
-            .Must(id => TinhTrangCanHo.GetAll().Any(g => g.Value == id))
+            .Must(id => TrangThaiCanHo.GetAll().Any(g => g.Value == id))
             .WithMessage($"Tình trạng căn hộ không hợp lệ. Các giá trị hợp lệ: " +
-                         $"{string.Join(", ", TinhTrangCanHo.GetAll().Select(l => $"{l.Value} ({l.Name})"))}.");
+                         $"{string.Join(", ", TrangThaiCanHo.GetAll().Select(l => $"{l.Value} ({l.Name})"))}.");
     }
 }

@@ -1,9 +1,11 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 
-namespace HeThongChungCu.Domain.Entities.ChungCu;
+using HeThongChungCu.Domain.Policies;
 
-public class ChiSoTieuThu : AuditableEntity
+namespace HeThongChungCu.Domain.Entities;
+
+public class ChiSoTieuThu : AggregateRoot
 {
     public int CanHoId { get; private set; }
     public LoaiDichVu LoaiDichVuId { get; private set; } = null!;
@@ -26,9 +28,9 @@ public class ChiSoTieuThu : AuditableEntity
         IsLock = false;
     }
 
-    public void Update(double chiSo, int thang, int nam, DateTime ngayChot)
+    public void Update(double chiSo, int thang, int nam, DateTime ngayChot, IChiSoTieuThuPolicy policy)
     {
-        if (IsLock) return;
+        policy.ValidateUpdate(this);
         ChiSo = chiSo;
         Thang = thang;
         Nam = nam;

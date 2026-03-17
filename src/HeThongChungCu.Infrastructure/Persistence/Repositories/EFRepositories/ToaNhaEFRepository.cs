@@ -15,6 +15,7 @@ public class ToaNhaEFRepository : IToaNhaEFRepository
     public async Task<ToaNha?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<ToaNha>()
+            .Include(t => t.Tangs.Where(tang => !tang.IsDeleted))
             .FirstOrDefaultAsync(t => 
                 t.Id == id &&
                 !t.IsDeleted, 

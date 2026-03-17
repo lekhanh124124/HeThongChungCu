@@ -7,6 +7,7 @@ public class GetCanHoByIdReadModel
     public int TangId { get; set; }
     public string TenTang { get; set; } = string.Empty;
     public string MaCanHo { get; set; } = string.Empty;
+    public string TenCanHo { get; set; } = string.Empty;
     public decimal DienTich { get; set; }
     public int SoPhongNgu { get; set; }
     public int SoPhongTam { get; set; }

@@ -1,9 +1,7 @@
-using HeThongChungCu.Domain.Entities.Identity;
-using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace HeThongChungCu.Infrastructure.Persistence.Configurations.Identity;
+namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
 public class TokensConfiguration : IEntityTypeConfiguration<Tokens>
 {

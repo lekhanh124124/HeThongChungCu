@@ -1,5 +1,3 @@
-using HeThongChungCu.Domain.Entities.ChungCu;
-
 namespace HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 
 public interface ITangEFRepository

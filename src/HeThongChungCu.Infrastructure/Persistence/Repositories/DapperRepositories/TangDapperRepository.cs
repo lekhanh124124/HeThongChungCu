@@ -31,12 +31,12 @@ public class TangDapperRepository : ITangDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { nameof(Tang.Id), "t.Id" },
-            { nameof(Tang.MaTang), "t.MaTang" },
-            { nameof(Tang.TenTang), "t.TenTang" },
-            { nameof(Tang.ToaNhaId), "t.ToaNhaId" },
-            { nameof(Tang.LoaiTangId), "t.LoaiTangId" },
-            { nameof(Tang.IsDeleted), "t.IsDeleted" }
+            { "Id", "t.Id" },
+            { "MaTang", "t.MaTang" },
+            { "TenTang", "t.TenTang" },
+            { "ToaNhaId", "t.ToaNhaId" },
+            { "LoaiTangId", "t.LoaiTangId" },
+            { "IsDeleted", "t.IsDeleted" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
@@ -99,7 +99,7 @@ public class TangDapperRepository : ITangDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { nameof(Tang.Id), "t.Id" },
+            { "Id", "t.Id" },
             { "TangIsDeleted", "t.IsDeleted" },
             { "ToaNhaIsDeleted", "tn.IsDeleted" }
         };
@@ -133,7 +133,7 @@ public class TangDapperRepository : ITangDapperRepository
         };
 
         var loaiCanHoDict = LoaiCanHo.ToDictionary();
-        var tinhTrangCanHoDict = TinhTrangCanHo.ToDictionary();
+        var tinhTrangCanHoDict = TrangThaiCanHo.ToDictionary();
 
         var canHos = rows
             .Where(r => r.CanHoId.HasValue)
@@ -143,6 +143,7 @@ public class TangDapperRepository : ITangDapperRepository
                 TangId = firstRow.Id,
                 TenTang = r.TenTangColumn ?? firstRow.TenTang,
                 MaCanHo = r.MaCanHo ?? string.Empty,
+                TenCanHo = r.MaCanHo ?? string.Empty,
                 DienTich = r.DienTich ?? 0,
                 SoPhongNgu = r.SoPhongNgu ?? 0,
                 SoPhongTam = r.SoPhongTam ?? 0,

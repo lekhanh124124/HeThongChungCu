@@ -1,6 +1,6 @@
 using HeThongChungCu.Domain.Enums;
 
-namespace HeThongChungCu.Domain.Entities.Identity;
+namespace HeThongChungCu.Domain.Entities;
 
 public static class RolePermissions
 {

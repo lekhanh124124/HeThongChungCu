@@ -22,7 +22,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.CanHo", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.CanHo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -86,7 +86,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.ToTable("CanHos", (string)null);
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.ChiSoTieuThu", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChiSoTieuThu", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -140,7 +140,64 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.ToTable("ChiSoTieuThus", (string)null);
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.QuanHeCuTru", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.PhuongTien", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BienSo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("CanHoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LoaiPhuongTienId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MauXe")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TenPhuongTien")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("TrangThaiPhuongTienId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CanHoId");
+
+                    b.ToTable("PhuongTiens", (string)null);
+                });
+
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.QuanHeCuTru", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -184,21 +241,16 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserId1")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CanHoId");
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex("UserId1");
-
                     b.ToTable("QuanHeCuTrus", (string)null);
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.Tang", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.Tang", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -247,7 +299,57 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.ToTable("Tangs", (string)null);
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.ToaNha", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ThePhuongTien", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsLocked")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MaThe")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTimeOffset?>("ModifiedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("NgayBatDau")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("NgayKetThuc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PhuongTienId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PhuongTienId");
+
+                    b.ToTable("ThePhuongTiens", (string)null);
+                });
+
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ToaNha", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -303,7 +405,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.ToTable("ToaNhas", (string)null);
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.Identity.Tokens", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.Tokens", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -349,7 +451,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.ToTable("Tokens", (string)null);
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.Identity.User", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -439,114 +541,10 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.PhuongTien.PhuongTien", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.CanHo", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BienSo")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("CanHoId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("LoaiPhuongTienId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MauXe")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int?>("ModifiedBy")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TenPhuongTien")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CanHoId");
-
-                    b.ToTable("PhuongTiens", (string)null);
-                });
-
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.PhuongTien.ThePhuongTien", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsLocked")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("MaThe")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTimeOffset?>("ModifiedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int?>("ModifiedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("NgayBatDau")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("NgayKetThuc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PhuongTienId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PhuongTienId");
-
-                    b.ToTable("ThePhuongTiens", (string)null);
-                });
-
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.CanHo", b =>
-                {
-                    b.HasOne("HeThongChungCu.Domain.Entities.ChungCu.Tang", "Tang")
-                        .WithMany("CanHos")
+                    b.HasOne("HeThongChungCu.Domain.Entities.Tang", "Tang")
+                        .WithMany()
                         .HasForeignKey("TangId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -554,37 +552,42 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Navigation("Tang");
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.ChiSoTieuThu", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChiSoTieuThu", b =>
                 {
-                    b.HasOne("HeThongChungCu.Domain.Entities.ChungCu.CanHo", null)
-                        .WithMany("ChiSoTieuThus")
+                    b.HasOne("HeThongChungCu.Domain.Entities.CanHo", null)
+                        .WithMany()
                         .HasForeignKey("CanHoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.QuanHeCuTru", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.PhuongTien", b =>
                 {
-                    b.HasOne("HeThongChungCu.Domain.Entities.ChungCu.CanHo", null)
-                        .WithMany("QuanHeCuTrus")
+                    b.HasOne("HeThongChungCu.Domain.Entities.CanHo", null)
+                        .WithMany()
+                        .HasForeignKey("CanHoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.QuanHeCuTru", b =>
+                {
+                    b.HasOne("HeThongChungCu.Domain.Entities.CanHo", null)
+                        .WithMany()
                         .HasForeignKey("CanHoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HeThongChungCu.Domain.Entities.Identity.User", null)
-                        .WithMany()
+                    b.HasOne("HeThongChungCu.Domain.Entities.User", null)
+                        .WithMany("QuanHeCuTrus")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("HeThongChungCu.Domain.Entities.Identity.User", null)
-                        .WithMany("QuanHeCuTrus")
-                        .HasForeignKey("UserId1");
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.Tang", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.Tang", b =>
                 {
-                    b.HasOne("HeThongChungCu.Domain.Entities.ChungCu.ToaNha", "ToaNha")
+                    b.HasOne("HeThongChungCu.Domain.Entities.ToaNha", "ToaNha")
                         .WithMany("Tangs")
                         .HasForeignKey("ToaNhaId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -593,9 +596,18 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Navigation("ToaNha");
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.Identity.Tokens", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ThePhuongTien", b =>
                 {
-                    b.HasOne("HeThongChungCu.Domain.Entities.Identity.User", "User")
+                    b.HasOne("HeThongChungCu.Domain.Entities.PhuongTien", null)
+                        .WithMany("ThePhuongTiens")
+                        .HasForeignKey("PhuongTienId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.Tokens", b =>
+                {
+                    b.HasOne("HeThongChungCu.Domain.Entities.User", "User")
                         .WithMany("Tokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -604,53 +616,21 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.PhuongTien.PhuongTien", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.PhuongTien", b =>
                 {
-                    b.HasOne("HeThongChungCu.Domain.Entities.ChungCu.CanHo", null)
-                        .WithMany("PhuongTiens")
-                        .HasForeignKey("CanHoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("ThePhuongTiens");
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.PhuongTien.ThePhuongTien", b =>
-                {
-                    b.HasOne("HeThongChungCu.Domain.Entities.PhuongTien.PhuongTien", null)
-                        .WithMany("ThePhuongTiens")
-                        .HasForeignKey("PhuongTienId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.CanHo", b =>
-                {
-                    b.Navigation("ChiSoTieuThus");
-
-                    b.Navigation("PhuongTiens");
-
-                    b.Navigation("QuanHeCuTrus");
-                });
-
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.Tang", b =>
-                {
-                    b.Navigation("CanHos");
-                });
-
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChungCu.ToaNha", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.ToaNha", b =>
                 {
                     b.Navigation("Tangs");
                 });
 
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.Identity.User", b =>
+            modelBuilder.Entity("HeThongChungCu.Domain.Entities.User", b =>
                 {
                     b.Navigation("QuanHeCuTrus");
 
                     b.Navigation("Tokens");
-                });
-
-            modelBuilder.Entity("HeThongChungCu.Domain.Entities.PhuongTien.PhuongTien", b =>
-                {
-                    b.Navigation("ThePhuongTiens");
                 });
 #pragma warning restore 612, 618
         }

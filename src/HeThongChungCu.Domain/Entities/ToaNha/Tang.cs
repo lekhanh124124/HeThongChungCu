@@ -1,23 +1,20 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 
-namespace HeThongChungCu.Domain.Entities.ChungCu;
+namespace HeThongChungCu.Domain.Entities;
 
 public class Tang : AuditableEntity
 {
     public string MaTang { get; private set; } = null!;
     public string TenTang { get; private set; } = null!;
     public LoaiTang LoaiTangId { get; private set; } = null!;
-    public int ToaNhaId { get; private set; }
 
-    // Navigation properties
+    public int ToaNhaId { get; private set; }
     public ToaNha ToaNha { get; private set; } = null!;
-    private readonly List<CanHo> _canHos = new();
-    public IReadOnlyCollection<CanHo> CanHos => _canHos.AsReadOnly();
 
     private Tang() { } // EF Core
 
-    public Tang(string maTang, string tenTang, LoaiTang loaiTangId, int toaNhaId)
+    internal Tang(string maTang, string tenTang, LoaiTang loaiTangId, int toaNhaId)
     {
         MaTang = maTang;
         TenTang = tenTang;
@@ -32,8 +29,4 @@ public class Tang : AuditableEntity
         LoaiTangId = loaiTangId;
     }
 
-    public void AddCanHo(CanHo canHo)
-    {
-        _canHos.Add(canHo);
-    }
 }

@@ -1,5 +1,6 @@
-using HeThongChungCu.Application.Features.Profile.DTOs;
-using HeThongChungCu.Application.Features.Profile.Queries.LayQuanHeCuTru;
+using HeThongChungCu.Application.Features.CuDan.DTOs;
+using HeThongChungCu.Application.Features.CuDan.Queries.LayQuanHeCuTru;
+using HeThongChungCu.Application.Features.CuDan.Queries.LayThongTinCuDan;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayCuDanByCanHoId;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayLichSuCuTru;
@@ -16,7 +17,11 @@ public interface IQuanHeCuTruDapperRepository
         LayLichSuCuTruSpecification spec,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<LayQuanHeCuTruResponse>> GetActiveByUserIdAsync(
+    Task<IReadOnlyList<QuanHeCuTruResponse>> GetActiveByUserIdAsync(
         LayQuanHeCuTruSpecification spec,
+        CancellationToken cancellationToken = default);
+
+    Task<LayThongTinCuDanResponse?> GetByIdAsync(
+        LayThongTinCuDanSpecification spec,
         CancellationToken cancellationToken = default);
 }

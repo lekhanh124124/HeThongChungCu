@@ -6,13 +6,16 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
 {
     private readonly ICanHoEFRepository _canHoRepository;
     private readonly ITangEFRepository _tangRepository;
+    private readonly ICanHoPolicy _canHoPolicy;
 
     public CreateCanHoCommandHandler(
         ICanHoEFRepository canHoRepository,
-        ITangEFRepository tangRepository)
+        ITangEFRepository tangRepository,
+        ICanHoPolicy canHoPolicy)
     {
         _canHoRepository = canHoRepository;
         _tangRepository = tangRepository;
+        _canHoPolicy = canHoPolicy;
     }
     public async Task<Result<CanHoDetailResponse>> Handle(CreateCanHoCommand request, CancellationToken cancellationToken)
     {
@@ -28,23 +31,23 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
             return Result.Failure<CanHoDetailResponse>(CanHoErrors.MaCanHoAlreadyExists);
 
         var loaiCanHo = LoaiCanHo.FromValue(request.LoaiCanHoId);
-        var tinhTrangCanHo = TinhTrangCanHo.Trong;
+        var tinhTrangCanHo = TrangThaiCanHo.DangTrong;
 
-        var canHo = new Domain.Entities.ChungCu.CanHo(
-            request.MaCanHo,
-            request.TenCanHo,
-            request.DienTich,
-            request.TangId,
+        var canHo = new Domain.Entities.CanHo(
+            tang.Id,
+            request.MaCanHo, 
+            request.TenCanHo, 
+            request.DienTich, 
             request.SoPhongNgu,
-            request.SoPhongTam,
-            loaiCanHo!,
-            tinhTrangCanHo);
+            request.SoPhongTam, 
+            loaiCanHo!, 
+            tinhTrangCanHo,
+            _canHoPolicy);
 
         await _canHoRepository.AddAsync(canHo, cancellationToken);
-
         return Result.Success(new CanHoDetailResponse
         {
-            Id = canHo.Id,
+            Id = canHo!.Id,
             MaCanHo = canHo.MaCanHo,
             TenCanHo = canHo.TenCanHo,
             DienTich = canHo.DienTich,

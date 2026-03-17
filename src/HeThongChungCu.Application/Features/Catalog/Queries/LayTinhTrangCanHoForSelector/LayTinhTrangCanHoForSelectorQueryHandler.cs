@@ -6,7 +6,7 @@ public class LayTinhTrangCanHoForSelectorQueryHandler : IQueryHandler<LayTinhTra
 {
     public Task<Result<IReadOnlyList<ItemForSelectorResponse>>> Handle(LayTinhTrangCanHoForSelectorQuery request, CancellationToken cancellationToken)
     {
-        IReadOnlyList<ItemForSelectorResponse> result = TinhTrangCanHo.GetAll()
+        IReadOnlyList<ItemForSelectorResponse> result = TrangThaiCanHo.GetAll()
             .Select(x => new ItemForSelectorResponse
             {
                 Id = x.Value,

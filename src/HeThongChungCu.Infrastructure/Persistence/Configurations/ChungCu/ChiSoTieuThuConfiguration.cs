@@ -1,9 +1,7 @@
-using HeThongChungCu.Domain.Entities.ChungCu;
-using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace HeThongChungCu.Infrastructure.Persistence.Configurations.ChungCu;
+namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
 public class ChiSoTieuThuConfiguration : IEntityTypeConfiguration<ChiSoTieuThu>
 {
@@ -36,7 +34,7 @@ public class ChiSoTieuThuConfiguration : IEntityTypeConfiguration<ChiSoTieuThu>
             .IsRequired();
 
         builder.HasOne<CanHo>()
-            .WithMany(c => c.ChiSoTieuThus)
+            .WithMany()
             .HasForeignKey(c => c.CanHoId)
             .OnDelete(DeleteBehavior.Cascade);
     }

@@ -29,17 +29,17 @@ public class CanHoDapperRepository : ICanHoDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { nameof(CanHo.Id), "c.Id" },
-            { nameof(CanHo.MaCanHo), "c.MaCanHo" },
-            { nameof(CanHo.DienTich), "c.DienTich" },
-            { nameof(CanHo.SoPhongNgu), "c.SoPhongNgu" },
-            { nameof(CanHo.SoPhongTam), "c.SoPhongTam" },
-            { nameof(CanHo.TinhTrangCanHoId), "c.TinhTrangCanHoId" },
-            { nameof(CanHo.TangId), "c.TangId" },
-            { nameof(Tang.TenTang), "t.TenTang" },
-            { nameof(CanHo.TenCanHo), "c.TenCanHo" },
-            { nameof(CanHo.LoaiCanHoId), "c.LoaiCanHoId" },
-            { nameof(CanHo.IsDeleted), "c.IsDeleted" },
+            { "Id", "c.Id" },
+            { "MaCanHo", "c.MaCanHo" },
+            { "DienTich", "c.DienTich" },
+            { "SoPhongNgu", "c.SoPhongNgu" },
+            { "SoPhongTam", "c.SoPhongTam" },
+            { "TinhTrangCanHoId", "c.TinhTrangCanHoId" },
+            { "TangId", "c.TangId" },
+            { "TenTang", "t.TenTang" },
+            { "TenCanHo", "c.TenCanHo" },
+            { "LoaiCanHoId", "c.LoaiCanHoId" },
+            { "IsDeleted", "c.IsDeleted" },
 
         };
 
@@ -71,7 +71,7 @@ public class CanHoDapperRepository : ICanHoDapperRepository
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var loaiMap = LoaiCanHo.ToDictionary();
-        var tinhTrangMap = TinhTrangCanHo.ToDictionary();
+        var tinhTrangMap = TrangThaiCanHo.ToDictionary();
 
         var items = rows.Select(r => new CanHoDetailResponse
         {
@@ -109,7 +109,7 @@ public class CanHoDapperRepository : ICanHoDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { nameof(CanHo.Id), "c.Id" },
+            { "Id", "c.Id" },
             { "CanHoIsDeleted", "c.IsDeleted" },
             { "TangIsDeleted", "t.IsDeleted" },
             { "QuanHeCuTruIsDeleted", "q.IsDeleted"  },
@@ -124,6 +124,7 @@ public class CanHoDapperRepository : ICanHoDapperRepository
                 c.TangId, 
                 t.TenTang, 
                 c.MaCanHo, 
+                c.TenCanHo,
                 c.DienTich, 
                 c.SoPhongNgu, 
                 c.SoPhongTam, 
@@ -156,13 +157,14 @@ public class CanHoDapperRepository : ICanHoDapperRepository
             TangId = firstRow.TangId,
             TenTang = firstRow.TenTang,
             MaCanHo = firstRow.MaCanHo,
+            TenCanHo = firstRow.TenCanHo,
             DienTich = firstRow.DienTich,
             SoPhongNgu = firstRow.SoPhongNgu,
             SoPhongTam = firstRow.SoPhongTam,
             LoaiCanHoId = firstRow.LoaiCanHoId,
             TinhTrangCanHoId = firstRow.TinhTrangCanHoId,
             TenLoaiCanHo = LoaiCanHo.ToDictionary().GetValueOrDefault(firstRow.LoaiCanHoId, string.Empty),
-            TenTinhTrangCanHo = TinhTrangCanHo.ToDictionary().GetValueOrDefault(firstRow.TinhTrangCanHoId, string.Empty)
+            TenTinhTrangCanHo = TrangThaiCanHo.ToDictionary().GetValueOrDefault(firstRow.TinhTrangCanHoId, string.Empty)
         };
 
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();

@@ -46,6 +46,7 @@ public static class DependencyInjection
         services.AddScoped<IToaNhaEFRepository, ToaNhaEFRepository>();
         services.AddScoped<IToaNhaDapperRepository, ToaNhaDapperRepository>();
         services.AddScoped<ICanHoEFRepository, CanHoEFRepository>();
+        services.AddScoped<IQuanHeCuTruEFRepository, QuanHeCuTruEFRepository>();
         services.AddScoped<ITangEFRepository, TangEFRepository>();
         services.AddScoped<ITangDapperRepository, TangDapperRepository>();
         services.AddScoped<ICanHoDapperRepository, CanHoDapperRepository>();

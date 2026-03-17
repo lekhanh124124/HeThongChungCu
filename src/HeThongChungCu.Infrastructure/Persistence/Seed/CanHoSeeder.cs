@@ -1,14 +1,15 @@
 using Bogus;
-using HeThongChungCu.Domain.Entities.ChungCu;
-using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HeThongChungCu.Domain.Policies;
+using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class CanHoSeeder
 {
-    public static async Task SeedAsync(AppDbContext context, ILogger logger, int count)
+    public static async Task SeedAsync(AppDbContext context, ILogger logger, int countPerFloor)
     {
         if (!await context.CanHos.AnyAsync())
         {
@@ -17,7 +18,9 @@ public class CanHoSeeder
             var tangs = await context.Tangs
                 .Where(t => t.LoaiTangId != LoaiTang.TangHam)
                 .ToListAsync();
+            
             var allCanHos = new List<CanHo>();
+            var canHoPolicy = new CanHoPolicy();
 
             foreach (var tang in tangs)
             {
@@ -28,18 +31,19 @@ public class CanHoSeeder
                         var maCanHo = $"{tang.MaTang}-{apartmentIndex++:D2}";
                         var tenCanHo = $"Căn hộ {maCanHo}";
                         return new CanHo(
+                            tangId: tang.Id,
                             maCanHo: maCanHo,
                             tenCanHo: tenCanHo,
                             dienTich: f.Random.Decimal(45m, 120m),
-                            tangId: tang.Id,
                             soPhongNgu: f.Random.Int(1, 3),
                             soPhongTam: f.Random.Int(1, 2),
                             loaiCanHoId: f.PickRandom(LoaiCanHo.GetAll().ToArray()),
-                            tinhTrangCanHoId: f.PickRandom(TinhTrangCanHo.GetAll().ToArray())
+                            tinhTrangCanHoId: TrangThaiCanHo.DangTrong,
+                            policy: canHoPolicy
                         );
                     });
 
-                var canHos = canHoFaker.Generate(count);
+                var canHos = canHoFaker.Generate(countPerFloor);
                 allCanHos.AddRange(canHos);
             }
 

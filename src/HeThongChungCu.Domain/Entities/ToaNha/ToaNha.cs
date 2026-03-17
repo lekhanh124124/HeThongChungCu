@@ -1,7 +1,10 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Exceptions;
 
-namespace HeThongChungCu.Domain.Entities.ChungCu;
+using HeThongChungCu.Domain.Policies;
+
+namespace HeThongChungCu.Domain.Entities;
 
 public class ToaNha : AggregateRoot
 {
@@ -18,7 +21,12 @@ public class ToaNha : AggregateRoot
 
     private ToaNha() { } // EF Core
 
-    public ToaNha(string maToaNha, string tenToaNha, string diaChi, string? moTa, TrangThaiToaNha trangThaiToaNhaId)
+    public ToaNha(
+        string maToaNha, 
+        string tenToaNha, 
+        string diaChi, 
+        string? moTa, 
+        TrangThaiToaNha trangThaiToaNhaId)
     {
         MaToaNha = maToaNha;
         TenToaNha = tenToaNha;
@@ -27,16 +35,24 @@ public class ToaNha : AggregateRoot
         TrangThaiToaNhaId = trangThaiToaNhaId;
     }
 
-    public void Update(string tenToaNha, string diaChi, string? moTa, TrangThaiToaNha? trangThaiToaNhaId)
+    public void Update(
+        string maToaNha,
+        string tenToaNha, 
+        string diaChi, 
+        string? moTa, 
+        TrangThaiToaNha? trangThaiToaNhaId)
     {
-        TenToaNha = tenToaNha ?? TenToaNha;
-        DiaChi = diaChi ?? DiaChi;
-        MoTa = moTa ?? MoTa;
-        TrangThaiToaNhaId = trangThaiToaNhaId ?? TrangThaiToaNhaId;
+        TenToaNha = tenToaNha;
+        DiaChi = diaChi;
+        MoTa = moTa;
+        TrangThaiToaNhaId = trangThaiToaNhaId;
     }
 
-    public void AddTang(Tang tang)
+    public void AddTang(string maTang, string tenTang, LoaiTang loaiTangId, IToaNhaPolicy policy)
     {
+        policy.ValidateAddTang(maTang, this);
+
+        var tang = new Tang(maTang, tenTang, loaiTangId, Id);
         _tangs.Add(tang);
     }
 

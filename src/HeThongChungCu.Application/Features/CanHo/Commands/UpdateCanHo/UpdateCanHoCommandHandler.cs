@@ -1,7 +1,9 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
-using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Application.Features.Tang.DTOs;
 using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Policies;
 
 namespace HeThongChungCu.Application.Features.CanHo.Commands.UpdateCanHo;
 
@@ -9,33 +11,56 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
 {
     private readonly ICanHoEFRepository _canHoRepository;
     private readonly ITangEFRepository _tangRepository;
+    private readonly IQuanHeCuTruEFRepository _quanHeCuTruRepository;
+    private readonly ICanHoPolicy _canHoPolicy;
 
     public UpdateCanHoCommandHandler(
         ICanHoEFRepository canHoRepository,
-        ITangEFRepository tangRepository)
+        ITangEFRepository tangRepository,
+        IQuanHeCuTruEFRepository quanHeCuTruRepository,
+        ICanHoPolicy canHoPolicy)
     {
         _canHoRepository = canHoRepository;
         _tangRepository = tangRepository;
+        _quanHeCuTruRepository = quanHeCuTruRepository;
+        _canHoPolicy = canHoPolicy;
     }
 
     public async Task<Result<CanHoDetailResponse>> Handle(UpdateCanHoCommand request, CancellationToken cancellationToken)
     {
+        var tang = await _tangRepository.GetByIdAsync(request.TangId, cancellationToken);
+        if (tang is null)
+            return Result.Failure<CanHoDetailResponse>(CanHoErrors.NotFoundById(request.TangId));
+
         var canHo = await _canHoRepository.GetByIdAsync(request.Id, cancellationToken);
-        if (canHo is null)
+        if (canHo is null || canHo.TangId != request.TangId)
             return Result.Failure<CanHoDetailResponse>(CanHoErrors.NotFoundById(request.Id));
 
-        var tang = await _tangRepository.GetByIdAsync(request.TangId, cancellationToken);
-        if (tang == null)
-            return Result.Failure<CanHoDetailResponse>(CanHoErrors.NotFound);
-
-        if (tang.LoaiTangId == LoaiTang.TangHam)
-            return Result.Failure<CanHoDetailResponse>(CanHoErrors.CanHoInBasement);
-
         var loaiCanHo = LoaiCanHo.FromValue(request.LoaiCanHoId);
-        var tinhTrangCanHo = TinhTrangCanHo.FromValue(request.TinhTrangCanHoId);
+        var tinhTrangCanHo = TrangThaiCanHo.FromValue(request.TinhTrangCanHoId);
 
-        canHo.UpdateInfo(request.TenCanHo, request.DienTich, request.TangId, request.SoPhongNgu, request.SoPhongTam, loaiCanHo!);
-        canHo.UpdateStatus(tinhTrangCanHo!);
+        // Nếu mã thay đổi, kiểm tra trùng mã
+        if (request.MaCanHo != canHo.MaCanHo)
+        {
+            var maExists = await _canHoRepository.MaCanHoExistsAsync(request.MaCanHo, cancellationToken);
+            if (maExists)
+                return Result.Failure<CanHoDetailResponse>(CanHoErrors.MaCanHoAlreadyExists);
+        }
+
+        var relations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
+        bool hasActiveResidents = relations.Any(r => !r.IsKetThuc);
+
+        canHo.UpdateInfo(
+            request.TenCanHo, 
+            request.MaCanHo,
+            request.DienTich, 
+            request.SoPhongNgu, 
+            request.SoPhongTam, 
+            loaiCanHo!,
+            _canHoPolicy,
+            hasActiveResidents);
+
+        canHo.UpdateStatus(tinhTrangCanHo!, _canHoPolicy);
 
         _canHoRepository.Update(canHo);
 

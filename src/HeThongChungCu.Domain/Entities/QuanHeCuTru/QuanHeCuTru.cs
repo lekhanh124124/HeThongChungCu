@@ -1,9 +1,11 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Exceptions;
+using HeThongChungCu.Domain.Policies;
 
-namespace HeThongChungCu.Domain.Entities.ChungCu;
+namespace HeThongChungCu.Domain.Entities;
 
-public class QuanHeCuTru : AuditableEntity
+public class QuanHeCuTru : AggregateRoot
 {
     public int CanHoId { get; private set; }
     public int UserId { get; private set; }
@@ -14,8 +16,16 @@ public class QuanHeCuTru : AuditableEntity
 
     private QuanHeCuTru() { } // EF Core
 
-    internal QuanHeCuTru(int canHoId, int userId, LoaiQuanHeCuTru loaiQuanHeCuTruId, DateTime ngayBatDau)
+    public QuanHeCuTru(
+        int canHoId, 
+        int userId, 
+        LoaiQuanHeCuTru loaiQuanHeCuTruId, 
+        DateTime ngayBatDau,
+        ICuTruPolicy policy,
+        IEnumerable<QuanHeCuTru> existingRelations)
     {
+        policy.ValidateCreate(userId, loaiQuanHeCuTruId, existingRelations);
+
         CanHoId = canHoId;
         UserId = userId;
         LoaiQuanHeCuTruId = loaiQuanHeCuTruId;
@@ -25,11 +35,17 @@ public class QuanHeCuTru : AuditableEntity
 
     public void ThayDoiLoaiQuanHe(LoaiQuanHeCuTru loaiQuanHeCuTruId)
     {
+        if (IsKetThuc)
+            throw new BusinessException($"Quan hệ cư trú này đã kết thúc.");
+
         LoaiQuanHeCuTruId = loaiQuanHeCuTruId;
     }
 
     public void KetThucCuTru(DateTime ngayKetThuc)
     {
+        if (IsKetThuc)
+            throw new BusinessException($"Quan hệ cư trú này đã kết thúc.");
+
         NgayKetThuc = ngayKetThuc;
         IsKetThuc = true;
     }

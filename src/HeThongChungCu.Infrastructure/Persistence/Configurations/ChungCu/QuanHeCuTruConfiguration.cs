@@ -1,10 +1,7 @@
-using HeThongChungCu.Domain.Entities.ChungCu;
-using HeThongChungCu.Domain.Entities.Identity;
-using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace HeThongChungCu.Infrastructure.Persistence.Configurations.ChungCu;
+namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
 public class QuanHeCuTruConfiguration : IEntityTypeConfiguration<QuanHeCuTru>
 {
@@ -36,12 +33,12 @@ public class QuanHeCuTruConfiguration : IEntityTypeConfiguration<QuanHeCuTru>
             .IsRequired();
 
         builder.HasOne<CanHo>()
-            .WithMany(c => c.QuanHeCuTrus)
+            .WithMany()
             .HasForeignKey(q => q.CanHoId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne<User>()
-            .WithMany()
+            .WithMany(u => u.QuanHeCuTrus)
             .HasForeignKey(q => q.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }

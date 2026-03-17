@@ -4,9 +4,10 @@ namespace HeThongChungCu.Application.Features.CanHo.Commands.UpdateCanHo;
 
 public record UpdateCanHoCommand(
     int Id,
+    int TangId,
+    string MaCanHo,
     string TenCanHo,
     decimal DienTich,
-    int TangId,
     int SoPhongNgu,
     int SoPhongTam,
     int LoaiCanHoId,

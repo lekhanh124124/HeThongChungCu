@@ -1,6 +1,7 @@
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Exceptions;
 
-namespace HeThongChungCu.Domain.Entities.PhuongTien;
+namespace HeThongChungCu.Domain.Entities;
 
 public class ThePhuongTien : AuditableEntity
 {
@@ -14,6 +15,9 @@ public class ThePhuongTien : AuditableEntity
 
     public ThePhuongTien(int phuongTienId, string maThe, DateTime ngayBatDau)
     {
+        if (string.IsNullOrWhiteSpace(maThe))
+            throw new BusinessException("Mã thẻ không được để trống.");
+
         PhuongTienId = phuongTienId;
         MaThe = maThe;
         NgayBatDau = ngayBatDau;
@@ -22,6 +26,9 @@ public class ThePhuongTien : AuditableEntity
 
     public void KhoaThe(DateTime ngayKetThuc)
     {
+        if (IsLocked)
+            throw new BusinessException("Thẻ phương tiện này đã bị khóa.");
+
         NgayKetThuc = ngayKetThuc;
         IsLocked = true;
     }

@@ -7,16 +7,18 @@ public class GetUserByPhoneNumberSpecification : BaseSpecification
         List<int>? roleIds) 
         : base(null, null, null, null)
     {
-        AddFilter(nameof(User.IsDeleted), FilterOperator.Equal, false);
+        AddFilter("IsKetThuc", FilterOperator.Equal, false);
+        AddFilter("UserIsDeleted", FilterOperator.Equal, false);
+        AddFilter("QuanHeCuTruIsDeleted", FilterOperator.Equal, false);
 
         if (!string.IsNullOrWhiteSpace(phoneNumber))
         {
-            AddFilter(nameof(User.PhoneNumber), FilterOperator.Equal, phoneNumber);
+            AddFilter("PhoneNumber", FilterOperator.Equal, phoneNumber);
         }
 
         if (roleIds != null && roleIds.Count > 0)
         {
-            AddFilter(nameof(User.RoleId), FilterOperator.In, roleIds);
+            AddFilter("RoleId", FilterOperator.In, roleIds);
         }
     }
 }

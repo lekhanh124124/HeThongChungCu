@@ -1,7 +1,7 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 
-namespace HeThongChungCu.Domain.Entities.Identity;
+namespace HeThongChungCu.Domain.Entities;
 
 public class Tokens : BaseEntity
 {

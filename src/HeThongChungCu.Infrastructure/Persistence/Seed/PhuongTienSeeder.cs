@@ -1,8 +1,9 @@
 using Bogus;
-using HeThongChungCu.Domain.Entities.PhuongTien;
-using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Policies;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
@@ -18,6 +19,7 @@ public class PhuongTienSeeder
 
             if (canHoIds.Any())
             {
+                var phuongTienPolicy = new PhuongTienPolicy();
                 var phuongTienFaker = new Faker<PhuongTien>("vi")
                     .CustomInstantiator(f => new PhuongTien(
                         canHoId: f.PickRandom(canHoIds),
@@ -33,7 +35,8 @@ public class PhuongTienSeeder
                 var faker = new Faker("vi");
                 foreach (var pt in phuongTiens.Take(20))
                 {
-                    pt.AddThe($"CARD-{faker.Random.Number(100000, 999999)}", faker.Date.Past(1));
+                    pt.UpdateStatus(TrangThaiPhuongTien.Approved);
+                    pt.AddThe($"CARD-{faker.Random.Number(100000, 999999)}", faker.Date.Past(1), phuongTienPolicy);
                 }
 
                 await context.Set<PhuongTien>().AddRangeAsync(phuongTiens);

@@ -1,10 +1,7 @@
-using HeThongChungCu.Domain.Entities.ChungCu;
-using HeThongChungCu.Domain.Entities.PhuongTien;
-using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace HeThongChungCu.Infrastructure.Persistence.Configurations.ChungCu;
+namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
 public class CanHoConfiguration : IEntityTypeConfiguration<CanHo>
 {
@@ -33,7 +30,7 @@ public class CanHoConfiguration : IEntityTypeConfiguration<CanHo>
             .IsRequired();
 
         builder.HasOne(c => c.Tang)
-            .WithMany(t => t.CanHos)
+            .WithMany()
             .HasForeignKey(c => c.TangId)
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -53,14 +50,10 @@ public class CanHoConfiguration : IEntityTypeConfiguration<CanHo>
         builder.Property(c => c.TinhTrangCanHoId)
             .HasConversion(
                 v => v.Value,
-                v => TinhTrangCanHo.FromValue(v, null)!
+                v => TrangThaiCanHo.FromValue(v, null)!
             )
             .IsRequired();
 
 
-        builder.HasMany(c => c.PhuongTiens)
-            .WithOne()
-            .HasForeignKey(p => p.CanHoId)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

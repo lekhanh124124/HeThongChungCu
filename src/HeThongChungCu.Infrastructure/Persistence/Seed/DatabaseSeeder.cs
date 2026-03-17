@@ -17,10 +17,10 @@ public class DatabaseSeeder : IDatabaseSeeder
     public async Task SeedDatabaseAsync(int numberOfUsers, int numberOfBuildings, int numberOfFloorsPerBuilding, int numberOfApartmentsPerFloor, int numberOfVehicles)
     {
         await UserSeeder.SeedAsync(_context, _logger, numberOfUsers);
-        await ToaNhaSeeder.SeedAsync(_context, _logger, numberOfBuildings);
-        await TangSeeder.SeedAsync(_context, _logger, numberOfFloorsPerBuilding);
+        await ToaNhaSeeder.SeedAsync(_context, _logger, numberOfBuildings, numberOfFloorsPerBuilding);
         await CanHoSeeder.SeedAsync(_context, _logger, numberOfApartmentsPerFloor);
         await QuanHeCuTruSeeder.SeedAsync(_context, _logger);
         await PhuongTienSeeder.SeedAsync(_context, _logger, numberOfVehicles);
+        await ChiSoTieuThuSeeder.SeedAsync(_context, _logger);
     }
 }

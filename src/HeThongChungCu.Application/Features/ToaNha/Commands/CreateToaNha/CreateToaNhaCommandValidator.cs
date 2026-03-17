@@ -16,7 +16,7 @@ public class CreateToaNhaCommandValidator : AbstractValidator<CreateToaNhaComman
 
 
         RuleFor(x => x.DiaChi)
-            .NotEmpty().WithMessage("Địa chỉ toàn nhà không được để trống.")
+            .NotEmpty().WithMessage("Địa chỉ toà nhà không được để trống.")
             .MaximumLength(255).WithMessage("Địa chỉ toàn nhà không được vượt quá 255 ký tự.");
 
     }

@@ -1,9 +1,9 @@
-using bog = Bogus;
-using HeThongChungCu.Domain.Entities.Identity;
-using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Infrastructure.Authentication;
+using HeThongChungCu.Infrastructure.Persistence;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
@@ -16,7 +16,7 @@ public class UserSeeder
         {
             logger.LogInformation("Seeding Users...");
 
-            var userFaker = new bog.Faker<User>("vi")
+            var userFaker = new Bogus.Faker<User>("vi")
                 .CustomInstantiator(f => new User(
                     username: f.Internet.UserName(),
                     email: f.Internet.Email(),

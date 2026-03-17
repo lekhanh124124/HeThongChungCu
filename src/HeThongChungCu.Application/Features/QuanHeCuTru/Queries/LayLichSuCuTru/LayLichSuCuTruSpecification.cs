@@ -4,11 +4,11 @@ public class LayLichSuCuTruSpecification : BaseSpecification
 {
     public override HashSet<string> AllowedSortColumns => new(StringComparer.OrdinalIgnoreCase)
     {
-        nameof(Domain.Entities.ChungCu.QuanHeCuTru.NgayBatDau),
-        nameof(Domain.Entities.ChungCu.QuanHeCuTru.NgayKetThuc),
-        nameof(Domain.Entities.ChungCu.CanHo.MaCanHo),
-        nameof(Domain.Entities.ChungCu.QuanHeCuTru.IsKetThuc),
-        nameof(Domain.Entities.ChungCu.QuanHeCuTru.LoaiQuanHeCuTruId)
+        "NgayBatDau",
+        "NgayKetThuc",
+        "MaCanHo",
+        "IsKetThuc",
+        "LoaiQuanHeCuTruId"
     };
     public LayLichSuCuTruSpecification(
         int? canHoId,
@@ -19,16 +19,16 @@ public class LayLichSuCuTruSpecification : BaseSpecification
         int? pageSize) 
         : base(sortCol, isAsc, pageNumber, pageSize)
     {
-        AddFilter(nameof(Domain.Entities.ChungCu.QuanHeCuTru.IsDeleted), FilterOperator.Equal, false);
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
 
         if (canHoId.HasValue)
         {
-            AddFilter(nameof(Domain.Entities.ChungCu.QuanHeCuTru.CanHoId), FilterOperator.Equal, canHoId.Value);
+            AddFilter("CanHoId", FilterOperator.Equal, canHoId.Value);
         }
 
         if (userId.HasValue)
         {
-            AddFilter(nameof(Domain.Entities.ChungCu.QuanHeCuTru.UserId), FilterOperator.Equal, userId.Value);
+            AddFilter("UserId", FilterOperator.Equal, userId.Value);
         }
     }
 }

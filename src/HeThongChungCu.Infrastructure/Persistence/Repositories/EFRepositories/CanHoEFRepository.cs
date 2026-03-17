@@ -21,26 +21,6 @@ public class CanHoEFRepository : ICanHoEFRepository
                 cancellationToken);
     }
 
-    public async Task<CanHo?> GetByIdWithQuanHeAsync(int id, CancellationToken cancellationToken = default)
-    {
-        return await _dbContext.Set<CanHo>()
-            .Include(c => c.QuanHeCuTrus)
-            .FirstOrDefaultAsync(c =>
-                c.Id == id &&
-                !c.IsDeleted,
-                cancellationToken);
-    }
-
-    public async Task<CanHo?> GetByIdWithQuanHeForRecordAsync(int quanHeCuTruId, CancellationToken cancellationToken = default)
-    {
-        return await _dbContext.Set<CanHo>()
-            .Include(c => c.QuanHeCuTrus)
-            .FirstOrDefaultAsync(c =>
-                !c.IsDeleted &&
-                c.QuanHeCuTrus.Any(q => q.Id == quanHeCuTruId),
-                cancellationToken);
-    }
-
     public async Task<bool> AnyAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<CanHo>()

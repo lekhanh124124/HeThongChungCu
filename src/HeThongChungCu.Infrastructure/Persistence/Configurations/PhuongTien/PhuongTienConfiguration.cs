@@ -1,14 +1,11 @@
-using HeThongChungCu.Domain.Entities.ChungCu;
-using HeThongChungCu.Domain.Entities.PhuongTien;
-using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace HeThongChungCu.Infrastructure.Persistence.Configurations.PhuongTien;
+namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
-public class PhuongTienConfiguration : IEntityTypeConfiguration<Domain.Entities.PhuongTien.PhuongTien>
+public class PhuongTienConfiguration : IEntityTypeConfiguration<PhuongTien>
 {
-    public void Configure(EntityTypeBuilder<Domain.Entities.PhuongTien.PhuongTien> builder)
+    public void Configure(EntityTypeBuilder<PhuongTien> builder)
     {
         builder.ToTable("PhuongTiens");
 
@@ -32,8 +29,15 @@ public class PhuongTienConfiguration : IEntityTypeConfiguration<Domain.Entities.
             )
             .IsRequired();
 
+        builder.Property(p => p.TrangThaiPhuongTienId)
+            .HasConversion(
+                v => v.Value,
+                v => TrangThaiPhuongTien.FromValue(v, null)!
+            )
+            .IsRequired();
+
         builder.HasOne<CanHo>()
-            .WithMany(c => c.PhuongTiens)
+            .WithMany()
             .HasForeignKey(p => p.CanHoId)
             .OnDelete(DeleteBehavior.Cascade);
     }

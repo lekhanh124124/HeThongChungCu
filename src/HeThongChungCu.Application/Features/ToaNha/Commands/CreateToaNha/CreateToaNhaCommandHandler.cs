@@ -18,7 +18,7 @@ public class CreateToaNhaCommandHandler : ICommandHandler<CreateToaNhaCommand, T
             return Result.Failure<ToaNhaDetailResponse>(ToaNhaErrors.MaToaNhaAlreadyExists);
 
         var trangThaiToaNha = TrangThaiToaNha.DangHoatDong;
-        var toaNha = new HeThongChungCu.Domain.Entities.ChungCu.ToaNha(
+        var toaNha = new Domain.Entities.ToaNha(
             request.MaToaNha,
             request.TenToaNha,
             request.DiaChi,

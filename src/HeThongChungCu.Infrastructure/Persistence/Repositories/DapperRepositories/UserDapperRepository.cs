@@ -1,12 +1,11 @@
 using Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Features.Profile.DTOs;
+using HeThongChungCu.Application.Features.Profile.Queries.GetProfile;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayUserByPhoneNumber;
 using HeThongChungCu.Infrastructure.Persistence.Helpers;
 using System.Data;
-using HeThongChungCu.Application.Features.Profile.Queries.GetProfile;
-using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayUserByPhoneNumber;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
 
@@ -28,8 +27,8 @@ public class UserDapperRepository : IUserDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { nameof(User.Id), "Id" },
-            { nameof(User.IsDeleted), "IsDeleted" }
+            { "Id", "Id" },
+            { "IsDeleted", "IsDeleted" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
@@ -64,22 +63,26 @@ public class UserDapperRepository : IUserDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            {  nameof(User.PhoneNumber), "PhoneNumber" },
-            {  nameof(User.RoleId), "RoleId" },
-            {  nameof(User.IsDeleted), "IsDeleted" }
+            {  "PhoneNumber", "u.PhoneNumber" },
+            {  "RoleId", "u.RoleId" },
+            {  "IsKetThuc", "q.IsKetThuc" },
+
+            {  "UserIsDeleted", "u.IsDeleted" },
+            {  "QuanHeCuTruIsDeleted", "q.IsDeleted" },
 
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
 
         var sql = $"""
-            SELECT Id, Username, Email, FirstName, LastName, PhoneNumber, IdCard, Dob, GioiTinhId, RoleId
-            FROM Users
+            SELECT u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.PhoneNumber, u.IdCard, u.Dob, u.GioiTinhId, u.RoleId
+            FROM Users u
+            INNER JOIN QuanHeCuTrus q ON u.Id = q.UserId
             {sqlWhere}
             """;
 
         var user = await connection.QueryFirstOrDefaultAsync<SearchUserByUsernameResponse>(sql, parameters);
-
+        
         if (user is not null)
         {
             var gioiTinhMap = GioiTinh.ToDictionary();

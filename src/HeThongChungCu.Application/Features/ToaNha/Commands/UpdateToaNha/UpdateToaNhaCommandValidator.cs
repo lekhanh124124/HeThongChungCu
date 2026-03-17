@@ -9,6 +9,10 @@ public class UpdateToaNhaCommandValidator : AbstractValidator<UpdateToaNhaComman
         RuleFor(x => x.Id)
             .GreaterThan(0).WithMessage("ID tòa nhà không hợp lệ.");
 
+        RuleFor(x => x.MaToaNha)
+            .NotEmpty().WithMessage("Mã tòa nhà không được để trống.")
+            .MaximumLength(20).WithMessage("Mã tòa nhà không được vượt quá 20 ký tự.");
+
         RuleFor(x => x.TenToaNha)
             .NotEmpty().WithMessage("Tên tòa nhà không được để trống.")
             .MaximumLength(100).WithMessage("Tên tòa nhà không được vượt quá 100 ký tự.");

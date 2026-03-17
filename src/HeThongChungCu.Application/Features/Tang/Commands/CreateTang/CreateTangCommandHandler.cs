@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Features.Tang.DTOs;
+using HeThongChungCu.Domain.Policies;
 
 namespace HeThongChungCu.Application.Features.Tang.Commands.CreateTang;
 
@@ -6,13 +7,16 @@ public class CreateTangCommandHandler : ICommandHandler<CreateTangCommand, TangD
 {
     private readonly ITangEFRepository _tangRepository;
     private readonly IToaNhaEFRepository _toaNhaRepository;
+    private readonly IToaNhaPolicy _toaNhaPolicy;
 
     public CreateTangCommandHandler(
         ITangEFRepository tangRepository,
-        IToaNhaEFRepository toaNhaRepository)
+        IToaNhaEFRepository toaNhaRepository,
+        IToaNhaPolicy toaNhaPolicy)
     {
         _tangRepository = tangRepository;
         _toaNhaRepository = toaNhaRepository;
+        _toaNhaPolicy = toaNhaPolicy;
     }
 
     public async Task<Result<TangDetailResponse>> Handle(CreateTangCommand request, CancellationToken cancellationToken)
@@ -20,29 +24,21 @@ public class CreateTangCommandHandler : ICommandHandler<CreateTangCommand, TangD
         var toaNha = await _toaNhaRepository.GetByIdAsync(request.ToaNhaId, cancellationToken);
         if (toaNha == null)
             return Result.Failure<TangDetailResponse>(TangErrors.ToaNhaNotFound);
-
-        var maExists = await _tangRepository.MaTangExistsAsync(request.MaTang, cancellationToken);
-        if (maExists)
-            return Result.Failure<TangDetailResponse>(TangErrors.MaTangAlreadyExists);
-
+            
         var loaiTang = LoaiTang.FromValue(request.LoaiTangId);
 
-        var tang = new Domain.Entities.ChungCu.Tang(
-            request.MaTang,
-            request.TenTang,
-            loaiTang!,
-            request.ToaNhaId);
-
-        await _tangRepository.AddAsync(tang, cancellationToken);
-
+        toaNha.AddTang(request.MaTang, request.TenTang, loaiTang!, _toaNhaPolicy);
+        _toaNhaRepository.Update(toaNha);
+ 
+        var response = toaNha.Tangs.Where(x => x.MaTang == request.MaTang).FirstOrDefault();
         return Result.Success(new TangDetailResponse
         {
-            Id = tang.Id,
-            MaTang = tang.MaTang,
-            TenTang = tang.TenTang,
-            LoaiTangId = tang.LoaiTangId.Value,
-            TenLoaiTang = tang.LoaiTangId.Name,
-            ToaNhaId = tang.ToaNhaId,
+            Id = response!.Id,
+            MaTang = response.MaTang,
+            TenTang = response.TenTang,
+            LoaiTangId = response.LoaiTangId.Value,
+            TenLoaiTang = response.LoaiTangId.Name,
+            ToaNhaId = response.ToaNhaId,
             TenToaNha = toaNha.TenToaNha
         });
     }

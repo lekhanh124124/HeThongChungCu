@@ -30,9 +30,9 @@ public static class UserErrors
 
     public static Error NotFoundByUsername(string username) => new(
         "User.NotFound",
-        $"Không tìm thấy người dùng với username '{username}' hoặc không có vai trò Cư dân/Khách.");
+        $"Không tìm thấy người dùng với username '{username}'.");
 
     public static Error NotFoundByPhoneNumber(string phoneNumber) => new(
         "User.NotFound",
-        $"Không tìm thấy người dùng với số điện thoại '{phoneNumber}' hoặc không có vai trò Cư dân/Khách.");
+        $"Không tìm thấy người dùng với số điện thoại '{phoneNumber}'. Vui lòng nhập thông tin bên dưới để đăng ký tài khoản cư dân mới.");
 }

@@ -1,9 +1,7 @@
-using HeThongChungCu.Domain.Entities.ChungCu;
-using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace HeThongChungCu.Infrastructure.Persistence.Configurations.ChungCu;
+namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
 public class ToaNhaConfiguration : IEntityTypeConfiguration<ToaNha>
 {

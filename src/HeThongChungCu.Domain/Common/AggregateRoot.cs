@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace HeThongChungCu.Domain.Common;
 
 public abstract class AggregateRoot : AuditableEntity
