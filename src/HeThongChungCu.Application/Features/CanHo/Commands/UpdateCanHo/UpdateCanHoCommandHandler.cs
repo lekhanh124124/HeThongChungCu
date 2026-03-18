@@ -3,37 +3,30 @@ using HeThongChungCu.Application.Features.CanHo.DTOs;
 using HeThongChungCu.Application.Features.Tang.DTOs;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
-using HeThongChungCu.Domain.Policies;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.CanHo.Commands.UpdateCanHo;
 
 public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, CanHoDetailResponse>
 {
     private readonly ICanHoEFRepository _canHoRepository;
-    private readonly ITangEFRepository _tangRepository;
+    private readonly IToaNhaEFRepository _toaNhaRepository;
     private readonly IQuanHeCuTruEFRepository _quanHeCuTruRepository;
-    private readonly ICanHoPolicy _canHoPolicy;
 
     public UpdateCanHoCommandHandler(
         ICanHoEFRepository canHoRepository,
-        ITangEFRepository tangRepository,
-        IQuanHeCuTruEFRepository quanHeCuTruRepository,
-        ICanHoPolicy canHoPolicy)
+        IToaNhaEFRepository toaNhaRepository,
+        IQuanHeCuTruEFRepository quanHeCuTruRepository)
     {
         _canHoRepository = canHoRepository;
-        _tangRepository = tangRepository;
+        _toaNhaRepository = toaNhaRepository;
         _quanHeCuTruRepository = quanHeCuTruRepository;
-        _canHoPolicy = canHoPolicy;
     }
 
     public async Task<Result<CanHoDetailResponse>> Handle(UpdateCanHoCommand request, CancellationToken cancellationToken)
     {
-        var tang = await _tangRepository.GetByIdAsync(request.TangId, cancellationToken);
-        if (tang is null)
-            return Result.Failure<CanHoDetailResponse>(CanHoErrors.NotFoundById(request.TangId));
-
         var canHo = await _canHoRepository.GetByIdAsync(request.Id, cancellationToken);
-        if (canHo is null || canHo.TangId != request.TangId)
+        if (canHo is null)
             return Result.Failure<CanHoDetailResponse>(CanHoErrors.NotFoundById(request.Id));
 
         var loaiCanHo = LoaiCanHo.FromValue(request.LoaiCanHoId);
@@ -57,10 +50,9 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
             request.SoPhongNgu, 
             request.SoPhongTam, 
             loaiCanHo!,
-            _canHoPolicy,
             hasActiveResidents);
 
-        canHo.UpdateStatus(tinhTrangCanHo!, _canHoPolicy);
+        canHo.UpdateStatus(tinhTrangCanHo!);
 
         _canHoRepository.Update(canHo);
 

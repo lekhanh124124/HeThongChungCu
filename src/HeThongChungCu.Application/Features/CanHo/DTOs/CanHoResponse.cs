@@ -14,6 +14,5 @@ namespace HeThongChungCu.Application.Features.CanHo.DTOs
         public string TenLoaiCanHo { get; set; } = null!;
         public int TinhTrangCanHoId { get; set; }
         public string TenTinhTrangCanHo { get; set; } = null!;
-        public IReadOnlyList<QuanHeCuTruDetailResponse> QuanHeCuTrus { get; set; } = new List<QuanHeCuTruDetailResponse>();
     }
 }

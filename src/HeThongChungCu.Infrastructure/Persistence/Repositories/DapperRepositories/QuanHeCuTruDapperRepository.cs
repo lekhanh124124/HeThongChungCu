@@ -5,7 +5,7 @@ using HeThongChungCu.Application.Features.CuDan.DTOs;
 using HeThongChungCu.Application.Features.CuDan.Queries.LayQuanHeCuTru;
 using HeThongChungCu.Application.Features.CuDan.Queries.LayThongTinCuDan;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
-using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayCuDanByCanHoId;
+using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayDSCuDanTrongChungCu;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayLichSuCuTru;
 using HeThongChungCu.Infrastructure.Persistence.Helpers;
 using HeThongChungCu.Infrastructure.Persistence.ReadModels;
@@ -21,8 +21,8 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         _dbContext = dbContext;
     }
 
-    public async Task<IReadOnlyList<CuDanResponse>> GetCuDanByCanHoIdAsync(
-        LayCuDanByCanHoIdSpecification spec,
+    public async Task<PagedResult<CuDanResponse>> LayDSCuDanTrongChungCu(
+        LayDSCuDanTrongChungCuQuerySpecification spec,
         CancellationToken cancellationToken = default)
     {
         var connection = _dbContext.GetDbConnection();
@@ -32,47 +32,80 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
+            { "ToaNhaId", "tn.Id" },
+            { "MaToaNha", "tn.MaToaNha" },
+            { "TangId", "t.Id" },
+            { "MaTang", "t.MaTang" },
             { "CanHoId", "q.CanHoId" },
+            { "MaCanHo", "c.MaCanHo" },
+
+            { "UserId", "q.UserId" },
             { "IsKetThuc", "q.IsKetThuc" },
             { "NgayBatDau", "q.NgayBatDau" },
-            { "IsDeleted", "q.IsDeleted" }
-
+            { "IsDeleted", "q.IsDeleted" },
+            { "NgayKetThuc", "q.NgayKetThuc" },
+            { "LoaiQuanHeCuTruId", "q.LoaiQuanHeCuTruId" },
+            { "HoTen", "u.LastName + N' ' + u.FirstName" },
+            { "Email", "u.Email" },
+            { "PhoneNumber", "u.PhoneNumber" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, nameof(QuanHeCuTru.NgayBatDau));
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "NgayBatDau");
+        var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sql = $"""
             SELECT
+                COUNT(*) OVER() AS TotalCount,
+                tn.MaToaNha       AS MaToaNha,
+                t.MaTang          AS MaTang,
+                c.MaCanHo         AS MaCanHo,
                 q.Id         AS QuanHeCuTruId,
                 q.UserId,
                 u.LastName + N' ' + u.FirstName AS HoTen,
-                u.Email,
-                u.PhoneNumber,
                 q.LoaiQuanHeCuTruId,
-                q.NgayBatDau
+                q.NgayBatDau,
+                q.NgayKetThuc,
+                q.IsKetThuc
             FROM QuanHeCuTrus q
-            INNER JOIN Users u ON u.Id = q.UserId
+            LEFT JOIN Users u ON u.Id = q.UserId AND u.IsDeleted = 0
+            LEFT JOIN CanHos c ON c.Id = q.CanHoId AND c.IsDeleted = 0
+            LEFT JOIN Tangs t ON t.Id = c.TangId AND t.IsDeleted = 0
+            LEFT JOIN ToaNhas tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
             {sqlWhere}
             {sqlOrderBy}
+            {sqlPagination}
             """;
 
-        var rows = await connection.QueryAsync<GetCuDanByCanHoIdReadModel>(sql, parameters);
+        var rows = (await connection.QueryAsync<DSCuDanTrongChungCuReadModel>(sql, parameters)).ToList();
+        var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
         var items = rows.Select(r => new CuDanResponse
         {
+            MaToaNha = r.MaToaNha,
+            MaTang = r.MaTang,
+            MaCanHo = r.MaCanHo,
             QuanHeCuTruId = r.QuanHeCuTruId,
             UserId = r.UserId,
             HoTen = r.HoTen,
-            Email = r.Email,
-            PhoneNumber = r.PhoneNumber,
             LoaiQuanHeCuTruId = r.LoaiQuanHeCuTruId,
+            TenLoaiQuanHeCuTru = loaiQuanHeMap.GetValueOrDefault(r.LoaiQuanHeCuTruId, string.Empty),
             NgayBatDau = r.NgayBatDau,
-            TenLoaiQuanHeCuTru = loaiQuanHeMap.GetValueOrDefault(r.LoaiQuanHeCuTruId, string.Empty)
+            NgayKetThuc = r.NgayKetThuc,
+            IsKetThuc = r.IsKetThuc
         }).ToList();
 
-        return items;
+        return new PagedResult<CuDanResponse>
+        {
+            Items = items,
+            PagingInfo = new PagingInfo
+            {
+                PageNumber = spec.PageNumber ?? 1,
+                PageSize = spec.PageSize ?? items.Count,
+                TotalItems = totalCount
+            }
+        };
     }
 
     public async Task<PagedResult<LichSuCuTruResponse>> GetLichSuAsync(
@@ -92,33 +125,30 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
             { "NgayKetThuc", "q.NgayKetThuc" },
             { "IsKetThuc", "q.IsKetThuc" },
             { "LoaiQuanHeCuTruId", "q.LoaiQuanHeCuTruId" },
-            { "MaCanHo", "c.MaCanHo" },
             { "IsDeleted", "q.IsDeleted" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, nameof(QuanHeCuTru.NgayBatDau));
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "NgayBatDau");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sql = $"""
             SELECT
                 COUNT(*) OVER() AS TotalCount,
-                q.Id         AS QuanHeCuTruId,
                 q.CanHoId,
-                c.MaCanHo,
-                tg.ToaNhaId,
+                c.TenCanHo,
+                tg.Id        AS TangId,
+                tg.TenTang,
+                t.Id         AS ToaNhaId,
                 t.TenToaNha,
-                q.UserId,
-                u.LastName + N' ' + u.FirstName AS HoTen,
+                q.Id         AS QuanHeCuTruId,
                 q.LoaiQuanHeCuTruId,
                 q.NgayBatDau,
-                q.NgayKetThuc,
-                q.IsKetThuc
+                q.NgayKetThuc
             FROM QuanHeCuTrus q
-            INNER JOIN CanHos   c ON c.Id = q.CanHoId
-            INNER JOIN Tangs    tg ON tg.Id = c.TangId
-            INNER JOIN ToaNhas  t ON t.Id = tg.ToaNhaId
-            INNER JOIN Users    u ON u.Id = q.UserId
+            LEFT JOIN CanHos   c ON c.Id = q.CanHoId AND c.IsDeleted = 0
+            LEFT JOIN Tangs    tg ON tg.Id = c.TangId AND tg.IsDeleted = 0
+            LEFT JOIN ToaNhas  t ON t.Id = tg.ToaNhaId AND t.IsDeleted = 0
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination};
@@ -130,18 +160,17 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
         var items = rows.Select(r => new LichSuCuTruResponse
         {
-            QuanHeCuTruId = r.QuanHeCuTruId,
             CanHoId = r.CanHoId,
-            MaCanHo = r.MaCanHo,
+            TenCanHo = r.TenCanHo,
+            TangId = r.TangId,
+            TenTang = r.TenTang,
             ToaNhaId = r.ToaNhaId,
             TenToaNha = r.TenToaNha,
-            UserId = r.UserId,
-            HoTen = r.HoTen,
+            QuanHeCuTruId = r.QuanHeCuTruId,
             LoaiQuanHeCuTruId = r.LoaiQuanHeCuTruId,
             NgayBatDau = r.NgayBatDau,
             NgayKetThuc = r.NgayKetThuc,
-            IsKetThuc = r.IsKetThuc,
-            LoaiQuanHeTen = loaiQuanHeMap.GetValueOrDefault(r.LoaiQuanHeCuTruId, string.Empty)
+            TenLoaiQuanHeCuTru = loaiQuanHeMap.GetValueOrDefault(r.LoaiQuanHeCuTruId, string.Empty)
         }).ToList();
 
         return new PagedResult<LichSuCuTruResponse>

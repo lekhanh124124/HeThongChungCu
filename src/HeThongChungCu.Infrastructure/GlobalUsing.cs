@@ -5,4 +5,3 @@ global using HeThongChungCu.Domain.Common;
 global using HeThongChungCu.Domain.Enums;
 global using HeThongChungCu.Domain.Errors;
 global using HeThongChungCu.Domain.Entities;
-global using HeThongChungCu.Domain.Policies;

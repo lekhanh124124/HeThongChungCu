@@ -1,4 +1,4 @@
-﻿namespace HeThongChungCu.Domain.Enums
+namespace HeThongChungCu.Domain.Enums
 {
     public enum FilterOperator
     {
@@ -11,6 +11,8 @@
         Contains,
         StartsWith,
         EndsWith,
-        In
+        In,
+        IsNull,
+        IsNotNull
     }
 }

@@ -3,7 +3,7 @@ using HeThongChungCu.Application.Features.QuanHeCuTru.Commands.CapNhatQuanHe;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Commands.KetThucCuTru;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Commands.ThietLapCuTru;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
-using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayCuDanByCanHoId;
+using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayDSCuDanTrongChungCu;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayLichSuCuTru;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayUserByPhoneNumber;
 using HeThongChungCu.WebAPI.Common.Models;
@@ -71,27 +71,37 @@ public class QuanHeCuTruController : ApiControllerBase
     }
 
     /// <summary>
-    /// Lấy danh sách cư dân đang sống tại một căn hộ
+    /// Lấy danh sách cư dân trong chung cư với bộ lọc và tìm kiếm nâng cao
     /// </summary>
     /// <remarks>
-    /// API truy vấn danh sách những cư dân hiện tại (chưa kết thúc cư trú) thuộc về một `CanHo` cụ thể.
+    /// API truy vấn danh sách cư dân hỗ trợ các chức năng:
+    /// - **Phạm vi (ID)**: Lọc chính xác theo ToaNhaId, TangId, CanHoId.
+    /// - **Từ khóa**: Tìm kiếm theo HoTen, MaToaNha, MaTang, MaCanHo (qua tham số Keyword).
+    /// - **Bộ lọc**: 
+    ///     - Mã định danh: MaToaNha, MaTang, MaCanHo.
+    ///     - Trạng thái: LoaiQuanHeCuTruId, IsKetThuc.
+    ///     - Thời gian: Khoảng ngày bắt đầu (NgayBatDauFrom/To) và khoảng ngày kết thúc (NgayKetThucFrom/To).
+    /// - **Sắp xếp**: Hỗ trợ sắp xếp theo MaToaNha, MaTang, MaCanHo, HoTen, LoaiQuanHeCuTruId, NgayBatDau, NgayKetThuc, IsKetThuc.
+    /// - **Phân trang**: PageNumber và PageSize.
     /// </remarks>
     [HttpPost("cu-dan")]
-    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<CuDanResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<CuDanResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> LayCuDan([FromBody] LayCuDanByCanHoIdQuery query, CancellationToken cancellationToken)
+    public async Task<IActionResult> LayCuDan([FromBody] LayDSCuDanTrongChungCuQuery query, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(query, cancellationToken));
     }
 
     /// <summary>
-    /// Lấy lịch sử cư trú theo căn hộ hoặc theo cư dân (phải truyền CanHoId hoặc UserId)
+    /// Lấy lịch sử cư trú của một cư dân
     /// </summary>
     /// <remarks>
-    /// Dùng để tra cứu lịch sử cư trú. 
-    /// - Nếu truyền `CanHoId`: Trả về lịch sử tất cả cư dân (kể cả đã chuyển đi) của căn hộ đó.
-    /// - Nếu truyền `UserId`: Trả về lịch sử các căn hộ mà người đó đã/đang ở.
-    /// Hỗ trợ tìm kiếm, lọc trạng thái, phân trang và sắp xếp.
+    /// API truy vấn lịch sử các lần cư trú của một người dựa trên UserId:
+    /// - **Người dùng**: Lọc theo UserId (Bắt buộc).
+    /// - **Thông tin cư trú**: Loại quan hệ cư trú.
+    /// - **Thời gian**: Khoảng ngày bắt đầu (NgayBatDauFrom/To) và khoảng ngày kết thúc (NgayKetThucFrom/To).
+    /// - **Sắp xếp**: Hỗ trợ sắp xếp theo NgayBatDau, NgayKetThuc, MaCanHo, LoaiQuanHeCuTruId.
+    /// - **Phân trang**: PageNumber và PageSize.
     /// </remarks>
     [HttpPost("lich-su")]
     [ProducesResponseType(typeof(ApiResponse<PagedResult<LichSuCuTruResponse>>), StatusCodes.Status200OK)]

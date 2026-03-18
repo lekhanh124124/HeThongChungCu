@@ -8,6 +8,7 @@ using HeThongChungCu.Application.Features.Catalog.Queries.LayLoaiQuanHeCuTruForS
 using HeThongChungCu.Application.Features.Catalog.Queries.LayLoaiTangForSelector;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayTinhTrangCanHoForSelector;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayTrangThaiToaNhaForSelector;
+using HeThongChungCu.Application.Features.Catalog.Queries.LayTrangThaiPhuongTienForSelector;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -121,5 +122,15 @@ public class CatalogController : ApiControllerBase
     public async Task<IActionResult> GetTrangThaiToaNhaForSelector(CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(new LayTrangThaiToaNhaForSelectorQuery(), cancellationToken));
+    }
+
+    /// <summary>
+    /// Lấy danh sách trạng thái phương tiện để chọn
+    /// </summary>
+    [HttpPost("trang-thai-phuong-tien-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTrangThaiPhuongTienForSelector(CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(new LayTrangThaiPhuongTienForSelectorQuery(), cancellationToken));
     }
 }

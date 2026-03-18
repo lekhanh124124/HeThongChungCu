@@ -1,6 +1,4 @@
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
-using HeThongChungCu.Domain.Policies;
-
 namespace HeThongChungCu.Application.Features.QuanHeCuTru.Commands.ThietLapCuTru;
 
 public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand, CuDanResponse>
@@ -10,22 +8,19 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
     private readonly IQuanHeCuTruEFRepository _quanHeCuTruRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
-    private readonly ICuTruPolicy _cuTruPolicy;
 
     public ThietLapCuTruCommandHandler(
         ICanHoEFRepository canHoRepository,
         IUserEFRepository userRepository,
         IQuanHeCuTruEFRepository quanHeCuTruRepository,
         IUnitOfWork unitOfWork,
-        IDateTimeProvider dateTimeProvider,
-        ICuTruPolicy cuTruPolicy)
+        IDateTimeProvider dateTimeProvider)
     {
         _canHoRepository = canHoRepository;
         _userRepository = userRepository;
         _quanHeCuTruRepository = quanHeCuTruRepository;
         _unitOfWork = unitOfWork;
         _dateTimeProvider = dateTimeProvider;
-        _cuTruPolicy = cuTruPolicy;
     }
 
     public async Task<Result<CuDanResponse>> Handle(ThietLapCuTruCommand request, CancellationToken cancellationToken)
@@ -50,21 +45,24 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
         var existingRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
         var now = _dateTimeProvider.Now.DateTime;
 
-        var quanHe = new HeThongChungCu.Domain.Entities.QuanHeCuTru(canHo.Id, user.Id, loaiQuanHe!, now, _cuTruPolicy, existingRelations);
+        var quanHe = new Domain.Entities.QuanHeCuTru(canHo.Id, user.Id, loaiQuanHe!, now, existingRelations);
         await _quanHeCuTruRepository.AddAsync(quanHe, cancellationToken);
         
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new CuDanResponse
         {
+            MaToaNha = canHo.Tang.ToaNha.MaToaNha,
+            MaTang = canHo.Tang.MaTang,
+            MaCanHo = canHo.MaCanHo,
             QuanHeCuTruId = quanHe.Id,
             UserId = user.Id,
             HoTen = $"{user.FirstName} {user.LastName}", 
-            Email = user.Email,
-            PhoneNumber = user.PhoneNumber,
             LoaiQuanHeCuTruId = quanHe.LoaiQuanHeCuTruId.Value,
             TenLoaiQuanHeCuTru = quanHe.LoaiQuanHeCuTruId.Name,
-            NgayBatDau = quanHe.NgayBatDau
+            NgayBatDau = quanHe.NgayBatDau,
+            NgayKetThuc = quanHe.NgayKetThuc,
+            IsKetThuc = quanHe.IsKetThuc,
         });
     }
 }

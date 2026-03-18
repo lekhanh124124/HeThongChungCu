@@ -1,7 +1,6 @@
 using Bogus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using HeThongChungCu.Domain.Policies;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 
@@ -20,7 +19,6 @@ public class CanHoSeeder
                 .ToListAsync();
             
             var allCanHos = new List<CanHo>();
-            var canHoPolicy = new CanHoPolicy();
 
             foreach (var tang in tangs)
             {
@@ -38,8 +36,7 @@ public class CanHoSeeder
                             soPhongNgu: f.Random.Int(1, 3),
                             soPhongTam: f.Random.Int(1, 2),
                             loaiCanHoId: f.PickRandom(LoaiCanHo.GetAll().ToArray()),
-                            tinhTrangCanHoId: TrangThaiCanHo.DangTrong,
-                            policy: canHoPolicy
+                            tinhTrangCanHoId: TrangThaiCanHo.DangTrong
                         );
                     });
 

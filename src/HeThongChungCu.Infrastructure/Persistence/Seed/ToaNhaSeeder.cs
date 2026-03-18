@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
-using HeThongChungCu.Domain.Policies;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
@@ -15,7 +15,7 @@ public class ToaNhaSeeder
         {
             logger.LogInformation("Seeding ToaNhas and Tangs...");
 
-            var toaNhaPolicy = new ToaNhaPolicy();
+            logger.LogInformation("Seeding ToaNhas and Tangs...");
             var toaNhaFaker = new Faker<ToaNha>("vi")
                 .CustomInstantiator(f => new ToaNha(
                     maToaNha: f.Random.Replace("TN-##"),
@@ -32,13 +32,13 @@ public class ToaNhaSeeder
                 // Add basements
                 for (int i = 1; i <= 2; i++)
                 {
-                    toaNha.AddTang($"TN{toaNha.MaToaNha}-B{i}", $"Tầng hầm {i}", LoaiTang.TangHam, toaNhaPolicy);
+                    toaNha.AddTang($"TN{toaNha.MaToaNha}-B{i}", $"Tầng hầm {i}", LoaiTang.TangHam);
                 }
 
                 // Add floors
                 for (int i = 1; i <= floorCount; i++)
                 {
-                    toaNha.AddTang($"TN{toaNha.MaToaNha}-F{i}", $"Tầng {i}", LoaiTang.TangLau, toaNhaPolicy);
+                    toaNha.AddTang($"TN{toaNha.MaToaNha}-F{i}", $"Tầng {i}", LoaiTang.TangLau);
                 }
             }
 

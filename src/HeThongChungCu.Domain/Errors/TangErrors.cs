@@ -6,7 +6,7 @@ public static class TangErrors
 {
     public static readonly Error NotFound = new(
         "Tang.NotFound",
-        "Không tìm thấy tầng với ID được chỉ định.");
+        "Tầng không tồn tại.");
 
     public static readonly Error MaTangAlreadyExists = new(
         "Tang.MaTangExists",

@@ -2,16 +2,18 @@ namespace HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
 
 public class LichSuCuTruResponse
 {
-    public int QuanHeCuTruId { get; set; }
-    public int CanHoId { get; set; }
-    public string MaCanHo { get; set; } = null!;
+    // Thông tin chung cư
     public int ToaNhaId { get; set; }
-    public string TenToaNha { get; set; } = null!;
-    public int UserId { get; set; }
-    public string HoTen { get; set; } = null!;
+    public string TenToaNha { get; set; } = string.Empty;
+    public int TangId { get; set; }
+    public string TenTang { get; set; } = string.Empty;
+    public int CanHoId { get; set; }
+    public string TenCanHo { get; set; } = string.Empty;
+
+    // Thông tin cư trú
+    public int QuanHeCuTruId { get; set; }
     public int LoaiQuanHeCuTruId { get; set; }
-    public string LoaiQuanHeTen { get; set; } = null!;
+    public string TenLoaiQuanHeCuTru { get; set; } = string.Empty;
     public DateTime NgayBatDau { get; set; }
     public DateTime? NgayKetThuc { get; set; }
-    public bool IsKetThuc { get; set; }
 }

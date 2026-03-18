@@ -1,7 +1,6 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
-using HeThongChungCu.Domain.Policies;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -18,7 +17,7 @@ public class CanHo : AggregateRoot
     public TrangThaiCanHo TinhTrangCanHoId { get; private set; } = null!;
 
     public int TangId { get; private set; }
-    public global::HeThongChungCu.Domain.Entities.Tang Tang { get; private set; } = null!;
+    public Tang Tang { get; private set; } = null!;
 
     private CanHo() { } // EF Core
 
@@ -30,10 +29,9 @@ public class CanHo : AggregateRoot
         int soPhongNgu, 
         int soPhongTam, 
         LoaiCanHo loaiCanHoId, 
-        TrangThaiCanHo tinhTrangCanHoId,
-        ICanHoPolicy policy)
+        TrangThaiCanHo tinhTrangCanHoId)
     {
-        policy.ValidateCreate(dienTich, soPhongNgu, soPhongTam);
+        ValidateStructure(dienTich, soPhongNgu, soPhongTam);
 
         TangId = tangId;
         MaCanHo = maCanHo;
@@ -52,10 +50,20 @@ public class CanHo : AggregateRoot
         int soPhongNgu, 
         int soPhongTam, 
         LoaiCanHo loaiCanHoId,
-        ICanHoPolicy policy,
         bool hasActiveResidents)
     {
-        policy.ValidateUpdate(this, dienTich, soPhongNgu, soPhongTam, loaiCanHoId, hasActiveResidents);
+        if (hasActiveResidents)
+        {
+            if (DienTich != dienTich ||
+                SoPhongNgu != soPhongNgu ||
+                SoPhongTam != soPhongTam ||
+                LoaiCanHoId != loaiCanHoId)
+            {
+                throw new BusinessException("Không được thay đổi cấu trúc căn hộ khi đang có cư dân cư trú.");
+            }
+        }
+
+        ValidateStructure(dienTich, soPhongNgu, soPhongTam);
 
         MaCanHo = maCanHo;
         TenCanHo = tenCanHo;
@@ -65,16 +73,43 @@ public class CanHo : AggregateRoot
         LoaiCanHoId = loaiCanHoId;
     }
 
-    public void UpdateStatus(TrangThaiCanHo nextStatus, ICanHoPolicy policy)
+    public void UpdateStatus(TrangThaiCanHo nextStatus)
     {
-        policy.ValidateStatusChange(this, nextStatus);
+        if (TinhTrangCanHoId == nextStatus) return;
+
+        // Rule: ChuaBanGiao -> DangTrong -> CoCuDan
+        if (TinhTrangCanHoId == TrangThaiCanHo.ChuaBanGiao && nextStatus == TrangThaiCanHo.CoCuDan)
+        {
+            throw new BusinessException("Không được chuyển trực tiếp từ 'Chưa bàn giao' sang 'Có cư dân'. Phải qua trạng thái 'Đang trống'.");
+        }
+
+        // Rule: CoCuDan -> DangTrong -> ChuaBanGiao
+        if (TinhTrangCanHoId == TrangThaiCanHo.CoCuDan && nextStatus == TrangThaiCanHo.DangTrong)
+        {
+            throw new BusinessException("Không được chuyển trực tiếp từ 'Có cư dân' sang 'Đang trống'. Phải qua trạng thái 'Chưa bàn giao'.");
+        }
+
         TinhTrangCanHoId = nextStatus;
     }
 
-    public void Delete(ICanHoPolicy policy, bool hasActiveResidents)
+    public void Delete(bool hasActiveResidents)
     {
-        policy.ValidateDelete(this, hasActiveResidents);
-        // IsDeleted will be handled by the repository or a base class method if available
+        if (hasActiveResidents)
+        {
+            throw new BusinessException("Không được xóa căn hộ khi đang có cư dân cư trú.");
+        }
+    }
+
+    private void ValidateStructure(decimal dienTich, int soPhongNgu, int soPhongTam)
+    {
+        if (dienTich <= 0)
+            throw new BusinessException("Diện tích căn hộ phải lớn hơn 0.");
+
+        if (soPhongNgu < 0)
+            throw new BusinessException("Số phòng ngủ không được âm.");
+
+        if (soPhongTam < 0)
+            throw new BusinessException("Số phòng tắm không được âm.");
     }
 
 }

@@ -47,14 +47,13 @@ public static class DependencyInjection
         services.AddScoped<IToaNhaDapperRepository, ToaNhaDapperRepository>();
         services.AddScoped<ICanHoEFRepository, CanHoEFRepository>();
         services.AddScoped<IQuanHeCuTruEFRepository, QuanHeCuTruEFRepository>();
-        services.AddScoped<ITangEFRepository, TangEFRepository>();
-        services.AddScoped<ITangDapperRepository, TangDapperRepository>();
         services.AddScoped<ICanHoDapperRepository, CanHoDapperRepository>();
+        services.AddScoped<IPhuongTienEFRepository, PhuongTienEFRepository>();
+        services.AddScoped<IPhuongTienDapperRepository, PhuongTienDapperRepository>();
         services.AddScoped<IQuanHeCuTruDapperRepository, QuanHeCuTruDapperRepository>();
         services.AddScoped<IUserDapperRepository, UserDapperRepository>();
 
         return services;
     }
 }
-
 

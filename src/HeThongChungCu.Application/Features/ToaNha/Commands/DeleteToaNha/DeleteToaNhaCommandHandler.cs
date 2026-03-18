@@ -13,7 +13,7 @@ public class DeleteToaNhaCommandHandler : ICommandHandler<DeleteToaNhaCommand, I
 
     public async Task<Result<IReadOnlyList<ToaNhaDetailResponse>>> Handle(DeleteToaNhaCommand request, CancellationToken cancellationToken)
     {
-        var toaNhas = await _toaNhaRepository.GetByIdsAsync(request.Ids, cancellationToken);
+        var toaNhas = await _toaNhaRepository.GetToaNhaByIdsAsync(request.Ids, cancellationToken);
 
         var notFoundIds = request.Ids.Except(toaNhas.Select(t => t.Id)).ToList();
         if (notFoundIds.Count > 0)

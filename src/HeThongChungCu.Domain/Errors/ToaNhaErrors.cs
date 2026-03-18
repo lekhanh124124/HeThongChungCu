@@ -6,7 +6,7 @@ public static class ToaNhaErrors
 {
     public static readonly Error NotFound = new(
         "ToaNha.NotFound",
-        "Không tìm thấy tòa nhà với ID được chỉ định.");
+        "Tòa nhà không tồn tại.");
 
     public static readonly Error MaToaNhaAlreadyExists = new(
         "ToaNha.MaToaNhaExists",

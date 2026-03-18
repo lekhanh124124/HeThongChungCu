@@ -2,7 +2,6 @@ using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
 
-using HeThongChungCu.Domain.Policies;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -13,7 +12,7 @@ public class ToaNha : AggregateRoot
 
     public string DiaChi { get; private set; } = null!;
     public string? MoTa { get; private set; }
-    public TrangThaiToaNha TrangThaiToaNhaId { get; private set; } = null!;
+    public TrangThaiToaNha TrangThaiToaNhaId { get; private set; } = default!;
 
     private readonly List<Tang> _tangs = new();
     public IReadOnlyCollection<Tang> Tangs => _tangs.AsReadOnly();
@@ -45,15 +44,20 @@ public class ToaNha : AggregateRoot
         TenToaNha = tenToaNha;
         DiaChi = diaChi;
         MoTa = moTa;
-        TrangThaiToaNhaId = trangThaiToaNhaId;
+        TrangThaiToaNhaId = trangThaiToaNhaId!;
     }
 
-    public void AddTang(string maTang, string tenTang, LoaiTang loaiTangId, IToaNhaPolicy policy)
+    public Tang AddTang(string maTang, string tenTang, LoaiTang loaiTangId)
     {
-        policy.ValidateAddTang(maTang, this);
+        if (_tangs.Any(x => x.MaTang == maTang))
+            throw new BusinessException("Mã tầng đã tồn tại.");
+
+        if (TrangThaiToaNhaId != TrangThaiToaNha.DangHoatDong)
+            throw new BusinessException("Tòa nhà chưa được hoạt động.");
 
         var tang = new Tang(maTang, tenTang, loaiTangId, Id);
         _tangs.Add(tang);
-    }
 
+        return tang;
+    }
 }

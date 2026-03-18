@@ -3,9 +3,13 @@ using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
 namespace HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayLichSuCuTru;
 
 public record LayLichSuCuTruQuery(
-    int? CanHoId = null,
-    int? UserId = null,
-    string? SortCol = null,
-    bool? IsAsc = false,
-    int? PageNumber = 1,
-    int? PageSize = 20) : IQuery<PagedResult<LichSuCuTruResponse>>;
+    int UserId,
+    int? LoaiQuanHeCuTruId,
+    DateOnly? NgayBatDauFrom,
+    DateOnly? NgayBatDauTo,
+    DateOnly? NgayKetThucFrom,
+    DateOnly? NgayKetThucTo,
+    string? SortCol,
+    bool? IsAsc,
+    int? PageNumber,
+    int? PageSize) : IQuery<PagedResult<LichSuCuTruResponse>>;

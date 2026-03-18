@@ -8,8 +8,5 @@ public class GetCanHoByIdSpecification : BaseSpecification
         AddFilter("Id", FilterOperator.Equal, id);
         AddFilter("CanHoIsDeleted", FilterOperator.Equal, false);
         AddFilter("TangIsDeleted", FilterOperator.Equal, false);
-        AddFilter("QuanHeCuTruIsDeleted", FilterOperator.Equal, false);
-        AddFilter("UserIsDeleted", FilterOperator.Equal, false);
-
     }
 }

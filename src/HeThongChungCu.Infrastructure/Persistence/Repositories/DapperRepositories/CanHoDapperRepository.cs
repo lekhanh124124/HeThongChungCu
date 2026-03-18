@@ -112,8 +112,6 @@ public class CanHoDapperRepository : ICanHoDapperRepository
             { "Id", "c.Id" },
             { "CanHoIsDeleted", "c.IsDeleted" },
             { "TangIsDeleted", "t.IsDeleted" },
-            { "QuanHeCuTruIsDeleted", "q.IsDeleted"  },
-            { "UserIsDeleted", "u.IsDeleted" },
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
@@ -129,62 +127,32 @@ public class CanHoDapperRepository : ICanHoDapperRepository
                 c.SoPhongNgu, 
                 c.SoPhongTam, 
                 c.LoaiCanHoId, 
-                c.TinhTrangCanHoId,
-                q.Id AS QuanHeCuTruId, 
-                q.CanHoId, 
-                q.UserId, 
-                u.LastName + ' ' + u.FirstName AS FullName,
-                q.LoaiQuanHeCuTruId,
-                q.NgayBatDau, 
-                q.NgayKetThuc, 
-                q.IsKetThuc
+                c.TinhTrangCanHoId
             FROM CanHos c
             INNER JOIN Tangs t ON t.Id = c.TangId
-            LEFT JOIN QuanHeCuTrus q ON q.CanHoId = c.Id
-            LEFT JOIN Users u ON u.Id = q.UserId
             {sqlWhere};
             """;
 
-        var rows = (await connection.QueryAsync<GetCanHoByIdReadModel>(sql, parameters)).ToList();
+        var result = await connection.QueryFirstOrDefaultAsync<GetCanHoByIdReadModel>(sql, parameters);
 
-        if (!rows.Any())
+        if (result is null)
             return null;
 
-        var firstRow = rows.First();
         var canHo = new CanHoResponse
         {
-            Id = firstRow.Id,
-            TangId = firstRow.TangId,
-            TenTang = firstRow.TenTang,
-            MaCanHo = firstRow.MaCanHo,
-            TenCanHo = firstRow.TenCanHo,
-            DienTich = firstRow.DienTich,
-            SoPhongNgu = firstRow.SoPhongNgu,
-            SoPhongTam = firstRow.SoPhongTam,
-            LoaiCanHoId = firstRow.LoaiCanHoId,
-            TinhTrangCanHoId = firstRow.TinhTrangCanHoId,
-            TenLoaiCanHo = LoaiCanHo.ToDictionary().GetValueOrDefault(firstRow.LoaiCanHoId, string.Empty),
-            TenTinhTrangCanHo = TrangThaiCanHo.ToDictionary().GetValueOrDefault(firstRow.TinhTrangCanHoId, string.Empty)
+            Id = result.Id,
+            TangId = result.TangId,
+            TenTang = result.TenTang,
+            MaCanHo = result.MaCanHo,
+            TenCanHo = result.TenCanHo,
+            DienTich = result.DienTich,
+            SoPhongNgu = result.SoPhongNgu,
+            SoPhongTam = result.SoPhongTam,
+            LoaiCanHoId = result.LoaiCanHoId,
+            TinhTrangCanHoId = result.TinhTrangCanHoId,
+            TenLoaiCanHo = LoaiCanHo.ToDictionary().GetValueOrDefault(result.LoaiCanHoId, string.Empty),
+            TenTinhTrangCanHo = TrangThaiCanHo.ToDictionary().GetValueOrDefault(result.TinhTrangCanHoId, string.Empty)
         };
-
-        var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
-        var quanHeCuTrus = rows
-            .Where(r => r.QuanHeCuTruId.HasValue)
-            .Select(r => new QuanHeCuTruDetailResponse
-            {
-                Id = r.QuanHeCuTruId!.Value,
-                CanHoId = r.Id,
-                UserId = r.UserId!.Value,
-                FullName = r.FullName ?? string.Empty,
-                LoaiQuanHeCuTruId = r.LoaiQuanHeCuTruId!.Value,
-                TenLoaiQuanHeCuTru = loaiQuanHeMap.GetValueOrDefault(r.LoaiQuanHeCuTruId!.Value, string.Empty),
-                NgayBatDau = r.NgayBatDau!.Value,
-                NgayKetThuc = r.NgayKetThuc,
-                IsKetThuc = r.IsKetThuc!.Value
-            })
-            .ToList();
-
-        canHo.QuanHeCuTrus = quanHeCuTrus;
 
         return canHo;
     }

@@ -95,6 +95,10 @@ public static class DapperQueryBuilder
             case FilterOperator.In:
                 sqlOperator = "IN";
                 break;
+            case FilterOperator.IsNull:
+                return $"{columnName} IS NULL";
+            case FilterOperator.IsNotNull:
+                return $"{columnName} IS NOT NULL";
         }
 
         parameters.Add(paramName, value);

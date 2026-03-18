@@ -34,11 +34,19 @@ public abstract class BaseSpecification : IDapperSpecification
 
     protected void AddFilter(string propertyName, FilterOperator @operator, object? value = null)
     {
+        // bỏ qua nếu value null và không phải explicit null operator
+        if (value is null && @operator != FilterOperator.IsNull && @operator != FilterOperator.IsNotNull)
+            return;
+
         _filters.Add(new FilterCriterion(propertyName, @operator, value));
     }
 
     protected void AddKeyword(string propertyName, FilterOperator @operator, object? value = null)
     {
+        // bỏ qua nếu value null và không phải explicit null operator
+        if (value is null && @operator != FilterOperator.IsNull && @operator != FilterOperator.IsNotNull)
+            return;
+
         _keywords.Add(new FilterCriterion(propertyName, @operator, value));
     }
 }

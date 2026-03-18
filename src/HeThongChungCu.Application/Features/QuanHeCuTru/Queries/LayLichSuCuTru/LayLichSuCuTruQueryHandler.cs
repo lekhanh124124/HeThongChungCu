@@ -13,21 +13,19 @@ public class LayLichSuCuTruQueryHandler : IQueryHandler<LayLichSuCuTruQuery, Pag
 
     public async Task<Result<PagedResult<LichSuCuTruResponse>>> Handle(LayLichSuCuTruQuery request, CancellationToken cancellationToken)
     {
-        if (request.CanHoId is null && request.UserId is null)
-            return Result.Failure<PagedResult<LichSuCuTruResponse>>(new Error(
-                "QuanHeCuTru.InvalidFilter",
-                "Phải cung cấp ít nhất CanHoId hoặc UserId để lấy lịch sử cư trú."));
-
         var spec = new LayLichSuCuTruSpecification(
-            request.CanHoId,
             request.UserId,
+            request.LoaiQuanHeCuTruId,
+            request.NgayBatDauFrom,
+            request.NgayBatDauTo,
+            request.NgayKetThucFrom,
+            request.NgayKetThucTo,
             request.SortCol,
             request.IsAsc,
             request.PageNumber,
             request.PageSize);
 
         var result = await _queryRepository.GetLichSuAsync(spec, cancellationToken);
-
         return Result.Success(result);
     }
 }

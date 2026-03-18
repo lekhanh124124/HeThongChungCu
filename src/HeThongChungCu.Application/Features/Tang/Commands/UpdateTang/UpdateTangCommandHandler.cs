@@ -4,22 +4,19 @@ namespace HeThongChungCu.Application.Features.Tang.Commands.UpdateTang;
 
 public class UpdateTangCommandHandler : ICommandHandler<UpdateTangCommand, TangDetailResponse>
 {
-    private readonly ITangEFRepository _tangRepository;
     private readonly IToaNhaEFRepository _toaNhaRepository;
 
     public UpdateTangCommandHandler(
-        ITangEFRepository tangRepository,
         IToaNhaEFRepository toaNhaRepository)
     {
-        _tangRepository = tangRepository;
         _toaNhaRepository = toaNhaRepository;
     }
 
     public async Task<Result<TangDetailResponse>> Handle(UpdateTangCommand request, CancellationToken cancellationToken)
     {
-        var toaNha = await _toaNhaRepository.GetByIdAsync(request.Id, cancellationToken);
+        var toaNha = await _toaNhaRepository.GetToaNhaById(request.ToaNhaId, cancellationToken);
         if (toaNha == null)
-            return Result.Failure<TangDetailResponse>(TangErrors.ToaNhaNotFound);
+            return Result.Failure<TangDetailResponse>(TangErrors.NotFound);
 
         var tang = toaNha.Tangs.FirstOrDefault(t => t.Id == request.Id);
         if (tang == null)
@@ -36,7 +33,7 @@ public class UpdateTangCommandHandler : ICommandHandler<UpdateTangCommand, TangD
         var loaiTang = LoaiTang.FromValue(request.LoaiTangId);
         tang.Update(request.MaTang, request.TenTang, loaiTang!);
 
-        _tangRepository.Update(tang);
+        _toaNhaRepository.Update(toaNha);
 
 
         return Result.Success(new TangDetailResponse

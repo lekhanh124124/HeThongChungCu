@@ -1,5 +1,9 @@
+using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.Catalog.DTOs;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayCauTrucChungCu;
+using HeThongChungCu.Application.Features.Tang.DTOs;
+using HeThongChungCu.Application.Features.Tang.Queries.GetListTang;
+using HeThongChungCu.Application.Features.Tang.Queries.GetTangById;
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
 using HeThongChungCu.Application.Features.ToaNha.Queries.GetListToaNha;
 using HeThongChungCu.Application.Features.ToaNha.Queries.GetToaNhaById;
@@ -16,5 +20,13 @@ public interface IToaNhaDapperRepository
 
     Task<IReadOnlyList<CauTrucToaNhaResponse>> GetCauTrucChungCuAsync(
         LayCauTrucChungCuSpecification spec,
+        CancellationToken cancellationToken = default);
+
+    Task<PagedResult<TangDetailResponse>> GetTangsAllAsync(
+        GetListTangSpecification spec,
+        CancellationToken cancellationToken = default);
+
+    Task<TangResponse?> GetTangDetailByIdAsync(
+        GetTangByIdSpecification spec,
         CancellationToken cancellationToken = default);
 }

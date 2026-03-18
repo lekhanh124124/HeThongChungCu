@@ -29,12 +29,12 @@ public class UpdateProfileCommandHandler : ICommandHandler<UpdateProfileCommand,
         }
 
         // Kiểm tra CMND/CCCD có tồn tại không nếu thay đổi
-        if (user.IdCard != request.IdCard)
+        if (user.PhoneNumber != request.PhoneNumber)
         {
-            var idCardExists = await _userRepository.AnyAsync(u => u.IdCard == request.IdCard, cancellationToken);
-            if (idCardExists)
+            var phoneNumberExists = await _userRepository.AnyAsync(u => u.PhoneNumber == request.PhoneNumber, cancellationToken);
+            if (phoneNumberExists)
             {
-                return Result.Failure<UserProfileDetailResponse>(UserErrors.IdCardAlreadyExists);
+                return Result.Failure<UserProfileDetailResponse>(UserErrors.PhoneNumberAlreadyExists);
             }
         }
 

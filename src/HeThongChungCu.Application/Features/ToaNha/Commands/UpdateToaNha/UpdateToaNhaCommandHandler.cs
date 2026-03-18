@@ -15,7 +15,7 @@ public class UpdateToaNhaCommandHandler : ICommandHandler<UpdateToaNhaCommand, T
 
     public async Task<Result<ToaNhaDetailResponse>> Handle(UpdateToaNhaCommand request, CancellationToken cancellationToken)
     {
-        var toaNha = await _toaNhaRepository.GetByIdAsync(request.Id, cancellationToken);
+        var toaNha = await _toaNhaRepository.GetToaNhaById(request.Id, cancellationToken);
         if (toaNha is null)
             return Result.Failure<ToaNhaDetailResponse>(ToaNhaErrors.NotFoundById(request.Id));
 

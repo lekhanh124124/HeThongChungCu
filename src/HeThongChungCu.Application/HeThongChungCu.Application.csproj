@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -27,9 +27,7 @@
     <Folder Include="Features\Auth\Queries\" />
     <Folder Include="Features\Catalog\Commands\" />
     <Folder Include="Features\CuDan\Commands\" />
-    <Folder Include="Features\PhuongTien\Commands\" />
     <Folder Include="Features\PhuongTien\DTOs\" />
-    <Folder Include="Features\PhuongTien\Queries\" />
     <Folder Include="Features\QuanHeCuTru\Commands\KetThucCuTru\" />
     <Folder Include="Features\QuanHeCuTru\Commands\CapNhatQuanHe\" />
     <Folder Include="Features\QuanHeCuTru\Commands\ThietLapCuTru\" />

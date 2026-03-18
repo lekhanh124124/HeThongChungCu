@@ -66,7 +66,6 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
         // 4. Update Database
         var oldAvatarUrl = user.AnhDaiDienUrl;
         user.UpdateAvatar(avatarUrl);
-        _userRepository.Update(user);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         // 5. Delete Old Avatar (if exists and different)

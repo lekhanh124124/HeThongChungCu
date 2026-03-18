@@ -1,5 +1,4 @@
 using HeThongChungCu.Application.Features.Auth.DTOs;
-using System.Security.Cryptography;
 
 namespace HeThongChungCu.Application.Features.Auth.Commands.RefreshToken;
 
@@ -7,16 +6,12 @@ public class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, A
 {
     private readonly IUserEFRepository _userRepository;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
-    private readonly IDateTimeProvider _dateTimeProvider;
-
     public RefreshTokenCommandHandler(
         IUserEFRepository userRepository,
-        IJwtTokenGenerator jwtTokenGenerator,
-        IDateTimeProvider dateTimeProvider)
+        IJwtTokenGenerator jwtTokenGenerator)
     {
         _userRepository = userRepository;
         _jwtTokenGenerator = jwtTokenGenerator;
-        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task<Result<AuthResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
@@ -35,21 +30,19 @@ public class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, A
             return Result.Failure<AuthResponse>(AuthErrors.InvalidRefreshToken);
         }
 
-        var newRefreshTokenString = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-        existingToken.Revoke(_dateTimeProvider.UtcNow, ReasonRevoked.ReplacedByNewToken, newRefreshTokenString);
-
         var roles = new List<string> { user.RoleId.Name };
         var newAccessToken = _jwtTokenGenerator.GenerateToken(user.Id, user.Username, roles);
-
-        var newRefreshToken = Tokens.CreateRefreshToken(user.Id, newRefreshTokenString, _dateTimeProvider.UtcNow.AddDays(7));
-        user.AddToken(newRefreshToken);
 
         return Result.Success(new AuthResponse
         {
             UserId = user.Id,
+            Username = user.Username,
             Email = user.Email,
+            FullName = $"{user.FirstName} {user.LastName}",
+            AnhDaiDienUrl = user.AnhDaiDienUrl ?? string.Empty,
+            Role = user.RoleId.Name,
             AccessToken = newAccessToken,
-            RefreshToken = newRefreshTokenString
+            RefreshToken = request.RefreshToken
         });
     }
 }

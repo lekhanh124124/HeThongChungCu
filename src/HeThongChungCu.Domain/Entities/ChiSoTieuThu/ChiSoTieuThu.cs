@@ -1,7 +1,6 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
-
-using HeThongChungCu.Domain.Policies;
+using HeThongChungCu.Domain.Exceptions;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -28,9 +27,11 @@ public class ChiSoTieuThu : AggregateRoot
         IsLock = false;
     }
 
-    public void Update(double chiSo, int thang, int nam, DateTime ngayChot, IChiSoTieuThuPolicy policy)
+    public void Update(double chiSo, int thang, int nam, DateTime ngayChot)
     {
-        policy.ValidateUpdate(this);
+        if (IsLock)
+            throw new BusinessException("Chỉ số tiêu thụ đã bị khóa, không thể cập nhật.");
+
         ChiSo = chiSo;
         Thang = thang;
         Nam = nam;

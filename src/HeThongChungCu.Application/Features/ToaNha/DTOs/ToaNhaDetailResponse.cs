@@ -1,3 +1,5 @@
+using HeThongChungCu.Application.Features.Tang.DTOs;
+
 namespace HeThongChungCu.Application.Features.ToaNha.DTOs
 {
     public class ToaNhaDetailResponse
@@ -10,6 +12,7 @@ namespace HeThongChungCu.Application.Features.ToaNha.DTOs
         public string? MoTa { get; set; }
         public int TrangThaiToaNhaId { get; set; }
         public string TenTrangThaiToaNha { get; set; } = null!;
+        public IReadOnlyList<TangDetailResponse> Tangs { get; set; } = new List<TangDetailResponse>();
     }
 
 }

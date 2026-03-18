@@ -1,6 +1,6 @@
 namespace HeThongChungCu.Infrastructure.Persistence.ReadModels;
 
-public class GetToaNhaByIdReadModel
+internal class GetToaNhaByIdReadModel
 {
     // ToaNha
     public int Id { get; set; }

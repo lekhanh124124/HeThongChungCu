@@ -1,6 +1,6 @@
 namespace HeThongChungCu.Infrastructure.Persistence.ReadModels;
 
-public class GetTangByIdReadModel
+internal class GetTangByIdReadModel
 {
     // Tang
     public int Id { get; set; }

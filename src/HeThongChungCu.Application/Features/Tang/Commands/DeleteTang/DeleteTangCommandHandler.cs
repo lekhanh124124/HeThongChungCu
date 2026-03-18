@@ -4,18 +4,16 @@ namespace HeThongChungCu.Application.Features.Tang.Commands.DeleteTang;
 
 public class DeleteTangCommandHandler : ICommandHandler<DeleteTangCommand, IReadOnlyList<TangDetailResponse>>
 {
-    private readonly ITangEFRepository _tangRepository;
     private readonly IToaNhaEFRepository _toaNhaRepository;
 
-    public DeleteTangCommandHandler(ITangEFRepository tangRepository, IToaNhaEFRepository toaNhaRepository)
+    public DeleteTangCommandHandler(IToaNhaEFRepository toaNhaRepository)
     {
-        _tangRepository = tangRepository;
         _toaNhaRepository = toaNhaRepository;
     }
 
     public async Task<Result<IReadOnlyList<TangDetailResponse>>> Handle(DeleteTangCommand request, CancellationToken cancellationToken)
     {
-        var tangs = await _tangRepository.GetByIdsAsync(request.Ids, cancellationToken);
+        var tangs = await _toaNhaRepository.GetTangByIdsAsync(request.Ids, cancellationToken);
         
         if (!tangs.Any())
             return Result.Failure<IReadOnlyList<TangDetailResponse>>(TangErrors.NotFound);
@@ -24,11 +22,8 @@ public class DeleteTangCommandHandler : ICommandHandler<DeleteTangCommand, IRead
 
         foreach (var tang in tangs)
         {
-            // Soft delete
-            _tangRepository.Remove(tang);
-
-            var toaNha = await _toaNhaRepository.GetByIdAsync(tang.ToaNhaId, cancellationToken);
-
+            _toaNhaRepository.Remove(tang);
+            
             deletedTangs.Add(new TangDetailResponse
             {
                 Id = tang.Id,
@@ -37,7 +32,7 @@ public class DeleteTangCommandHandler : ICommandHandler<DeleteTangCommand, IRead
                 LoaiTangId = tang.LoaiTangId.Value,
                 TenLoaiTang = tang.LoaiTangId.Name,
                 ToaNhaId = tang.ToaNhaId,
-                TenToaNha = toaNha?.TenToaNha ?? string.Empty
+                TenToaNha = tang.ToaNha?.TenToaNha ?? string.Empty
             });
         }
 

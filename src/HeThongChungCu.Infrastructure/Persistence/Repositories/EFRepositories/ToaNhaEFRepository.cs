@@ -12,7 +12,7 @@ public class ToaNhaEFRepository : IToaNhaEFRepository
         _dbContext = dbContext;
     }
 
-    public async Task<ToaNha?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ToaNha?> GetToaNhaById(int id, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<ToaNha>()
             .Include(t => t.Tangs.Where(tang => !tang.IsDeleted))
@@ -22,11 +22,12 @@ public class ToaNhaEFRepository : IToaNhaEFRepository
                 cancellationToken);
     }
 
-    public async Task<bool> AnyAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ToaNha?> GetToaNhaByTangId(int tangId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<ToaNha>()
-            .AnyAsync(t => 
-                t.Id == id &&
+            .Include(t => t.Tangs.Where(tang => !tang.IsDeleted))
+            .FirstOrDefaultAsync(t => 
+                t.Tangs.Any(tang => tang.Id == tangId && !tang.IsDeleted) &&
                 !t.IsDeleted, 
                 cancellationToken);
     }
@@ -36,12 +37,20 @@ public class ToaNhaEFRepository : IToaNhaEFRepository
         return await _dbContext.Set<ToaNha>().AnyAsync(t => t.MaToaNha == maToaNha, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<ToaNha>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ToaNha>> GetToaNhaByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<ToaNha>()
             .Where(t => 
                 ids.Contains(t.Id) &&
                 !t.IsDeleted)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Tang>> GetTangByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Set<Tang>()
+            .Include(t => t.ToaNha)
+            .Where(t => ids.Contains(t.Id) && !t.IsDeleted)
             .ToListAsync(cancellationToken);
     }
 
@@ -55,8 +64,8 @@ public class ToaNhaEFRepository : IToaNhaEFRepository
         _dbContext.Set<ToaNha>().Update(toaNha);
     }
 
-    public void Remove(ToaNha toaNha)
+    public void Remove(object entity)
     {
-        _dbContext.Set<ToaNha>().Remove(toaNha);
+        _dbContext.Remove(entity);
     }
 }

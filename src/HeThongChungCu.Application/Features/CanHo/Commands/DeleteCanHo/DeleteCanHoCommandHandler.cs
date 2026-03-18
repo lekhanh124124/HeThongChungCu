@@ -1,6 +1,4 @@
 using HeThongChungCu.Application.Features.CanHo.DTOs;
-using HeThongChungCu.Domain.Policies;
-
 namespace HeThongChungCu.Application.Features.CanHo.Commands.DeleteCanHo;
 
 public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IReadOnlyList<CanHoDetailResponse>>
@@ -8,18 +6,15 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
     private readonly ICanHoEFRepository _canHoRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IQuanHeCuTruEFRepository _quanHeCuTruRepository;
-    private readonly ICanHoPolicy _canHoPolicy;
 
     public DeleteCanHoCommandHandler(
         ICanHoEFRepository canHoRepository, 
         IUnitOfWork unitOfWork,
-        IQuanHeCuTruEFRepository quanHeCuTruRepository,
-        ICanHoPolicy canHoPolicy)
+        IQuanHeCuTruEFRepository quanHeCuTruRepository)
     {
         _canHoRepository = canHoRepository;
         _unitOfWork = unitOfWork;
         _quanHeCuTruRepository = quanHeCuTruRepository;
-        _canHoPolicy = canHoPolicy;
     }
 
     public async Task<Result<IReadOnlyList<CanHoDetailResponse>>> Handle(DeleteCanHoCommand request, CancellationToken cancellationToken)
@@ -56,7 +51,7 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
             var relations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
             bool hasActiveResidents = relations.Any(r => !r.IsKetThuc);
             
-            canHo.Delete(_canHoPolicy, hasActiveResidents);
+            canHo.Delete(hasActiveResidents);
             _canHoRepository.Remove(canHo);
         }
 

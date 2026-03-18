@@ -1,6 +1,5 @@
 using Bogus;
 using HeThongChungCu.Domain.Enums;
-using HeThongChungCu.Domain.Policies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -23,8 +22,7 @@ public class QuanHeCuTruSeeder
                 var usedPairs = new HashSet<(int, int)>();
 
                 int targetCount = Math.Min(15, canHos.Count * userIds.Count);
-                var policy = new CuTruPolicy();
-                var emptyRelations = Enumerable.Empty<HeThongChungCu.Domain.Entities.QuanHeCuTru>();
+                var emptyRelations = Enumerable.Empty<QuanHeCuTru>();
 
                 while (usedPairs.Count < targetCount)
                 {
@@ -33,7 +31,7 @@ public class QuanHeCuTruSeeder
 
                     if (usedPairs.Add((canHo.Id, userId)))
                     {
-                        var quanHe = new HeThongChungCu.Domain.Entities.QuanHeCuTru(canHo.Id, userId, LoaiQuanHeCuTru.ChuHo, faker.Date.Past(1), policy, emptyRelations);
+                        var quanHe = new QuanHeCuTru(canHo.Id, userId, LoaiQuanHeCuTru.ChuHo, faker.Date.Past(1), emptyRelations);
                         context.QuanHeCuTrus.Add(quanHe);
                     }
                 }

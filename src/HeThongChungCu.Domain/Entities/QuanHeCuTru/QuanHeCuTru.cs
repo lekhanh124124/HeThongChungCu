@@ -1,7 +1,6 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
-using HeThongChungCu.Domain.Policies;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -21,10 +20,13 @@ public class QuanHeCuTru : AggregateRoot
         int userId, 
         LoaiQuanHeCuTru loaiQuanHeCuTruId, 
         DateTime ngayBatDau,
-        ICuTruPolicy policy,
         IEnumerable<QuanHeCuTru> existingRelations)
     {
-        policy.ValidateCreate(userId, loaiQuanHeCuTruId, existingRelations);
+        if (existingRelations.Any(x => x.UserId == userId && !x.IsKetThuc))
+            throw new BusinessException("Cư dân này đã đang cư trú tại căn hộ.");
+
+        if (loaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && existingRelations.Any(x => x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && !x.IsKetThuc))
+            throw new BusinessException("Căn hộ đã có chủ hộ.");
 
         CanHoId = canHoId;
         UserId = userId;

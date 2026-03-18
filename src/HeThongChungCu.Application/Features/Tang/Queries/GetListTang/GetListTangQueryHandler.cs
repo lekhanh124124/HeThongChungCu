@@ -4,9 +4,9 @@ namespace HeThongChungCu.Application.Features.Tang.Queries.GetListTang;
 
 public class GetListTangQueryHandler : IQueryHandler<GetListTangQuery, PagedResult<TangDetailResponse>>
 {
-    private readonly ITangDapperRepository _queryRepository;
+    private readonly IToaNhaDapperRepository _queryRepository;
 
-    public GetListTangQueryHandler(ITangDapperRepository queryRepository)
+    public GetListTangQueryHandler(IToaNhaDapperRepository queryRepository)
     {
         _queryRepository = queryRepository;
     }
@@ -21,7 +21,7 @@ public class GetListTangQueryHandler : IQueryHandler<GetListTangQuery, PagedResu
             request.PageNumber,
             request.PageSize);
 
-        var result = await _queryRepository.GetAllAsync(spec, cancellationToken);
+        var result = await _queryRepository.GetTangsAllAsync(spec, cancellationToken);
         
         return Result.Success(result);
     }

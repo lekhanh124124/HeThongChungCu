@@ -5,23 +5,24 @@ namespace HeThongChungCu.Application.Features.CanHo.Commands.CreateCanHo;
 public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, CanHoDetailResponse>
 {
     private readonly ICanHoEFRepository _canHoRepository;
-    private readonly ITangEFRepository _tangRepository;
-    private readonly ICanHoPolicy _canHoPolicy;
+    private readonly IToaNhaEFRepository _toaNhaRepository;
 
     public CreateCanHoCommandHandler(
         ICanHoEFRepository canHoRepository,
-        ITangEFRepository tangRepository,
-        ICanHoPolicy canHoPolicy)
+        IToaNhaEFRepository toaNhaRepository)
     {
         _canHoRepository = canHoRepository;
-        _tangRepository = tangRepository;
-        _canHoPolicy = canHoPolicy;
+        _toaNhaRepository = toaNhaRepository;
     }
     public async Task<Result<CanHoDetailResponse>> Handle(CreateCanHoCommand request, CancellationToken cancellationToken)
     {
-        var tang = await _tangRepository.GetByIdAsync(request.TangId, cancellationToken);
+        var toaNha = await _toaNhaRepository.GetToaNhaByTangId(request.TangId, cancellationToken);
+        if (toaNha == null)
+            return Result.Failure<CanHoDetailResponse>(ToaNhaErrors.NotFound);
+
+        var tang = toaNha.Tangs.FirstOrDefault(t => t.Id == request.TangId);
         if (tang == null)
-            return Result.Failure<CanHoDetailResponse>(CanHoErrors.NotFound);
+            return Result.Failure<CanHoDetailResponse>(TangErrors.NotFound);
 
         if (tang.LoaiTangId == LoaiTang.TangHam)
             return Result.Failure<CanHoDetailResponse>(CanHoErrors.CanHoInBasement);
@@ -41,8 +42,7 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
             request.SoPhongNgu,
             request.SoPhongTam, 
             loaiCanHo!, 
-            tinhTrangCanHo,
-            _canHoPolicy);
+            tinhTrangCanHo);
 
         await _canHoRepository.AddAsync(canHo, cancellationToken);
         return Result.Success(new CanHoDetailResponse

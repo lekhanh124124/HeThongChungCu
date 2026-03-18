@@ -7,28 +7,34 @@ public class LayLichSuCuTruSpecification : BaseSpecification
         "NgayBatDau",
         "NgayKetThuc",
         "MaCanHo",
-        "IsKetThuc",
         "LoaiQuanHeCuTruId"
     };
     public LayLichSuCuTruSpecification(
-        int? canHoId,
-        int? userId,
+        int userId,
+        int? loaiQuanHeCuTruId,
+        DateOnly? ngayBatDauFrom,
+        DateOnly? ngayBatDauTo,
+        DateOnly? ngayKetThucFrom,
+        DateOnly? ngayKetThucTo,
         string? sortCol,
         bool? isAsc,
         int? pageNumber,
         int? pageSize) 
         : base(sortCol, isAsc, pageNumber, pageSize)
     {
+        AddFilter("UserId", FilterOperator.Equal, userId);
+        AddFilter("LoaiQuanHeCuTruId", FilterOperator.Equal, loaiQuanHeCuTruId);
+        AddFilter("IsKetThuc", FilterOperator.Equal, true);
         AddFilter("IsDeleted", FilterOperator.Equal, false);
 
-        if (canHoId.HasValue)
-        {
-            AddFilter("CanHoId", FilterOperator.Equal, canHoId.Value);
-        }
-
-        if (userId.HasValue)
-        {
-            AddFilter("UserId", FilterOperator.Equal, userId.Value);
-        }
+        // Date range filters
+        if (ngayBatDauFrom.HasValue) 
+            AddFilter("NgayBatDau", FilterOperator.GreaterThanOrEqual, ngayBatDauFrom);
+        if (ngayBatDauTo.HasValue) 
+            AddFilter("NgayBatDau", FilterOperator.LessThanOrEqual, ngayBatDauTo);
+        if (ngayKetThucFrom.HasValue) 
+            AddFilter("NgayKetThuc", FilterOperator.GreaterThanOrEqual, ngayKetThucFrom);
+        if (ngayKetThucTo.HasValue) 
+            AddFilter("NgayKetThuc", FilterOperator.LessThanOrEqual, ngayKetThucTo);
     }
 }
