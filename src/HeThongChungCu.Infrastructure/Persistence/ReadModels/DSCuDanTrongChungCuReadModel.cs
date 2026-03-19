@@ -13,5 +13,5 @@ internal sealed class DSCuDanTrongChungCuReadModel
     public int LoaiQuanHeCuTruId { get; init; }
     public DateTime NgayBatDau { get; init; }
     public DateTime? NgayKetThuc { get; init; }
-    public bool IsKetThuc { get; init; }
+    public int TrangThaiCuTruId { get; init; }
 }

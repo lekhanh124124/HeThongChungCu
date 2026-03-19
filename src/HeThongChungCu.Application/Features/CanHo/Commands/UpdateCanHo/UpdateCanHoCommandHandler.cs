@@ -41,7 +41,7 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
         }
 
         var relations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
-        bool hasActiveResidents = relations.Any(r => !r.IsKetThuc);
+        bool hasActiveResidents = relations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
 
         canHo.UpdateInfo(
             request.TenCanHo, 

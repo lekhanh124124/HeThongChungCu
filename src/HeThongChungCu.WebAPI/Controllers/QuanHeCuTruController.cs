@@ -46,7 +46,7 @@ public class QuanHeCuTruController : ApiControllerBase
     /// </summary>
     /// <remarks>
     /// API dùng để kết thúc khoảng thời gian sinh sống của cư dân tại căn hộ.
-    /// Yêu cầu truyền vào `QuanHeCuTruId`. Hệ thống sẽ cập nhật trạng thái `IsKetThuc` thành true và cập nhật 'NgayKetThuc' của quan hệ cư trú.
+    /// Yêu cầu truyền vào `QuanHeCuTruId`. Hệ thống sẽ cập nhật trạng thái `TrangThaiCuTruId` thành `DaKetThuc` và cập nhật 'NgayKetThuc' của quan hệ cư trú.
     /// </remarks>
     [HttpDelete]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
@@ -80,9 +80,9 @@ public class QuanHeCuTruController : ApiControllerBase
     /// - **Từ khóa**: Tìm kiếm theo HoTen, MaToaNha, MaTang, MaCanHo (qua tham số Keyword).
     /// - **Bộ lọc**: 
     ///     - Mã định danh: MaToaNha, MaTang, MaCanHo.
-    ///     - Trạng thái: LoaiQuanHeCuTruId, IsKetThuc.
+    ///     - Trạng thái: LoaiQuanHeCuTruId, TrangThaiCuTruId.
     ///     - Thời gian: Khoảng ngày bắt đầu (NgayBatDauFrom/To) và khoảng ngày kết thúc (NgayKetThucFrom/To).
-    /// - **Sắp xếp**: Hỗ trợ sắp xếp theo MaToaNha, MaTang, MaCanHo, HoTen, LoaiQuanHeCuTruId, NgayBatDau, NgayKetThuc, IsKetThuc.
+    /// - **Sắp xếp**: Hỗ trợ sắp xếp theo MaToaNha, MaTang, MaCanHo, HoTen, LoaiQuanHeCuTruId, NgayBatDau, NgayKetThuc, TrangThaiCuTruId.
     /// - **Phân trang**: PageNumber và PageSize.
     /// </remarks>
     [HttpPost("cu-dan")]

@@ -26,10 +26,14 @@ public class DatabaseSeeder : IDatabaseSeeder
         int soLuongTangHamMoiToa)
     {
         await UserSeeder.SeedAsync(_context, _logger, soLuongNguoiDung);
+        await DichVuSeeder.SeedAsync(_context, _logger);
+        await BangGiaSeeder.SeedAsync(_context, _logger);
+        await CauHinhLaiSeeder.SeedAsync(_context, _logger);
         await ToaNhaSeeder.SeedAsync(_context, _logger, soLuongToaNha, soLuongTangMoiToa, soLuongTangHamMoiToa);
         await CanHoSeeder.SeedAsync(_context, _logger, soLuongCanHoMoiTang);
         await QuanHeCuTruSeeder.SeedAsync(_context, _logger, soLuongCuTru);
         await PhuongTienSeeder.SeedAsync(_context, _logger, soLuongPhuongTien, soLuongThePhuongTien);
-        await ChiSoTieuThuSeeder.SeedAsync(_context, _logger, soLuongChiSoTieuThuMoiCanHo);
+        await ChiSoTieuThuSeeder.SeedAsync(_context, _logger);
+        await HoaDonSeeder.SeedAsync(_context, _logger);
     }
 }

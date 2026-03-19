@@ -48,8 +48,9 @@ public class User : AggregateRoot
         RoleId = Role.Guest; // Mặc định là Guest khi tạo mới
     }
 
-    public void UpdateProfile(string firstName, string lastName, string phoneNumber, string idCard, DateTime dob, GioiTinh gioiTinhId, string diaChi)
+    public void UpdateProfile(string email, string firstName, string lastName, string phoneNumber, string idCard, DateTime dob, GioiTinh gioiTinhId, string diaChi)
     {
+        Email = email;
         FirstName = firstName;
         LastName = lastName;
         PhoneNumber = phoneNumber;

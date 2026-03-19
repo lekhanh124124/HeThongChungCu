@@ -3,15 +3,12 @@ using Microsoft.Extensions.Logging;
 
 namespace HeThongChungCu.Infrastructure.Persistence;
 
-public class ApplicationDbContextInitialiser
+public class ApplicationDbContextInitialiser(
+    ILogger<ApplicationDbContextInitialiser> logger,
+    AppDbContext context)
 {
-    private readonly ILogger<ApplicationDbContextInitialiser> _logger;
-    private readonly AppDbContext _context;
-    public ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, AppDbContext context)
-    {
-        _logger = logger;
-        _context = context;
-    }
+    private readonly ILogger<ApplicationDbContextInitialiser> _logger = logger;
+    private readonly AppDbContext _context = context;
 
     public async Task InitialiseAsync()
     {

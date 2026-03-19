@@ -24,7 +24,7 @@ public class LayLichSuCuTruSpecification : BaseSpecification
     {
         AddFilter("UserId", FilterOperator.Equal, userId);
         AddFilter("LoaiQuanHeCuTruId", FilterOperator.Equal, loaiQuanHeCuTruId);
-        AddFilter("IsKetThuc", FilterOperator.Equal, true);
+        AddFilter("TrangThaiCuTruId", FilterOperator.Equal, 2);
         AddFilter("IsDeleted", FilterOperator.Equal, false);
 
         // Date range filters

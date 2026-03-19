@@ -62,7 +62,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
             TenLoaiQuanHeCuTru = quanHe.LoaiQuanHeCuTruId.Name,
             NgayBatDau = quanHe.NgayBatDau,
             NgayKetThuc = quanHe.NgayKetThuc,
-            IsKetThuc = quanHe.IsKetThuc,
+            TrangThaiCuTruId = quanHe.TrangThaiCuTruId.Value,
         });
     }
 }

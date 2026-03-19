@@ -11,7 +11,7 @@ public class QuanHeCuTru : AggregateRoot
     public LoaiQuanHeCuTru LoaiQuanHeCuTruId { get; private set; } = null!;
     public DateTime NgayBatDau { get; private set; }
     public DateTime? NgayKetThuc { get; private set; }
-    public bool IsKetThuc { get; private set; }
+    public TrangThaiCuTru TrangThaiCuTruId { get; private set; } = null!;
 
     private QuanHeCuTru() { } // EF Core
 
@@ -22,22 +22,22 @@ public class QuanHeCuTru : AggregateRoot
         DateTime ngayBatDau,
         IEnumerable<QuanHeCuTru> existingRelations)
     {
-        if (existingRelations.Any(x => x.UserId == userId && x.CanHoId == canHoId && !x.IsKetThuc))
+        if (existingRelations.Any(x => x.UserId == userId && x.CanHoId == canHoId && x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
             throw new BusinessException("Cư dân này đã đang cư trú tại căn hộ này.");
 
-        if (loaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && existingRelations.Any(x => x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && !x.IsKetThuc))
+        if (loaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && existingRelations.Any(x => x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
             throw new BusinessException("Căn hộ đã có chủ hộ.");
 
         CanHoId = canHoId;
         UserId = userId;
         LoaiQuanHeCuTruId = loaiQuanHeCuTruId;
         NgayBatDau = ngayBatDau;
-        IsKetThuc = false;
+        TrangThaiCuTruId = TrangThaiCuTru.DangCuTru;
     }
 
     public void ThayDoiLoaiQuanHe(LoaiQuanHeCuTru loaiQuanHeCuTruId)
     {
-        if (IsKetThuc)
+        if (TrangThaiCuTruId == TrangThaiCuTru.DaKetThuc)
             throw new BusinessException($"Quan hệ cư trú này đã kết thúc.");
 
         LoaiQuanHeCuTruId = loaiQuanHeCuTruId;
@@ -45,10 +45,10 @@ public class QuanHeCuTru : AggregateRoot
 
     public void KetThucCuTru(DateTime ngayKetThuc)
     {
-        if (IsKetThuc)
+        if (TrangThaiCuTruId == TrangThaiCuTru.DaKetThuc)
             throw new BusinessException($"Quan hệ cư trú này đã kết thúc.");
 
         NgayKetThuc = ngayKetThuc;
-        IsKetThuc = true;
+        TrangThaiCuTruId = TrangThaiCuTru.DaKetThuc;
     }
 }

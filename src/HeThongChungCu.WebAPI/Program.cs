@@ -122,8 +122,8 @@ namespace HeThongChungCu.WebAPI
                     {
                         Route = path.Key,
                         Method = op.Key.ToString().ToUpper(),
-                        Summary = op.Value.Summary,
-                        Description = op.Value.Description
+                        op.Value.Summary,
+                        op.Value.Description
                     }));
 
                 return Results.Ok(apis);

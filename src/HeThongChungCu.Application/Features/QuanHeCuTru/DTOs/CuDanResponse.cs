@@ -13,5 +13,5 @@ public class CuDanResponse
     public string TenLoaiQuanHeCuTru { get; set; } = string.Empty;
     public DateTime NgayBatDau { get; set; }
     public DateTime? NgayKetThuc { get; set; }
-    public bool IsKetThuc { get; set; }
+    public int TrangThaiCuTruId { get; set; }
 }

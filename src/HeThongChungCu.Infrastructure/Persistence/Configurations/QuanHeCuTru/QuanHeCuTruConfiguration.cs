@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+using HeThongChungCu.Domain.Enums;
+
 namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
 public class QuanHeCuTruConfiguration : IEntityTypeConfiguration<QuanHeCuTru>
@@ -29,7 +31,11 @@ public class QuanHeCuTruConfiguration : IEntityTypeConfiguration<QuanHeCuTru>
 
         builder.Property(q => q.NgayKetThuc);
 
-        builder.Property(q => q.IsKetThuc)
+        builder.Property(q => q.TrangThaiCuTruId)
+            .HasConversion(
+                v => v.Value,
+                v => TrangThaiCuTru.FromValue(v, null)!
+            )
             .IsRequired();
 
         builder.HasOne<CanHo>()

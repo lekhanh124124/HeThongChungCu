@@ -11,6 +11,7 @@ using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayLichSuCuTru;
 using HeThongChungCu.Infrastructure.Persistence.Helpers;
 using HeThongChungCu.Infrastructure.Persistence.ReadModels;
 using System.Data;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
 
@@ -41,7 +42,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
             { "MaCanHo", "c.MaCanHo" },
 
             { "UserId", "q.UserId" },
-            { "IsKetThuc", "q.IsKetThuc" },
+            { "TrangThaiCuTruId", "q.TrangThaiCuTruId" },
             { "NgayBatDau", "q.NgayBatDau" },
             { "IsDeleted", "q.IsDeleted" },
             { "NgayKetThuc", "q.NgayKetThuc" },
@@ -68,7 +69,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
                 q.LoaiQuanHeCuTruId,
                 q.NgayBatDau,
                 q.NgayKetThuc,
-                q.IsKetThuc
+                q.TrangThaiCuTruId
             FROM QuanHeCuTrus q
             LEFT JOIN Users u ON u.Id = q.UserId AND u.IsDeleted = 0
             LEFT JOIN CanHos c ON c.Id = q.CanHoId AND c.IsDeleted = 0
@@ -96,7 +97,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
             TenLoaiQuanHeCuTru = loaiQuanHeMap.GetValueOrDefault(r.LoaiQuanHeCuTruId, string.Empty),
             NgayBatDau = r.NgayBatDau,
             NgayKetThuc = r.NgayKetThuc,
-            IsKetThuc = r.IsKetThuc
+            TrangThaiCuTruId = r.TrangThaiCuTruId
         }).ToList();
 
         return new PagedResult<CuDanResponse>
@@ -126,7 +127,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
             { "UserId", "q.UserId" },
             { "NgayBatDau", "q.NgayBatDau" },
             { "NgayKetThuc", "q.NgayKetThuc" },
-            { "IsKetThuc", "q.IsKetThuc" },
+            { "TrangThaiCuTruId", "q.TrangThaiCuTruId" },
             { "LoaiQuanHeCuTruId", "q.LoaiQuanHeCuTruId" },
             { "IsDeleted", "q.IsDeleted" }
         };
@@ -200,7 +201,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "UserId", "q.UserId" },
-            { "IsKetThuc", "q.IsKetThuc" },
+            { "TrangThaiCuTruId", "q.TrangThaiCuTruId" },
             { "IsDeleted", "q.IsDeleted" }
         };
 
@@ -221,7 +222,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
                 q.LoaiQuanHeCuTruId,
                 (SELECT COUNT(*) FROM QuanHeCuTrus qr 
                     WHERE qr.CanHoId = q.CanHoId 
-                    AND qr.IsKetThuc = 0
+                    AND qr.TrangThaiCuTruId = 1
                     AND qr.IsDeleted = 0) AS TongCuDan
             FROM QuanHeCuTrus q
             LEFT JOIN CanHos   c ON c.Id = q.CanHoId AND c.IsDeleted = 0
@@ -328,7 +329,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "CanHoId", "q.CanHoId" },
-            { "IsKetThuc", "q.IsKetThuc" },
+            { "TrangThaiCuTruId", "q.TrangThaiCuTruId" },
             { "IsDeleted", "q.IsDeleted" }
         };
 

@@ -65,7 +65,7 @@ public class UserDapperRepository : IUserDapperRepository
         {
             {  "PhoneNumber", "u.PhoneNumber" },
             {  "RoleId", "u.RoleId" },
-            {  "IsKetThuc", "q.IsKetThuc" },
+            {  "TrangThaiCuTruId", "q.TrangThaiCuTruId" },
 
             {  "UserIsDeleted", "u.IsDeleted" },
             {  "QuanHeCuTruIsDeleted", "q.IsDeleted" },

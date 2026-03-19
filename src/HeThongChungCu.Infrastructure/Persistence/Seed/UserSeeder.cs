@@ -33,7 +33,7 @@ public class UserSeeder
 
             var users = new List<User>();
             var phoneNumbers = new HashSet<string>();
-            
+
             // Generate unique phone numbers
             while (users.Count < count)
             {
@@ -60,7 +60,59 @@ public class UserSeeder
                     "Hà Nội");
                 users[0].ChangeRole(Role.Admin);
 
-                for (int i = 1; i < users.Count; i++)
+                users[1] = new User(
+                    "banquanly_test",
+                    "banquanly_test@gmail.com",
+                    _passwordHasher.HashPassword("123456"),
+                    "Ban Quản Lý",
+                    "System",
+                    "0987654322",
+                    "001090123457",
+                    new DateTime(1990, 1, 1),
+                    GioiTinh.Nam,
+                    "Hà Nội");
+                users[1].ChangeRole(Role.Manager);
+
+                users[2] = new User(
+                    "cudan_test",
+                    "cudan_test@gmail.com",
+                    _passwordHasher.HashPassword("123456"),
+                    "Cư Dân",
+                    "System",
+                    "0987654323",
+                    "001090123458",
+                    new DateTime(1990, 1, 1),
+                    GioiTinh.Nam,
+                    "Hà Nội");
+                users[2].ChangeRole(Role.Resident);
+
+                users[3] = new User(
+                    "nhanvien_test",
+                    "nhanvien_test@gmail.com",
+                    _passwordHasher.HashPassword("123456"),
+                    "Nhân viên",
+                    "System",
+                    "0987654324",
+                    "001090123459",
+                    new DateTime(1990, 1, 1),
+                    GioiTinh.Nam,
+                    "Hà Nội");
+                users[3].ChangeRole(Role.Staff);
+
+                users[4] = new User(
+                    "khach_test",
+                    "khach_test@gmail.com",
+                    _passwordHasher.HashPassword("123456"),
+                    "Khách",
+                    "System",
+                    "0987654325",
+                    "001090123460",
+                    new DateTime(1990, 1, 1),
+                    GioiTinh.Nam,
+                    "Hà Nội");
+                users[4].ChangeRole(Role.Guest);
+
+                for (int i = 5; i < users.Count; i++)
                 {
                     users[i].ChangeRole(Role.Resident);
                 }

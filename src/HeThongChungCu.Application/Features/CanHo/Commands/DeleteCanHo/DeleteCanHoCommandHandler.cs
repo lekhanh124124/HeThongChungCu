@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Features.CanHo.DTOs;
+using HeThongChungCu.Domain.Enums;
 namespace HeThongChungCu.Application.Features.CanHo.Commands.DeleteCanHo;
 
 public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IReadOnlyList<CanHoDetailResponse>>
@@ -49,7 +50,7 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
         foreach (var canHo in canHos)
         {
             var relations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
-            bool hasActiveResidents = relations.Any(r => !r.IsKetThuc);
+            bool hasActiveResidents = relations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
             
             canHo.Delete(hasActiveResidents);
             _canHoRepository.Remove(canHo);

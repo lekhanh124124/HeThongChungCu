@@ -2,13 +2,14 @@ using HeThongChungCu.Application.Features.Catalog.DTOs;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayCauTrucChungCu;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayGioiTinhForSelector;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayLoaiCanHoForSelector;
-using HeThongChungCu.Application.Features.Catalog.Queries.LayLoaiDichVuForSelector;
+using HeThongChungCu.Application.Features.Catalog.Queries.LayDichVuForSelector;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayLoaiPhuongTienForSelector;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayLoaiQuanHeCuTruForSelector;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayLoaiTangForSelector;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayTinhTrangCanHoForSelector;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayTrangThaiToaNhaForSelector;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayTrangThaiPhuongTienForSelector;
+using HeThongChungCu.Application.Features.Catalog.Queries.LayTrangThaiCuTruForSelector;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -65,13 +66,13 @@ public class CatalogController : ApiControllerBase
     }
 
     /// <summary>
-    /// Lấy danh sách loại dịch vụ để chọn
+    /// Lấy danh sách dịch vụ để chọn
     /// </summary>
-    [HttpPost("loai-dich-vu-for-selector")]
+    [HttpPost("dich-vu-for-selector")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetLoaiDichVuForSelector(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetDichVuForSelector(CancellationToken cancellationToken)
     {
-        return HandleResult(await _sender.Send(new LayLoaiDichVuForSelectorQuery(), cancellationToken));
+        return HandleResult(await _sender.Send(new LayDichVuForSelectorQuery(), cancellationToken));
     }
 
     /// <summary>
@@ -132,5 +133,15 @@ public class CatalogController : ApiControllerBase
     public async Task<IActionResult> GetTrangThaiPhuongTienForSelector(CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(new LayTrangThaiPhuongTienForSelectorQuery(), cancellationToken));
+    }
+
+    /// <summary>
+    /// Lấy danh sách trạng thái cư trú để chọn
+    /// </summary>
+    [HttpPost("trang-thai-cu-tru-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetTrangThaiCuTruForSelector(CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(new LayTrangThaiCuTruForSelectorQuery(), cancellationToken));
     }
 }

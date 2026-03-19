@@ -7,7 +7,7 @@ public class GetUserByPhoneNumberSpecification : BaseSpecification
         List<int>? roleIds) 
         : base(null, null, null, null)
     {
-        AddFilter("IsKetThuc", FilterOperator.Equal, false);
+        AddFilter("TrangThaiCuTruId", FilterOperator.Equal, 1);
         AddFilter("UserIsDeleted", FilterOperator.Equal, false);
         AddFilter("QuanHeCuTruIsDeleted", FilterOperator.Equal, false);
 

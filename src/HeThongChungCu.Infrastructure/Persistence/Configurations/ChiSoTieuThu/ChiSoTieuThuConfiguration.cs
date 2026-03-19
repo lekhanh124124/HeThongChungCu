@@ -1,41 +1,28 @@
+using HeThongChungCu.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
+namespace HeThongChungCu.Infrastructure.Persistence.Configurations.ChiSoTieuThu;
 
-public class ChiSoTieuThuConfiguration : IEntityTypeConfiguration<ChiSoTieuThu>
+public class ChiSoTieuThuConfiguration : IEntityTypeConfiguration<Domain.Entities.ChiSoTieuThu>
 {
-    public void Configure(EntityTypeBuilder<ChiSoTieuThu> builder)
+    public void Configure(EntityTypeBuilder<Domain.Entities.ChiSoTieuThu> builder)
     {
         builder.ToTable("ChiSoTieuThus");
+        builder.HasKey(x => x.Id);
 
-        builder.HasKey(c => c.Id);
-
-        builder.Property(c => c.LoaiDichVuId)
-            .HasConversion(
-                v => v.Value,
-                v => LoaiDichVu.FromValue(v, null)!
-            )
-            .IsRequired();
-
-        builder.Property(c => c.ChiSo)
-            .IsRequired();
-
-        builder.Property(c => c.IsLock)
-            .IsRequired();
-
-        builder.Property(c => c.Thang)
-            .IsRequired();
-
-        builder.Property(c => c.Nam)
-            .IsRequired();
-
-        builder.Property(c => c.NgayChot)
-            .IsRequired();
+        builder.Property(x => x.Thang).IsRequired();
+        builder.Property(x => x.Nam).IsRequired();
+        builder.Property(x => x.NgayChot).IsRequired();
 
         builder.HasOne<CanHo>()
             .WithMany()
-            .HasForeignKey(c => c.CanHoId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .HasForeignKey(x => x.CanHoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<HeThongChungCu.Domain.Entities.DichVu>()
+            .WithMany()
+            .HasForeignKey(x => x.DichVuId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -2,64 +2,70 @@ using Bogus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using HeThongChungCu.Domain.Entities;
-using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class ChiSoTieuThuSeeder
 {
-    public static async Task SeedAsync(AppDbContext context, ILogger logger, int soLuongChiSoTieuThuMoiCanHo)
+    public static async Task SeedAsync(AppDbContext context, ILogger logger)
     {
         if (!await context.Set<ChiSoTieuThu>().AnyAsync())
         {
             logger.LogInformation("Seeding ChiSoTieuThus...");
 
-            var canHoIds = await context.CanHos.Select(c => c.Id).ToListAsync();
+            var canHos = await context.CanHos.ToListAsync();
+            var dichVuDien = await context.Set<DichVu>().FirstOrDefaultAsync(x => x.MaDichVu == "DV-DIEN");
+            var dichVuNuoc = await context.Set<DichVu>().FirstOrDefaultAsync(x => x.MaDichVu == "DV-NUOC");
 
-            if (canHoIds.Any())
+            if (canHos.Any() && dichVuDien != null && dichVuNuoc != null)
             {
                 var faker = new Faker("vi");
-                var chiSoTieuThus = new List<ChiSoTieuThu>();
+                var allChiSos = new List<ChiSoTieuThu>();
 
-                foreach (var canHoId in canHoIds)
+                foreach (var canHo in canHos)
                 {
-                    double currentWater = faker.Random.Double(10, 50);
-                    double currentElectricity = faker.Random.Double(50, 200);
+                    // Seed for 3 months
+                    double currentDien = faker.Random.Double(100, 500);
+                    double currentNuoc = faker.Random.Double(10, 50);
 
-                    // Seed from oldest to newest month to ensure cumulative values
-                    for (int i = soLuongChiSoTieuThuMoiCanHo - 1; i >= 0; i--)
+                    for (int month = 1; month <= 3; month++)
                     {
-                        var date = DateTime.Now.AddMonths(-i);
-                        
-                        // Increment by random amount
-                        currentWater += faker.Random.Double(5, 20);
-                        currentElectricity += faker.Random.Double(50, 150);
+                        double nextDien = currentDien + faker.Random.Double(50, 150);
+                        double nextNuoc = currentNuoc + faker.Random.Double(5, 15);
 
-                        // Water
-                        chiSoTieuThus.Add(new ChiSoTieuThu(
-                            canHoId,
-                            LoaiDichVu.Nuoc,
-                            currentWater,
-                            date.Month,
-                            date.Year,
-                            new DateTime(date.Year, date.Month, 25)
-                        ));
+                        var csDien = new ChiSoTieuThu(
+                            canHo.Id,
+                            dichVuDien.Id,
+                            currentDien,
+                            nextDien,
+                            month,
+                            2024,
+                            new DateTime(2024, month, 1).AddMonths(1).AddDays(-1)
+                        );
+                        csDien.Lock();
 
-                        // Electricity
-                        chiSoTieuThus.Add(new ChiSoTieuThu(
-                            canHoId,
-                            LoaiDichVu.Dien,
-                            currentElectricity,
-                            date.Month,
-                            date.Year,
-                            new DateTime(date.Year, date.Month, 25)
-                        ));
+                        var csNuoc = new ChiSoTieuThu(
+                            canHo.Id,
+                            dichVuNuoc.Id,
+                            currentNuoc,
+                            nextNuoc,
+                            month,
+                            2024,
+                            new DateTime(2024, month, 1).AddMonths(1).AddDays(-1)
+                        );
+                        csNuoc.Lock();
+
+                        allChiSos.Add(csDien);
+                        allChiSos.Add(csNuoc);
+
+                        currentDien = nextDien;
+                        currentNuoc = nextNuoc;
                     }
                 }
 
-                await context.Set<ChiSoTieuThu>().AddRangeAsync(chiSoTieuThus);
+                await context.Set<ChiSoTieuThu>().AddRangeAsync(allChiSos);
                 await context.SaveChangesAsync();
-                logger.LogInformation("Seeded {Count} ChiSoTieuThus.", chiSoTieuThus.Count);
+                logger.LogInformation("Seeded {Count} ChiSoTieuThus.", allChiSos.Count);
             }
         }
     }

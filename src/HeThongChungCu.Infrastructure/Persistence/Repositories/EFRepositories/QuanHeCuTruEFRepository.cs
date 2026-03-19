@@ -1,5 +1,6 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.EFRepositories;
@@ -28,7 +29,7 @@ public class QuanHeCuTruEFRepository : IQuanHeCuTruEFRepository
             .FirstOrDefaultAsync(q =>
                 q.CanHoId == canHoId &&
                 !q.IsDeleted &&
-                !q.IsKetThuc,
+                q.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru,
                 cancellationToken);
     }
 

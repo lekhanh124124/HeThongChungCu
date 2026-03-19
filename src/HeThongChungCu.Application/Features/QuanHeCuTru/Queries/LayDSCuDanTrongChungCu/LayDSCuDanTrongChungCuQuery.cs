@@ -11,7 +11,7 @@ public record LayDSCuDanTrongChungCuQuery(
     string? MaTang,
     string? MaCanHo,
     int? LoaiQuanHeCuTruId,
-    bool? IsKetThuc,
+    int? TrangThaiCuTruId,
     DateTime? NgayBatDauFrom,
     DateTime? NgayBatDauTo,
     DateTime? NgayKetThucFrom,

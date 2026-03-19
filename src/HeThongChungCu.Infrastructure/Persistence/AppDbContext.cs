@@ -31,6 +31,14 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<QuanHeCuTru> QuanHeCuTrus => Set<QuanHeCuTru>();
     public DbSet<PhuongTien> PhuongTiens => Set<PhuongTien>();
     public DbSet<ThePhuongTien> ThePhuongTiens => Set<ThePhuongTien>();
+    public DbSet<DichVu> DichVus => Set<DichVu>();
+    public DbSet<BangGia> BangGias => Set<BangGia>();
+    public DbSet<BangGiaLuyTien> BangGiaLuyTiens => Set<BangGiaLuyTien>();
+    public DbSet<HoaDon> HoaDons => Set<HoaDon>();
+    public DbSet<ChiTietHoaDon> ChiTietHoaDons => Set<ChiTietHoaDon>();
+    public DbSet<ThanhToan> ThanhToans => Set<ThanhToan>();
+    public DbSet<LaiChamTra> LaiChamTras => Set<LaiChamTra>();
+    public DbSet<CauHinhLai> CauHinhLais => Set<CauHinhLai>();
     public DbSet<ChiSoTieuThu> ChiSoTieuThus => Set<ChiSoTieuThu>();
 
     protected override void OnModelCreating(ModelBuilder builder)

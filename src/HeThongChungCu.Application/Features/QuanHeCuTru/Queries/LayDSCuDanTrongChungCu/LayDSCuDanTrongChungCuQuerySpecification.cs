@@ -4,7 +4,7 @@ public class LayDSCuDanTrongChungCuQuerySpecification : BaseSpecification
 {
     public override HashSet<string> AllowedSortColumns => new(StringComparer.OrdinalIgnoreCase)
     {
-        "MaToaNha", "MaTang", "MaCanHo", "HoTen", "PhoneNumber", "LoaiQuanHeCuTruId", "NgayBatDau", "NgayKetThuc", "IsKetThuc"
+        "MaToaNha", "MaTang", "MaCanHo", "HoTen", "PhoneNumber", "LoaiQuanHeCuTruId", "NgayBatDau", "NgayKetThuc", "TrangThaiCuTruId"
     };
 
     public LayDSCuDanTrongChungCuQuerySpecification(
@@ -16,7 +16,7 @@ public class LayDSCuDanTrongChungCuQuerySpecification : BaseSpecification
         string? maTang,
         string? maCanHo,
         int? loaiQuanHeCuTruId,
-        bool? isKetThuc,
+        int? trangThaiCuTruId,
         DateTime? ngayBatDauFrom,
         DateTime? ngayBatDauTo,
         DateTime? ngayKetThucFrom,
@@ -39,7 +39,7 @@ public class LayDSCuDanTrongChungCuQuerySpecification : BaseSpecification
         AddFilter("TangId", FilterOperator.Equal, tangId);
         AddFilter("CanHoId", FilterOperator.Equal, canHoId);
         AddFilter("LoaiQuanHeCuTruId", FilterOperator.Equal, loaiQuanHeCuTruId);
-        AddFilter("IsKetThuc", FilterOperator.Equal, isKetThuc);
+        AddFilter("TrangThaiCuTruId", FilterOperator.Equal, trangThaiCuTruId);
         AddFilter("IsDeleted", FilterOperator.Equal, false);
 
         if (!string.IsNullOrWhiteSpace(maToaNha))

@@ -1,4 +1,4 @@
-﻿namespace HeThongChungCu.Application.Features.CanHo.DTOs
+namespace HeThongChungCu.Application.Features.CanHo.DTOs
 {
     public class QuanHeCuTruDetailResponse
     {
@@ -10,6 +10,6 @@
         public string TenLoaiQuanHeCuTru { get; set; } = string.Empty;
         public DateTime NgayBatDau { get; set; }
         public DateTime? NgayKetThuc { get; set; }
-        public bool IsKetThuc { get; set; }
+        public int TrangThaiCuTruId { get; set; }
     }
 }

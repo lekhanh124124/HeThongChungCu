@@ -28,7 +28,17 @@ public class UpdateProfileCommandHandler : ICommandHandler<UpdateProfileCommand,
             return Result.Failure<UserProfileDetailResponse>(UserErrors.NotFound);
         }
 
-        // Kiểm tra CMND/CCCD có tồn tại không nếu thay đổi
+        // Kiểm tra Email có tồn tại không nếu thay đổi
+        if (user.Email != request.Email)
+        {
+            var emailExists = await _userRepository.AnyAsync(u => u.Email == request.Email, cancellationToken);
+            if (emailExists)
+            {
+                return Result.Failure<UserProfileDetailResponse>(UserErrors.EmailAlreadyExists);
+            }
+        }
+
+        // Kiểm tra Số điện thoại có tồn tại không nếu thay đổi
         if (user.PhoneNumber != request.PhoneNumber)
         {
             var phoneNumberExists = await _userRepository.AnyAsync(u => u.PhoneNumber == request.PhoneNumber, cancellationToken);
@@ -39,6 +49,7 @@ public class UpdateProfileCommandHandler : ICommandHandler<UpdateProfileCommand,
         }
 
         user.UpdateProfile(
+            request.Email,
             request.FirstName,
             request.LastName,
             request.PhoneNumber,

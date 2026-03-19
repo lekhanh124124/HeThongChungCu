@@ -26,7 +26,7 @@ public class LayDSCuDanTrongChungCuQueryHandler : IQueryHandler<LayDSCuDanTrongC
             request.MaTang,
             request.MaCanHo,
             request.LoaiQuanHeCuTruId,
-            request.IsKetThuc,
+            request.TrangThaiCuTruId,
             request.NgayBatDauFrom,
             request.NgayBatDauTo,
             request.NgayKetThucFrom,
