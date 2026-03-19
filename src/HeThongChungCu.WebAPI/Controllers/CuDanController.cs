@@ -1,5 +1,6 @@
 using HeThongChungCu.Application.Features.CuDan.DTOs;
-using HeThongChungCu.Application.Features.CuDan.Queries.LayQuanHeCuTru;
+using HeThongChungCu.Application.Features.CuDan.Queries.LayDSCuTruCuaNguoiDung;
+using HeThongChungCu.Application.Features.CuDan.Queries.LayThanhVienCuTru;
 using HeThongChungCu.Application.Features.CuDan.Queries.LayThongTinCuDan;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
@@ -32,7 +33,7 @@ namespace HeThongChungCu.WebAPI.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetQuanHeCuTru(CancellationToken cancellationToken)
         {
-            return HandleResult(await _sender.Send(new LayQuanHeCuTruQuery(), cancellationToken));
+            return HandleResult(await _sender.Send(new LayDSCuTruCuaNguoiDungQuery(), cancellationToken));
         }
 
         /// <summary>
@@ -45,5 +46,20 @@ namespace HeThongChungCu.WebAPI.Controllers
         {
             return HandleResult(await _sender.Send(query, cancellationToken));
         }
+
+        /// <summary>
+        /// Lấy danh sách thành viên cư trú hiện tại trong căn hộ
+        /// </summary>
+        /// <remarks>
+        /// API trả về danh sách những cư dân đang sinh sống (chưa kết thúc cư trú) tại một căn hộ xác định bởi `CanHoId`.
+        /// Bao gồm thông tin: Tên, Loại quan hệ (Chủ hộ, Vợ/Chồng...), Ngày bắt đầu và Ảnh đại diện.
+        /// </remarks>
+        [HttpPost("thanh-vien-cu-tru")]
+        [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ThanhVienCuTruResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> LayThanhVienCuTru([FromBody] LayThanhVienCuTruQuery query, CancellationToken cancellationToken)
+        {
+        return HandleResult(await _sender.Send(query, cancellationToken));
+    }
     }
 }

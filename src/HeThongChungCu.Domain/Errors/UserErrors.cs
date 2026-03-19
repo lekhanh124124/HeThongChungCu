@@ -35,4 +35,8 @@ public static class UserErrors
     public static Error NotFoundByPhoneNumber(string phoneNumber) => new(
         "User.NotFound",
         $"Không tìm thấy người dùng với số điện thoại '{phoneNumber}'. Vui lòng nhập thông tin bên dưới để đăng ký tài khoản cư dân mới.");
+
+    public static Error NotFoundByIds(IEnumerable<int> ids) => new(
+        "User.NotFoundByIds",
+        $"Không tìm thấy người dùng với các ID: {string.Join(", ", ids)}.");
 }

@@ -9,7 +9,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class PhuongTienSeeder
 {
-    public static async Task SeedAsync(AppDbContext context, ILogger logger, int count)
+    public static async Task SeedAsync(AppDbContext context, ILogger logger, int count, int cardCount)
     {
         if (!await context.Set<PhuongTien>().AnyAsync())
         {
@@ -32,7 +32,7 @@ public class PhuongTienSeeder
 
                 // Add some cards to a few vehicles
                 var faker = new Faker("vi");
-                foreach (var pt in phuongTiens.Take(20))
+                foreach (var pt in phuongTiens.Take(cardCount))
                 {
                     pt.UpdateTrangThai(HeThongChungCu.Domain.Enums.TrangThaiPhuongTien.Approved);
                     pt.AddThe($"CARD-{faker.Random.Number(100000, 999999)}", faker.Date.Past(1));

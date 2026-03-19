@@ -15,7 +15,7 @@ public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, b
 
     public async Task<Result<bool>> Handle(KetThucCuTruCommand request, CancellationToken cancellationToken)
     {
-        var quanHe = await _quanHeCuTruRepository.GetByIdAsync(request.QuanHeCuTruId, cancellationToken);
+        var quanHe = await _quanHeCuTruRepository.GetCuTruByIdAsync(request.QuanHeCuTruId, cancellationToken);
         if (quanHe is null)
             return Result.Failure<bool>(QuanHeCuTruErrors.NotFoundById(request.QuanHeCuTruId));
 

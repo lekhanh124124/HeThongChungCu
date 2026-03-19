@@ -19,4 +19,8 @@ public static class TangErrors
     public static Error NotFoundById(int id) => new(
         "Tang.NotFound",
         $"Không tìm thấy tầng với ID '{id}'.");
+
+    public static Error NotFoundByIds(IEnumerable<int> ids) => new(
+        "Tang.NotFoundByIds",
+        $"Không tìm thấy tầng với các ID: {string.Join(", ", ids)}.");
 }

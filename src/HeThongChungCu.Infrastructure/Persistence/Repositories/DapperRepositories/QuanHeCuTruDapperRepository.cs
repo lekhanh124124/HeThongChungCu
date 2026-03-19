@@ -2,7 +2,8 @@ using Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.CuDan.DTOs;
-using HeThongChungCu.Application.Features.CuDan.Queries.LayQuanHeCuTru;
+using HeThongChungCu.Application.Features.CuDan.Queries.LayDSCuTruCuaNguoiDung;
+using HeThongChungCu.Application.Features.CuDan.Queries.LayThanhVienCuTru;
 using HeThongChungCu.Application.Features.CuDan.Queries.LayThongTinCuDan;
 using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayDSCuDanTrongChungCu;
@@ -63,6 +64,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
                 q.Id         AS QuanHeCuTruId,
                 q.UserId,
                 u.LastName + N' ' + u.FirstName AS HoTen,
+                u.PhoneNumber,
                 q.LoaiQuanHeCuTruId,
                 q.NgayBatDau,
                 q.NgayKetThuc,
@@ -89,6 +91,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
             QuanHeCuTruId = r.QuanHeCuTruId,
             UserId = r.UserId,
             HoTen = r.HoTen,
+            PhoneNumber = r.PhoneNumber,
             LoaiQuanHeCuTruId = r.LoaiQuanHeCuTruId,
             TenLoaiQuanHeCuTru = loaiQuanHeMap.GetValueOrDefault(r.LoaiQuanHeCuTruId, string.Empty),
             NgayBatDau = r.NgayBatDau,
@@ -185,8 +188,8 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         };
     }
 
-    public async Task<IReadOnlyList<QuanHeCuTruResponse>> GetActiveByUserIdAsync(
-        LayQuanHeCuTruSpecification spec,
+    public async Task<IReadOnlyList<QuanHeCuTruResponse>> LayDSCuTruByUserId(
+        LayDSCuTruCuaNguoiDungSpecification spec,
         CancellationToken cancellationToken = default)
     {
         var connection = _dbContext.GetDbConnection();
@@ -206,33 +209,42 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         var sql = $"""
             SELECT
                 q.Id,
-                q.CanHoId,
+                tn.Id AS ToaNhaId,
+                tn.MaToaNha,
+                tn.TenToaNha,
+                t.Id AS TangId,
+                t.MaTang,
+                t.TenTang,
+                c.Id AS CanHoId,
                 c.MaCanHo,
                 c.TenCanHo,
-                tg.ToaNhaId,
-                t.MaToaNha,
-                t.TenToaNha,
                 q.LoaiQuanHeCuTruId,
-                (SELECT COUNT(*) FROM QuanHeCuTrus qr WHERE qr.CanHoId = q.CanHoId AND qr.IsKetThuc = 0 AND qr.IsDeleted = 0) AS TongCuDan
+                (SELECT COUNT(*) FROM QuanHeCuTrus qr 
+                    WHERE qr.CanHoId = q.CanHoId 
+                    AND qr.IsKetThuc = 0
+                    AND qr.IsDeleted = 0) AS TongCuDan
             FROM QuanHeCuTrus q
-            INNER JOIN CanHos   c ON c.Id = q.CanHoId
-            INNER JOIN Tangs    tg ON tg.Id = c.TangId
-            INNER JOIN ToaNhas  t ON t.Id = tg.ToaNhaId
+            LEFT JOIN CanHos   c ON c.Id = q.CanHoId AND c.IsDeleted = 0
+            LEFT JOIN Tangs    t ON t.Id = c.TangId AND t.IsDeleted = 0
+            LEFT JOIN ToaNhas  tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
             {sqlWhere}
             """;
 
-        var rows = await connection.QueryAsync<GetActiveQuanHeCuTruReadModel>(sql, parameters);
+        var rows = await connection.QueryAsync<LayDSCuTruByUserIdReadModel>(sql, parameters);
 
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
         var items = rows.Select(r => new QuanHeCuTruResponse
         {
             Id = r.Id,
-            CanHoId = r.CanHoId,
-            MaCanHo = r.MaCanHo,
-            TenCanHo = r.TenCanHo,
             ToaNhaId = r.ToaNhaId,
             MaToaNha = r.MaToaNha,
             TenToaNha = r.TenToaNha,
+            TangId = r.TangId,
+            MaTang = r.MaTang,
+            TenTang = r.TenTang,
+            CanHoId = r.CanHoId,
+            MaCanHo = r.MaCanHo,
+            TenCanHo = r.TenCanHo,
             LoaiQuanHeCuTruId = r.LoaiQuanHeCuTruId,
             TongCuDan = r.TongCuDan,
             LoaiQuanHeTen = loaiQuanHeMap.GetValueOrDefault(r.LoaiQuanHeCuTruId, string.Empty)
@@ -302,5 +314,52 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
             LoaiQuanHeTen = loaiQuanHeMap.GetValueOrDefault(row.LoaiQuanHeCuTruId, string.Empty),
             NgayBatDau = row.NgayBatDau
         };
+    }
+
+    public async Task<IReadOnlyList<ThanhVienCuTruResponse>> LayThanhVienCuTru(
+        LayThanhVienCuTruSpecification spec,
+        CancellationToken cancellationToken = default)
+    {
+        var connection = _dbContext.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync(cancellationToken);
+
+        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "CanHoId", "q.CanHoId" },
+            { "IsKetThuc", "q.IsKetThuc" },
+            { "IsDeleted", "q.IsDeleted" }
+        };
+
+        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+
+        var sql = $"""
+            SELECT
+                q.Id,
+                q.LoaiQuanHeCuTruId,
+                q.NgayBatDau,
+                u.FirstName,
+                u.LastName,
+                u.AnhDaiDienUrl
+            FROM QuanHeCuTrus q
+            INNER JOIN Users u ON u.Id = q.UserId AND u.IsDeleted = 0
+            {sqlWhere}
+            """;
+
+        var rows = await connection.QueryAsync<ThanhVienCuTruReadModel>(sql, parameters);
+
+        var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
+        var items = rows.Select(r => new ThanhVienCuTruResponse
+        {
+            Id = r.Id,
+            LoaiQuanHeCuTruId = r.LoaiQuanHeCuTruId,
+            LoaiQuanHeTen = loaiQuanHeMap.GetValueOrDefault(r.LoaiQuanHeCuTruId, string.Empty),
+            NgayBatDau = r.NgayBatDau,
+            FullName = $"{r.LastName} {r.FirstName}",
+            AnhDaiDienUrl = r.AnhDaiDienUrl ?? string.Empty
+        }).ToList();
+
+        return items;
     }
 }

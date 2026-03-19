@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Common.Models;
+using HeThongChungCu.Application.Features.CuDan.Queries.LayThanhVienCuTru;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Commands.CapNhatQuanHe;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Commands.KetThucCuTru;
 using HeThongChungCu.Application.Features.QuanHeCuTru.Commands.ThietLapCuTru;
@@ -45,9 +46,9 @@ public class QuanHeCuTruController : ApiControllerBase
     /// </summary>
     /// <remarks>
     /// API dùng để kết thúc khoảng thời gian sinh sống của cư dân tại căn hộ.
-    /// Yêu cầu truyền vào `QuanHeCuTruId` và `NgayKetThuc`. Hệ thống sẽ cập nhật trạng thái `IsKetThuc` thành true.
+    /// Yêu cầu truyền vào `QuanHeCuTruId`. Hệ thống sẽ cập nhật trạng thái `IsKetThuc` thành true và cập nhật 'NgayKetThuc' của quan hệ cư trú.
     /// </remarks>
-    [HttpPut("ket-thuc")]
+    [HttpDelete]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> KetThucCuTru([FromBody] KetThucCuTruCommand command, CancellationToken cancellationToken)
@@ -59,10 +60,10 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Cập nhật quan hệ cư trú (loại quan hệ trong căn hộ)
     /// </summary>
     /// <remarks>
-    /// API dùng để sửa thông tin lịch sử cư trú hiện tại.
-    /// Cho phép đổi loại quan hệ (`LoaiQuanHeCuTruId`) hoặc chỉnh sửa `NgayBatDau`, `NgayKetThuc` của bản ghi `QuanHeCuTru` đó.
+    /// API dùng để sửa thông tin về quan hệ cư trú
+    /// Cho phép đổi loại quan hệ (`LoaiQuanHeCuTruId`).
     /// </remarks>
-    [HttpPut("cap-nhat")]
+    [HttpPut]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CapNhatQuanHe([FromBody] CapNhatQuanHeCommand command, CancellationToken cancellationToken)

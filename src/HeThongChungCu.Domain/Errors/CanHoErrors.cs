@@ -23,4 +23,8 @@ public static class CanHoErrors
     public static Error NotFoundById(int id) => new(
         "CanHo.NotFound",
         $"Không tìm thấy căn hộ với ID '{id}'.");
+
+    public static Error NotFoundByIds(IEnumerable<int> ids) => new(
+        "CanHo.NotFound",
+        $"Không tìm thấy căn hộ với ID trong danh sách: {string.Join(", ", ids)}.");
 }

@@ -15,4 +15,8 @@ public static class RoleErrors
     public static Error NotFoundById(Guid id) => new(
         "Role.NotFound",
         $"Không tìm thấy vai trò với ID '{id}'.");
+
+    public static Error NotFoundByIds(IEnumerable<int> ids) => new(
+        "Role.NotFoundByIds",
+        $"Không tìm thấy vai trò với các ID: {string.Join(", ", ids)}.");
 }

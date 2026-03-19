@@ -14,13 +14,22 @@ public class DatabaseSeeder : IDatabaseSeeder
         _logger = logger;
     }
 
-    public async Task SeedDatabaseAsync(int numberOfUsers, int numberOfBuildings, int numberOfFloorsPerBuilding, int numberOfApartmentsPerFloor, int numberOfVehicles)
+    public async Task SeedDatabaseAsync(
+        int soLuongNguoiDung, 
+        int soLuongToaNha, 
+        int soLuongTangMoiToa, 
+        int soLuongCanHoMoiTang, 
+        int soLuongPhuongTien,
+        int soLuongCuTru,
+        int soLuongChiSoTieuThuMoiCanHo,
+        int soLuongThePhuongTien,
+        int soLuongTangHamMoiToa)
     {
-        await UserSeeder.SeedAsync(_context, _logger, numberOfUsers);
-        await ToaNhaSeeder.SeedAsync(_context, _logger, numberOfBuildings, numberOfFloorsPerBuilding);
-        await CanHoSeeder.SeedAsync(_context, _logger, numberOfApartmentsPerFloor);
-        await QuanHeCuTruSeeder.SeedAsync(_context, _logger);
-        await PhuongTienSeeder.SeedAsync(_context, _logger, numberOfVehicles);
-        await ChiSoTieuThuSeeder.SeedAsync(_context, _logger);
+        await UserSeeder.SeedAsync(_context, _logger, soLuongNguoiDung);
+        await ToaNhaSeeder.SeedAsync(_context, _logger, soLuongToaNha, soLuongTangMoiToa, soLuongTangHamMoiToa);
+        await CanHoSeeder.SeedAsync(_context, _logger, soLuongCanHoMoiTang);
+        await QuanHeCuTruSeeder.SeedAsync(_context, _logger, soLuongCuTru);
+        await PhuongTienSeeder.SeedAsync(_context, _logger, soLuongPhuongTien, soLuongThePhuongTien);
+        await ChiSoTieuThuSeeder.SeedAsync(_context, _logger, soLuongChiSoTieuThuMoiCanHo);
     }
 }

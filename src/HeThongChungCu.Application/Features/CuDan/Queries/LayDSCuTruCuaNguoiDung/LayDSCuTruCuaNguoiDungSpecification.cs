@@ -1,8 +1,8 @@
-namespace HeThongChungCu.Application.Features.CuDan.Queries.LayQuanHeCuTru;
+namespace HeThongChungCu.Application.Features.CuDan.Queries.LayDSCuTruCuaNguoiDung;
 
-public class LayQuanHeCuTruSpecification : BaseSpecification
+public class LayDSCuTruCuaNguoiDungSpecification : BaseSpecification
 {
-    public LayQuanHeCuTruSpecification(int userId) 
+    public LayDSCuTruCuaNguoiDungSpecification(int userId) 
         : base(null, null, null, null)
     {
         AddFilter("UserId", FilterOperator.Equal, userId);

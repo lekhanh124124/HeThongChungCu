@@ -6,11 +6,15 @@ public class QuanHeCuTruResponse
     public int Id { get; set; }
     public int LoaiQuanHeCuTruId { get; set; }
     public string LoaiQuanHeTen { get; set; } = string.Empty;
+    public DateTime NgayBatDau { get; set; }
 
     // Thông tin căn hộ
     public int ToaNhaId { get; set; }
     public string MaToaNha { get; set; } = string.Empty;
     public string TenToaNha { get; set; } = string.Empty;
+    public int TangId { get; set; }
+    public string MaTang { get; set; } = string.Empty;
+    public string TenTang { get; set; } = string.Empty;
     public int CanHoId { get; set; }
     public string MaCanHo { get; set; } = string.Empty;
     public string TenCanHo { get; set; } = string.Empty;

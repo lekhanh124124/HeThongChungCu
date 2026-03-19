@@ -12,6 +12,10 @@ public static class QuanHeCuTruErrors
         "QuanHeCuTru.NotFound",
         $"Không tìm thấy quan hệ cư trú với ID '{id}'.");
 
+    public static Error NotFoundByIds(IEnumerable<int> ids) => new(
+        "QuanHeCuTru.NotFoundByIds",
+        $"Không tìm thấy quan hệ cư trú với các ID: {string.Join(", ", ids)}.");
+
     public static readonly Error UserAlreadyResident = new(
         "QuanHeCuTru.UserAlreadyResident",
         "Cư dân này đã đang cư trú tại căn hộ.");

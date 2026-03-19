@@ -9,13 +9,12 @@ namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class ToaNhaSeeder
 {
-    public static async Task SeedAsync(AppDbContext context, ILogger logger, int buildingCount, int floorCount)
+    public static async Task SeedAsync(AppDbContext context, ILogger logger, int buildingCount, int floorCount, int basementCount)
     {
         if (!await context.ToaNhas.AnyAsync())
         {
             logger.LogInformation("Seeding ToaNhas and Tangs...");
 
-            logger.LogInformation("Seeding ToaNhas and Tangs...");
             var toaNhaFaker = new Faker<ToaNha>("vi")
                 .CustomInstantiator(f => new ToaNha(
                     maToaNha: f.Random.Replace("TN-##"),
@@ -30,7 +29,7 @@ public class ToaNhaSeeder
             foreach (var toaNha in toaNhas)
             {
                 // Add basements
-                for (int i = 1; i <= 2; i++)
+                for (int i = 1; i <= basementCount; i++)
                 {
                     toaNha.AddTang($"TN{toaNha.MaToaNha}-B{i}", $"Tầng hầm {i}", LoaiTang.TangHam);
                 }

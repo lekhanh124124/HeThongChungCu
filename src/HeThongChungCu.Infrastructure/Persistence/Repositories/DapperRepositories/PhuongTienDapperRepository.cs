@@ -100,4 +100,64 @@ internal sealed class PhuongTienDapperRepository : IPhuongTienDapperRepository
             }
         };
     }
+
+    public async Task<PhuongTienResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var connection = _dbContext.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync(cancellationToken);
+
+        var sql = """
+            SELECT
+                p.Id,
+                c.MaCanHo,
+                t.MaTang,
+                tn.MaToaNha,
+                p.TenPhuongTien,
+                p.LoaiPhuongTienId,
+                p.BienSo,
+                p.MauXe,
+                p.TrangThaiPhuongTienId
+            FROM PhuongTiens p
+            LEFT JOIN CanHos c ON c.Id = p.CanHoId AND c.IsDeleted = 0
+            LEFT JOIN Tangs t ON t.Id = c.TangId AND t.IsDeleted = 0
+            LEFT JOIN ToaNhas tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
+            WHERE p.Id = @Id AND p.IsDeleted = 0;
+
+            SELECT
+                Id,
+                PhuongTienId,
+                MaThe,
+                NgayBatDau,
+                NgayKetThuc,
+                IsLocked AS IsActive
+            FROM ThePhuongTiens
+            WHERE PhuongTienId = @Id AND IsDeleted = 0;
+            """;
+
+        using var multi = await connection.QueryMultipleAsync(sql, new { Id = id });
+        var phuongTien = await multi.ReadFirstOrDefaultAsync<GetListPhuongTienReadModel>();
+        
+        if (phuongTien == null)
+            return null;
+
+        var cards = (await multi.ReadAsync<ThePhuongTienResponse>()).ToList();
+
+        return new PhuongTienResponse
+        {
+            Id = phuongTien.Id,
+            MaToaNha = phuongTien.MaToaNha,
+            MaTang = phuongTien.MaTang,
+            MaCanHo = phuongTien.MaCanHo,
+            TenPhuongTien = phuongTien.TenPhuongTien,
+            LoaiPhuongTienId = phuongTien.LoaiPhuongTienId,
+            TenLoaiPhuongTien = LoaiPhuongTien.FromValue(phuongTien.LoaiPhuongTienId)?.Name ?? string.Empty,
+            BienSo = phuongTien.BienSo,
+            MauXe = phuongTien.MauXe,
+            TrangThaiPhuongTienId = phuongTien.TrangThaiPhuongTienId,
+            TenTrangThaiPhuongTien = TrangThaiPhuongTien.FromValue(phuongTien.TrangThaiPhuongTienId)?.Name ?? string.Empty,
+            ThePhuongTiens = cards
+        };
+    }
 }

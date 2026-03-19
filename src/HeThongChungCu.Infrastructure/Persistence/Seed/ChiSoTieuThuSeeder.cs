@@ -8,7 +8,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class ChiSoTieuThuSeeder
 {
-    public static async Task SeedAsync(AppDbContext context, ILogger logger)
+    public static async Task SeedAsync(AppDbContext context, ILogger logger, int soLuongChiSoTieuThuMoiCanHo)
     {
         if (!await context.Set<ChiSoTieuThu>().AnyAsync())
         {
@@ -23,16 +23,23 @@ public class ChiSoTieuThuSeeder
 
                 foreach (var canHoId in canHoIds)
                 {
-                    // Seed for last 3 months
-                    for (int i = 0; i < 3; i++)
+                    double currentWater = faker.Random.Double(10, 50);
+                    double currentElectricity = faker.Random.Double(50, 200);
+
+                    // Seed from oldest to newest month to ensure cumulative values
+                    for (int i = soLuongChiSoTieuThuMoiCanHo - 1; i >= 0; i--)
                     {
                         var date = DateTime.Now.AddMonths(-i);
                         
+                        // Increment by random amount
+                        currentWater += faker.Random.Double(5, 20);
+                        currentElectricity += faker.Random.Double(50, 150);
+
                         // Water
                         chiSoTieuThus.Add(new ChiSoTieuThu(
                             canHoId,
                             LoaiDichVu.Nuoc,
-                            faker.Random.Double(10, 50),
+                            currentWater,
                             date.Month,
                             date.Year,
                             new DateTime(date.Year, date.Month, 25)
@@ -42,7 +49,7 @@ public class ChiSoTieuThuSeeder
                         chiSoTieuThus.Add(new ChiSoTieuThu(
                             canHoId,
                             LoaiDichVu.Dien,
-                            faker.Random.Double(100, 500),
+                            currentElectricity,
                             date.Month,
                             date.Year,
                             new DateTime(date.Year, date.Month, 25)

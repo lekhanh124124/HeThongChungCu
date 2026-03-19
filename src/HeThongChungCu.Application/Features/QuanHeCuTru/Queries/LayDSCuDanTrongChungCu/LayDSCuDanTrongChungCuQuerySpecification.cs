@@ -4,7 +4,7 @@ public class LayDSCuDanTrongChungCuQuerySpecification : BaseSpecification
 {
     public override HashSet<string> AllowedSortColumns => new(StringComparer.OrdinalIgnoreCase)
     {
-        "MaToaNha", "MaTang", "MaCanHo", "HoTen", "LoaiQuanHeCuTruId", "NgayBatDau", "NgayKetThuc", "IsKetThuc"
+        "MaToaNha", "MaTang", "MaCanHo", "HoTen", "PhoneNumber", "LoaiQuanHeCuTruId", "NgayBatDau", "NgayKetThuc", "IsKetThuc"
     };
 
     public LayDSCuDanTrongChungCuQuerySpecification(
@@ -17,10 +17,10 @@ public class LayDSCuDanTrongChungCuQuerySpecification : BaseSpecification
         string? maCanHo,
         int? loaiQuanHeCuTruId,
         bool? isKetThuc,
-        DateOnly? ngayBatDauFrom,
-        DateOnly? ngayBatDauTo,
-        DateOnly? ngayKetThucFrom,
-        DateOnly? ngayKetThucTo,
+        DateTime? ngayBatDauFrom,
+        DateTime? ngayBatDauTo,
+        DateTime? ngayKetThucFrom,
+        DateTime? ngayKetThucTo,
         string? sortCol,
         bool? isAsc,
         int? pageNumber,
