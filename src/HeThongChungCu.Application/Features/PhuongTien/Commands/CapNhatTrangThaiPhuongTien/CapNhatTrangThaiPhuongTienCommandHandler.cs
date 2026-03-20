@@ -3,19 +3,23 @@ namespace HeThongChungCu.Application.Features.PhuongTien.Commands.CapNhatTrangTh
 internal sealed class CapNhatTrangThaiPhuongTienCommandHandler : ICommandHandler<CapNhatTrangThaiPhuongTienCommand, bool>
 {
     private readonly IPhuongTienEFRepository _phuongTienEFRepository;
+    private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public CapNhatTrangThaiPhuongTienCommandHandler(
         IPhuongTienEFRepository phuongTienEFRepository,
+        IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)
     {
         _phuongTienEFRepository = phuongTienEFRepository;
+        _dateTimeProvider = dateTimeProvider;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<bool>> Handle(CapNhatTrangThaiPhuongTienCommand request, CancellationToken cancellationToken)
     {
         var phuongTiens = await _phuongTienEFRepository.GetPhuongTiensByIdsAsync(request.PhuongTienIds, cancellationToken);
+        var now = _dateTimeProvider.Now.DateTime;
 
         if (phuongTiens.Count == 0)
         {
@@ -26,7 +30,7 @@ internal sealed class CapNhatTrangThaiPhuongTienCommandHandler : ICommandHandler
 
         foreach (var phuongTien in phuongTiens)
         {
-            phuongTien.UpdateTrangThai(trangThai);
+            phuongTien.UpdateTrangThai(trangThai, now);
             _phuongTienEFRepository.Update(phuongTien);
         }
 

@@ -3,6 +3,7 @@ namespace HeThongChungCu.Application.Features.PhuongTien.DTOs;
 public class PhuongTienResponse
 {
     public int Id { get; set; }
+    public int CanHoId { get; set; }
     public string MaToaNha { get; set; } = string.Empty;
     public string MaTang { get; set; } = string.Empty;
     public string MaCanHo { get; set; } = string.Empty;

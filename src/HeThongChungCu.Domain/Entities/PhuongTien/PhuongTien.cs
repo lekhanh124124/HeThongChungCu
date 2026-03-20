@@ -39,7 +39,7 @@ public class PhuongTien : AggregateRoot
         TrangThaiPhuongTienId = TrangThaiPhuongTien.PendingApproval;
     }
 
-    public void UpdateTrangThai(TrangThaiPhuongTien trangThai)
+    public void UpdateTrangThai(TrangThaiPhuongTien trangThai, DateTime now)
     {
         if (TrangThaiPhuongTienId == TrangThaiPhuongTien.Disabled && trangThai != TrangThaiPhuongTien.Disabled)
             throw new BusinessException("Phương tiện đã bị vô hiệu, không thể chuyển sang trạng thái khác.");
@@ -57,7 +57,7 @@ public class PhuongTien : AggregateRoot
             // Lock tất cả thẻ
             foreach (var the in _thePhuongTiens.Where(x => !x.IsLocked))
             {
-                the.KhoaThe(DateTime.Now);
+                the.KhoaThe(now);
             }
         }
     }
@@ -83,7 +83,7 @@ public class PhuongTien : AggregateRoot
             throw new BusinessException("Chỉ phương tiện đã duyệt mới được cấp thẻ.");
 
         if (_thePhuongTiens.Any(x => !x.IsLocked))
-            throw new BusinessException("Phương tiện đã có thẻ đang hoạt động.");
+            throw new BusinessException("Phương tiện vẫn còn thẻ đang hoạt động.");
 
         var the = new ThePhuongTien(Id, maThe, ngayBatDau);
 
@@ -92,20 +92,20 @@ public class PhuongTien : AggregateRoot
         return the;
     }
 
-    public void KhoaThe(int theId)
+    public void KhoaThe(int theId, DateTime now)
     {
         var the = _thePhuongTiens.FirstOrDefault(x => x.Id == theId);
         if (the == null)
             throw new BusinessException("Không tìm thấy thẻ phương tiện.");
 
-        the.KhoaThe(DateTime.Now);
+        the.KhoaThe(now);
     }
 
-    public void Xoa()
+    public void Xoa(DateTime now)
     {
         foreach (var the in _thePhuongTiens.Where(x => !x.IsLocked))
         {
-            the.KhoaThe(DateTime.Now);
+            the.KhoaThe(now);
         }
     }
 }

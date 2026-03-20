@@ -5,30 +5,28 @@ namespace HeThongChungCu.Domain.Entities;
 
 public class User : AggregateRoot
 {
-    public string Username { get; private set; } = null!;
-    public string Email { get; private set; } = null!;
-    public string PasswordHash { get; private set; } = null!;
+    public string Username { get; private set; } = string.Empty;
+    public string Email { get; private set; } = string.Empty;
+    public string PasswordHash { get; private set; } = string.Empty;
 
-    public string FirstName { get; private set; } = null!;
-    public string LastName { get; private set; } = null!;
-    public string PhoneNumber { get; private set; } = null!;
+    public string FirstName { get; private set; } = string.Empty;
+    public string LastName { get; private set; } = string.Empty;
+    public string PhoneNumber { get; private set; } = string.Empty;
 
-    public string IdCard { get; private set; } = null!;
+    public string IdCard { get; private set; } = string.Empty;
     public DateTime Dob { get; private set; }
     public GioiTinh GioiTinhId { get; private set; } = null!;
     public string? AnhDaiDienUrl { get; private set; }
-    public string DiaChi { get; private set; } = null!;
+    public string DiaChi { get; private set; } = string.Empty;
 
 
     public bool IsActive { get; private set; }
 
     public Role RoleId { get; private set; } = null!;
 
-    private readonly List<Tokens> _tokens = new();
+    private readonly List<Tokens> _tokens = [];
     public IReadOnlyCollection<Tokens> Tokens => _tokens.AsReadOnly();
 
-    private readonly List<QuanHeCuTru> _quanHeCuTrus = new();
-    public IReadOnlyCollection<QuanHeCuTru> QuanHeCuTrus => _quanHeCuTrus.AsReadOnly();
 
     private User() { } // EF Core
 
@@ -60,28 +58,25 @@ public class User : AggregateRoot
         DiaChi = diaChi;
     }
 
-    public void UpdateAvatar(string? url)
+    public void UpdateAvatar(string? url) => AnhDaiDienUrl = url;
+
+    public void UpdatePassword(string newPasswordHash) => PasswordHash = newPasswordHash;
+
+    public void Deactivate() => IsActive = false;
+
+    public void ChangeRole(Role role) => RoleId = role;
+
+    public void AddRefreshToken(string token, DateTimeOffset expiresDate)
     {
-        AnhDaiDienUrl = url;
+        var refreshToken = Entities.Tokens.CreateRefreshToken(Id, token, expiresDate);
+        _tokens.Add(refreshToken);
     }
 
-    public void UpdatePassword(string newPasswordHash)
+    public void AddResetPasswordToken(string code, DateTimeOffset expiresDate)
     {
-        PasswordHash = newPasswordHash;
+        var resetToken = Entities.Tokens.CreateResetPasswordToken(Id, code, expiresDate);
+        _tokens.Add(resetToken);
     }
 
-    public void Deactivate()
-    {
-        IsActive = false;
-    }
-
-    public void ChangeRole(Role role)
-    {
-        RoleId = role;
-    }
-
-    public void AddToken(Tokens token)
-    {
-        _tokens.Add(token);
-    }
+    internal void AddToken(Tokens token) => _tokens.Add(token);
 }

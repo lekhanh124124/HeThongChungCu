@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 
 namespace HeThongChungCu.Application.Features.Auth.Commands.ForgotPassword;
 
@@ -33,8 +33,7 @@ public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordComman
         var resetCode = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
         var expiresAt = _dateTimeProvider.UtcNow.AddMinutes(15);
 
-        var resetToken = Tokens.CreateResetPasswordToken(user.Id, resetCode, expiresAt);
-        user.AddToken(resetToken);
+        user.AddResetPasswordToken(resetCode, expiresAt);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

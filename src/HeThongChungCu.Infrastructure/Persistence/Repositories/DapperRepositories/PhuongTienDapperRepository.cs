@@ -54,6 +54,7 @@ internal sealed class PhuongTienDapperRepository : IPhuongTienDapperRepository
             SELECT
                 COUNT(*) OVER() AS TotalCount,
                 p.Id,
+                c.Id AS CanHoId,
                 c.MaCanHo,
                 t.MaTang,
                 tn.MaToaNha,
@@ -74,19 +75,23 @@ internal sealed class PhuongTienDapperRepository : IPhuongTienDapperRepository
         var rows = (await connection.QueryAsync<GetListPhuongTienReadModel>(sql, parameters)).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
+        var loaiPhuongTienMap = LoaiPhuongTien.ToDictionary();
+        var trangThaiPhuongTienMap = TrangThaiPhuongTien.ToDictionary();
+
         var items = rows.Select(r => new PhuongTienResponse
         {
             Id = r.Id,
+            CanHoId = r.CanHoId,
             MaToaNha = r.MaToaNha,
             MaTang = r.MaTang,
             MaCanHo = r.MaCanHo,
             TenPhuongTien = r.TenPhuongTien,
             LoaiPhuongTienId = r.LoaiPhuongTienId,
-            TenLoaiPhuongTien = LoaiPhuongTien.FromValue(r.LoaiPhuongTienId)?.Name ?? string.Empty,
+            TenLoaiPhuongTien = loaiPhuongTienMap.GetValueOrDefault(r.LoaiPhuongTienId, string.Empty),
             BienSo = r.BienSo,
             MauXe = r.MauXe,
             TrangThaiPhuongTienId = r.TrangThaiPhuongTienId,
-            TenTrangThaiPhuongTien = TrangThaiPhuongTien.FromValue(r.TrangThaiPhuongTienId)?.Name ?? string.Empty
+            TenTrangThaiPhuongTien = trangThaiPhuongTienMap.GetValueOrDefault(r.TrangThaiPhuongTienId, string.Empty)
         }).ToList();
 
         return new PagedResult<PhuongTienResponse>
@@ -131,7 +136,7 @@ internal sealed class PhuongTienDapperRepository : IPhuongTienDapperRepository
                 MaThe,
                 NgayBatDau,
                 NgayKetThuc,
-                IsLocked AS IsActive
+                IsLocked
             FROM ThePhuongTiens
             WHERE PhuongTienId = @Id AND IsDeleted = 0;
             """;

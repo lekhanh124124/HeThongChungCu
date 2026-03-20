@@ -44,7 +44,7 @@ public class QuanHeCuTruConfiguration : IEntityTypeConfiguration<QuanHeCuTru>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne<User>()
-            .WithMany(u => u.QuanHeCuTrus)
+            .WithMany()
             .HasForeignKey(q => q.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }

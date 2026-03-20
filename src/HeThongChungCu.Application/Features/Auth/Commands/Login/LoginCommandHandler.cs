@@ -46,8 +46,7 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, AuthResponse>
         var accessToken = _jwtTokenGenerator.GenerateToken(user.Id, user.Username, roles);
         var refreshTokenString = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
 
-        var refreshToken = Tokens.CreateRefreshToken(user.Id, refreshTokenString, _dateTimeProvider.UtcNow.AddDays(7));
-        user.AddToken(refreshToken);
+        user.AddRefreshToken(refreshTokenString, _dateTimeProvider.UtcNow.AddDays(7));
 
         return Result.Success(new AuthResponse
         {

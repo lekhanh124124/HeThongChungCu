@@ -5,6 +5,7 @@ internal sealed class GetListPhuongTienReadModel
     public int TotalCount { get; init; }
 
     public int Id { get; init; }
+    public int CanHoId { get; init; }
     public string MaCanHo { get; init; } = string.Empty;
     public string MaTang { get; init; } = string.Empty;
     public string MaToaNha { get; init; } = string.Empty;

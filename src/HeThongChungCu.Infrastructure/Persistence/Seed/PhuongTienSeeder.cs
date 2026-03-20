@@ -34,7 +34,7 @@ public class PhuongTienSeeder
                 var faker = new Faker("vi");
                 foreach (var pt in phuongTiens.Take(cardCount))
                 {
-                    pt.UpdateTrangThai(HeThongChungCu.Domain.Enums.TrangThaiPhuongTien.Approved);
+                    pt.UpdateTrangThai(TrangThaiPhuongTien.Approved, DateTime.Now);
                     pt.AddThe($"CARD-{faker.Random.Number(100000, 999999)}", faker.Date.Past(1));
                 }
 

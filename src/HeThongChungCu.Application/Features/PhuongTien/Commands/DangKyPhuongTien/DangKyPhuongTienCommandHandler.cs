@@ -59,7 +59,7 @@ internal sealed class DangKyPhuongTienCommandHandler : ICommandHandler<DangKyPhu
                 MaThe = x.MaThe,
                 NgayBatDau = x.NgayBatDau,
                 NgayKetThuc = x.NgayKetThuc,
-                IsActive = x.IsLocked,
+                IsLocked = x.IsLocked,
              }).ToList()
         });
     }
