@@ -19,15 +19,20 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         _dateTimeProvider = dateTimeProvider;
     }
 
-    public string GenerateToken(int userId, string email, IEnumerable<string> roles)
+    public string GenerateToken(int accountId, string username, IEnumerable<string> roles, int? userId = null)
     {
         var claims = new List<Claim>
         {
-            // "sub" (Subject) claim chuẩn JWT, dùng để lưu UserId
-            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()), 
-            new Claim(JwtRegisteredClaimNames.Email, email),
+            // "sub" (Subject) claim chuẩn JWT, dùng để lưu AccountId
+            new Claim(JwtRegisteredClaimNames.Sub, accountId.ToString()), 
+            new Claim(JwtRegisteredClaimNames.Name, username),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
+ 
+        if (userId.HasValue)
+        {
+            claims.Add(new Claim("profile_id", userId.Value.ToString()));
+        }
 
         // Add Roles claims
         foreach (var role in roles)
@@ -51,5 +56,21 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         var securityToken = tokenHandler.CreateToken(tokenDescriptor);
 
         return tokenHandler.WriteToken(securityToken);
+    }
+
+    public int? GetUserIdFromToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        if (!tokenHandler.CanReadToken(token)) return null;
+
+        var jwtToken = tokenHandler.ReadJwtToken(token);
+        var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "profile_id");
+
+        if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+        {
+            return userId;
+        }
+
+        return null;
     }
 }

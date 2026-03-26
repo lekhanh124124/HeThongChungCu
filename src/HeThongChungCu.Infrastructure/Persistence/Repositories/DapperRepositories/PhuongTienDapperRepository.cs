@@ -1,8 +1,8 @@
 using Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Common.Models;
-using HeThongChungCu.Application.Features.PhuongTien.DTOs;
-using HeThongChungCu.Application.Features.PhuongTien.Queries.LayDSPhuongTienTrongChungCu;
+using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
+using HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSPhuongTienTrongChungCu;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Infrastructure.Persistence.Helpers;
 using HeThongChungCu.Infrastructure.Persistence.ReadModels;
@@ -63,10 +63,10 @@ internal sealed class PhuongTienDapperRepository : IPhuongTienDapperRepository
                 p.BienSo,
                 p.MauXe,
                 p.TrangThaiPhuongTienId
-            FROM PhuongTiens p
-            LEFT JOIN CanHos c ON c.Id = p.CanHoId AND c.IsDeleted = 0
-            LEFT JOIN Tangs t ON t.Id = c.TangId AND t.IsDeleted = 0
-            LEFT JOIN ToaNhas tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
+            FROM PhuongTien p
+            LEFT JOIN CanHo c ON c.Id = p.CanHoId AND c.IsDeleted = 0
+            LEFT JOIN Tang t ON t.Id = c.TangId AND t.IsDeleted = 0
+            LEFT JOIN ToaNha tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination};
@@ -116,6 +116,7 @@ internal sealed class PhuongTienDapperRepository : IPhuongTienDapperRepository
         var sql = """
             SELECT
                 p.Id,
+                c.Id AS CanHoId,
                 c.MaCanHo,
                 t.MaTang,
                 tn.MaToaNha,
@@ -124,10 +125,10 @@ internal sealed class PhuongTienDapperRepository : IPhuongTienDapperRepository
                 p.BienSo,
                 p.MauXe,
                 p.TrangThaiPhuongTienId
-            FROM PhuongTiens p
-            LEFT JOIN CanHos c ON c.Id = p.CanHoId AND c.IsDeleted = 0
-            LEFT JOIN Tangs t ON t.Id = c.TangId AND t.IsDeleted = 0
-            LEFT JOIN ToaNhas tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
+            FROM PhuongTien p
+            LEFT JOIN CanHo c ON c.Id = p.CanHoId AND c.IsDeleted = 0
+            LEFT JOIN Tang t ON t.Id = c.TangId AND t.IsDeleted = 0
+            LEFT JOIN ToaNha tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
             WHERE p.Id = @Id AND p.IsDeleted = 0;
 
             SELECT
@@ -137,7 +138,7 @@ internal sealed class PhuongTienDapperRepository : IPhuongTienDapperRepository
                 NgayBatDau,
                 NgayKetThuc,
                 IsLocked
-            FROM ThePhuongTiens
+            FROM ThePhuongTien
             WHERE PhuongTienId = @Id AND IsDeleted = 0;
             """;
 
@@ -152,6 +153,7 @@ internal sealed class PhuongTienDapperRepository : IPhuongTienDapperRepository
         return new PhuongTienResponse
         {
             Id = phuongTien.Id,
+            CanHoId = phuongTien.CanHoId,
             MaToaNha = phuongTien.MaToaNha,
             MaTang = phuongTien.MaTang,
             MaCanHo = phuongTien.MaCanHo,

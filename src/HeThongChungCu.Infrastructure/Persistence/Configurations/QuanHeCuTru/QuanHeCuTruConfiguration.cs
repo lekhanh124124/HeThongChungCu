@@ -1,22 +1,23 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
-public class QuanHeCuTruConfiguration : IEntityTypeConfiguration<QuanHeCuTru>
+public class QuanHeCuTruConfiguration : IEntityTypeConfiguration<HeThongChungCu.Domain.Entities.QuanHeCuTru>
 {
-    public void Configure(EntityTypeBuilder<QuanHeCuTru> builder)
+    public void Configure(EntityTypeBuilder<HeThongChungCu.Domain.Entities.QuanHeCuTru> builder)
     {
-        builder.ToTable("QuanHeCuTrus");
+        builder.ToTable("QuanHeCuTru");
 
         builder.HasKey(q => q.Id);
 
         builder.Property(q => q.CanHoId)
             .IsRequired();
 
-        builder.Property(q => q.UserId)
+        builder.Property(x => x.NguoiDungId)
             .IsRequired();
 
         builder.Property(q => q.LoaiQuanHeCuTruId)
@@ -43,9 +44,15 @@ public class QuanHeCuTruConfiguration : IEntityTypeConfiguration<QuanHeCuTru>
             .HasForeignKey(q => q.CanHoId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne<User>()
+        builder.HasOne<NguoiDung>()
             .WithMany()
-            .HasForeignKey(q => q.UserId)
+            .HasForeignKey(q => q.NguoiDungId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Filtered index to prevent duplicate ACTIVE residency for the same person in the same apartment
+        // Assuming TrangThaiCuTru.DangCuTru.Value is 1
+        builder.HasIndex(q => new { q.CanHoId, q.NguoiDungId })
+            .IsUnique()
+            .HasFilter("[TrangThaiCuTruId] = 1");
     }
 }

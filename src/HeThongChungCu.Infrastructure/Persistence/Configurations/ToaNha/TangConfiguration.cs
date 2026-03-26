@@ -7,13 +7,15 @@ public class TangConfiguration : IEntityTypeConfiguration<Tang>
 {
     public void Configure(EntityTypeBuilder<Tang> builder)
     {
-        builder.ToTable("Tangs");
+        builder.ToTable("Tang");
 
         builder.HasKey(t => t.Id);
 
         builder.Property(t => t.MaTang)
             .IsRequired()
             .HasMaxLength(20);
+
+        builder.HasIndex(t => new { t.ToaNhaId, t.MaTang }).IsUnique();
 
         builder.Property(t => t.TenTang)
             .IsRequired()

@@ -4,12 +4,12 @@ namespace HeThongChungCu.Domain.Events;
 
 public class UserRegisteredEvent : BaseEvent
 {
-    public int UserId { get; }
-    public string Username { get; }
+    public int NguoiDungId { get; }
+    public string TenDangNhap { get; }
 
-    public UserRegisteredEvent(int userId, string username)
+    public UserRegisteredEvent(int nguoiDungId, string tenDangNhap)
     {
-        UserId = userId;
-        Username = username;
+        NguoiDungId = nguoiDungId;
+        TenDangNhap = tenDangNhap;
     }
 }

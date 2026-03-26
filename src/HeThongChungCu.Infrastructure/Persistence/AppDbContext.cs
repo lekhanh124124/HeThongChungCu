@@ -23,7 +23,9 @@ public class AppDbContext : DbContext, IUnitOfWork
         _publisher = publisher;
     }
 
-    public DbSet<User> Users => Set<User>();
+    public DbSet<NguoiDung> NguoiDung => Set<NguoiDung>();
+    public DbSet<TaiKhoan> TaiKhoan => Set<TaiKhoan>();
+    public DbSet<PhanQuyen> PhanQuyens => Set<PhanQuyen>();
     public DbSet<Tokens> Tokens => Set<Tokens>();
     public DbSet<ToaNha> ToaNhas => Set<ToaNha>();
     public DbSet<Tang> Tangs => Set<Tang>();
@@ -40,15 +42,30 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<LaiChamTra> LaiChamTras => Set<LaiChamTra>();
     public DbSet<CauHinhLai> CauHinhLais => Set<CauHinhLai>();
     public DbSet<ChiSoTieuThu> ChiSoTieuThus => Set<ChiSoTieuThu>();
+    public DbSet<DangKyDichVu> DangKyDichVus => Set<DangKyDichVu>();
+    public DbSet<TaiLieuNguoiDung> TaiLieuNguoiDungs => Set<TaiLieuNguoiDung>();
+    public DbSet<TepTaiLieu> TepTaiLieus => Set<TepTaiLieu>();
+    public DbSet<YeuCauCuTru> YeuCauCuTrus => Set<YeuCauCuTru>();
+    public DbSet<YeuCauTaiLieuCuTru> YeuCauTaiLieuCuTrus => Set<YeuCauTaiLieuCuTru>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(builder);
-
         builder.Ignore<BaseEvent>();
+        
+        // Tự động Ignore tất cả các class kế thừa từ BaseEnum trong Domain assembly
+        var smartEnumTypes = typeof(BaseEnum<,>).Assembly.GetTypes()
+            .Where(t => t.BaseType != null && 
+                        t.BaseType.IsGenericType &&
+                        t.BaseType.GetGenericTypeDefinition() == typeof(BaseEnum<,>));
 
-        // 1. Quét và apply mọi IEntityTypeConfiguration<T> trong Assembly một cách tự động
-        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        foreach (var type in smartEnumTypes)
+        {
+            builder.Ignore(type);
+        }
+
+        builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+        base.OnModelCreating(builder);
 
         // 2. Tự động áp dụng Global Query Filter cho Multi-tenant & Soft Delete
         SetGlobalQueryFilters(builder);
@@ -59,6 +76,7 @@ public class AppDbContext : DbContext, IUnitOfWork
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
             // Kiểm tra kế thừa AuditableEntity (để áp dụng SoftDelete)
+            // LƯU Ý: Chỉ áp dụng filter cho Root Entity trong mô hình thừa kế (TPH)
             if (typeof(AuditableEntity).IsAssignableFrom(entityType.ClrType))
             {
                 var method = typeof(AppDbContext)

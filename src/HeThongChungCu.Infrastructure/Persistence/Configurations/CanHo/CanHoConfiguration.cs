@@ -7,7 +7,7 @@ public class CanHoConfiguration : IEntityTypeConfiguration<CanHo>
 {
     public void Configure(EntityTypeBuilder<CanHo> builder)
     {
-        builder.ToTable("CanHos");
+        builder.ToTable("CanHo");
 
         builder.HasKey(c => c.Id);
 
@@ -29,7 +29,7 @@ public class CanHoConfiguration : IEntityTypeConfiguration<CanHo>
         builder.Property(c => c.TangId)
             .IsRequired();
 
-        builder.HasOne(c => c.Tang)
+        builder.HasOne<Tang>()
             .WithMany()
             .HasForeignKey(c => c.TangId)
             .OnDelete(DeleteBehavior.Restrict);

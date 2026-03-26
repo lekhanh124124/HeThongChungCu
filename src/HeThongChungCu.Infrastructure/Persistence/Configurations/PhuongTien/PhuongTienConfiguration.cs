@@ -7,7 +7,7 @@ public class PhuongTienConfiguration : IEntityTypeConfiguration<PhuongTien>
 {
     public void Configure(EntityTypeBuilder<PhuongTien> builder)
     {
-        builder.ToTable("PhuongTiens");
+        builder.ToTable("PhuongTien");
 
         builder.HasKey(p => p.Id);
 
@@ -18,6 +18,8 @@ public class PhuongTienConfiguration : IEntityTypeConfiguration<PhuongTien>
         builder.Property(p => p.BienSo)
             .IsRequired()
             .HasMaxLength(20);
+
+        builder.HasIndex(p => p.BienSo).IsUnique();
 
         builder.Property(p => p.MauXe)
             .HasMaxLength(50);

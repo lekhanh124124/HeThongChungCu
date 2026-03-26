@@ -1,14 +1,14 @@
 using HeThongChungCu.Application.Common.Models;
-using HeThongChungCu.Application.Features.PhuongTien.Commands.CapNhatThongTinPhuongTien;
-using HeThongChungCu.Application.Features.PhuongTien.Commands.CapNhatTrangThaiPhuongTien;
-using HeThongChungCu.Application.Features.PhuongTien.Commands.DangKyPhuongTien;
-using HeThongChungCu.Application.Features.PhuongTien.Commands.KhoaThePhuongTien;
-using HeThongChungCu.Application.Features.PhuongTien.Commands.DeletePhuongTien;
-using HeThongChungCu.Application.Features.PhuongTien.Commands.TaoThePhuongTien;
-using HeThongChungCu.Application.Features.PhuongTien.DTOs;
-using HeThongChungCu.Application.Features.PhuongTien.Queries.GetPhuongTienById;
-using HeThongChungCu.Application.Features.PhuongTien.Queries.LayDSPhuongTienTrongChungCu;
-using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatThongTinPhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatTrangThaiPhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.DangKyPhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.KhoaThePhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.DeletePhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.TaoThePhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
+using HeThongChungCu.Application.Features.QLPhuongTien.Queries.GetPhuongTienById;
+using HeThongChungCu.Application.Features.QLPhuongTien.Queries.GoiYMaThePhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSPhuongTienTrongChungCu;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -130,6 +130,25 @@ public class PhuongTienController : ApiControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(
         [FromBody] GetPhuongTienByIdQuery query,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(query, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Gợi ý mã thẻ phương tiện
+    /// </summary>
+    /// <remarks>
+    /// API dùng để gợi ý một mã thẻ mới dựa trên `PhuongTienId` và ID thẻ cuối cùng.
+    /// Quy tắc: `CARD-V-{PhuongTienId:D4}{last ThePhuongTienId + 1 : D4}`
+    /// Các số 0 padding sẽ được thay bằng số ngẫu nhiên.
+    /// </remarks>
+    [HttpPost("goi-y-ma-the")]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GoiYMaThe(
+        [FromBody] GoiYMaThePhuongTienQuery query,
         CancellationToken cancellationToken)
     {
         var result = await _sender.Send(query, cancellationToken);

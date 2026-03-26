@@ -14,7 +14,7 @@ public class CreateTangCommandHandler : ICommandHandler<CreateTangCommand, TangD
 
     public async Task<Result<TangDetailResponse>> Handle(CreateTangCommand request, CancellationToken cancellationToken)
     {
-        var toaNha = await _toaNhaRepository.GetToaNhaById(request.ToaNhaId, cancellationToken);
+        var toaNha = await _toaNhaRepository.GetToaNhaByIdAsync(request.ToaNhaId, cancellationToken);
         if (toaNha == null)
             return Result.Failure<TangDetailResponse>(TangErrors.ToaNhaNotFound);
             

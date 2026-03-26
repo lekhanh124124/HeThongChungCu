@@ -13,9 +13,10 @@ internal sealed class PhuongTienEFRepository : IPhuongTienEFRepository
         _context = context;
     }
 
-    public async Task AddAsync(PhuongTien phuongTien, CancellationToken cancellationToken = default)
+    public async Task<PhuongTien> AddAsync(PhuongTien phuongTien, CancellationToken cancellationToken = default)
     {
-        await _context.PhuongTiens.AddAsync(phuongTien, cancellationToken);
+        var result = await _context.PhuongTiens.AddAsync(phuongTien, cancellationToken);
+        return result.Entity;
     }
 
     public void Update(PhuongTien phuongTien)
@@ -63,6 +64,13 @@ internal sealed class PhuongTienEFRepository : IPhuongTienEFRepository
     {
         return await _context.ThePhuongTiens
             .AnyAsync(x => x.MaThe == maThe && !x.IsDeleted, cancellationToken);
+    }
+
+    public async Task<int> GetMaxThePhuongTienIdAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.ThePhuongTiens
+            .IgnoreQueryFilters() // Usually we want the absolute max including deleted if IDs are reused, but here we just want the highest ID.
+            .MaxAsync(x => (int?)x.Id, cancellationToken) ?? 0;
     }
 
     public void RemoveRange(IEnumerable<PhuongTien> phuongTiens)

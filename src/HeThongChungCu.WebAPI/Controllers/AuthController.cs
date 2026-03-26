@@ -40,12 +40,13 @@ public class AuthController : ApiControllerBase
     }
 
     /// <summary>
-    /// Đăng ký tài khoản mới cho cư dân
+    /// Đăng ký tài khoản mới (Khách)
     /// </summary>
     /// <remarks>
-    /// API dùng để tạo tài khoản mới trên hệ thống. 
-    /// Mặc định, tài khoản được tạo thông qua API này sẽ được gán role `Resident` (Cư dân).
-    /// Các trường bắt buộc bao gồm: Username, Email, Password, FirstName, LastName, PhoneNumber, IdCard, Dob, GioiTinhId, và DiaChi.
+    /// API dùng để tạo tài khoản mới trên hệ thống chỉ với email. 
+    /// Mặc định, tài khoản được tạo thông qua API này sẽ được gán role `Guest` (Khách) và không có thông tin hồ sơ (User profile).
+    /// Email sẽ được sử dụng làm Username để đăng nhập.
+    /// Các trường bắt buộc bao gồm: Email, Password, và ConfirmPassword.
     /// </remarks>
     [HttpPost("register")]
     [ProducesResponseType(typeof(ApiResponse<AuthResponse>), StatusCodes.Status200OK)]

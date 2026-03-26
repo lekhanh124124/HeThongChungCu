@@ -8,7 +8,7 @@ public class ChiSoTieuThuConfiguration : IEntityTypeConfiguration<Domain.Entitie
 {
     public void Configure(EntityTypeBuilder<Domain.Entities.ChiSoTieuThu> builder)
     {
-        builder.ToTable("ChiSoTieuThus");
+        builder.ToTable("ChiSoTieuThu");
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Thang).IsRequired();

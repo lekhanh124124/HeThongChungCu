@@ -20,15 +20,10 @@ public class SeedDatabaseCommandHandler : ICommandHandler<SeedDatabaseCommand, s
         try
         {
             await _seeder.SeedDatabaseAsync(
-                request.SoLuongNguoiDung,
-                request.SoLuongToaNha,
-                request.SoLuongTangMoiToa,
-                request.SoLuongCanHoMoiTang,
-                request.SoLuongPhuongTien,
+                request.SoLuongChuHo,
                 request.SoLuongCuTru,
-                request.SoLuongChiSoTieuThuMoiCanHo,
-                request.SoLuongThePhuongTien,
-                request.SoLuongTangHamMoiToa);
+                request.SoLuongPhuongTien,
+                request.SoLuongTaiKhoanKhach);
 
             _logger.LogInformation("Database Seeding Completed Successfully.");
             return "Database seeding completed successfully.";

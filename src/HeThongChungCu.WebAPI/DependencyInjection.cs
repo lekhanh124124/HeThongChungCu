@@ -2,6 +2,7 @@ using HeThongChungCu.Application.Common.Options;
 using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.WebAPI.Common.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 
@@ -27,21 +28,17 @@ public static class DependencyInjection
         {
             options.Events = new JwtBearerEvents
             {
-                OnAuthenticationFailed = async context =>
-                {
-                    context.NoResult();
-
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-
-                    await context.Response.WriteAsJsonAsync(new ApiResponse<object>
-                    {
-                        IsOk = false,
-                        Errors = [AuthErrors.InvalidToken]
-                    });
-                },
-
                 OnChallenge = async context =>
                 {
+                    // Skip challenge if the endpoint allows anonymous access or doesn't require authorization
+                    var endpoint = context.HttpContext.GetEndpoint();
+                    if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null ||
+                        endpoint?.Metadata?.GetMetadata<IAuthorizeData>() == null)
+                    {
+                        context.HandleResponse();
+                        return;
+                    }
+
                     context.HandleResponse();
 
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;

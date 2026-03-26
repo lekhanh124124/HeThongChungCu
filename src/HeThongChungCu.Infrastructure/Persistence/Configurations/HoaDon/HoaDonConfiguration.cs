@@ -9,7 +9,7 @@ public class HoaDonConfiguration : IEntityTypeConfiguration<Domain.Entities.HoaD
 {
     public void Configure(EntityTypeBuilder<Domain.Entities.HoaDon> builder)
     {
-        builder.ToTable("HoaDons");
+        builder.ToTable("HoaDon");
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.MaHoaDon)

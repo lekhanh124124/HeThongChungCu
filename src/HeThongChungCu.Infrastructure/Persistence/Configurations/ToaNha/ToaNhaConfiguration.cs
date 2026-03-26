@@ -7,7 +7,7 @@ public class ToaNhaConfiguration : IEntityTypeConfiguration<ToaNha>
 {
     public void Configure(EntityTypeBuilder<ToaNha> builder)
     {
-        builder.ToTable("ToaNhas");
+        builder.ToTable("ToaNha");
 
         builder.HasKey(t => t.Id);
 

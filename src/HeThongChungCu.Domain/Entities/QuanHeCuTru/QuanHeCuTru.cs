@@ -7,7 +7,7 @@ namespace HeThongChungCu.Domain.Entities;
 public class QuanHeCuTru : AggregateRoot
 {
     public int CanHoId { get; private set; }
-    public int UserId { get; private set; }
+    public int NguoiDungId { get; private set; }
     public LoaiQuanHeCuTru LoaiQuanHeCuTruId { get; private set; } = null!;
     public DateTime NgayBatDau { get; private set; }
     public DateTime? NgayKetThuc { get; private set; }
@@ -17,19 +17,19 @@ public class QuanHeCuTru : AggregateRoot
 
     public QuanHeCuTru(
         int canHoId, 
-        int userId, 
+        int nguoiDungId, 
         LoaiQuanHeCuTru loaiQuanHeCuTruId, 
         DateTime ngayBatDau,
         IEnumerable<QuanHeCuTru> existingRelations)
     {
-        if (existingRelations.Any(x => x.UserId == userId && x.CanHoId == canHoId && x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
+        if (existingRelations.Any(x => x.NguoiDungId == nguoiDungId && x.CanHoId == canHoId && x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
             throw new BusinessException("Cư dân này đã đang cư trú tại căn hộ này.");
 
         if (loaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && existingRelations.Any(x => x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
             throw new BusinessException("Căn hộ đã có chủ hộ.");
 
         CanHoId = canHoId;
-        UserId = userId;
+        NguoiDungId = nguoiDungId;
         LoaiQuanHeCuTruId = loaiQuanHeCuTruId;
         NgayBatDau = ngayBatDau;
         TrangThaiCuTruId = TrangThaiCuTru.DangCuTru;

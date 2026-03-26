@@ -35,4 +35,12 @@ public static class AuthErrors
     public static readonly Error Forbidden = new(
         "Auth.Forbidden",
         "Bạn không có quyền truy cập tài nguyên này.");
+
+    public static readonly Error PasswordNotChanged = new(
+        "Auth.PasswordNotChanged",
+        "Mật khẩu mới không được giống mật khẩu cũ.");
+
+    public static readonly Error AccountNotFound = new(
+        "Auth.AccountNotFound",
+        "Tài khoản không tồn tại.");
 }

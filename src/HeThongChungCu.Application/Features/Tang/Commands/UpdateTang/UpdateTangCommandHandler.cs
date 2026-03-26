@@ -14,24 +14,14 @@ public class UpdateTangCommandHandler : ICommandHandler<UpdateTangCommand, TangD
 
     public async Task<Result<TangDetailResponse>> Handle(UpdateTangCommand request, CancellationToken cancellationToken)
     {
-        var toaNha = await _toaNhaRepository.GetToaNhaById(request.ToaNhaId, cancellationToken);
+        var toaNha = await _toaNhaRepository.GetToaNhaByIdAsync(request.ToaNhaId, cancellationToken);
         if (toaNha == null)
             return Result.Failure<TangDetailResponse>(TangErrors.NotFound);
 
-        var tang = toaNha.Tangs.FirstOrDefault(t => t.Id == request.Id);
-        if (tang == null)
-            return Result.Failure<TangDetailResponse>(TangErrors.NotFound);
-
-        // Nếu mã thay đổi, kiểm tra trùng mã
-        if (request.MaTang != tang.MaTang)
-        {
-            var maExists = toaNha.Tangs.Any(t => t.MaTang == request.MaTang);
-            if (maExists)
-                return Result.Failure<TangDetailResponse>(TangErrors.MaTangAlreadyExists);
-        }
-        
         var loaiTang = LoaiTang.FromValue(request.LoaiTangId);
-        tang.Update(request.MaTang, request.TenTang, loaiTang!);
+        toaNha.UpdateTang(request.Id, request.MaTang, request.TenTang, loaiTang!);
+
+        var tang = toaNha.Tangs.First(t => t.Id == request.Id);
 
         _toaNhaRepository.Update(toaNha);
 

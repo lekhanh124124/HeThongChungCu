@@ -6,7 +6,7 @@ public static class UserErrors
 {
     public static readonly Error NotFound = new(
         "User.NotFound",
-        "Không tìm thấy người dùng với ID được chỉ định.");
+        "Không tìm thấy thông tin người dùng.");
 
     public static readonly Error EmailAlreadyExists = new(
         "User.EmailExists",
@@ -39,4 +39,8 @@ public static class UserErrors
     public static Error NotFoundByIds(IEnumerable<int> ids) => new(
         "User.NotFoundByIds",
         $"Không tìm thấy người dùng với các ID: {string.Join(", ", ids)}.");
+
+    public static Error NotFoundByIdCard(string idCard) => new(
+        "User.NotFound",
+        $"Không tìm thấy người dùng với CCCD/CMND '{idCard}'.");
 }

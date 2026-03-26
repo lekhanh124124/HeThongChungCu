@@ -18,12 +18,27 @@ public class CurrentUserService : ICurrentUserService
     {
         get
         {
-            var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier)
-                            ?? _httpContextAccessor.HttpContext?.User?.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            var userIdStr = _httpContextAccessor.HttpContext?.User?.FindFirstValue("profile_id");
 
             if (int.TryParse(userIdStr, out int userId))
             {
                 return userId;
+            }
+
+            return null;
+        }
+    }
+
+    public int? AccountId
+    {
+        get
+        {
+            var accountIdStr = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier)
+                               ?? _httpContextAccessor.HttpContext?.User?.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+            if (int.TryParse(accountIdStr, out int accountId))
+            {
+                return accountId;
             }
 
             return null;

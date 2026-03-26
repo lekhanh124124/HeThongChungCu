@@ -1,4 +1,5 @@
 using Bogus;
+using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -7,58 +8,92 @@ namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class QuanHeCuTruSeeder
 {
-    public static async Task SeedAsync(AppDbContext context, ILogger logger, int targetCount)
+    public static async Task SeedAsync(AppDbContext context, ILogger logger, int soLuongChuHo, int soLuongCuTru)
     {
-        if (!await context.QuanHeCuTrus.AnyAsync())
+        logger.LogInformation("Seeding ChuHo ({ChuHoCount}) and CuTru ({CuTruCount})...", soLuongChuHo, soLuongCuTru);
+
+        var canHos = await context.CanHos.ToListAsync();
+        if (!canHos.Any()) return;
+
+        var faker = new Faker("vi");
+
+        // 1. Seed ChuHo
+        for (int i = 0; i < soLuongChuHo; i++)
         {
-            logger.LogInformation("Seeding QuanHeCuTrus...");
+            var canHo = faker.PickRandom(canHos);
+            
+            // Terminate existing active ChuHo if any
+            var existingRelations = await context.QuanHeCuTrus
+                .Where(r => r.CanHoId == canHo.Id)
+                .ToListAsync();
 
-            var canHos = await context.CanHos.ToListAsync();
-            var userIds = await context.Users.Where(u => u.Username != "admin").Select(u => u.Id).ToListAsync();
+            var activeChuHo = existingRelations
+                .FirstOrDefault(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
 
-            if (canHos.Any() && userIds.Any())
+            if (activeChuHo != null)
             {
-                var faker = new Faker("vi");
-                var usedPairs = new HashSet<(int, int)>();
-                var apartmentsWithChuHo = new HashSet<int>();
-                var otherRoles = new[] { LoaiQuanHeCuTru.NguoiThue, LoaiQuanHeCuTru.NguoiOCung, LoaiQuanHeCuTru.Khac };
+                activeChuHo.KetThucCuTru(DateTime.Now);
+                await context.SaveChangesAsync(); // Commit termination
+                // Refresh existingRelations to reflect termination
+                existingRelations = await context.QuanHeCuTrus
+                    .Where(r => r.CanHoId == canHo.Id)
+                    .ToListAsync();
+            }
 
-                // A user can now belong to multiple apartments, so the max count is based on unique (Apartment, User) pairs
-                targetCount = Math.Min(targetCount, canHos.Count * userIds.Count);
-                var generatedRelations = new List<QuanHeCuTru>();
+            // Create new ChuHo (MUST have User + Account)
+            var firstName = faker.Name.FirstName();
+            var lastName = faker.Name.LastName();
+            var email = UserSeeder.GenerateEmailFromName(firstName, lastName);
+            
+            (NguoiDung user, TaiKhoan account) = await UserSeeder.CreateUserWithAccountAsync(
+                context, firstName, lastName, email, Role.Resident, null!);
 
-                while (generatedRelations.Count < targetCount)
+            var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.ChuHo, DateTime.Now.AddDays(-faker.Random.Number(10, 100)), existingRelations);
+            context.QuanHeCuTrus.Add(qh);
+            await context.SaveChangesAsync();
+        }
+
+        // 2. Seed CuTru (Residents)
+        // Only into apartments with an ACTIVE ChuHo
+        var activeChuHoApartmentIds = await context.QuanHeCuTrus
+            .Where(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru)
+            .Select(r => r.CanHoId)
+            .Distinct()
+            .ToListAsync();
+
+        if (activeChuHoApartmentIds.Any())
+        {
+            var otherRoles = new[] { LoaiQuanHeCuTru.NguoiThue, LoaiQuanHeCuTru.NguoiOCung, LoaiQuanHeCuTru.Khac };
+            var residentHasher = new HeThongChungCu.Infrastructure.Authentication.HasherService();
+            
+            for (int i = 0; i < soLuongCuTru; i++)
+            {
+                var canHoId = faker.PickRandom(activeChuHoApartmentIds);
+                var firstName = faker.Name.FirstName();
+                var lastName = faker.Name.LastName();
+                
+                var user = await UserSeeder.CreateUserOnlyAsync(context, firstName, lastName, null!);
+                
+                // Residents MUST have User, Account is optional (50% chance)
+                if (faker.Random.Bool(0.5f))
                 {
-                    var canHo = faker.PickRandom(canHos);
-                    var userId = faker.PickRandom(userIds);
-
-                    if (usedPairs.Add((canHo.Id, userId)))
-                    {
-                        var loaiQuanHe = LoaiQuanHeCuTru.ChuHo;
-                        
-                        if (apartmentsWithChuHo.Contains(canHo.Id))
-                        {
-                            loaiQuanHe = faker.PickRandom(otherRoles);
-                        }
-                        else
-                        {
-                            apartmentsWithChuHo.Add(canHo.Id);
-                        }
-
-                        var quanHe = new QuanHeCuTru(
-                            canHo.Id, 
-                            userId, 
-                            loaiQuanHe, 
-                            faker.Date.Past(1), 
-                            generatedRelations.Where(r => r.CanHoId == canHo.Id));
-                        
-                        generatedRelations.Add(quanHe);
-                        context.QuanHeCuTrus.Add(quanHe);
-                    }
+                    var email = UserSeeder.GenerateEmailFromName(firstName, lastName);
+                    var account = new TaiKhoan(user.Id, email, email, residentHasher.HashPassword("123456"));
+                    account.AddRole(Role.Resident);
+                    await context.TaiKhoan.AddAsync(account);
                 }
 
+                // Get current relations for this apartment for constructor check
+                var existingRelations = await context.QuanHeCuTrus
+                    .Where(r => r.CanHoId == canHoId)
+                    .ToListAsync();
+
+                var qh = new QuanHeCuTru(canHoId, user.Id, faker.PickRandom(otherRoles), DateTime.Now.AddDays(-faker.Random.Number(1, 10)), existingRelations);
+                context.QuanHeCuTrus.Add(qh);
                 await context.SaveChangesAsync();
             }
         }
+
+        logger.LogInformation("Finished seeding QuanHeCuTrus.");
     }
 }

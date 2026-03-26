@@ -2,9 +2,9 @@ using HeThongChungCu.Application.Features.CuDan.DTOs;
 using HeThongChungCu.Application.Features.CuDan.Queries.LayDSCuTruCuaNguoiDung;
 using HeThongChungCu.Application.Features.CuDan.Queries.LayThanhVienCuTru;
 using HeThongChungCu.Application.Features.CuDan.Queries.LayThongTinCuDan;
-using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
-using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayDSCuDanTrongChungCu;
-using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayLichSuCuTru;
+using HeThongChungCu.Application.Features.QLCuTru.DTOs;
+using HeThongChungCu.Application.Features.QLCuTru.Queries.LayDSCuDanTrongChungCu;
+using HeThongChungCu.Application.Features.QLCuTru.Queries.LayLichSuCuTru;
 
 namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 

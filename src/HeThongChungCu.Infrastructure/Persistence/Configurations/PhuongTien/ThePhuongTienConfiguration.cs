@@ -7,13 +7,15 @@ public class ThePhuongTienConfiguration : IEntityTypeConfiguration<ThePhuongTien
 {
     public void Configure(EntityTypeBuilder<ThePhuongTien> builder)
     {
-        builder.ToTable("ThePhuongTiens");
+        builder.ToTable("ThePhuongTien");
 
         builder.HasKey(t => t.Id);
 
         builder.Property(t => t.MaThe)
             .IsRequired()
             .HasMaxLength(50);
+
+        builder.HasIndex(t => t.MaThe).IsUnique();
 
         builder.HasOne<PhuongTien>()
             .WithMany(p => p.ThePhuongTiens)

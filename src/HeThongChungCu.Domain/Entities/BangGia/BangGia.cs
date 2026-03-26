@@ -47,21 +47,26 @@ public class BangGia : AggregateRoot
         LoaiDinhGiaId = loaiDinhGiaId;
     }
 
-    // public bool IsOverlapping(DateTime requestNgayApDung, DateTime? requestNgayKetThuc)
-    // {
-    //     if (!IsActive) return false;
+    public bool IsOverlapping(DateTime requestNgayApDung, DateTime? requestNgayKetThuc)
+    {
+        if (!IsActive) return false;
 
-    //     // Existing: [NgayApDung, NgayKetThuc]
-    //     // Request: [requestNgayApDung, requestNgayKetThuc]
+        // Existing: [NgayApDung, NgayKetThuc]
+        // Request: [requestNgayApDung, requestNgayKetThuc]
 
-    //     var effectiveEnd = NgayKetThuc ?? DateTime.MaxValue;
-    //     var requestEffectiveEnd = requestNgayKetThuc ?? DateTime.MaxValue;
+        var effectiveEnd = NgayKetThuc ?? DateTime.MaxValue;
+        var requestEffectiveEnd = requestNgayKetThuc ?? DateTime.MaxValue;
 
-    //     return requestNgayApDung <= effectiveEnd && requestEffectiveEnd >= NgayApDung;
-    // }
+        return requestNgayApDung <= effectiveEnd && requestEffectiveEnd >= NgayApDung;
+    }
 
     public void Deactivate() => IsActive = false;
     public void Activate() => IsActive = true;
+
+    public void ClearLuyTien()
+    {
+        _bangGiaLuyTiens.Clear();
+    }
 
     public void AddLuyTien(double tuMuc, double? denMuc, decimal donGia)
     {
@@ -71,13 +76,18 @@ public class BangGia : AggregateRoot
         var luyTien = new BangGiaLuyTien(Id, tuMuc, denMuc, donGia);
 
         // Validate tiers
-        if (_bangGiaLuyTiens.Count != 0)
+        var previous = _bangGiaLuyTiens.LastOrDefault();
+        if (previous == null)
         {
-            var lastTier = _bangGiaLuyTiens.Last();
-            if (tuMuc < (lastTier.DenMuc ?? double.MaxValue))
-                throw new BusinessException("Bậc thang mới phải bắt đầu sau bậc thang trước đó.");
+            if (luyTien.TuMuc != 0)
+                throw new BusinessException("Bậc đầu tiên phải bắt đầu từ 0.");
+        }
+        else
+        {
+            if (luyTien.TuMuc != previous.DenMuc)
+                throw new BusinessException("Các bậc thang phải liên tục (không có khoảng trống hoặc chồng lấn).");
         }
 
         _bangGiaLuyTiens.Add(luyTien);
     }
-}
+}

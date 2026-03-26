@@ -16,7 +16,7 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
     }
     public async Task<Result<CanHoDetailResponse>> Handle(CreateCanHoCommand request, CancellationToken cancellationToken)
     {
-        var toaNha = await _toaNhaRepository.GetToaNhaByTangId(request.TangId, cancellationToken);
+        var toaNha = await _toaNhaRepository.GetToaNhaByTangIdAsync(request.TangId, cancellationToken);
         if (toaNha == null)
             return Result.Failure<CanHoDetailResponse>(ToaNhaErrors.NotFound);
 
@@ -52,7 +52,7 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
             TenCanHo = canHo.TenCanHo,
             DienTich = canHo.DienTich,
             TangId = canHo.TangId,
-            TenTang = canHo.Tang?.TenTang ?? string.Empty,
+            TenTang = tang.TenTang,
             SoPhongNgu = canHo.SoPhongNgu,
             SoPhongTam = canHo.SoPhongTam,
             LoaiCanHoId = canHo.LoaiCanHoId.Value,

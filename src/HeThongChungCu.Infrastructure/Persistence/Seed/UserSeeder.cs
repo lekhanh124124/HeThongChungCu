@@ -3,123 +3,197 @@ using Microsoft.Extensions.Logging;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Infrastructure.Authentication;
-using HeThongChungCu.Infrastructure.Persistence;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class UserSeeder
 {
-    private static readonly PasswordHasher _passwordHasher = new();
-    public static async Task SeedAsync(AppDbContext context, ILogger logger, int count)
+    private static readonly HasherService _passwordHasher = new();
+    private static readonly HashSet<string> _usedEmails = new();
+    private static readonly HashSet<string> _usedPhoneNumbers = new();
+    private static readonly HashSet<string> _usedIdCards = new();
+
+    private static string GetUniqueIdCard()
     {
-        if (!await context.Users.AnyAsync())
+        var faker = new Bogus.Faker();
+        string idCard;
+        do
         {
-            logger.LogInformation("Seeding Users...");
+            idCard = faker.Random.Replace("0010########");
+        } while (!_usedIdCards.Add(idCard));
+        return idCard;
+    }
 
-            var userFaker = new Bogus.Faker<User>("vi")
-                .CustomInstantiator(f => new User(
-                    username: f.Internet.UserName(),
-                    email: f.Internet.Email(),
-                    passwordHash: _passwordHasher.HashPassword("123456"),
-                    firstName: f.Name.FirstName(),
-                    lastName: f.Name.LastName(),
-                    phoneNumber: f.Phone.PhoneNumber("0#########"),
-                    idCard: f.Random.Replace("0010########"),
-                    dob: f.Date.PastOffset(30, DateTime.Now.AddYears(-18)).Date,
-                    gioiTinhId: f.PickRandom(GioiTinh.GetAll().ToArray()),
-                    diaChi: f.Address.FullAddress()
-                ))
-                .RuleFor(u => u.PhoneNumber, f => f.Phone.PhoneNumber("0#########"));
+    private static string GetUniquePhoneNumber()
+    {
+        var faker = new Bogus.Faker();
+        string phone;
+        do
+        {
+            phone = faker.Phone.PhoneNumber("09########");
+        } while (!_usedPhoneNumbers.Add(phone));
+        return phone;
+    }
 
-            var users = new List<User>();
-            var phoneNumbers = new HashSet<string>();
+    private static string EnsureUniqueEmail(string email)
+    {
+        var originalEmail = email.ToLower();
+        var currentEmail = originalEmail;
+        int counter = 1;
+        
+        while (!_usedEmails.Add(currentEmail))
+        {
+            var parts = originalEmail.Split('@');
+            currentEmail = $"{parts[0]}{counter}@{parts[1]}";
+            counter++;
+        }
+        return currentEmail;
+    }
 
-            // Generate unique phone numbers
-            while (users.Count < count)
+    public static string RegisterEmail(string email)
+    {
+        _usedEmails.Add(email.ToLower());
+        return email;
+    }
+
+    public static string RegisterPhoneNumber(string phone)
+    {
+        _usedPhoneNumbers.Add(phone);
+        return phone;
+    }
+
+    public static string RegisterIdCard(string idCard)
+    {
+        _usedIdCards.Add(idCard);
+        return idCard;
+    }
+
+    public static async Task SeedAdminAndTestAccountsAsync(AppDbContext context, ILogger logger)
+    {
+        if (!await context.TaiKhoan.AnyAsync(a => a.TenDangNhap == "admin@gmail.com"))
+        {
+            logger.LogInformation("Seeding Admin and Test Accounts...");
+            var hashedPassword = _passwordHasher.HashPassword("123456");
+
+            var testData = new[]
             {
-                var user = userFaker.Generate();
-                if (phoneNumbers.Add(user.PhoneNumber))
-                {
-                    users.Add(user);
-                }
-            }
+                (Email: "admin@gmail.com", Role: Role.Admin, FirstName: "Quản trị", LastName: "Hệ thống"),
+                (Email: "phognguen0@gmail.com", Role: Role.Manager, FirstName: "Ban", LastName: "Quản lý"),
+                (Email: "nhanvien@gmail.com", Role: Role.Staff, FirstName: "Trần", LastName: "Nhân Viên")
+            };
 
-            // Hardcode 1 admin for easy login
-            if (users.Count > 0)
+            foreach (var data in testData)
             {
-                users[0] = new User(
-                    "admin",
-                    "admin@gmail.com",
-                    _passwordHasher.HashPassword("123456"),
-                    "Admin",
-                    "System",
-                    "0987654321",
-                    "001090123456",
-                    new DateTime(1990, 1, 1),
+                var user = new NguoiDung(
+                    data.FirstName,
+                    data.LastName,
+                    new DateTime(1985, 5, 20),
                     GioiTinh.Nam,
-                    "Hà Nội");
-                users[0].ChangeRole(Role.Admin);
+                    "TP. Hồ Chí Minh",
+                    GetUniqueIdCard(),
+                    GetUniquePhoneNumber());
 
-                users[1] = new User(
-                    "banquanly_test",
-                    "banquanly_test@gmail.com",
-                    _passwordHasher.HashPassword("123456"),
-                    "Ban Quản Lý",
-                    "System",
-                    "0987654322",
-                    "001090123457",
-                    new DateTime(1990, 1, 1),
-                    GioiTinh.Nam,
-                    "Hà Nội");
-                users[1].ChangeRole(Role.Manager);
+                await context.NguoiDung.AddAsync(user);
+                await context.SaveChangesAsync();
 
-                users[2] = new User(
-                    "cudan_test",
-                    "cudan_test@gmail.com",
-                    _passwordHasher.HashPassword("123456"),
-                    "Cư Dân",
-                    "System",
-                    "0987654323",
-                    "001090123458",
-                    new DateTime(1990, 1, 1),
-                    GioiTinh.Nam,
-                    "Hà Nội");
-                users[2].ChangeRole(Role.Resident);
-
-                users[3] = new User(
-                    "nhanvien_test",
-                    "nhanvien_test@gmail.com",
-                    _passwordHasher.HashPassword("123456"),
-                    "Nhân viên",
-                    "System",
-                    "0987654324",
-                    "001090123459",
-                    new DateTime(1990, 1, 1),
-                    GioiTinh.Nam,
-                    "Hà Nội");
-                users[3].ChangeRole(Role.Staff);
-
-                users[4] = new User(
-                    "khach_test",
-                    "khach_test@gmail.com",
-                    _passwordHasher.HashPassword("123456"),
-                    "Khách",
-                    "System",
-                    "0987654325",
-                    "001090123460",
-                    new DateTime(1990, 1, 1),
-                    GioiTinh.Nam,
-                    "Hà Nội");
-                users[4].ChangeRole(Role.Guest);
-
-                for (int i = 5; i < users.Count; i++)
-                {
-                    users[i].ChangeRole(Role.Resident);
-                }
+                var email = EnsureUniqueEmail(data.Email);
+                var account = new TaiKhoan(user.Id, email, email, hashedPassword);
+                account.AddRole(data.Role);
+                await context.TaiKhoan.AddAsync(account);
             }
-
-            await context.Users.AddRangeAsync(users);
             await context.SaveChangesAsync();
+        }
+    }
+
+    public static async Task SeedGuestAccountsAsync(AppDbContext context, ILogger logger, int count)
+    {
+        logger.LogInformation("Seeding {Count} Guest Accounts...", count);
+        var faker = new Bogus.Faker("vi");
+        var hashedPassword = _passwordHasher.HashPassword("123456");
+
+        for (int i = 0; i < count; i++)
+        {
+            var email = EnsureUniqueEmail(faker.Internet.Email().ToLower());
+            var account = new TaiKhoan(null, email, email, hashedPassword);
+            account.AddRole(Role.Guest);
+            await context.TaiKhoan.AddAsync(account);
+        }
+        await context.SaveChangesAsync();
+    }
+
+    public static async Task<(NguoiDung NguoiDung, TaiKhoan TaiKhoan)> CreateUserWithAccountAsync(
+        AppDbContext context,
+        string firstName,
+        string lastName,
+        string email,
+        Role role,
+        string phoneNumber,
+        string address = "Hồ Chí Minh")
+    {
+        var user = new NguoiDung(
+            firstName,
+            lastName,
+            new DateTime(1990, 1, 1),
+            GioiTinh.Nam,
+            address,
+            GetUniqueIdCard(),
+            phoneNumber ?? GetUniquePhoneNumber());
+
+        await context.NguoiDung.AddAsync(user);
+        await context.SaveChangesAsync();
+
+        var account = new TaiKhoan(user.Id, email, email, _passwordHasher.HashPassword("123456"));
+        account.AddRole(role);
+        await context.TaiKhoan.AddAsync(account);
+        await context.SaveChangesAsync();
+
+        return (user, account);
+    }
+
+    public static async Task<NguoiDung> CreateUserOnlyAsync(
+        AppDbContext context,
+        string firstName,
+        string lastName,
+        string phoneNumber,
+        string address = "Hồ Chí Minh")
+    {
+        var user = new NguoiDung(
+            firstName,
+            lastName,
+            new DateTime(1995, 1, 1),
+            GioiTinh.Nam,
+            address,
+            GetUniqueIdCard(),
+            phoneNumber ?? GetUniquePhoneNumber());
+
+        await context.NguoiDung.AddAsync(user);
+        await context.SaveChangesAsync();
+        return user;
+    }
+
+    public static string GenerateEmailFromName(string firstName, string lastName)
+    {
+        var emailPrefix = StringUtils.RemoveDiacritics($"{firstName}.{lastName}").ToLower().Replace(" ", "");
+        return EnsureUniqueEmail($"{emailPrefix}@gmail.com");
+    }
+
+    public static class StringUtils
+    {
+        public static string RemoveDiacritics(string text)
+        {
+            var normalizedString = text.Normalize(System.Text.NormalizationForm.FormD);
+            var stringBuilder = new System.Text.StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
         }
     }
 }

@@ -8,7 +8,7 @@ public class CauHinhLaiConfiguration : IEntityTypeConfiguration<CauHinhLai>
 {
     public void Configure(EntityTypeBuilder<CauHinhLai> builder)
     {
-        builder.ToTable("CauHinhLais");
+        builder.ToTable("CauHinhLai");
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.MaCauHinh)

@@ -47,8 +47,8 @@ public class ToaNhaDapperRepository : IToaNhaDapperRepository
 
         var sql = $"""
             SELECT COUNT(*) OVER() AS TotalCount, Id, MaToaNha, TenToaNha, DiaChi, MoTa, TrangThaiToaNhaId,
-                   (SELECT COUNT(*) FROM CanHos c JOIN Tangs t ON c.TangId = t.Id WHERE t.ToaNhaId = ToaNhas.Id AND c.IsDeleted = 0 AND t.IsDeleted = 0) AS SoCanHo
-            FROM ToaNhas
+                   (SELECT COUNT(*) FROM CanHo c JOIN Tang t ON c.TangId = t.Id WHERE t.ToaNhaId = ToaNha.Id AND c.IsDeleted = 0 AND t.IsDeleted = 0) AS SoCanHo
+            FROM ToaNha
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination};
@@ -103,12 +103,12 @@ public class ToaNhaDapperRepository : IToaNhaDapperRepository
 
         var sql = $"""
             SELECT tn.Id, tn.MaToaNha, tn.TenToaNha, tn.DiaChi, tn.MoTa, tn.TrangThaiToaNhaId,
-                   (SELECT COUNT(*) FROM CanHos c JOIN Tangs t ON c.TangId = t.Id WHERE t.ToaNhaId = tn.Id AND c.IsDeleted = 0 AND t.IsDeleted = 0) AS SoCanHo,
+                   (SELECT COUNT(*) FROM CanHo c JOIN Tang t ON c.TangId = t.Id WHERE t.ToaNhaId = tn.Id AND c.IsDeleted = 0 AND t.IsDeleted = 0) AS SoCanHo,
                    t.Id AS TangUid, t.MaTang, t.TenTang, t.LoaiTangId,
                    c.Id AS CanHoId, c.MaCanHo, c.DienTich, c.SoPhongNgu, c.SoPhongTam, c.LoaiCanHoId, c.TinhTrangCanHoId
-            FROM ToaNhas tn
-            LEFT JOIN Tangs t ON t.ToaNhaId = tn.Id AND t.IsDeleted = 0
-            LEFT JOIN CanHos c ON c.TangId = t.Id AND c.IsDeleted = 0
+            FROM ToaNha tn
+            LEFT JOIN Tang t ON t.ToaNhaId = tn.Id AND t.IsDeleted = 0
+            LEFT JOIN CanHo c ON c.TangId = t.Id AND c.IsDeleted = 0
             {sqlWhere};
             """;
 
@@ -215,8 +215,8 @@ public class ToaNhaDapperRepository : IToaNhaDapperRepository
                 t.LoaiTangId,
                 t.ToaNhaId,
                 tn.TenToaNha
-            FROM Tangs t
-            INNER JOIN ToaNhas tn ON tn.Id = t.ToaNhaId
+            FROM Tang t
+            INNER JOIN ToaNha tn ON tn.Id = t.ToaNhaId
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination};
@@ -272,9 +272,9 @@ public class ToaNhaDapperRepository : IToaNhaDapperRepository
         var sql = $"""
             SELECT t.Id, t.MaTang, t.TenTang, t.LoaiTangId, t.ToaNhaId, tn.TenToaNha,
                    c.Id AS CanHoId, t.TenTang AS TenTangColumn, c.MaCanHo, c.DienTich, c.SoPhongNgu, c.SoPhongTam, c.LoaiCanHoId, c.TinhTrangCanHoId
-            FROM Tangs t
-            INNER JOIN ToaNhas tn ON tn.Id = t.ToaNhaId
-            LEFT JOIN CanHos c ON c.TangId = t.Id AND c.IsDeleted = 0
+            FROM Tang t
+            INNER JOIN ToaNha tn ON tn.Id = t.ToaNhaId
+            LEFT JOIN CanHo c ON c.TangId = t.Id AND c.IsDeleted = 0
             {sqlWhere};
             """;
 
@@ -337,6 +337,7 @@ public class ToaNhaDapperRepository : IToaNhaDapperRepository
             { "TenToaNha", "t.TenToaNha" },
             { "MaTang", "f.MaTang" },
             { "TenTang", "f.TenTang" },
+            { "LoaiTangId", "f.LoaiTangId" },
             { "MaCanHo", "c.MaCanHo" },
             { "TenCanHo", "c.TenCanHo" },
 
@@ -349,10 +350,10 @@ public class ToaNhaDapperRepository : IToaNhaDapperRepository
             SELECT 
                 t.Id AS ToaNhaId, t.MaToaNha, t.TenToaNha, t.TrangThaiToaNhaId AS ToaNhaTrangThaiId,
                 f.Id AS TangId, f.MaTang, f.TenTang,
-                c.Id AS CanHoId, c.MaCanHo, c.TinhTrangCanHoId AS CanHoTrangThaiId
-            FROM ToaNhas t
-            LEFT JOIN Tangs f ON f.ToaNhaId = t.Id AND f.IsDeleted = 0
-            LEFT JOIN CanHos c ON c.TangId = f.Id AND c.IsDeleted = 0
+                c.Id AS CanHoId, c.MaCanHo, c.TenCanHo, c.TinhTrangCanHoId AS CanHoTrangThaiId
+            FROM ToaNha t
+            LEFT JOIN Tang f ON f.ToaNhaId = t.Id AND f.IsDeleted = 0
+            LEFT JOIN CanHo c ON c.TangId = f.Id AND c.IsDeleted = 0
             {sqlWhere}
             ORDER BY t.TenToaNha, f.Id, c.MaCanHo
             """;
@@ -402,7 +403,7 @@ public class ToaNhaDapperRepository : IToaNhaDapperRepository
                     {
                         Id = r.CanHoId.Value,
                         MaCanHo = r.MaCanHo ?? string.Empty,
-                        TenCanHo = r.MaCanHo ?? string.Empty, 
+                        TenCanHo = r.TenCanHo ?? string.Empty,
                         TrangThaiId = r.CanHoTrangThaiId ?? 0,
                         TenTrangThai = tinhTrangCanHoMap.GetValueOrDefault(r.CanHoTrangThaiId ?? 0, string.Empty)
                     });

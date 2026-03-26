@@ -135,6 +135,56 @@ internal sealed class SmtpEmailService : IEmailService
         await SendAsync(to, subject, body, cancellationToken);
     }
 
+    public async Task SendIdentificationEmailAsync(
+        string to,
+        string identificationLink,
+        CancellationToken cancellationToken = default)
+    {
+        var subject = "Xác nhận định danh cư dân";
+        var body = $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='utf-8'>
+            </head>
+            <body style='font-family: ""Helvetica Neue"", Helvetica, Arial, sans-serif; background-color: #f4f5f7; margin: 0; padding: 0;'>
+                <table width='100%' cellpadding='0' cellspacing='0' style='background-color: #f4f5f7; padding: 40px 20px;'>
+                    <tr>
+                        <td align='center'>
+                            <table width='100%' cellpadding='0' cellspacing='0' style='max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);'>
+                                <tr>
+                                    <td style='padding: 30px; text-align: center; background-color: #2563eb;'>
+                                        <h1 style='color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;'>Xác Nhận Định Danh</h1>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 40px 30px; color: #334155; font-size: 16px; line-height: 1.6;'>
+                                        <p style='margin-top: 0;'>Xin chào,</p>
+                                        <p>Ban quản lý chung cư đã tạo yêu cầu định danh cho tài khoản của bạn. Vui lòng nhấn vào nút bên dưới để hoàn tất quá trình liên kết tài khoản cư dân:</p>
+                                        <div style='text-align: center; margin: 35px 0;'>
+                                            <a href='{identificationLink}' style='display: inline-block; padding: 14px 28px; font-size: 16px; font-weight: bold; color: #ffffff; background-color: #2563eb; border-radius: 6px; text-decoration: none;'>
+                                                Hoàn tất định danh
+                                            </a>
+                                        </div>
+                                        <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
+                                        <p style='margin-bottom: 0;'>Trân trọng,<br><strong>Ban quản lý chung cư</strong></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 20px; text-align: center; font-size: 13px; color: #94a3b8; background-color: #f8fafc; border-top: 1px solid #e2e8f0;'>
+                                        <p style='margin: 0;'>Đây là email tự động, vui lòng không trả lời email này.</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>";
+
+        await SendAsync(to, subject, body, cancellationToken);
+    }
+
     public async Task SendAssessmentReadyEmailAsync(
         string to,
         string userName,

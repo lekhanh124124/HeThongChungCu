@@ -42,18 +42,41 @@ public static class DependencyInjection
         services.AddScoped<ApplicationDbContextInitialiser>();
         services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<AppDbContext>());
-        services.AddScoped<IUserEFRepository, UserEFRepository>();
+
+        services.AddScoped<INguoiDungEFRepository, NguoiDungEFRepository>();
+        services.AddScoped<INguoiDungDapperRepository, NguoiDungDapperRepository>();
+
+        services.AddScoped<ITaiKhoanEFRepository, TaiKhoanEFRepository>();
+
         services.AddScoped<IToaNhaEFRepository, ToaNhaEFRepository>();
         services.AddScoped<IToaNhaDapperRepository, ToaNhaDapperRepository>();
+
         services.AddScoped<ICanHoEFRepository, CanHoEFRepository>();
-        services.AddScoped<IDichVuEFRepository, DichVuEFRepository>();
-        services.AddScoped<IQuanHeCuTruEFRepository, QuanHeCuTruEFRepository>();
         services.AddScoped<ICanHoDapperRepository, CanHoDapperRepository>();
+
+        services.AddScoped<IQuanHeCuTruEFRepository, QuanHeCuTruEFRepository>();
+        services.AddScoped<IQuanHeCuTruDapperRepository, QuanHeCuTruDapperRepository>();
+
         services.AddScoped<IPhuongTienEFRepository, PhuongTienEFRepository>();
         services.AddScoped<IPhuongTienDapperRepository, PhuongTienDapperRepository>();
-        services.AddScoped<IQuanHeCuTruDapperRepository, QuanHeCuTruDapperRepository>();
-        services.AddScoped<IUserDapperRepository, UserDapperRepository>();
 
+        services.AddScoped<IYeuCauCuTruEFRepository, YeuCauCuTruEFRepository>();
+        services.AddScoped<IYeuCauCuTruDapperRepository, YeuCauCuTruDapperRepository>();
+
+        services.AddScoped<IDichVuEFRepository, DichVuEFRepository>();
+        // services.AddScoped<IDichVuDapperRepository, DichVuDapperRepository>();
+
+        services.AddScoped<ITepTaiLieuRepository, TepTaiLieuRepository>();
+        // services.AddScoped<ITepTaiLieuDapperRepository, TepTaiLieuDapperRepository>();
+
+        services.AddScoped<IBangGiaEFRepository, BangGiaEFRepository>();
+        // services.AddScoped<IBangGiaDapperRepository, BangGiaDapperRepository>();
+
+        services.AddScoped<IChiSoTieuThuEFRepository, ChiSoTieuThuEFRepository>();
+        // services.AddScoped<IChiSoTieuThuDapperRepository, ChiSoTieuThuDapperRepository>();
+
+        services.AddScoped<IDangKyDichVuEFRepository, DangKyDichVuEFRepository>();
+        // services.AddScoped<IDangKyDichVuDapperRepository, DangKyDichVuDapperRepository>();
         return services;
     }
 }

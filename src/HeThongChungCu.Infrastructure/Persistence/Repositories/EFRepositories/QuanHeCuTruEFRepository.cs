@@ -14,7 +14,7 @@ public class QuanHeCuTruEFRepository : IQuanHeCuTruEFRepository
         _dbContext = dbContext;
     }
 
-    public async Task<QuanHeCuTru?> GetCuTruByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<QuanHeCuTru?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<QuanHeCuTru>()
             .FirstOrDefaultAsync(q =>
@@ -53,5 +53,16 @@ public class QuanHeCuTruEFRepository : IQuanHeCuTruEFRepository
         return await _dbContext.Set<QuanHeCuTru>()
             .Where(q => q.CanHoId == canHoId && !q.IsDeleted)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<QuanHeCuTru?> GetByUserAndCanHoAsync(int nguoiDungId, int canHoId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Set<QuanHeCuTru>()
+            .FirstOrDefaultAsync(q => 
+                q.NguoiDungId == nguoiDungId && 
+                q.CanHoId == canHoId && 
+                !q.IsDeleted && 
+                q.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru, 
+                cancellationToken);
     }
 }

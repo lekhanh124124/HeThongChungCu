@@ -29,11 +29,11 @@ public class ApplicationDbContextInitialiser(
         }
     }
 
-    public async Task SeedAsync()
+    public void Seed()
     {
         try
         {
-            await TrySeedAsync();
+            TrySeed();
         }
         catch (Exception ex)
         {
@@ -42,7 +42,7 @@ public class ApplicationDbContextInitialiser(
         }
     }
 
-    private async Task TrySeedAsync()
+    private void TrySeed()
     {
         // System wide seedings can be put here if necessary (roles, permissions)
         _logger.LogInformation("Initial Seed Check completed.");

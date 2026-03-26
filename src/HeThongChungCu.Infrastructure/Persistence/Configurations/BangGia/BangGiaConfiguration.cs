@@ -9,7 +9,7 @@ public class BangGiaConfiguration : IEntityTypeConfiguration<Domain.Entities.Ban
 {
     public void Configure(EntityTypeBuilder<Domain.Entities.BangGia> builder)
     {
-        builder.ToTable("BangGias");
+        builder.ToTable("BangGia");
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.TenBangGia)

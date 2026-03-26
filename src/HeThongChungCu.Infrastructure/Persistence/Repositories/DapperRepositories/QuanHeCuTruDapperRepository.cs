@@ -5,9 +5,9 @@ using HeThongChungCu.Application.Features.CuDan.DTOs;
 using HeThongChungCu.Application.Features.CuDan.Queries.LayDSCuTruCuaNguoiDung;
 using HeThongChungCu.Application.Features.CuDan.Queries.LayThanhVienCuTru;
 using HeThongChungCu.Application.Features.CuDan.Queries.LayThongTinCuDan;
-using HeThongChungCu.Application.Features.QuanHeCuTru.DTOs;
-using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayDSCuDanTrongChungCu;
-using HeThongChungCu.Application.Features.QuanHeCuTru.Queries.LayLichSuCuTru;
+using HeThongChungCu.Application.Features.QLCuTru.DTOs;
+using HeThongChungCu.Application.Features.QLCuTru.Queries.LayDSCuDanTrongChungCu;
+using HeThongChungCu.Application.Features.QLCuTru.Queries.LayLichSuCuTru;
 using HeThongChungCu.Infrastructure.Persistence.Helpers;
 using HeThongChungCu.Infrastructure.Persistence.ReadModels;
 using System.Data;
@@ -41,15 +41,14 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
             { "CanHoId", "q.CanHoId" },
             { "MaCanHo", "c.MaCanHo" },
 
-            { "UserId", "q.UserId" },
+            { "NguoiDungId", "q.NguoiDungId" },
             { "TrangThaiCuTruId", "q.TrangThaiCuTruId" },
             { "NgayBatDau", "q.NgayBatDau" },
             { "IsDeleted", "q.IsDeleted" },
             { "NgayKetThuc", "q.NgayKetThuc" },
             { "LoaiQuanHeCuTruId", "q.LoaiQuanHeCuTruId" },
-            { "HoTen", "u.LastName + N' ' + u.FirstName" },
-            { "Email", "u.Email" },
-            { "PhoneNumber", "u.PhoneNumber" }
+            { "HoTen", "u.Ho + N' ' + u.Ten" },
+            { "SoDienThoai", "u.SoDienThoai" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
@@ -63,18 +62,18 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
                 t.MaTang          AS MaTang,
                 c.MaCanHo         AS MaCanHo,
                 q.Id         AS QuanHeCuTruId,
-                q.UserId,
-                u.LastName + N' ' + u.FirstName AS HoTen,
-                u.PhoneNumber,
+                q.NguoiDungId,
+                u.Ho + N' ' + u.Ten AS HoTen,
+                u.SoDienThoai as PhoneNumber,
                 q.LoaiQuanHeCuTruId,
                 q.NgayBatDau,
                 q.NgayKetThuc,
                 q.TrangThaiCuTruId
-            FROM QuanHeCuTrus q
-            LEFT JOIN Users u ON u.Id = q.UserId AND u.IsDeleted = 0
-            LEFT JOIN CanHos c ON c.Id = q.CanHoId AND c.IsDeleted = 0
-            LEFT JOIN Tangs t ON t.Id = c.TangId AND t.IsDeleted = 0
-            LEFT JOIN ToaNhas tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
+            FROM QuanHeCuTru q
+            LEFT JOIN NguoiDung u ON u.Id = q.NguoiDungId AND u.IsDeleted = 0
+            LEFT JOIN CanHo c ON c.Id = q.CanHoId AND c.IsDeleted = 0
+            LEFT JOIN Tang t ON t.Id = c.TangId AND t.IsDeleted = 0
+            LEFT JOIN ToaNha tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination}
@@ -90,7 +89,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
             MaTang = r.MaTang,
             MaCanHo = r.MaCanHo,
             QuanHeCuTruId = r.QuanHeCuTruId,
-            UserId = r.UserId,
+            UserId = r.NguoiDungId,
             HoTen = r.HoTen,
             PhoneNumber = r.PhoneNumber,
             LoaiQuanHeCuTruId = r.LoaiQuanHeCuTruId,
@@ -124,7 +123,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "CanHoId", "q.CanHoId" },
-            { "UserId", "q.UserId" },
+            { "NguoiDungId", "q.NguoiDungId" },
             { "NgayBatDau", "q.NgayBatDau" },
             { "NgayKetThuc", "q.NgayKetThuc" },
             { "TrangThaiCuTruId", "q.TrangThaiCuTruId" },
@@ -149,10 +148,10 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
                 q.LoaiQuanHeCuTruId,
                 q.NgayBatDau,
                 q.NgayKetThuc
-            FROM QuanHeCuTrus q
-            LEFT JOIN CanHos   c ON c.Id = q.CanHoId AND c.IsDeleted = 0
-            LEFT JOIN Tangs    tg ON tg.Id = c.TangId AND tg.IsDeleted = 0
-            LEFT JOIN ToaNhas  t ON t.Id = tg.ToaNhaId AND t.IsDeleted = 0
+            FROM QuanHeCuTru q
+            LEFT JOIN CanHo   c ON c.Id = q.CanHoId AND c.IsDeleted = 0
+            LEFT JOIN Tang    tg ON tg.Id = c.TangId AND tg.IsDeleted = 0
+            LEFT JOIN ToaNha  t ON t.Id = tg.ToaNhaId AND t.IsDeleted = 0
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination};
@@ -200,7 +199,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "UserId", "q.UserId" },
+            { "NguoiDungId", "q.NguoiDungId" },
             { "TrangThaiCuTruId", "q.TrangThaiCuTruId" },
             { "IsDeleted", "q.IsDeleted" }
         };
@@ -220,14 +219,14 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
                 c.MaCanHo,
                 c.TenCanHo,
                 q.LoaiQuanHeCuTruId,
-                (SELECT COUNT(*) FROM QuanHeCuTrus qr 
+                (SELECT COUNT(*) FROM QuanHeCuTru qr 
                     WHERE qr.CanHoId = q.CanHoId 
                     AND qr.TrangThaiCuTruId = 1
                     AND qr.IsDeleted = 0) AS TongCuDan
-            FROM QuanHeCuTrus q
-            LEFT JOIN CanHos   c ON c.Id = q.CanHoId AND c.IsDeleted = 0
-            LEFT JOIN Tangs    t ON t.Id = c.TangId AND t.IsDeleted = 0
-            LEFT JOIN ToaNhas  tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
+            FROM QuanHeCuTru q
+            LEFT JOIN CanHo   c ON c.Id = q.CanHoId AND c.IsDeleted = 0
+            LEFT JOIN Tang    t ON t.Id = c.TangId AND t.IsDeleted = 0
+            LEFT JOIN ToaNha  tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
             {sqlWhere}
             """;
 
@@ -266,7 +265,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "q.Id" },
-            { "UserId", "q.UserId" },
+            { "NguoiDungId", "q.NguoiDungId" },
             { "IsDeleted", "q.IsDeleted" }
         };
 
@@ -274,19 +273,19 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
 
         var sql = $"""
             SELECT
-                q.UserId,
-                u.LastName + N' ' + u.FirstName AS FullName,
-                u.PhoneNumber,
-                u.IdCard,
-                u.Dob,
+                q.NguoiDungId,
+                u.Ho + N' ' + u.Ten AS HoTen,
+                u.SoDienThoai as PhoneNumber,
+                u.NgaySinh as NgaySinh,
                 u.GioiTinhId,
                 u.RoleId,
-                u.AnhDaiDienUrl,
+                a.AnhDaiDienUrl,
                 q.Id             AS QuanHeCuTruId,
                 q.LoaiQuanHeCuTruId,
                 q.NgayBatDau
-            FROM QuanHeCuTrus q
-            INNER JOIN Users u ON u.Id = q.UserId
+            FROM QuanHeCuTru q
+            INNER JOIN NguoiDung u ON u.Id = q.NguoiDungId
+            LEFT JOIN TaiKhoan a ON u.Id = a.NguoiDungId
             {sqlWhere}
             """;
 
@@ -300,11 +299,10 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
 
         return new LayThongTinCuDanResponse
         {
-            UserId = row.UserId,
-            FullName = row.FullName,
+            UserId = row.NguoiDungId,
+            FullName = row.HoTen,
             PhoneNumber = row.PhoneNumber,
-            IdCard = row.IdCard,
-            Dob = row.Dob,
+            Dob = row.NgaySinh,
             GioiTinhId = row.GioiTinhId,
             GioiTinhName = gioiTinhMap.GetValueOrDefault(row.GioiTinhId, string.Empty),
             RoleId = row.RoleId,
@@ -340,11 +338,12 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
                 q.Id,
                 q.LoaiQuanHeCuTruId,
                 q.NgayBatDau,
-                u.FirstName,
-                u.LastName,
-                u.AnhDaiDienUrl
-            FROM QuanHeCuTrus q
-            INNER JOIN Users u ON u.Id = q.UserId AND u.IsDeleted = 0
+                u.Ten as FirstName,
+                u.Ho as LastName,
+                a.AnhDaiDienUrl
+            FROM QuanHeCuTru q
+            INNER JOIN NguoiDung u ON u.Id = q.NguoiDungId AND u.IsDeleted = 0
+            LEFT JOIN TaiKhoan a ON u.Id = a.NguoiDungId
             {sqlWhere}
             """;
 

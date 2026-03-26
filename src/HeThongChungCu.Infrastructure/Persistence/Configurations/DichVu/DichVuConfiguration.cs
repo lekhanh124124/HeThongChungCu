@@ -8,7 +8,7 @@ public class DichVuConfiguration : IEntityTypeConfiguration<Domain.Entities.Dich
 {
     public void Configure(EntityTypeBuilder<Domain.Entities.DichVu> builder)
     {
-        builder.ToTable("DichVus");
+        builder.ToTable("DichVu");
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.MaDichVu)

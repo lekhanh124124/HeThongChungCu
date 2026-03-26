@@ -60,8 +60,8 @@ public class CanHoDapperRepository : ICanHoDapperRepository
                 c.SoPhongTam,
                 c.LoaiCanHoId,
                 c.TinhTrangCanHoId
-            FROM CanHos c
-            INNER JOIN Tangs t ON t.Id = c.TangId
+            FROM CanHo c
+            INNER JOIN Tang t ON t.Id = c.TangId
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination}
@@ -128,8 +128,8 @@ public class CanHoDapperRepository : ICanHoDapperRepository
                 c.SoPhongTam, 
                 c.LoaiCanHoId, 
                 c.TinhTrangCanHoId
-            FROM CanHos c
-            INNER JOIN Tangs t ON t.Id = c.TangId
+            FROM CanHo c
+            INNER JOIN Tang t ON t.Id = c.TangId
             {sqlWhere};
             """;
 

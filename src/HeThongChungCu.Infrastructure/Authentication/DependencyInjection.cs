@@ -13,7 +13,7 @@ public static class DependencyInjection
     public static IServiceCollection AddAuthLayer(this IServiceCollection services, IConfiguration configuration)
     {
         // 1. Password Hashing
-        services.AddTransient<IPasswordHasher, PasswordHasher>();
+        services.AddTransient<IHasherService, HasherService>();
 
         // 2. JWT Generator
         services.AddTransient<IJwtTokenGenerator, JwtTokenGenerator>();

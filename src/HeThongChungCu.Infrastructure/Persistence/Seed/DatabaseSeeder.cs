@@ -15,25 +15,27 @@ public class DatabaseSeeder : IDatabaseSeeder
     }
 
     public async Task SeedDatabaseAsync(
-        int soLuongNguoiDung, 
-        int soLuongToaNha, 
-        int soLuongTangMoiToa, 
-        int soLuongCanHoMoiTang, 
-        int soLuongPhuongTien,
+        int soLuongChuHo,
         int soLuongCuTru,
-        int soLuongChiSoTieuThuMoiCanHo,
-        int soLuongThePhuongTien,
-        int soLuongTangHamMoiToa)
+        int soLuongPhuongTien,
+        int soLuongTaiKhoanKhach)
     {
-        await UserSeeder.SeedAsync(_context, _logger, soLuongNguoiDung);
-        await DichVuSeeder.SeedAsync(_context, _logger);
-        await BangGiaSeeder.SeedAsync(_context, _logger);
-        await CauHinhLaiSeeder.SeedAsync(_context, _logger);
-        await ToaNhaSeeder.SeedAsync(_context, _logger, soLuongToaNha, soLuongTangMoiToa, soLuongTangHamMoiToa);
-        await CanHoSeeder.SeedAsync(_context, _logger, soLuongCanHoMoiTang);
-        await QuanHeCuTruSeeder.SeedAsync(_context, _logger, soLuongCuTru);
-        await PhuongTienSeeder.SeedAsync(_context, _logger, soLuongPhuongTien, soLuongThePhuongTien);
-        await ChiSoTieuThuSeeder.SeedAsync(_context, _logger);
-        await HoaDonSeeder.SeedAsync(_context, _logger);
+        // 1. Buildings, Floors, Apartments (Hardcoded)
+        await ToaNhaSeeder.SeedAsync(_context, _logger);
+        
+        // 2. Admin and Test Accounts
+        await UserSeeder.SeedAdminAndTestAccountsAsync(_context, _logger);
+
+        // 3. Residency: ChuHo and CuTru (Includes Users and Accounts)
+        await QuanHeCuTruSeeder.SeedAsync(_context, _logger, soLuongChuHo, soLuongCuTru);
+
+        // 3. Guest Accounts (Accounts only)
+        await UserSeeder.SeedGuestAccountsAsync(_context, _logger, soLuongTaiKhoanKhach);
+        
+        // 4. Vehicles and Cards (Depends on Apartments)
+        await PhuongTienSeeder.SeedAsync(_context, _logger, soLuongPhuongTien);
+
+        // 5. Special User Account (Giang Tuấn Kiệt)
+        await SpecialUserSeeder.SeedGiangKietAsync(_context, _logger);
     }
 }

@@ -11,5 +11,6 @@ internal sealed class GetCauTrucChungCuReadModel
     public string? TenTang { get; init; }
     public int? CanHoId { get; init; }
     public string? MaCanHo { get; init; }
+    public string? TenCanHo { get; init; }
     public int? CanHoTrangThaiId { get; init; }
 }

@@ -9,6 +9,7 @@ public class ReasonRevoked : BaseEnum<ReasonRevoked, int>
     public static readonly ReasonRevoked Compromised = new(3, nameof(Compromised));
     public static readonly ReasonRevoked Expired = new(4, nameof(Expired));
     public static readonly ReasonRevoked UserAction = new(5, nameof(UserAction));
+    public static readonly ReasonRevoked AdminAction = new(6, nameof(AdminAction));
 
     private ReasonRevoked(int value, string name) : base(value, name)
     {

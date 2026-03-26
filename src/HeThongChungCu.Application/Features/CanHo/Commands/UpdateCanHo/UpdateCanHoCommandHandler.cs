@@ -56,6 +56,9 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
 
         _canHoRepository.Update(canHo);
 
+        var toaNha = await _toaNhaRepository.GetToaNhaByTangIdAsync(canHo.TangId, cancellationToken);
+        var tang = toaNha!.Tangs.First(t => t.Id == canHo.TangId);
+
         return Result.Success(new CanHoDetailResponse
         {
             Id = canHo.Id,
@@ -63,7 +66,7 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
             TenCanHo = canHo.TenCanHo,
             DienTich = canHo.DienTich,
             TangId = canHo.TangId,
-            TenTang = canHo.Tang?.TenTang ?? string.Empty,
+            TenTang = tang.TenTang,
             SoPhongNgu = canHo.SoPhongNgu,
             SoPhongTam = canHo.SoPhongTam,
             LoaiCanHoId = canHo.LoaiCanHoId.Value,

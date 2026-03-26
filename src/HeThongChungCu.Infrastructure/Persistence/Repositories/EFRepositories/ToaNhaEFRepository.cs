@@ -12,7 +12,7 @@ public class ToaNhaEFRepository : IToaNhaEFRepository
         _dbContext = dbContext;
     }
 
-    public async Task<ToaNha?> GetToaNhaById(int id, CancellationToken cancellationToken = default)
+    public async Task<ToaNha?> GetToaNhaByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<ToaNha>()
             .Include(t => t.Tangs.Where(tang => !tang.IsDeleted))
@@ -22,7 +22,7 @@ public class ToaNhaEFRepository : IToaNhaEFRepository
                 cancellationToken);
     }
 
-    public async Task<ToaNha?> GetToaNhaByTangId(int tangId, CancellationToken cancellationToken = default)
+    public async Task<ToaNha?> GetToaNhaByTangIdAsync(int tangId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<ToaNha>()
             .Include(t => t.Tangs.Where(tang => !tang.IsDeleted))

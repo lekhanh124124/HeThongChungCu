@@ -13,7 +13,7 @@ public class LaiChamTra : BaseEntity
 
     private LaiChamTra() { } // EF Core
 
-    public LaiChamTra(int hoaDonId, DateTime ngayTinh, decimal soTienGoc, int soNgayCham, decimal laiSuat, decimal soTienLai)
+    internal LaiChamTra(int hoaDonId, DateTime ngayTinh, decimal soTienGoc, int soNgayCham, decimal laiSuat, decimal soTienLai)
     {
         HoaDonId = hoaDonId;
         NgayTinh = ngayTinh;

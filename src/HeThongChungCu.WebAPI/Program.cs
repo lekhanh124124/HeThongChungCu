@@ -61,7 +61,7 @@ namespace HeThongChungCu.WebAPI
                         .GetRequiredService<ApplicationDbContextInitialiser>();
 
                     await initialiser.InitialiseAsync();
-                    await initialiser.SeedAsync();
+                    initialiser.Seed();
                 }
                 catch (Exception ex)
                 {

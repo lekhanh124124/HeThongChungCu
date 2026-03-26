@@ -30,5 +30,10 @@ public interface IEmailService
         string assessmentName,
         CancellationToken cancellationToken = default);
 
+    Task SendIdentificationEmailAsync(
+        string to,
+        string identificationLink,
+        CancellationToken cancellationToken = default);
+
     string MaskEmail(string email);
 }

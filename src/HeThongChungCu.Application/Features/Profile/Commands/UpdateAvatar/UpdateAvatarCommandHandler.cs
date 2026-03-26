@@ -1,10 +1,17 @@
+using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Services;
+using HeThongChungCu.Application.Common.Options;
+using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Errors;
 using Microsoft.Extensions.Options;
 
 namespace HeThongChungCu.Application.Features.Profile.Commands.UpdateAvatar;
 
 public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, string>
 {
-    private readonly IUserEFRepository _userRepository;
+    private readonly INguoiDungEFRepository _userRepository;
+    private readonly ITaiKhoanEFRepository _accountRepository;
+    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IFileStorageService _fileStorageService;
     private readonly FileStorageOptions _fileStorageOptions;
@@ -12,7 +19,9 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
     private readonly IDateTimeProvider _dateTimeProvider;
 
     public UpdateAvatarCommandHandler(
-        IUserEFRepository userRepository,
+        INguoiDungEFRepository userRepository,
+        ITaiKhoanEFRepository accountRepository,
+        ITepTaiLieuRepository tepTaiLieuRepository,
         ICurrentUserService currentUserService,
         IFileStorageService fileStorageService,
         IOptions<FileStorageOptions> fileStorageOptions,
@@ -20,6 +29,8 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
         IDateTimeProvider dateTimeProvider)
     {
         _userRepository = userRepository;
+        _accountRepository = accountRepository;
+        _tepTaiLieuRepository = tepTaiLieuRepository;
         _currentUserService = currentUserService;
         _fileStorageService = fileStorageService;
         _fileStorageOptions = fileStorageOptions.Value;
@@ -29,17 +40,19 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
 
     public async Task<Result<string>> Handle(UpdateAvatarCommand request, CancellationToken cancellationToken)
     {
-        var userId = _currentUserService.UserId;
-        if (userId == null)
+        var accountId = _currentUserService.AccountId;
+        if (accountId == null)
         {
-            return Result.Failure<string>(UserErrors.NotFound);
+            return Result.Failure<string>(AuthErrors.InvalidCredentials);
         }
 
-        var user = await _userRepository.GetByIdAsync(userId.Value, cancellationToken);
-        if (user == null)
+        var account = await _accountRepository.GetWithAvatarAsync(accountId.Value, cancellationToken);
+        if (account == null)
         {
-            return Result.Failure<string>(UserErrors.NotFound);
+            return Result.Failure<string>(AuthErrors.InvalidCredentials);
         }
+
+        var identifier = account.TenDangNhap;
 
         // 2. Reset stream position (just in case)
         if (request.AvatarStream.CanSeek)
@@ -50,7 +63,7 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
         // 3. Upload New Avatar
         var extension = Path.GetExtension(request.FileName).ToLowerInvariant();
 
-        var fileName = $"{user.Username}{extension}";
+        var fileName = $"{identifier}{extension}";
 
         var normalizedFileName = _fileStorageService.UrlNormalization(
             fileName,
@@ -63,23 +76,17 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
             request.ContentType,
             cancellationToken);
 
-        // 4. Update Database
-        var oldAvatarUrl = user.AnhDaiDienUrl;
-        user.UpdateAvatar(avatarUrl);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        // 4. Create TepTaiLieu
+        var tepTaiLieu = new TepTaiLieu(request.FileName, avatarUrl, request.AvatarStream.Length, request.ContentType);
+        tepTaiLieu.MarkAsUsed();
+        await _tepTaiLieuRepository.AddAsync(tepTaiLieu, cancellationToken);
 
-        // 5. Delete Old Avatar (if exists and different)
-        if (!string.IsNullOrEmpty(oldAvatarUrl) && oldAvatarUrl != avatarUrl)
-        {
-            try
-            {
-                await _fileStorageService.DeleteFileAsync(oldAvatarUrl, _fileStorageOptions.UserAvatarContainer, cancellationToken);
-            }
-            catch
-            {
-                // Log warning but don't fail the request since the new one is already set
-            }
-        }
+        // 5. Update Database
+        var oldAvatar = account.AnhDaiDien;
+        oldAvatar?.MarkAsUnused();
+
+        account.UpdateAvatar(tepTaiLieu);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return avatarUrl;
     }

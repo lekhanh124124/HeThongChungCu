@@ -8,7 +8,7 @@ public class BangGiaLuyTienConfiguration : IEntityTypeConfiguration<BangGiaLuyTi
 {
     public void Configure(EntityTypeBuilder<BangGiaLuyTien> builder)
     {
-        builder.ToTable("BangGiaLuyTiens");
+        builder.ToTable("BangGiaLuyTien");
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.DonGia)

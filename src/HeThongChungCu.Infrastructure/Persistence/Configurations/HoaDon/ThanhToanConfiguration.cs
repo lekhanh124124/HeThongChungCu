@@ -9,7 +9,7 @@ public class ThanhToanConfiguration : IEntityTypeConfiguration<ThanhToan>
 {
     public void Configure(EntityTypeBuilder<ThanhToan> builder)
     {
-        builder.ToTable("ThanhToans");
+        builder.ToTable("ThanhToan");
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.SoTien)

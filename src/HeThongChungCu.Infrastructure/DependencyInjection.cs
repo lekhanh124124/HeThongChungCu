@@ -3,8 +3,12 @@ using HeThongChungCu.Infrastructure.Email;
 using HeThongChungCu.Infrastructure.FileStorage;
 using HeThongChungCu.Infrastructure.HealthChecks;
 using HeThongChungCu.Infrastructure.Persistence;
+using HeThongChungCu.Infrastructure.Persistence.Repositories.EFRepositories;
 using HeThongChungCu.Infrastructure.Qdrant;
 using HeThongChungCu.Infrastructure.Services;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace HeThongChungCu.Infrastructure;
 
@@ -19,7 +23,6 @@ public static class DependencyInjection
         services.AddEmail(configuration);
         services.AddQdrantVectorStore(configuration);
         services.AddFileStorage(configuration);
-
         return services;
     }
 }

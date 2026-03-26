@@ -1,5 +1,5 @@
-using HeThongChungCu.Application.Features.PhuongTien.DTOs;
-using HeThongChungCu.Application.Features.PhuongTien.Queries.LayDSPhuongTienTrongChungCu;
+using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
+using HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSPhuongTienTrongChungCu;
 
 namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 

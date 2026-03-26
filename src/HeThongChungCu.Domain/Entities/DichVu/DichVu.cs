@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
 
 namespace HeThongChungCu.Domain.Entities;

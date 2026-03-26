@@ -8,7 +8,7 @@ public class LaiChamTraConfiguration : IEntityTypeConfiguration<LaiChamTra>
 {
     public void Configure(EntityTypeBuilder<LaiChamTra> builder)
     {
-        builder.ToTable("LaiChamTras");
+        builder.ToTable("LaiChamTra");
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.SoTienGoc)

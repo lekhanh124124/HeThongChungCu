@@ -4,7 +4,7 @@ using HeThongChungCu.Application.Common.Interfaces.Services;
 
 namespace HeThongChungCu.Infrastructure.FileStorage;
 
-public class FileStorageService : IFileStorageService
+public partial class FileStorageService : IFileStorageService
 {
     private readonly BlobServiceClient _blobServiceClient;
 
@@ -41,11 +41,12 @@ public class FileStorageService : IFileStorageService
         return blobClient.Uri.ToString();
     }
 
-    public async Task DeleteFileAsync(string fileUrl, string containerName, CancellationToken cancellationToken = default)
+    public async Task DeleteFileAsync(string fileUrl, string? containerName, CancellationToken cancellationToken = default)
     {
-        var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-
         var blobUriBuilder = new BlobUriBuilder(new Uri(fileUrl));
+        var effectiveContainerName = string.IsNullOrEmpty(containerName) ? blobUriBuilder.BlobContainerName : containerName;
+        var containerClient = _blobServiceClient.GetBlobContainerClient(effectiveContainerName);
+
         var blobName = blobUriBuilder.BlobName;
 
         var blobClient = containerClient.GetBlobClient(blobName);
@@ -60,12 +61,17 @@ public class FileStorageService : IFileStorageService
         // NormalizedName: lowercase, replace spaces/special chars with hyphens, allow letters, numbers, hyphens, underscores, dots
         // Allowed chars: a-z, 0-9, ., _, -
         var normalizedName = nameWithoutExtension.ToLower().Trim();
-        normalizedName = System.Text.RegularExpressions.Regex.Replace(normalizedName, @"[^a-z0-9._-]", "-");
-        normalizedName = System.Text.RegularExpressions.Regex.Replace(normalizedName, @"-+", "-");
+        normalizedName = MyRegex().Replace(normalizedName, "-");
+        normalizedName = MyRegex1().Replace(normalizedName, "-");
 
         // Format: 240927-153045
         var timeStr = timestamp.ToString("yyMMdd-HHmmss");
 
         return $"{normalizedName}-{timeStr}{extension}";
     }
+
+    [System.Text.RegularExpressions.GeneratedRegex(@"[^a-z0-9._-]")]
+    private static partial System.Text.RegularExpressions.Regex MyRegex();
+    [System.Text.RegularExpressions.GeneratedRegex(@"-+")]
+    private static partial System.Text.RegularExpressions.Regex MyRegex1();
 }

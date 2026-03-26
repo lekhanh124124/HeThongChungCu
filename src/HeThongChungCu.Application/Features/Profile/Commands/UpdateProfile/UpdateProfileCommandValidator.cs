@@ -21,12 +21,9 @@ public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileComm
             .MaximumLength(50).WithMessage("Tên không quá 50 ký tự.");
 
         RuleFor(x => x.PhoneNumber)
-            .NotEmpty().WithMessage("Số điện thoại không được để trống.")
-            .Matches(@"^\d{10,11}$").WithMessage("Số điện thoại không hợp lệ.");
-
-        RuleFor(x => x.IdCard)
-            .NotEmpty().WithMessage("CMND/CCCD không được để trống.")
-            .MaximumLength(20).WithMessage("CMND/CCCD không quá 20 ký tự.");
+            .Matches(@"^\d{10,11}$")
+            .WithMessage("Số điện thoại không hợp lệ.")
+            .When(x => !string.IsNullOrEmpty(x.PhoneNumber));
 
         RuleFor(x => x.Dob)
             .NotEmpty().WithMessage("Ngày sinh không được để trống.")

@@ -6,14 +6,14 @@ namespace HeThongChungCu.Application.Features.CuDan.Queries.LayThongTinCuDan;
 
 public class LayThongTinCuDanQueryHandler : IQueryHandler<LayThongTinCuDanQuery, LayThongTinCuDanResponse>
 {
-    private readonly IUserDapperRepository _userRepository;
+    private readonly INguoiDungDapperRepository _nguoiDungRepository;
     private readonly IQuanHeCuTruDapperRepository _quanHeCuTruRepository;
 
     public LayThongTinCuDanQueryHandler(
-        IUserDapperRepository userRepository, 
+        INguoiDungDapperRepository nguoiDungRepository, 
         IQuanHeCuTruDapperRepository quanHeCuTruRepository)
     {
-        _userRepository = userRepository;
+        _nguoiDungRepository = nguoiDungRepository;
         _quanHeCuTruRepository = quanHeCuTruRepository;
     }
 

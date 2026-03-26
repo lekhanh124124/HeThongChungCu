@@ -5,8 +5,7 @@ public class LayThongTinCuDanResponse
     // Thông tin người dùng
     public int UserId { get; set; }
     public string FullName { get; set; } = string.Empty;
-    public string PhoneNumber { get; set; } = string.Empty;
-    public string IdCard { get; set; } = string.Empty;
+    public string? PhoneNumber { get; set; }
     public DateTime Dob { get; set; }
     public int GioiTinhId { get; set; }
     public string GioiTinhName { get; set; } = string.Empty;
@@ -19,4 +18,5 @@ public class LayThongTinCuDanResponse
     public int LoaiQuanHeCuTruId { get; set; }
     public string LoaiQuanHeTen { get; set; } = string.Empty;
     public DateTime NgayBatDau { get; set; }
+    public string? IdCard { get; set; }
 }

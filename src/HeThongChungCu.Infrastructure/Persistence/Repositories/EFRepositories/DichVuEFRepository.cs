@@ -23,6 +23,11 @@ public class DichVuEFRepository : IDichVuEFRepository
         return await _context.Set<DichVu>().ToListAsync(cancellationToken);
     }
 
+    public async Task<bool> MaDichVuExistsAsync(string maDichVu, CancellationToken cancellationToken = default)
+    {
+        return await _context.DichVus.AnyAsync(x => x.MaDichVu == maDichVu && !x.IsDeleted, cancellationToken);
+    }
+
     public async Task AddAsync(DichVu dichVu, CancellationToken cancellationToken = default)
     {
         await _context.Set<DichVu>().AddAsync(dichVu, cancellationToken);

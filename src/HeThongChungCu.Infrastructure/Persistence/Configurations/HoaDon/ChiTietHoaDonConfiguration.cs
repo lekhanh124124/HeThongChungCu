@@ -9,7 +9,7 @@ public class ChiTietHoaDonConfiguration : IEntityTypeConfiguration<ChiTietHoaDon
 {
     public void Configure(EntityTypeBuilder<ChiTietHoaDon> builder)
     {
-        builder.ToTable("ChiTietHoaDons");
+        builder.ToTable("ChiTietHoaDon");
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.LoaiChiTietId)

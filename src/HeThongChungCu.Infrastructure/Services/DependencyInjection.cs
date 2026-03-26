@@ -7,6 +7,8 @@ public static class DependencyInjection
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IDateTimeProvider, DateTimeProvider>();
+        services.AddHostedService<CleanupUnusedFilesService>();
 
         return services;
     }

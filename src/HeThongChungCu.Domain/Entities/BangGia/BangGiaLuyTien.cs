@@ -12,7 +12,7 @@ public class BangGiaLuyTien : BaseEntity
 
     private BangGiaLuyTien() { } // EF Core
 
-    public BangGiaLuyTien(int bangGiaId, double tuMuc, double? denMuc, decimal donGia)
+    internal BangGiaLuyTien(int bangGiaId, double tuMuc, double? denMuc, decimal donGia)
     {
         if (denMuc.HasValue && denMuc.Value <= tuMuc)
             throw new BusinessException("Đến số phải lớn hơn Từ số.");
@@ -24,18 +24,5 @@ public class BangGiaLuyTien : BaseEntity
         TuMuc = tuMuc;
         DenMuc = denMuc;
         DonGia = donGia;
-    }
-
-    public void ValidateWithPrevious(BangGiaLuyTien? previous)
-    {
-        if (previous == null)
-        {
-            if (TuMuc != 0)
-                throw new BusinessException("Bậc đầu tiên phải bắt đầu từ 0.");
-            return;
-        }
-
-        if (TuMuc != previous.DenMuc)
-            throw new BusinessException("Các bậc thang phải liên tục (không có khoảng trống hoặc chồng lấn).");
     }
 }

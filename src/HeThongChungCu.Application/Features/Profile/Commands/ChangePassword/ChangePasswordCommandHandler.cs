@@ -1,43 +1,51 @@
+using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Services;
+using HeThongChungCu.Domain.Common;
+
 namespace HeThongChungCu.Application.Features.Profile.Commands.ChangePassword;
 
 public class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordCommand, string>
 {
-    private readonly IUserEFRepository _userRepository;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly ITaiKhoanEFRepository _accountRepository;
+    private readonly IHasherService _hasherService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IUnitOfWork _unitOfWork;
 
     public ChangePasswordCommandHandler(
-        IUserEFRepository userRepository,
-        IPasswordHasher passwordHasher,
-        ICurrentUserService currentUserService)
+        ITaiKhoanEFRepository accountRepository,
+        IHasherService hasherService,
+        ICurrentUserService currentUserService,
+        IUnitOfWork unitOfWork)
     {
-        _userRepository = userRepository;
-        _passwordHasher = passwordHasher;
+        _accountRepository = accountRepository;
+        _hasherService = hasherService;
         _currentUserService = currentUserService;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<string>> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
     {
-        if (_currentUserService.UserId is null)
+        if (_currentUserService.AccountId is null)
         {
             return Result.Failure<string>(AuthErrors.InvalidCredentials);
         }
 
-        var user = await _userRepository.GetByIdAsync(_currentUserService.UserId.Value, cancellationToken);
-        if (user is null)
+        var account = await _accountRepository.GetByIdAsync(_currentUserService.AccountId.Value, cancellationToken);
+        if (account is null)
         {
             return Result.Failure<string>(AuthErrors.InvalidCredentials);
         }
 
-        if (!_passwordHasher.VerifyPassword(request.OldPassword, user.PasswordHash))
+        if (!_hasherService.VerifyPassword(request.OldPassword, account.MatKhauHash))
         {
             return Result.Failure<string>(AuthErrors.InvalidOldPassword);
         }
 
-        var newPasswordHash = _passwordHasher.HashPassword(request.NewPassword);
-        user.UpdatePassword(newPasswordHash);
+        var newPasswordHash = _hasherService.HashPassword(request.NewPassword);
+        account.UpdatePassword(newPasswordHash);
 
-        _userRepository.Update(user);
+        _accountRepository.Update(account);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success("Thay đổi mật khẩu thành công.");
     }

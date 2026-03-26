@@ -1,61 +1,78 @@
+using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.Auth.DTOs;
+using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Errors;
 using System.Security.Cryptography;
 
 namespace HeThongChungCu.Application.Features.Auth.Commands.Login;
 
 public class LoginCommandHandler : ICommandHandler<LoginCommand, AuthResponse>
 {
-    private readonly IUserEFRepository _userRepository;
-    private readonly IPasswordHasher _passwordHasher;
+    private readonly ITaiKhoanEFRepository _accountRepository;
+    private readonly INguoiDungEFRepository _userRepository;
+    private readonly IHasherService _hasherService;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IUnitOfWork _unitOfWork;
 
     public LoginCommandHandler(
-        IUserEFRepository userRepository,
-        IPasswordHasher passwordHasher,
+        ITaiKhoanEFRepository accountRepository,
+        INguoiDungEFRepository userRepository,
+        IHasherService hasherService,
         IJwtTokenGenerator jwtTokenGenerator,
-        IDateTimeProvider dateTimeProvider)
+        IDateTimeProvider dateTimeProvider,
+        IUnitOfWork unitOfWork)
     {
+        _accountRepository = accountRepository;
         _userRepository = userRepository;
-        _passwordHasher = passwordHasher;
+        _hasherService = hasherService;
         _jwtTokenGenerator = jwtTokenGenerator;
         _dateTimeProvider = dateTimeProvider;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<AuthResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
-        // Find User
-        var user = await _userRepository.GetByUsernameAsync(request.Username, cancellationToken);
+        // Find Account
+        var account = await _accountRepository.GetByTenDangNhapAsync(request.Username, cancellationToken);
 
-        if (user is null)
+        if (account is null || !account.IsActive)
         {
             return Result.Failure<AuthResponse>(AuthErrors.InvalidCredentials);
         }
 
         // Check Password
-        if (!_passwordHasher.VerifyPassword(request.Password, user.PasswordHash))
+        if (!_hasherService.VerifyPassword(request.Password, account.MatKhauHash))
         {
             return Result.Failure<AuthResponse>(AuthErrors.InvalidCredentials);
         }
 
+        // Get User details
+        var user = account.NguoiDungId.HasValue 
+            ? await _userRepository.GetByIdAsync(account.NguoiDungId.Value, cancellationToken)
+            : null;
+
         // Get Roles
-        Role role = user.RoleId;
+        var roles = account.PhanQuyens.Select(pq => pq.RoleId.Name).ToList();
 
-        var roles = new List<string> { role.Name };
-
-        var accessToken = _jwtTokenGenerator.GenerateToken(user.Id, user.Username, roles);
+        var accessToken = _jwtTokenGenerator.GenerateToken(account.Id, account.TenDangNhap, roles, account.NguoiDungId);
         var refreshTokenString = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-
-        user.AddRefreshToken(refreshTokenString, _dateTimeProvider.UtcNow.AddDays(7));
+        var refreshTokenHash = _hasherService.HashToken(refreshTokenString);
+ 
+        account.AddRefreshToken(refreshTokenHash, _dateTimeProvider.UtcNow.AddDays(7));
+        _accountRepository.Update(account);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new AuthResponse
         {
-            UserId = user.Id,
-            Username = user.Username,
-            Email = user.Email,
-            AnhDaiDienUrl = user.AnhDaiDienUrl ?? string.Empty,
-            Role = role.Name,
-            FullName = $"{user.LastName} {user.FirstName}",
+            UserId = user?.Id,
+            AccountId = account.Id,
+            Username = account.TenDangNhap,
+            Email = account.Email,
+            AnhDaiDienUrl = account.AnhDaiDien?.FileUrl ?? string.Empty,
+            Role = string.Join(", ", roles),
+            FullName = user != null ? $"{user.Ho} {user.Ten}" : "Khách",
             AccessToken = accessToken,
             RefreshToken = refreshTokenString
         });

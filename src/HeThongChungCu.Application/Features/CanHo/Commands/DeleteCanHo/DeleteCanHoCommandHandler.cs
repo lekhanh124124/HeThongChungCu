@@ -7,15 +7,18 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
     private readonly ICanHoEFRepository _canHoRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IQuanHeCuTruEFRepository _quanHeCuTruRepository;
+    private readonly IToaNhaEFRepository _toaNhaRepository;
 
     public DeleteCanHoCommandHandler(
-        ICanHoEFRepository canHoRepository, 
+        ICanHoEFRepository canHoRepository,
         IUnitOfWork unitOfWork,
-        IQuanHeCuTruEFRepository quanHeCuTruRepository)
+        IQuanHeCuTruEFRepository quanHeCuTruRepository,
+        IToaNhaEFRepository toaNhaRepository)
     {
         _canHoRepository = canHoRepository;
         _unitOfWork = unitOfWork;
         _quanHeCuTruRepository = quanHeCuTruRepository;
+        _toaNhaRepository = toaNhaRepository;
     }
 
     public async Task<Result<IReadOnlyList<CanHoDetailResponse>>> Handle(DeleteCanHoCommand request, CancellationToken cancellationToken)
@@ -31,6 +34,10 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
                 $"Không tìm thấy căn hộ với ID: {ids}."));
         }
 
+        var tangIds = canHos.Select(c => c.TangId).Distinct().ToList();
+        var tangs = await _toaNhaRepository.GetTangByIdsAsync(tangIds, cancellationToken);
+        var tangDict = tangs.ToDictionary(t => t.Id, t => t.TenTang);
+
         var response = canHos.Select(c => new CanHoDetailResponse
         {
             Id = c.Id,
@@ -38,7 +45,7 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
             DienTich = c.DienTich,
             TenCanHo = c.TenCanHo,
             TangId = c.TangId,
-            TenTang = c.Tang?.TenTang ?? string.Empty,
+            TenTang = tangDict.GetValueOrDefault(c.TangId, string.Empty),
             SoPhongNgu = c.SoPhongNgu,
             SoPhongTam = c.SoPhongTam,
             LoaiCanHoId = c.LoaiCanHoId.Value,
@@ -51,7 +58,7 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
         {
             var relations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
             bool hasActiveResidents = relations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
-            
+
             canHo.Delete(hasActiveResidents);
             _canHoRepository.Remove(canHo);
         }

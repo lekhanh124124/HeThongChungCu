@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Domain.Events;
+using HeThongChungCu.Domain.Events;
 using Microsoft.Extensions.Logging;
 
 namespace HeThongChungCu.Application.Features.Auth.EventHandlers;
@@ -14,7 +14,7 @@ public class UserRegisteredEventHandler : INotificationHandler<UserRegisteredEve
 
     public Task Handle(UserRegisteredEvent notification, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Domain Event Received: UserRegisteredEvent triggered for Username {Username} (UserId: {UserId})", notification.Username, notification.UserId);
+        _logger.LogInformation("Domain Event Received: UserRegisteredEvent triggered for Username {Username} (UserId: {UserId})", notification.TenDangNhap, notification.NguoiDungId);
 
         return Task.CompletedTask;
     }

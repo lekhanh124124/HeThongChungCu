@@ -5,45 +5,29 @@ namespace HeThongChungCu.Domain.Entities;
 
 public class Tokens : BaseEntity
 {
-    public string RefreshToken { get; private set; } = string.Empty;
+    public string TokenHash { get; private set; } = string.Empty;
     public DateTimeOffset ExpiresDate { get; private set; }
-    public int UserId { get; private set; }
+    public int AccountId { get; private set; }
     public TokenType TokenType { get; private set; } = TokenType.RefreshToken;
 
     // Security fields
-    public bool IsRevoked { get; private set; }
-    public DateTimeOffset? RevokedAt { get; private set; }
-    public ReasonRevoked? ReasonRevoked { get; private set; }
+    public bool IsRevoked { get; internal set; }
+    public DateTimeOffset? RevokedAt { get; internal set; }
+    public ReasonRevoked? ReasonRevoked { get; internal set; }
 
     public bool IsExpired => DateTimeOffset.UtcNow >= ExpiresDate;
     public bool IsActive => !IsRevoked && !IsExpired;
 
-    public User User { get; private set; } = null!;
+    public int TaiKhoanId { get; private set; }
+    public TaiKhoan TaiKhoan { get; private set; } = null!;
 
     private Tokens() { } // EF core
 
-    internal Tokens(int userId, string tokenValue, DateTimeOffset expiresDate, TokenType tokenType)
+    internal Tokens(int taiKhoanId, string tokenHash, DateTimeOffset expiresDate, TokenType tokenType)
     {
-        UserId = userId;
-        RefreshToken = tokenValue; // Reuse the field
+        TaiKhoanId = taiKhoanId;
+        TokenHash = tokenHash;
         ExpiresDate = expiresDate;
         TokenType = tokenType;
-    }
-
-    internal static Tokens CreateResetPasswordToken(int userId, string code, DateTimeOffset expiresDate)
-    {
-        return new Tokens(userId, code, expiresDate, TokenType.ResetPasswordCode);
-    }
-
-    internal static Tokens CreateRefreshToken(int userId, string token, DateTimeOffset expiresDate)
-    {
-        return new Tokens(userId, token, expiresDate, TokenType.RefreshToken);
-    }
-
-    public void Revoke(DateTimeOffset revokedAt, ReasonRevoked reason)
-    {
-        IsRevoked = true;
-        RevokedAt = revokedAt;
-        ReasonRevoked = reason;
     }
 }

@@ -19,7 +19,7 @@ public class ChiTietHoaDon : BaseEntity
 
     private ChiTietHoaDon() { } // EF Core
 
-    public ChiTietHoaDon(
+    internal ChiTietHoaDon(
         int hoaDonId,
         LoaiChiTietHoaDon loaiChiTietId,
         int dichVuId,
