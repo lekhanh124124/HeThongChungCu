@@ -13,20 +13,17 @@ public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuT
     private readonly IYeuCauCuTruEFRepository _yeuCauRepository;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public CapNhatYeuCauCuTruCommandHandler(
         IYeuCauCuTruEFRepository yeuCauRepository,
         ITepTaiLieuRepository tepTaiLieuRepository,
         ICurrentUserService currentUserService,
-        IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)
     {
         _yeuCauRepository = yeuCauRepository;
         _tepTaiLieuRepository = tepTaiLieuRepository;
         _currentUserService = currentUserService;
-        _dateTimeProvider = dateTimeProvider;
         _unitOfWork = unitOfWork;
     }
 
@@ -43,11 +40,9 @@ public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuT
         if (yeuCau.CreatedBy != userId)
             return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.Forbidden);
 
-        var currentTime = _dateTimeProvider.UtcNow;
-
         if (request.IsWithdraw)
         {
-            yeuCau.Withdraw(userId.Value, currentTime);
+            yeuCau.Withdraw();
         }
         else
         {
@@ -90,13 +85,11 @@ public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuT
                 request.DiaChi,
                 request.LoaiQuanHeId ?? yeuCau.YeuCauLoaiQuanHeId, // Use existing if null? Actually command should probably send full state or handle partial
                 request.NoiDung,
-                requestDocuments,
-                userId.Value,
-                currentTime);
+                requestDocuments);
 
             if (request.IsSubmit)
             {
-                yeuCau.Submit(userId.Value, currentTime);
+                yeuCau.Submit();
             }
         }
 

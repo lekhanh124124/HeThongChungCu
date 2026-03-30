@@ -8,8 +8,6 @@ public class YeuCauCuTru : AggregateRoot
 {
     public int CanHoId { get; private set; }
 
-    // Removed direct navigate for consistency
-
     public LoaiYeuCau LoaiYeuCauId { get; private set; } = null!;
 
     public TrangThaiYeuCau TrangThaiId { get; private set; } = null!;
@@ -17,7 +15,7 @@ public class YeuCauCuTru : AggregateRoot
     public string? NoiDung { get; private set; }
 
     public int? NguoiXuLyId { get; private set; }
-    public DateTime? NgayXuLy { get; private set; }
+    public DateTimeOffset? NgayXuLy { get; private set; }
 
     // Proposed changes to User Info (used for 'Them' or 'Sua')
     public int? YeuCauQuanHeCuTruId { get; private set; }
@@ -47,7 +45,6 @@ public class YeuCauCuTru : AggregateRoot
 
     public static YeuCauCuTru CreateAddMemberRequest(
         int canHoId,
-        int taiKhoanYeuCauId,
         int? quanHeCuTruYeuCauId,
         int loaiQuanHeYeuCauId,
         string? tenYeuCau,
@@ -59,7 +56,6 @@ public class YeuCauCuTru : AggregateRoot
         string? diaChiYeuCau,
         string? noiDung,
         IEnumerable<YeuCauTaiLieuCuTru>? documents,
-        DateTimeOffset createdAt,
         TrangThaiYeuCau? initialStatus = null)
     {
         var request = new YeuCauCuTru(canHoId, LoaiYeuCau.Them, noiDung, initialStatus)
@@ -83,13 +79,11 @@ public class YeuCauCuTru : AggregateRoot
             }
         }
 
-        request.SetCreated(taiKhoanYeuCauId, createdAt);
         return request;
     }
 
     public static YeuCauCuTru CreateUpdateMemberRequest(
         int canHoId,
-        int requesterAccountId,
         int quanHeCuTruId,
         int? newLoaiQuanHeId,
         string? firstName,
@@ -101,7 +95,6 @@ public class YeuCauCuTru : AggregateRoot
         string? diaChi,
         string? noiDung,
         IEnumerable<YeuCauTaiLieuCuTru>? documents,
-        DateTimeOffset createdAt,
         TrangThaiYeuCau? initialStatus = null)
     {
         var request = new YeuCauCuTru(canHoId, LoaiYeuCau.Sua, noiDung, initialStatus)
@@ -125,27 +118,23 @@ public class YeuCauCuTru : AggregateRoot
             }
         }
 
-        request.SetCreated(requesterAccountId, createdAt);
         return request;
     }
 
     public static YeuCauCuTru CreateRemoveMemberRequest(
         int canHoId,
-        int requesterAccountId,
         int quanHeCuTruId,
         string? noiDung,
-        DateTimeOffset createdAt,
         TrangThaiYeuCau? initialStatus = null)
     {
         var request = new YeuCauCuTru(canHoId, LoaiYeuCau.Xoa, noiDung, initialStatus)
         {
             YeuCauQuanHeCuTruId = quanHeCuTruId
         };
-        request.SetCreated(requesterAccountId, createdAt);
         return request;
     }
 
-    public void Approve(int adminId, DateTime processedAt)
+    public void Approve(int adminId, DateTimeOffset processedAt)
     {
         if (TrangThaiId != TrangThaiYeuCau.Pending)
             throw new BusinessException("Chỉ có thể duyệt yêu cầu đang ở trạng thái chờ duyệt.");
@@ -155,7 +144,7 @@ public class YeuCauCuTru : AggregateRoot
         NgayXuLy = processedAt;
     }
 
-    public void Reject(int adminId, string lyDo, DateTime processedAt)
+    public void Reject(int adminId, string lyDo, DateTimeOffset processedAt)
     {
         if (TrangThaiId != TrangThaiYeuCau.Pending)
             throw new BusinessException("Chỉ có thể từ chối yêu cầu đang ở trạng thái chờ duyệt.");
@@ -179,9 +168,7 @@ public class YeuCauCuTru : AggregateRoot
         string? diaChi,
         int? loaiQuanHeId,
         string? noiDung,
-        IEnumerable<YeuCauTaiLieuCuTru>? documents,
-        int modifierAccountId,
-        DateTimeOffset updatedAt)
+        IEnumerable<YeuCauTaiLieuCuTru>? documents)
     {
         if (TrangThaiId != TrangThaiYeuCau.Saved)
             throw new BusinessException("Chỉ có thể chỉnh sửa yêu cầu đang ở trạng thái đã lưu.");
@@ -204,26 +191,22 @@ public class YeuCauCuTru : AggregateRoot
                 _yeuCauTaiLieuCuTrus.Add(doc);
             }
         }
-
-        SetModified(modifierAccountId, updatedAt);
     }
 
-    public void Submit(int modifierAccountId, DateTimeOffset updatedAt)
+    public void Submit()
     {
-        if (TrangThaiId != TrangThaiYeuCau.Saved)
-            throw new BusinessException("Chỉ có thể gửi yêu cầu đang ở trạng thái đã lưu.");
+        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Withdrawn)
+            throw new BusinessException("Chỉ có thể gửi yêu cầu đang ở trạng thái đã lưu hoặc đã thu hồi.");
 
         TrangThaiId = TrangThaiYeuCau.Pending;
-        SetModified(modifierAccountId, updatedAt);
     }
 
-    public void Withdraw(int modifierAccountId, DateTimeOffset updatedAt)
+    public void Withdraw()
     {
-        if (TrangThaiId != TrangThaiYeuCau.Saved)
-            throw new BusinessException("Chỉ có thể thu hồi yêu cầu đang ở trạng thái đã lưu.");
+        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Pending)
+            throw new BusinessException("Chỉ có thể thu hồi yêu cầu đang ở trạng thái đã lưu hoặc đang chờ duyệt.");
 
         TrangThaiId = TrangThaiYeuCau.Withdrawn;
-        SetModified(modifierAccountId, updatedAt);
     }
 
     public void Invalidate(string? lyDo)

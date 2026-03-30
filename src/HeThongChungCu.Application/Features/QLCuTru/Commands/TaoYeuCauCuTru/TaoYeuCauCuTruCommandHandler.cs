@@ -15,7 +15,6 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
     private readonly IQuanHeCuTruEFRepository _quanHeRepository;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public TaoYeuCauCuTruCommandHandler(
@@ -24,7 +23,6 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         IQuanHeCuTruEFRepository quanHeRepository,
         ITepTaiLieuRepository tepTaiLieuRepository,
         ICurrentUserService currentUserService,
-        IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)
     {
         _yeuCauRepository = yeuCauRepository;
@@ -32,7 +30,6 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         _quanHeRepository = quanHeRepository;
         _tepTaiLieuRepository = tepTaiLieuRepository;
         _currentUserService = currentUserService;
-        _dateTimeProvider = dateTimeProvider;
         _unitOfWork = unitOfWork;
     }
 
@@ -83,7 +80,6 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         {
             yeuCau = YeuCauCuTru.CreateAddMemberRequest(
                 request.CanHoId,
-                userId.Value,
                 request.TargetQuanHeCuTruId,
                 request.LoaiQuanHeId!.Value,
                 request.FirstName,
@@ -95,14 +91,12 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
                 request.DiaChi,
                 request.NoiDung,
                 requestDocuments,
-                _dateTimeProvider.Now,
                 initialStatus);
         }
         else if (loaiYeuCau == LoaiYeuCau.Sua)
         {
             yeuCau = YeuCauCuTru.CreateUpdateMemberRequest(
                 request.CanHoId,
-                userId.Value,
                 request.TargetQuanHeCuTruId!.Value,
                 request.LoaiQuanHeId,
                 request.FirstName,
@@ -114,17 +108,14 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
                 request.DiaChi,
                 request.NoiDung,
                 requestDocuments,
-                _dateTimeProvider.Now,
                 initialStatus);
         }
         else // Xoa
         {
             yeuCau = YeuCauCuTru.CreateRemoveMemberRequest(
                request.CanHoId,
-               userId.Value,
                request.TargetQuanHeCuTruId!.Value,
                request.NoiDung,
-               _dateTimeProvider.Now,
                initialStatus);
         }
 

@@ -7,6 +7,8 @@ using HeThongChungCu.Application.Features.QLPhuongTien.Commands.DangKyPhuongTien
 using HeThongChungCu.Application.Features.QLPhuongTien.Commands.KhoaThePhuongTien;
 using HeThongChungCu.Application.Features.QLPhuongTien.Commands.BaoMatThePhuongTien;
 using HeThongChungCu.Application.Features.QLPhuongTien.Commands.TaoThePhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.TaoYeuCauPhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatYeuCauPhuongTien;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 using HeThongChungCu.Application.Features.QLPhuongTien.Queries.GetPhuongTienById;
 using HeThongChungCu.Application.Features.QLPhuongTien.Queries.GoiYMaThePhuongTien;
@@ -219,6 +221,46 @@ public class PhuongTienController : ApiControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> BaoMatThe(
         [FromBody] BaoMatThePhuongTienCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Tạo yêu cầu về phương tiện (Thêm, Sửa, Xóa) - Dành cho cư dân
+    /// </summary>
+    /// <remarks>
+    /// API cho phép cư dân tạo các yêu cầu liên quan đến phương tiện của mình:
+    /// - **Thêm (LoaiYeuCauId = 1)**: Đăng ký xe mới cho căn hộ.
+    /// - **Sửa (LoaiYeuCauId = 2)**: Cập nhật thông tin xe hiện có (yêu cầu `PhuongTienId`).
+    /// - **Xóa (LoaiYeuCauId = 3)**: Hủy đăng ký xe hiện có (yêu cầu `PhuongTienId`).
+    /// </remarks>
+    [HttpPost("yeu-cau")]
+    [ProducesResponseType(typeof(ApiResponse<YeuCauPhuongTienResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> TaoYeuCauPhuongTien(
+        [FromBody] TaoYeuCauPhuongTienCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Cập nhật yêu cầu về phương tiện - Dành cho cư dân
+    /// </summary>
+    /// <remarks>
+    /// API cho phép cư dân cập nhật, gửi (Submit) hoặc thu hồi (Withdraw) yêu cầu phương tiện:
+    /// - **Cập nhật**: Chỉnh sửa thông tin khi yêu cầu đang ở trạng thái `Saved`.
+    /// - **Gửi (`IsSubmit = true`)**: Chuyển trạng thái yêu cầu từ `Saved` sang `Pending`.
+    /// - **Thu hồi (`IsWithdraw = true`)**: Chuyển trạng thái yêu cầu từ `Pending/Saved` sang `Withdrawn`.
+    /// </remarks>
+    [HttpPut("yeu-cau")]
+    [ProducesResponseType(typeof(ApiResponse<YeuCauPhuongTienResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CapNhatYeuCauPhuongTien(
+        [FromBody] CapNhatYeuCauPhuongTienCommand command,
         CancellationToken cancellationToken)
     {
         var result = await _sender.Send(command, cancellationToken);

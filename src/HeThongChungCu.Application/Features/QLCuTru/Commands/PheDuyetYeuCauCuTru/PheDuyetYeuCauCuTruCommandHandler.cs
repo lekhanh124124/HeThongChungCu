@@ -43,7 +43,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         if (yeuCau == null)
             return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.NotFound);
 
-        var now = _dateTimeProvider.UtcNow.DateTime;
+        var now = _dateTimeProvider.UtcNow;
         yeuCau.Approve(adminId.Value, now);
 
         // Logic Phê duyệt
@@ -97,7 +97,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
             // 3. Create Residency Relation
             var loaiQuanHe = LoaiQuanHeCuTru.FromValue(yeuCau.YeuCauLoaiQuanHeId!.Value, null);
             var existingRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(yeuCau.CanHoId, cancellationToken);
-            var quanHe = new QuanHeCuTru(yeuCau.CanHoId, newUser.Id, loaiQuanHe!, now, existingRelations);
+            var quanHe = new QuanHeCuTru(yeuCau.CanHoId, newUser.Id, loaiQuanHe!, now.DateTime, existingRelations);
 
             await _quanHeCuTruRepository.AddAsync(quanHe, cancellationToken);
         }
@@ -179,7 +179,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
             var relation = await _quanHeCuTruRepository.GetByIdAsync(yeuCau.YeuCauQuanHeCuTruId!.Value, cancellationToken);
             if (relation != null)
             {
-                relation.KetThucCuTru(now);
+                relation.KetThucCuTru(now.DateTime);
                 _quanHeCuTruRepository.Update(relation);
             }
         }

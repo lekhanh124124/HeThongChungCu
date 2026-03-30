@@ -23,7 +23,7 @@ public record YeuCauCuTruResponse
     public string TenTrangThai { get; init; } = null!;
     
     public DateTimeOffset CreatedAt { get; init; }
-    public DateTime? NgayXuLy { get; init; }
+    public DateTimeOffset? NgayXuLy { get; init; }
     public int? NguoiXuLyId { get; init; }
     
     public List<TaiLieuResponse> Documents { get; init; } = [];
