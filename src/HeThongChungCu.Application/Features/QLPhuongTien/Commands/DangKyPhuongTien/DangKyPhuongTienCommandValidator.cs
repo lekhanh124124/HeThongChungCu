@@ -33,5 +33,9 @@ public sealed class DangKyPhuongTienCommandValidator : AbstractValidator<DangKyP
             .WithMessage("Màu xe không được để trống.")
             .MaximumLength(50)
             .WithMessage("Màu xe không được vượt quá 50 ký tự.");
+
+        RuleForEach(x => x.HinhAnhIds)
+            .GreaterThan(0)
+            .WithMessage("ID hình ảnh không hợp lệ.");
     }
 }

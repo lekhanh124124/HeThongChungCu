@@ -1,9 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using HeThongChungCu.Domain.Entities;
-using HeThongChungCu.Domain.Enums;
-
 namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
 public class QuanHeCuTruConfiguration : IEntityTypeConfiguration<HeThongChungCu.Domain.Entities.QuanHeCuTru>

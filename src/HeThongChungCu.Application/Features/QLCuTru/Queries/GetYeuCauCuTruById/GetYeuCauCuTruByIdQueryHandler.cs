@@ -33,7 +33,7 @@ public class GetYeuCauCuTruByIdQueryHandler : IQueryHandler<GetYeuCauCuTruByIdQu
             TenLoaiYeuCau = yeuCau.LoaiYeuCauId.Name,
             TrangThaiId = yeuCau.TrangThaiId.Value,
             TenTrangThai = yeuCau.TrangThaiId.Name,
-            TargetQuanHeCuTruId = yeuCau.QuanHeCuTruId,
+            TargetQuanHeCuTruId = yeuCau.YeuCauQuanHeCuTruId,
 
             YeuCauTen = yeuCau.YeuCauTen,
             YeuCauHo = yeuCau.YeuCauHo,

@@ -47,6 +47,7 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<TepTaiLieu> TepTaiLieus => Set<TepTaiLieu>();
     public DbSet<YeuCauCuTru> YeuCauCuTrus => Set<YeuCauCuTru>();
     public DbSet<YeuCauTaiLieuCuTru> YeuCauTaiLieuCuTrus => Set<YeuCauTaiLieuCuTru>();
+    public DbSet<YeuCauPhuongTien> YeuCauPhuongTiens => Set<YeuCauPhuongTien>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

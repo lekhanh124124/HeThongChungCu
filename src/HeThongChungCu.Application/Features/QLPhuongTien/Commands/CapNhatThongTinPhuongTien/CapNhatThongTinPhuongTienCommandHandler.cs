@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
+using HeThongChungCu.Application.Features.UploadMedia.DTOs;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatThongTinPhuongTien;
 
@@ -7,23 +8,26 @@ internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<
     private readonly ICanHoEFRepository _canHoRepository;
     private readonly IToaNhaEFRepository _toaNhaEFRepository;
     private readonly IPhuongTienEFRepository _phuongTienEFRepository;
+    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CapNhatThongTinPhuongTienCommandHandler(
         ICanHoEFRepository canHoRepository,
         IToaNhaEFRepository toaNhaEFRepository,
         IPhuongTienEFRepository phuongTienEFRepository,
+        ITepTaiLieuRepository tepTaiLieuRepository,
         IUnitOfWork unitOfWork)
     {
         _phuongTienEFRepository = phuongTienEFRepository;
         _toaNhaEFRepository = toaNhaEFRepository;
         _canHoRepository = canHoRepository;
+        _tepTaiLieuRepository = tepTaiLieuRepository;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<PhuongTienResponse>> Handle(CapNhatThongTinPhuongTienCommand request, CancellationToken cancellationToken)
     {
-        
+
         var phuongTien = await _phuongTienEFRepository.GetPhuongTienByIdAsync(request.PhuongTienId, cancellationToken);
         if (phuongTien == null)
             return Result.Failure<PhuongTienResponse>(PhuongTienErrors.NotFound);
@@ -47,11 +51,18 @@ internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<
         if (tang == null)
             return Result.Failure<PhuongTienResponse>(CanHoErrors.NotFoundById(phuongTien.CanHoId));
 
-        phuongTien.UpdateInfo(
+        IEnumerable<TepTaiLieu>? hinhAnhs = null;
+        if (request.HinhAnhIds != null && request.HinhAnhIds.Count != 0)
+        {
+            hinhAnhs = await _tepTaiLieuRepository.GetByIdsAsync(request.HinhAnhIds, cancellationToken);
+        }
+
+        phuongTien.CapNhat(
             request.TenPhuongTien,
             LoaiPhuongTien.FromValue(request.LoaiPhuongTienId)!,
             request.BienSo,
-            request.MauXe);
+            request.MauXe,
+            hinhAnhs);
 
         _phuongTienEFRepository.Update(phuongTien);
 
@@ -77,8 +88,14 @@ internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<
                 MaThe = x.MaThe,
                 NgayBatDau = x.NgayBatDau,
                 NgayKetThuc = x.NgayKetThuc,
-                IsLocked = x.IsLocked,
-            }).ToList()
+                TrangThaiThePhuongTienId = x.TrangThaiId.Value,
+                TenTrangThaiThePhuongTien = x.TrangThaiId.Name,
+            }).ToList(),
+            HinhAnhPhuongTiens = phuongTien.HinhAnhPhuongTiens.Select(x => new UploadFileResponse(
+                x.Id,
+                x.FileName,
+                x.FileUrl,
+                x.ContentType)).ToList()
         });
     }
 }

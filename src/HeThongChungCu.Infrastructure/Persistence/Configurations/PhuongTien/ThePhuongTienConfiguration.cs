@@ -1,3 +1,5 @@
+using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,6 +18,12 @@ public class ThePhuongTienConfiguration : IEntityTypeConfiguration<ThePhuongTien
             .HasMaxLength(50);
 
         builder.HasIndex(t => t.MaThe).IsUnique();
+        
+        builder.Property(x => x.TrangThaiId)
+            .HasConversion(
+                v => v.Value,
+                v => TrangThaiThePhuongTien.FromValue(v, null)!)
+            .IsRequired();
 
         builder.HasOne<PhuongTien>()
             .WithMany(p => p.ThePhuongTiens)

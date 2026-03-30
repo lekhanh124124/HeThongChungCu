@@ -3,7 +3,9 @@ using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 using HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSPhuongTienTrongChungCu;
+using HeThongChungCu.Application.Features.UploadMedia.DTOs;
 using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Infrastructure.Persistence.Helpers;
 using HeThongChungCu.Infrastructure.Persistence.ReadModels;
 using Microsoft.EntityFrameworkCore;
@@ -137,9 +139,18 @@ internal sealed class PhuongTienDapperRepository : IPhuongTienDapperRepository
                 MaThe,
                 NgayBatDau,
                 NgayKetThuc,
-                IsLocked
+                TrangThaiId AS TrangThaiThePhuongTienId
             FROM ThePhuongTien
             WHERE PhuongTienId = @Id AND IsDeleted = 0;
+
+            SELECT
+                t.Id AS FileId,
+                t.FileName,
+                t.FileUrl,
+                t.ContentType
+            FROM TepTaiLieu t
+            INNER JOIN TepHinhAnhPhuongTien j ON j.HinhAnhPhuongTiensId = t.Id
+            WHERE j.PhuongTienId = @Id;
             """;
 
         using var multi = await connection.QueryMultipleAsync(sql, new { Id = id });
@@ -149,6 +160,10 @@ internal sealed class PhuongTienDapperRepository : IPhuongTienDapperRepository
             return null;
 
         var cards = (await multi.ReadAsync<ThePhuongTienResponse>()).ToList();
+        foreach (var card in cards)
+        {
+            card.TenTrangThaiThePhuongTien = TrangThaiThePhuongTien.FromValue(card.TrangThaiThePhuongTienId)?.Name ?? string.Empty;
+        }
 
         return new PhuongTienResponse
         {
@@ -164,7 +179,8 @@ internal sealed class PhuongTienDapperRepository : IPhuongTienDapperRepository
             MauXe = phuongTien.MauXe,
             TrangThaiPhuongTienId = phuongTien.TrangThaiPhuongTienId,
             TenTrangThaiPhuongTien = TrangThaiPhuongTien.FromValue(phuongTien.TrangThaiPhuongTienId)?.Name ?? string.Empty,
-            ThePhuongTiens = cards
+            ThePhuongTiens = cards,
+            HinhAnhPhuongTiens = (await multi.ReadAsync<UploadFileResponse>()).ToList()
         };
     }
 }

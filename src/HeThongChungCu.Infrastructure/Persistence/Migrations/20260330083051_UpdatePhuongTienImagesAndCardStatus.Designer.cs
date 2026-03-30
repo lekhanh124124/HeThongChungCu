@@ -4,16 +4,19 @@ using HeThongChungCu.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace HeThongChungCu.Infrastructure.Migrations
+namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260330083051_UpdatePhuongTienImagesAndCardStatus")]
+    partial class UpdatePhuongTienImagesAndCardStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1286,6 +1289,8 @@ namespace HeThongChungCu.Infrastructure.Migrations
 
                     b.HasIndex("CanHoId");
 
+                    b.HasIndex("YeuCauPhuongTienId");
+
                     b.ToTable("YeuCauPhuongTien", (string)null);
                 });
 
@@ -1563,6 +1568,11 @@ namespace HeThongChungCu.Infrastructure.Migrations
                         .HasForeignKey("CanHoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("HeThongChungCu.Domain.Entities.PhuongTien", null)
+                        .WithMany()
+                        .HasForeignKey("YeuCauPhuongTienId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.YeuCauTaiLieuCuTru", b =>

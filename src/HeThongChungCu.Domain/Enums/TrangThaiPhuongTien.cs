@@ -4,10 +4,9 @@ namespace HeThongChungCu.Domain.Enums;
 
 public class TrangThaiPhuongTien : BaseEnum<TrangThaiPhuongTien, int>
 {
-    public static readonly TrangThaiPhuongTien PendingApproval = new(1, "Chờ duyệt");
-    public static readonly TrangThaiPhuongTien Approved = new(2, "Đã duyệt");
-    public static readonly TrangThaiPhuongTien Rejected = new(3, "Từ chối");
-    public static readonly TrangThaiPhuongTien Disabled = new(4, "Vô hiệu");
+    public static readonly TrangThaiPhuongTien Active = new(1, "Đang hoạt động");
+    public static readonly TrangThaiPhuongTien Inactive = new(2, "Đã hủy");
+    public static readonly TrangThaiPhuongTien Blocked = new(3, "Bị khóa");
 
     private TrangThaiPhuongTien(int value, string name) : base(value, name)
     {

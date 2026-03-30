@@ -10,5 +10,6 @@ public sealed record DangKyPhuongTienCommand(
     string TenPhuongTien,
     int LoaiPhuongTienId,
     string BienSo,
-    string MauXe
+    string MauXe,
+    List<int>? HinhAnhIds = null
 ) : ICommand<PhuongTienResponse>;

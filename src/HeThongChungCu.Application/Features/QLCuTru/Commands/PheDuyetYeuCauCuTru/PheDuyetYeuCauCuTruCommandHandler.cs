@@ -103,7 +103,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         }
         else if (yeuCau.LoaiYeuCauId == LoaiYeuCau.Sua)
         {
-            var relation = await _quanHeCuTruRepository.GetByIdAsync(yeuCau.QuanHeCuTruId!.Value, cancellationToken);
+            var relation = await _quanHeCuTruRepository.GetByIdAsync(yeuCau.YeuCauQuanHeCuTruId!.Value, cancellationToken);
             if (relation == null)
                 return Result.Failure<YeuCauCuTruResponse>(QuanHeCuTruErrors.NotFound);
 
@@ -176,7 +176,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         }
         else if (yeuCau.LoaiYeuCauId == LoaiYeuCau.Xoa)
         {
-            var relation = await _quanHeCuTruRepository.GetByIdAsync(yeuCau.QuanHeCuTruId!.Value, cancellationToken);
+            var relation = await _quanHeCuTruRepository.GetByIdAsync(yeuCau.YeuCauQuanHeCuTruId!.Value, cancellationToken);
             if (relation != null)
             {
                 relation.KetThucCuTru(now);
@@ -195,7 +195,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
             CanHoId = yeuCau.CanHoId,
             LoaiYeuCauId = yeuCau.LoaiYeuCauId.Value,
             TenLoaiYeuCau = yeuCau.LoaiYeuCauId.Name,
-            TargetQuanHeCuTruId = yeuCau.QuanHeCuTruId,
+            TargetQuanHeCuTruId = yeuCau.YeuCauQuanHeCuTruId,
             YeuCauTen = yeuCau.YeuCauTen,
             YeuCauHo = yeuCau.YeuCauHo,
             YeuCauNgaySinh = yeuCau.YeuCauNgaySinh,

@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
 
 namespace HeThongChungCu.Domain.Entities;
@@ -9,7 +10,10 @@ public class ThePhuongTien : AuditableEntity
     public string MaThe { get; private set; } = string.Empty;
     public DateTime NgayBatDau { get; private set; }
     public DateTime? NgayKetThuc { get; private set; }
-    public bool IsLocked { get; private set; }
+    
+    public TrangThaiThePhuongTien TrangThaiId { get; private set; } = default!;
+
+    public bool IsInUse => TrangThaiId == TrangThaiThePhuongTien.Active;
 
     private ThePhuongTien() { }
 
@@ -21,18 +25,30 @@ public class ThePhuongTien : AuditableEntity
         PhuongTienId = phuongTienId;
         MaThe = maThe;
         NgayBatDau = ngayBatDau;
-        IsLocked = false;
+        TrangThaiId = TrangThaiThePhuongTien.Active;
     }
 
     public void KhoaThe(DateTime ngayKetThuc)
     {
-        if (IsLocked)
-            throw new BusinessException("Thẻ đã bị khóa.");
+        if (TrangThaiId == TrangThaiThePhuongTien.Locked || TrangThaiId == TrangThaiThePhuongTien.Lost)
+            return;
 
         if (ngayKetThuc < NgayBatDau)
             throw new BusinessException("Ngày kết thúc không hợp lệ.");
 
         NgayKetThuc = ngayKetThuc;
-        IsLocked = true;
+        TrangThaiId = TrangThaiThePhuongTien.Locked;
+    }
+
+    public void BaoMat(DateTime now)
+    {
+        if (TrangThaiId == TrangThaiThePhuongTien.Lost)
+            return;
+
+        if (now < NgayBatDau)
+            throw new BusinessException("Ngày báo mất không hợp lệ.");
+
+        NgayKetThuc = now;
+        TrangThaiId = TrangThaiThePhuongTien.Lost;
     }
 }

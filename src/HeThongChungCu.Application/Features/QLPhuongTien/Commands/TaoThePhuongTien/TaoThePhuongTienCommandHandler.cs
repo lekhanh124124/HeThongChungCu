@@ -42,7 +42,8 @@ internal sealed class TaoThePhuongTienCommandHandler : ICommandHandler<TaoThePhu
             MaThe = thePhuongTien.MaThe,
             NgayBatDau = thePhuongTien.NgayBatDau,
             NgayKetThuc = thePhuongTien.NgayKetThuc,
-            IsLocked = thePhuongTien.IsLocked,
+            TrangThaiThePhuongTienId = thePhuongTien.TrangThaiId.Value,
+            TenTrangThaiThePhuongTien = thePhuongTien.TrangThaiId.Name,
         });
     }
 }

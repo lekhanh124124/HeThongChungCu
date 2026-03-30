@@ -9,7 +9,6 @@ public class YeuCauCuTru : AggregateRoot
     public int CanHoId { get; private set; }
 
     // Removed direct navigate for consistency
-    public int? QuanHeCuTruId { get; private set; }
 
     public LoaiYeuCau LoaiYeuCauId { get; private set; } = null!;
 
@@ -21,6 +20,7 @@ public class YeuCauCuTru : AggregateRoot
     public DateTime? NgayXuLy { get; private set; }
 
     // Proposed changes to User Info (used for 'Them' or 'Sua')
+    public int? YeuCauQuanHeCuTruId { get; private set; }
     public string? YeuCauTen { get; private set; }
     public string? YeuCauHo { get; private set; }
     public DateTime? YeuCauNgaySinh { get; private set; }
@@ -64,7 +64,7 @@ public class YeuCauCuTru : AggregateRoot
     {
         var request = new YeuCauCuTru(canHoId, LoaiYeuCau.Them, noiDung, initialStatus)
         {
-            QuanHeCuTruId = quanHeCuTruYeuCauId,
+            YeuCauQuanHeCuTruId = quanHeCuTruYeuCauId,
             YeuCauLoaiQuanHeId = loaiQuanHeYeuCauId,
             YeuCauTen = tenYeuCau,
             YeuCauHo = hoYeuCau,
@@ -106,7 +106,7 @@ public class YeuCauCuTru : AggregateRoot
     {
         var request = new YeuCauCuTru(canHoId, LoaiYeuCau.Sua, noiDung, initialStatus)
         {
-            QuanHeCuTruId = quanHeCuTruId,
+            YeuCauQuanHeCuTruId = quanHeCuTruId,
             YeuCauLoaiQuanHeId = newLoaiQuanHeId,
             YeuCauTen = firstName,
             YeuCauHo = lastName,
@@ -139,7 +139,7 @@ public class YeuCauCuTru : AggregateRoot
     {
         var request = new YeuCauCuTru(canHoId, LoaiYeuCau.Xoa, noiDung, initialStatus)
         {
-            QuanHeCuTruId = quanHeCuTruId
+            YeuCauQuanHeCuTruId = quanHeCuTruId
         };
         request.SetCreated(requesterAccountId, createdAt);
         return request;

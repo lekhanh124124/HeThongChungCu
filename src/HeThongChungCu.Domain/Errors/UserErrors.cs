@@ -36,4 +36,8 @@ public static class UserErrors
     public static Error NotFoundByIdCard(string idCard) => new(
         "User.NotFound",
         $"Không tìm thấy người dùng với CCCD/CMND '{idCard}'.");
+
+    public static readonly Error Forbidden = new(
+        "User.Forbidden",
+        "Bạn không có quyền thực hiện hành động này.");
 }

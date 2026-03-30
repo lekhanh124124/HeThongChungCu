@@ -1,9 +1,11 @@
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatThongTinPhuongTien;
-using HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatTrangThaiPhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.KichHoatPhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.HuyPhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.KhoaPhuongTien;
 using HeThongChungCu.Application.Features.QLPhuongTien.Commands.DangKyPhuongTien;
 using HeThongChungCu.Application.Features.QLPhuongTien.Commands.KhoaThePhuongTien;
-using HeThongChungCu.Application.Features.QLPhuongTien.Commands.DeletePhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.BaoMatThePhuongTien;
 using HeThongChungCu.Application.Features.QLPhuongTien.Commands.TaoThePhuongTien;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 using HeThongChungCu.Application.Features.QLPhuongTien.Queries.GetPhuongTienById;
@@ -72,7 +74,7 @@ public class PhuongTienController : ApiControllerBase
     /// </summary>
     /// <remarks>
     /// API dùng để tạo một bản ghi phương tiện mới thuộc về một `CanHo`.
-    /// Yêu cầu cung cấp `CanHoId`, `TenPhuongTien`, ID loại phương tiện (`LoaiPhuongTienId`), `BienSo` và `MauXe`.
+    /// Yêu cầu cung cấp `CanHoId`, `TenPhuongTien`, ID loại phương tiện (`LoaiPhuongTienId`), `BienSo`, `MauXe`, `HinhAnhPhuongTiens`.
     /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<PhuongTienResponse>), StatusCodes.Status200OK)]
@@ -89,7 +91,7 @@ public class PhuongTienController : ApiControllerBase
     /// Cập nhật thông tin phương tiện
     /// </summary>
     /// <remarks>
-    /// API dùng để sửa thông tin cơ bản của phương tiện như tên, loại, biển số, màu xe.
+    /// API dùng để sửa thông tin cơ bản của phương tiện như tên, loại, biển số, màu xe, hình ảnh.
     /// </remarks>
     [HttpPut]
     [ProducesResponseType(typeof(ApiResponse<PhuongTienResponse>), StatusCodes.Status200OK)]
@@ -103,16 +105,51 @@ public class PhuongTienController : ApiControllerBase
     }
 
     /// <summary>
-    /// Cập nhật trạng thái cho danh sách phương tiện
+    /// Kích hoạt một hoặc nhiều phương tiện
     /// </summary>
     /// <remarks>
-    /// API dùng để duyệt hoặc từ chối một hoặc nhiều phương tiện bằng cách truyền vào danh sách `PhuongTienIds` và `TrangThaiPhuongTienId`.
+    /// API dùng để kích hoạt lại phương tiện sang trạng thái Active. Kiểm tra hạn mức căn hộ trước khi kích hoạt.
     /// </remarks>
-    [HttpPut("trang-thai")]
+    [HttpPut("kich-hoat")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CapNhatTrangThaiPhuongTien(
-        [FromBody] CapNhatTrangThaiPhuongTienCommand command,
+    public async Task<IActionResult> KichHoatPhuongTien(
+        [FromBody] KichHoatPhuongTienCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Hủy một hoặc nhiều phương tiện
+    /// </summary>
+    /// <remarks>
+    /// API dùng để chuyển trạng thái phương tiện sang Inactive và khóa tất cả thẻ liên quan.
+    /// Các phương tiện đã bị hủy sẽ không thể kích hoạt lại.
+    /// </remarks>
+    [HttpPut("huy")]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> HuyPhuongTien(
+        [FromBody] HuyPhuongTienCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Khóa một hoặc nhiều phương tiện
+    /// </summary>
+    /// <remarks>
+    /// API dùng để chuyển trạng thái phương tiện sang Blocked và khóa tất cả thẻ liên quan.
+    /// </remarks>
+    [HttpPut("khoa")]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> KhoaPhuongTien(
+        [FromBody] KhoaPhuongTienCommand command,
         CancellationToken cancellationToken)
     {
         var result = await _sender.Send(command, cancellationToken);
@@ -125,7 +162,7 @@ public class PhuongTienController : ApiControllerBase
     /// <remarks>
     /// API dùng để gán một mã thẻ (`MaThe`) cho một phương tiện (`PhuongTienId`) đã có.
     /// </remarks>
-    [HttpPost("tao-the")]
+    [HttpPost("the-phuong-tien")]
     [ProducesResponseType(typeof(ApiResponse<ThePhuongTienResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> TaoThePhuongTien(
@@ -144,7 +181,7 @@ public class PhuongTienController : ApiControllerBase
     /// Quy tắc: `CARD-V-{PhuongTienId:D4}{last ThePhuongTienId + 1 : D4}`
     /// Các số 0 padding sẽ được thay bằng số ngẫu nhiên.
     /// </remarks>
-    [HttpPost("goi-y-ma-the")]
+    [HttpPost("the-phuong-tien/goi-y-ma-the")]
     [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GoiYMaThe(
@@ -156,9 +193,10 @@ public class PhuongTienController : ApiControllerBase
     }
 
     /// <summary>
-    /// Khóa thẻ phương tiện (cho phép khóa nhiều thẻ một lúc)
+    /// Khóa thẻ phương tiện 
+    /// Các thẻ đã bị khóa sẽ không thể sử dụng.
     /// </summary>
-    [HttpPut("khoa-the")]
+    [HttpPut("the-phuong-tien/khoa")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> KhoaThe(
@@ -170,15 +208,17 @@ public class PhuongTienController : ApiControllerBase
     }
 
     /// <summary>
-    /// Xóa phương tiện
+    /// Báo mất thẻ phương tiện (Dành cho cư dân)
     /// </summary>
-    /// <param name="command">Danh sách ID phương tiện cần xóa</param>
-    /// <param name="cancellationToken">Token hủy bỏ tác vụ</param>
-    [HttpDelete]
+    /// <remarks>
+    /// API cho phép cư dân báo mất thẻ xe của mình. Hệ thống sẽ khóa thẻ và ghi nhận trạng thái mất.
+    /// Yêu cầu: Người dùng phải là cư dân đang cư trú hợp pháp tại căn hộ sở hữu phương tiện.
+    /// </remarks>
+    [HttpPut("the-phuong-tien/bao-mat")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Delete(
-        [FromBody] DeletePhuongTienCommand command,
+    public async Task<IActionResult> BaoMatThe(
+        [FromBody] BaoMatThePhuongTienCommand command,
         CancellationToken cancellationToken)
     {
         var result = await _sender.Send(command, cancellationToken);

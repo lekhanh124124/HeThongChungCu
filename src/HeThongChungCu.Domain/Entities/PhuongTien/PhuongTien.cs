@@ -18,6 +18,9 @@ public class PhuongTien : AggregateRoot
     private readonly List<ThePhuongTien> _thePhuongTiens = new();
     public IReadOnlyCollection<ThePhuongTien> ThePhuongTiens => _thePhuongTiens.AsReadOnly();
 
+    private readonly List<TepTaiLieu> _hinhAnhPhuongTiens = new();
+    public IReadOnlyCollection<TepTaiLieu> HinhAnhPhuongTiens => _hinhAnhPhuongTiens.AsReadOnly();
+
     private PhuongTien() { }
 
     public PhuongTien(
@@ -25,7 +28,8 @@ public class PhuongTien : AggregateRoot
         string tenPhuongTien,
         LoaiPhuongTien loaiPhuongTienId,
         string bienSo,
-        string mauXe)
+        string mauXe,
+        IEnumerable<TepTaiLieu>? hinhAnhs = null)
     {
         if (string.IsNullOrWhiteSpace(bienSo))
             throw new BusinessException("Biển số không được để trống.");
@@ -36,53 +40,101 @@ public class PhuongTien : AggregateRoot
         BienSo = bienSo;
         MauXe = mauXe;
 
-        TrangThaiPhuongTienId = TrangThaiPhuongTien.PendingApproval;
-    }
+        TrangThaiPhuongTienId = TrangThaiPhuongTien.Active;
 
-    public void UpdateTrangThai(TrangThaiPhuongTien trangThai, DateTime now)
-    {
-        if (TrangThaiPhuongTienId == TrangThaiPhuongTien.Disabled && trangThai != TrangThaiPhuongTien.Disabled)
-            throw new BusinessException("Phương tiện đã bị vô hiệu, không thể chuyển sang trạng thái khác.");
-
-        if (TrangThaiPhuongTienId == TrangThaiPhuongTien.Approved && trangThai == TrangThaiPhuongTien.PendingApproval)
-            throw new BusinessException("Không thể chuyển phương tiện đã duyệt về chờ duyệt.");
-            
-        if (TrangThaiPhuongTienId == TrangThaiPhuongTien.Rejected && trangThai != TrangThaiPhuongTien.Rejected)
-            throw new BusinessException("Phương tiện đã bị từ chối, không thể chuyển sang trạng thái khác.");
-
-        TrangThaiPhuongTienId = trangThai;
-
-        if (trangThai == TrangThaiPhuongTien.Disabled)
+        if (hinhAnhs != null)
         {
-            // Lock tất cả thẻ
-            foreach (var the in _thePhuongTiens.Where(x => !x.IsLocked))
+            foreach (var hinhAnh in hinhAnhs)
             {
-                the.KhoaThe(now);
+                hinhAnh.MarkAsUsed();
+                _hinhAnhPhuongTiens.Add(hinhAnh);
             }
         }
     }
 
-    public void UpdateInfo(
+    /// <summary>
+    /// Kích hoạt phương tiện dựa trên hạn mức cứng.
+    /// </summary>
+    public void KichHoat(LoaiCanHo loaiCanHo, int currentCountForType)
+    {
+        if (TrangThaiPhuongTienId == TrangThaiPhuongTien.Active)
+            return;
+
+        var quota = PhuongTienPolicy.GetQuota(loaiCanHo, LoaiPhuongTienId);
+        
+        if (PhuongTienPolicy.IsOverQuota(currentCountForType, quota))
+            throw new BusinessException($"Căn hộ loại {loaiCanHo.Name} đã đạt hạn mức tối đa {quota} xe cho loại {LoaiPhuongTienId.Name}");
+
+        TrangThaiPhuongTienId = TrangThaiPhuongTien.Active;
+    }
+
+    public void Huy(DateTime now)
+    {
+        if (TrangThaiPhuongTienId == TrangThaiPhuongTien.Inactive)
+            return;
+
+        TrangThaiPhuongTienId = TrangThaiPhuongTien.Inactive;
+        
+        // Lock tất cả thẻ
+        foreach (var the in _thePhuongTiens.Where(x => x.IsInUse))
+        {
+            the.KhoaThe(now);
+        }
+    }
+
+    public void Khoa(DateTime now)
+    {
+        if (TrangThaiPhuongTienId == TrangThaiPhuongTien.Blocked)
+            return;
+
+        TrangThaiPhuongTienId = TrangThaiPhuongTien.Blocked;
+        
+        // Lock tất cả thẻ
+        foreach (var the in _thePhuongTiens.Where(x => x.IsInUse))
+        {
+            the.KhoaThe(now);
+        }
+    }
+
+    public void CapNhat(
         string tenPhuongTien,
         LoaiPhuongTien loaiPhuongTienId,
         string bienSo,
-        string mauXe)
+        string mauXe,
+        IEnumerable<TepTaiLieu>? hinhAnhs = null)
     {
-        if (TrangThaiPhuongTienId == TrangThaiPhuongTien.Approved)
-            throw new BusinessException("Không được sửa phương tiện đã duyệt.");
+        if (TrangThaiPhuongTienId == TrangThaiPhuongTien.Active)
+             throw new BusinessException("Không được sửa phương tiện đang hoạt động.");
 
         TenPhuongTien = tenPhuongTien;
         LoaiPhuongTienId = loaiPhuongTienId;
         BienSo = bienSo;
         MauXe = mauXe;
+
+        if (hinhAnhs != null)
+        {
+            // Clear old ones
+            foreach (var old in _hinhAnhPhuongTiens)
+            {
+                old.MarkAsUnused();
+            }
+            _hinhAnhPhuongTiens.Clear();
+
+            // Add new ones
+            foreach (var hinhAnh in hinhAnhs)
+            {
+                hinhAnh.MarkAsUsed();
+                _hinhAnhPhuongTiens.Add(hinhAnh);
+            }
+        }
     }
 
     public ThePhuongTien AddThe(string maThe, DateTime ngayBatDau)
     {
-        if (TrangThaiPhuongTienId != TrangThaiPhuongTien.Approved)
-            throw new BusinessException("Chỉ phương tiện đã duyệt mới được cấp thẻ.");
+        if (TrangThaiPhuongTienId != TrangThaiPhuongTien.Active)
+            throw new BusinessException("Chỉ phương tiện đang hoạt động mới được cấp thẻ.");
 
-        if (_thePhuongTiens.Any(x => !x.IsLocked))
+        if (_thePhuongTiens.Any(x => x.IsInUse))
             throw new BusinessException("Phương tiện vẫn còn thẻ đang hoạt động.");
 
         var the = new ThePhuongTien(Id, maThe, ngayBatDau);
@@ -101,11 +153,12 @@ public class PhuongTien : AggregateRoot
         the.KhoaThe(now);
     }
 
-    public void Xoa(DateTime now)
+    public void BaoMatThe(int theId, DateTime now)
     {
-        foreach (var the in _thePhuongTiens.Where(x => !x.IsLocked))
-        {
-            the.KhoaThe(now);
-        }
+        var the = _thePhuongTiens.FirstOrDefault(x => x.Id == theId);
+        if (the == null)
+            throw new BusinessException("Không tìm thấy thẻ phương tiện.");
+
+        the.BaoMat(now);
     }
 }

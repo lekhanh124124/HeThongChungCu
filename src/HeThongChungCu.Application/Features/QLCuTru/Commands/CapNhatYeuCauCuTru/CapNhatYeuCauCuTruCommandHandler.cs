@@ -122,7 +122,7 @@ public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuT
             YeuCauCCCD = yeuCau.YeuCauCCCD,
             YeuCauDiaChi = yeuCau.YeuCauDiaChi,
             YeuCauLoaiQuanHeId = yeuCau.YeuCauLoaiQuanHeId,
-            TargetQuanHeCuTruId = yeuCau.QuanHeCuTruId,
+            TargetQuanHeCuTruId = yeuCau.YeuCauQuanHeCuTruId,
             NgayXuLy = yeuCau.NgayXuLy,
             NguoiXuLyId = yeuCau.NguoiXuLyId,
             Documents = yeuCau.YeuCauTaiLieuCuTrus.Select(d => new TaiLieuResponse

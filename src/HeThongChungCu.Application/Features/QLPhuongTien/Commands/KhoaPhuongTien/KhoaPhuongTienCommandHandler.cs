@@ -1,12 +1,17 @@
-namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatTrangThaiPhuongTien;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Services;
+using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Entities;
 
-internal sealed class CapNhatTrangThaiPhuongTienCommandHandler : ICommandHandler<CapNhatTrangThaiPhuongTienCommand, bool>
+namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.KhoaPhuongTien;
+
+internal sealed class KhoaPhuongTienCommandHandler : ICommandHandler<KhoaPhuongTienCommand, bool>
 {
     private readonly IPhuongTienEFRepository _phuongTienEFRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CapNhatTrangThaiPhuongTienCommandHandler(
+    public KhoaPhuongTienCommandHandler(
         IPhuongTienEFRepository phuongTienEFRepository,
         IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)
@@ -16,7 +21,7 @@ internal sealed class CapNhatTrangThaiPhuongTienCommandHandler : ICommandHandler
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Result<bool>> Handle(CapNhatTrangThaiPhuongTienCommand request, CancellationToken cancellationToken)
+    public async Task<Result<bool>> Handle(KhoaPhuongTienCommand request, CancellationToken cancellationToken)
     {
         var phuongTiens = await _phuongTienEFRepository.GetPhuongTiensByIdsAsync(request.PhuongTienIds, cancellationToken);
         var now = _dateTimeProvider.Now.DateTime;
@@ -26,15 +31,13 @@ internal sealed class CapNhatTrangThaiPhuongTienCommandHandler : ICommandHandler
             return Result.Failure<bool>(PhuongTienErrors.NotFound);
         }
 
-        var trangThai = TrangThaiPhuongTien.FromValue(request.TrangThaiPhuongTienId)!;
-
         foreach (var phuongTien in phuongTiens)
         {
-            phuongTien.UpdateTrangThai(trangThai, now);
+            phuongTien.Khoa(now);
             _phuongTienEFRepository.Update(phuongTien);
         }
 
-        // TransactionBehavior will automatically commit if no exception is thrown, otherwise it will rollback
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(true);
     }

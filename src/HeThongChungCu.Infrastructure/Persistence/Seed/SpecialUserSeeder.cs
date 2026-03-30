@@ -104,11 +104,9 @@ public class SpecialUserSeeder
                 var model = k == 0 ? "Toyota Camry" : "Honda SH";
                 var bienSo = PhuongTienSeeder.RegisterBienSo($"{faker.Random.Int(29, 31)}{faker.Random.String2(1, "ABCDEFGHJK")}-{faker.Random.Int(10000, 99999)}");
 
-                var pt = new PhuongTien(canHo.Id, model, loai, bienSo, model);
+                var pt = new PhuongTien(canHo.Id, model, loai, bienSo, model, null);
                 await context.PhuongTiens.AddAsync(pt);
                 await context.SaveChangesAsync();
-
-                pt.UpdateTrangThai(TrangThaiPhuongTien.Approved, DateTime.Now);
                 
                 // 2 cards per vehicle (Total 4 per apartment)
                 for (int c = 0; c < 2; c++)

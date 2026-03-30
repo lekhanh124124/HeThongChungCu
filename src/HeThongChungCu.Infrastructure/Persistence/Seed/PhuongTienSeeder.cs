@@ -41,32 +41,31 @@ public class PhuongTienSeeder
                 tenPhuongTien: $"{model} {GenerateBienSo(faker)}",
                 loaiPhuongTienId: loaiId,
                 bienSo: GenerateBienSo(faker),
-                mauXe: model
+                mauXe: model,
+                hinhAnhs: null
             );
 
             await context.PhuongTiens.AddAsync(pt);
             await context.SaveChangesAsync();
 
             // Status-based card logic
-            if (status == TrangThaiPhuongTien.Approved)
+            if (status == TrangThaiPhuongTien.Active)
             {
-                pt.UpdateTrangThai(TrangThaiPhuongTien.Approved, DateTime.Now);
                 pt.AddThe(GenerateUniqueMaThe(faker), DateTime.Now.AddMonths(-1));
             }
-            else if (status == TrangThaiPhuongTien.Disabled)
+            else if (status == TrangThaiPhuongTien.Inactive)
             {
-                // Must be Approved first to AddThe
-                pt.UpdateTrangThai(TrangThaiPhuongTien.Approved, DateTime.Now);
+                // Inactive vehicles might still have old cards
                 pt.AddThe(GenerateUniqueMaThe(faker), DateTime.Now.AddMonths(-2));
                 
-                // Then Disable to lock the card
-                pt.UpdateTrangThai(TrangThaiPhuongTien.Disabled, DateTime.Now);
+                pt.Huy(DateTime.Now);
             }
-            else if (status == TrangThaiPhuongTien.Rejected)
+            else if (status == TrangThaiPhuongTien.Blocked)
             {
-                pt.UpdateTrangThai(TrangThaiPhuongTien.Rejected, DateTime.Now);
+                pt.AddThe(GenerateUniqueMaThe(faker), DateTime.Now.AddMonths(-3));
+
+                pt.Khoa(DateTime.Now);
             }
-            // PendingApproval remains as created (no card)
 
             await context.SaveChangesAsync();
         }

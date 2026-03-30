@@ -42,5 +42,9 @@ public class PhuongTienConfiguration : IEntityTypeConfiguration<PhuongTien>
             .WithMany()
             .HasForeignKey(p => p.CanHoId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(x => x.HinhAnhPhuongTiens)
+            .WithMany()
+            .UsingEntity(j => j.ToTable("TepHinhAnhPhuongTien"));
     }
 }

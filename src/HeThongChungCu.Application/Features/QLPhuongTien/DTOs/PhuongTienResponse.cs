@@ -1,3 +1,5 @@
+using HeThongChungCu.Application.Features.UploadMedia.DTOs;
+
 namespace HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 
 public class PhuongTienResponse
@@ -15,4 +17,5 @@ public class PhuongTienResponse
     public int TrangThaiPhuongTienId { get; set; }
     public string TenTrangThaiPhuongTien { get; set; } = string.Empty;
     public IReadOnlyList<ThePhuongTienResponse> ThePhuongTiens { get; set; } = new List<ThePhuongTienResponse>();
+    public IReadOnlyList<UploadFileResponse> HinhAnhPhuongTiens { get; set; } = new List<UploadFileResponse>();
 }
