@@ -45,7 +45,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
             return Result.Failure<CuDanResponse>(TangErrors.NotFoundById(canHo.TangId));
 
         // 1. Resolve User
-        var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
+        var user = await _userRepository.GetByIdWithDocumentsAsync(request.UserId, cancellationToken);
         if (user is null)
             return Result.Failure<CuDanResponse>(UserErrors.NotFoundById(request.UserId));
 
@@ -86,8 +86,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
             NgayBatDau = quanHe.NgayBatDau,
             NgayKetThuc = quanHe.NgayKetThuc,
             TrangThaiCuTruId = quanHe.TrangThaiCuTruId.Value,
-            UserCode = null, // Handled by separate API
-            Documents = []
+            TenTrangThaiCuTru = quanHe.TrangThaiCuTruId.Name
         });
     }
 }

@@ -18,9 +18,7 @@ public class YeuCauCuTruEFRepository : IYeuCauCuTruEFRepository
     public async Task<YeuCauCuTru?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<YeuCauCuTru>()
-            .Include(x => x.CanHo)
-            .Include(x => x.QuanHeCuTru)
-            .Include(x => x.Documents)
+            .Include(x => x.YeuCauTaiLieuCuTrus)
                 .ThenInclude(x => x.Files)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }

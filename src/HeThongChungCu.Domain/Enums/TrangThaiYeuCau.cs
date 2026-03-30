@@ -7,6 +7,8 @@ public class TrangThaiYeuCau : BaseEnum<TrangThaiYeuCau, int>
     public static readonly TrangThaiYeuCau Pending = new(1, "Đang chờ duyệt");
     public static readonly TrangThaiYeuCau Approved = new(2, "Đã duyệt");
     public static readonly TrangThaiYeuCau Rejected = new(3, "Từ chối");
+    public static readonly TrangThaiYeuCau Saved = new(4, "Đã lưu");
+    public static readonly TrangThaiYeuCau Withdrawn = new(5, "Đã thu hồi");
 
     private TrangThaiYeuCau(int value, string name) : base(value, name)
     {

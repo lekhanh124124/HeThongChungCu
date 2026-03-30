@@ -1,15 +1,8 @@
 using HeThongChungCu.Application.Features.Catalog.DTOs;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayCauTrucChungCu;
-using HeThongChungCu.Application.Features.Catalog.Queries.LayGioiTinhForSelector;
-using HeThongChungCu.Application.Features.Catalog.Queries.LayLoaiCanHoForSelector;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayDichVuForSelector;
-using HeThongChungCu.Application.Features.Catalog.Queries.LayLoaiPhuongTienForSelector;
-using HeThongChungCu.Application.Features.Catalog.Queries.LayLoaiQuanHeCuTruForSelector;
-using HeThongChungCu.Application.Features.Catalog.Queries.LayLoaiTangForSelector;
-using HeThongChungCu.Application.Features.Catalog.Queries.LayTinhTrangCanHoForSelector;
-using HeThongChungCu.Application.Features.Catalog.Queries.LayTrangThaiToaNhaForSelector;
-using HeThongChungCu.Application.Features.Catalog.Queries.LayTrangThaiPhuongTienForSelector;
-using HeThongChungCu.Application.Features.Catalog.Queries.LayTrangThaiCuTruForSelector;
+using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -50,9 +43,17 @@ public class CatalogController : ApiControllerBase
     /// </remarks>
     [HttpPost("gioi-tinh-for-selector")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetGioiTinhForSelector(CancellationToken cancellationToken)
+    public IActionResult GetGioiTinhForSelector()
     {
-        return HandleResult(await _sender.Send(new LayGioiTinhForSelectorQuery(), cancellationToken));
+        var result = GioiTinh.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
 
     /// <summary>
@@ -60,9 +61,17 @@ public class CatalogController : ApiControllerBase
     /// </summary>
     [HttpPost("loai-can-ho-for-selector")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetLoaiCanHoForSelector(CancellationToken cancellationToken)
+    public IActionResult GetLoaiCanHoForSelector()
     {
-        return HandleResult(await _sender.Send(new LayLoaiCanHoForSelectorQuery(), cancellationToken));
+        var result = LoaiCanHo.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
 
     /// <summary>
@@ -80,9 +89,17 @@ public class CatalogController : ApiControllerBase
     /// </summary>
     [HttpPost("loai-phuong-tien-for-selector")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetLoaiPhuongTienForSelector(CancellationToken cancellationToken)
+    public IActionResult GetLoaiPhuongTienForSelector()
     {
-        return HandleResult(await _sender.Send(new LayLoaiPhuongTienForSelectorQuery(), cancellationToken));
+        var result = LoaiPhuongTien.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
 
     /// <summary>
@@ -90,9 +107,17 @@ public class CatalogController : ApiControllerBase
     /// </summary>
     [HttpPost("loai-quan-he-cu-tru-for-selector")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetLoaiQuanHeCuTruForSelector(CancellationToken cancellationToken)
+    public IActionResult GetLoaiQuanHeCuTruForSelector()
     {
-        return HandleResult(await _sender.Send(new LayLoaiQuanHeCuTruForSelectorQuery(), cancellationToken));
+        var result = LoaiQuanHeCuTru.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
 
     /// <summary>
@@ -100,9 +125,17 @@ public class CatalogController : ApiControllerBase
     /// </summary>
     [HttpPost("loai-tang-for-selector")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetLoaiTangForSelector(CancellationToken cancellationToken)
+    public IActionResult GetLoaiTangForSelector()
     {
-        return HandleResult(await _sender.Send(new LayLoaiTangForSelectorQuery(), cancellationToken));
+        var result = LoaiTang.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
 
     /// <summary>
@@ -110,9 +143,17 @@ public class CatalogController : ApiControllerBase
     /// </summary>
     [HttpPost("tinh-trang-can-ho-for-selector")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetTinhTrangCanHoForSelector(CancellationToken cancellationToken)
+    public IActionResult GetTinhTrangCanHoForSelector()
     {
-        return HandleResult(await _sender.Send(new LayTinhTrangCanHoForSelectorQuery(), cancellationToken));
+        var result = TrangThaiCanHo.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
 
     /// <summary>
@@ -120,9 +161,17 @@ public class CatalogController : ApiControllerBase
     /// </summary>
     [HttpPost("trang-thai-toa-nha-for-selector")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetTrangThaiToaNhaForSelector(CancellationToken cancellationToken)
+    public IActionResult GetTrangThaiToaNhaForSelector()
     {
-        return HandleResult(await _sender.Send(new LayTrangThaiToaNhaForSelectorQuery(), cancellationToken));
+        var result = TrangThaiToaNha.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
 
     /// <summary>
@@ -130,9 +179,17 @@ public class CatalogController : ApiControllerBase
     /// </summary>
     [HttpPost("trang-thai-phuong-tien-for-selector")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetTrangThaiPhuongTienForSelector(CancellationToken cancellationToken)
+    public IActionResult GetTrangThaiPhuongTienForSelector()
     {
-        return HandleResult(await _sender.Send(new LayTrangThaiPhuongTienForSelectorQuery(), cancellationToken));
+        var result = TrangThaiPhuongTien.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
 
     /// <summary>
@@ -140,8 +197,52 @@ public class CatalogController : ApiControllerBase
     /// </summary>
     [HttpPost("trang-thai-cu-tru-for-selector")]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetTrangThaiCuTruForSelector(CancellationToken cancellationToken)
+    public IActionResult GetTrangThaiCuTruForSelector()
     {
-        return HandleResult(await _sender.Send(new LayTrangThaiCuTruForSelectorQuery(), cancellationToken));
+        var result = TrangThaiCuTru.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <summary>
+    /// Lấy danh sách loại giấy tờ để chọn
+    /// </summary>
+    [HttpPost("loai-giay-to-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetLoaiGiayToForSelector()
+    {
+        var result = LoaiGiayTo.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <summary>
+    /// Lấy danh sách loại yêu cầu để chọn
+    /// </summary>
+    [HttpPost("loai-yeu-cau-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetLoaiYeuCauForSelector()
+    {
+        var result = LoaiYeuCau.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
 }

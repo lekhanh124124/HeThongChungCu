@@ -4,6 +4,7 @@ using HeThongChungCu.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HeThongChungCu.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260327043429_UpdateResidencyRequestSync")]
+    partial class UpdateResidencyRequestSync
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1447,7 +1450,7 @@ namespace HeThongChungCu.Infrastructure.Migrations
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.YeuCauTaiLieuCuTru", b =>
                 {
                     b.HasOne("HeThongChungCu.Domain.Entities.YeuCauCuTru", "YeuCauCuTru")
-                        .WithMany("YeuCauTaiLieuCuTrus")
+                        .WithMany("Documents")
                         .HasForeignKey("YeuCauCuTruId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1523,7 +1526,7 @@ namespace HeThongChungCu.Infrastructure.Migrations
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.YeuCauCuTru", b =>
                 {
-                    b.Navigation("YeuCauTaiLieuCuTrus");
+                    b.Navigation("Documents");
                 });
 #pragma warning restore 612, 618
         }

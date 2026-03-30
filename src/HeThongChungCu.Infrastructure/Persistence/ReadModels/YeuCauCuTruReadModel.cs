@@ -7,11 +7,13 @@ public record YeuCauCuTruReadModel
     public int CanHoId { get; init; }
     public int LoaiYeuCauId { get; init; }
     public int TrangThaiId { get; init; }
-    public string? Reason { get; init; }
+    public string? LyDo { get; init; }
     public string? NoiDung { get; init; }
     public DateTimeOffset CreatedAt { get; init; }
+    public DateTime? NgayXuLy { get; init; }
+    public int? NguoiXuLyId { get; init; }
 
     // Flattened fields
-    public int? ProposedLoaiQuanHeId { get; init; }
+    public int? YeuCauLoaiQuanHeId { get; init; }
     public int? QuanHeCuTruId { get; init; }
 }

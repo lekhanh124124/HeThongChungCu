@@ -3,7 +3,7 @@ namespace HeThongChungCu.Application.Features.CuDan.DTOs;
 public class QuanHeCuTruResponse
 {
     // Thông tin quan hệ cư trú
-    public int Id { get; set; }
+    public int QuanHeCuTruId { get; set; }
     public int LoaiQuanHeCuTruId { get; set; }
     public string LoaiQuanHeTen { get; set; } = string.Empty;
     public DateTime NgayBatDau { get; set; }

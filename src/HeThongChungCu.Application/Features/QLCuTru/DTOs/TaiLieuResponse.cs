@@ -7,5 +7,6 @@ public class TaiLieuResponse
     public string TenLoaiGiayTo { get; set; } = null!;
     public string SoGiayTo { get; set; } = null!;
     public DateTime? NgayPhatHanh { get; set; }
+    public int? TargetTaiLieuCuTruId { get; set; }
     public List<TepTaiLieuResponse> Files { get; set; } = [];
 }

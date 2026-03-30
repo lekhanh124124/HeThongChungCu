@@ -21,12 +21,12 @@ public class TaoYeuCauCuTruCommandValidator : AbstractValidator<TaoYeuCauCuTruCo
 
         When(x => x.LoaiYeuCauId > 1, () => // Update/Remove/ChangeHead
         {
-            RuleFor(x => x.QuanHeCuTruId).NotEmpty();
+            RuleFor(x => x.TargetQuanHeCuTruId).NotEmpty();
         });
 
         When(x => x.LoaiYeuCauId == 2, () => // UpdateRelationship
         {
-            RuleFor(x => x.NewLoaiQuanHeId).NotEmpty();
+            RuleFor(x => x.LoaiQuanHeId).NotEmpty();
         });
 
         RuleForEach(x => x.TaiLieuCuTrus).ChildRules(attachment =>

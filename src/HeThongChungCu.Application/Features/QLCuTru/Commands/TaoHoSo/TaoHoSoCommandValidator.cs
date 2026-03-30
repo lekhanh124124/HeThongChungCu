@@ -13,9 +13,9 @@ public class TaoHoSoCommandValidator : AbstractValidator<TaoHoSoCommand>
         RuleFor(x => x.GioiTinhId).Must(id => id > 0);
         RuleFor(x => x.DiaChi).NotEmpty().MaximumLength(200);
 
-        RuleFor(x => x.Documents).NotEmpty().When(x => x.Documents != null);
+        RuleFor(x => x.TaiLieuCuTrus).NotEmpty().When(x => x.TaiLieuCuTrus != null);
 
-        RuleForEach(x => x.Documents).ChildRules(doc =>
+        RuleForEach(x => x.TaiLieuCuTrus).ChildRules(doc =>
         {
             doc.RuleFor(d => d.LoaiGiayToId)
                 .Must(id => LoaiGiayTo.GetAll().Any(g => g.Value == id))

@@ -30,7 +30,7 @@ public class TimHoSoTheoCCCDQueryHandler : IQueryHandler<TimHoSoTheoCCCDQuery, U
             GioiTinhName = user.GioiTinhId.Name,
             DiaChi = user.DiaChi,
             IdCard = user.CCCD,
-            Documents = user.TaiLieu.Select(d => new TaiLieuResponse
+            TaiLieuCuTrus = user.TaiLieu.Select(d => new TaiLieuResponse
             {
                 Id = d.Id,
                 LoaiGiayToId = d.LoaiGiayToId.Value,

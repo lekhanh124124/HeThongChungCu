@@ -57,15 +57,7 @@ public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, C
             NgayBatDau = quanHe.NgayBatDau,
             NgayKetThuc = quanHe.NgayKetThuc,
             TrangThaiCuTruId = quanHe.TrangThaiCuTruId.Value,
-            Documents = user?.TaiLieu.Select(d => new TaiLieuResponse
-            {
-                Id = d.Id,
-                LoaiGiayToId = d.LoaiGiayToId.Value,
-                TenLoaiGiayTo = d.LoaiGiayToId.Name,
-                SoGiayTo = d.SoGiayTo,
-                NgayPhatHanh = d.NgayPhatHanh,
-                Files = d.Files.Select(f => new TepTaiLieuResponse(f.Id, f.FileUrl, f.FileName, f.ContentType)).ToList()
-            }).ToList() ?? []
+            TenTrangThaiCuTru = quanHe.TrangThaiCuTruId.Name
         });
     }
 }

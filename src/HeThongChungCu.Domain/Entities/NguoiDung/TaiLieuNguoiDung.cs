@@ -36,4 +36,24 @@ public class TaiLieuNguoiDung : BaseEntity
     {
         NguoiDungId = nguoiDungId;
     }
+
+    public void UpdateInfo(LoaiGiayTo loaiGiayTo, string soGiayTo, DateTime? ngayPhatHanh)
+    {
+        LoaiGiayToId = loaiGiayTo;
+        SoGiayTo = soGiayTo;
+        NgayPhatHanh = ngayPhatHanh;
+    }
+
+    public void SyncFiles(IEnumerable<TepTaiLieu>? files)
+    {
+        _files.Clear();
+        if (files != null)
+        {
+            foreach (var file in files)
+            {
+                file.MarkAsUsed();
+                _files.Add(file);
+            }
+        }
+    }
 }

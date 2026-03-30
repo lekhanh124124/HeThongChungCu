@@ -83,6 +83,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
+        var trangThaiMap = TrangThaiCuTru.ToDictionary();
         var items = rows.Select(r => new CuDanResponse
         {
             MaToaNha = r.MaToaNha,
@@ -96,7 +97,8 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
             TenLoaiQuanHeCuTru = loaiQuanHeMap.GetValueOrDefault(r.LoaiQuanHeCuTruId, string.Empty),
             NgayBatDau = r.NgayBatDau,
             NgayKetThuc = r.NgayKetThuc,
-            TrangThaiCuTruId = r.TrangThaiCuTruId
+            TrangThaiCuTruId = r.TrangThaiCuTruId,
+            TenTrangThaiCuTru = trangThaiMap.GetValueOrDefault(r.TrangThaiCuTruId, string.Empty)
         }).ToList();
 
         return new PagedResult<CuDanResponse>
@@ -235,7 +237,7 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
         var items = rows.Select(r => new QuanHeCuTruResponse
         {
-            Id = r.Id,
+            QuanHeCuTruId = r.Id,
             ToaNhaId = r.ToaNhaId,
             MaToaNha = r.MaToaNha,
             TenToaNha = r.TenToaNha,
@@ -274,45 +276,95 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         var sql = $"""
             SELECT
                 q.NguoiDungId,
-                u.Ho + N' ' + u.Ten AS HoTen,
+                u.Ho + N' ' + u.Ten AS FullName,
+                u.Ho as LastName,
+                u.Ten as FirstName,
                 u.SoDienThoai as PhoneNumber,
-                u.NgaySinh as NgaySinh,
+                u.NgaySinh as Dob,
                 u.GioiTinhId,
-                u.RoleId,
-                a.AnhDaiDienUrl,
+                u.CCCD as IdCard,
+                atl.FileUrl as AnhDaiDienUrl,
                 q.Id             AS QuanHeCuTruId,
                 q.LoaiQuanHeCuTruId,
-                q.NgayBatDau
+                q.NgayBatDau,
+                -- Document fields
+                t.Id AS DocId, t.LoaiGiayToId, t.SoGiayTo, t.NgayPhatHanh,
+                -- File fields
+                f.Id AS FileId, f.FileUrl, f.FileName, f.ContentType
             FROM QuanHeCuTru q
             INNER JOIN NguoiDung u ON u.Id = q.NguoiDungId
             LEFT JOIN TaiKhoan a ON u.Id = a.NguoiDungId
+            LEFT JOIN TepTaiLieu atl ON a.AnhDaiDienId = atl.Id AND atl.IsDeleted = 0
+            LEFT JOIN TaiLieuNguoiDung t ON t.NguoiDungId = u.Id
+            LEFT JOIN TepTaiLieuNguoiDung tj ON tj.TaiLieuNguoiDungId = t.Id
+            LEFT JOIN TepTaiLieu f ON f.Id = tj.FilesId AND f.IsDeleted = 0
             {sqlWhere}
             """;
 
-        var row = await connection.QueryFirstOrDefaultAsync<LayThongTinCuDanReadModel>(sql, parameters);
-
-        if (row is null) return null;
+        var rows = await connection.QueryAsync<dynamic>(sql, parameters);
+        
+        LayThongTinCuDanResponse? result = null;
+        var docLookup = new Dictionary<int, TaiLieuResponse>();
 
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
         var gioiTinhMap = GioiTinh.ToDictionary();
-        var roleMap = Role.ToDictionary();
 
-        return new LayThongTinCuDanResponse
+        foreach (var row in rows)
         {
-            UserId = row.NguoiDungId,
-            FullName = row.HoTen,
-            PhoneNumber = row.PhoneNumber,
-            Dob = row.NgaySinh,
-            GioiTinhId = row.GioiTinhId,
-            GioiTinhName = gioiTinhMap.GetValueOrDefault(row.GioiTinhId, string.Empty),
-            RoleId = row.RoleId,
-            RoleName = roleMap.GetValueOrDefault(row.RoleId, string.Empty),
-            AnhDaiDienUrl = row.AnhDaiDienUrl,
-            QuanHeCuTruId = row.QuanHeCuTruId,
-            LoaiQuanHeCuTruId = row.LoaiQuanHeCuTruId,
-            LoaiQuanHeTen = loaiQuanHeMap.GetValueOrDefault(row.LoaiQuanHeCuTruId, string.Empty),
-            NgayBatDau = row.NgayBatDau
-        };
+            if (result == null)
+            {
+                result = new LayThongTinCuDanResponse
+                {
+                    UserId = row.NguoiDungId,
+                    FullName = row.FullName,
+                    FirstName = row.FirstName,
+                    LastName = row.LastName,
+                    PhoneNumber = row.PhoneNumber,
+                    Dob = row.Dob,
+                    GioiTinhId = row.GioiTinhId,
+                    GioiTinhName = gioiTinhMap.GetValueOrDefault((int)row.GioiTinhId, string.Empty),
+                    AnhDaiDienUrl = row.AnhDaiDienUrl ?? string.Empty,
+                    QuanHeCuTruId = row.QuanHeCuTruId,
+                    LoaiQuanHeCuTruId = row.LoaiQuanHeCuTruId,
+                    LoaiQuanHeTen = loaiQuanHeMap.GetValueOrDefault((int)row.LoaiQuanHeCuTruId, string.Empty),
+                    NgayBatDau = row.NgayBatDau,
+                    IdCard = row.IdCard,
+                    TaiLieuCuTrus = new List<TaiLieuResponse>()
+                };
+            }
+
+            if (row.DocId != null)
+            {
+                if (!docLookup.TryGetValue((int)row.DocId, out var doc))
+                {
+                    doc = new TaiLieuResponse
+                    {
+                        Id = row.DocId,
+                        LoaiGiayToId = row.LoaiGiayToId,
+                        TenLoaiGiayTo = LoaiGiayTo.FromValue((int)row.LoaiGiayToId)?.Name ?? string.Empty,
+                        SoGiayTo = row.SoGiayTo,
+                        NgayPhatHanh = row.NgayPhatHanh,
+                        Files = new List<TepTaiLieuResponse>()
+                    };
+                    docLookup.Add(doc.Id, doc);
+                    result.TaiLieuCuTrus.Add(doc);
+                }
+
+                if (row.FileId != null)
+                {
+                    if (!doc.Files.Any(f => f.Id == (int)row.FileId))
+                    {
+                        doc.Files.Add(new TepTaiLieuResponse(
+                            (int)row.FileId,
+                            (string)row.FileUrl,
+                            (string)row.FileName,
+                            (string)row.ContentType));
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     public async Task<IReadOnlyList<ThanhVienCuTruResponse>> LayThanhVienCuTru(
@@ -336,14 +388,16 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         var sql = $"""
             SELECT
                 q.Id,
+                u.Id as UserId,
                 q.LoaiQuanHeCuTruId,
                 q.NgayBatDau,
                 u.Ten as FirstName,
                 u.Ho as LastName,
-                a.AnhDaiDienUrl
+                atl.FileUrl as AnhDaiDienUrl
             FROM QuanHeCuTru q
             INNER JOIN NguoiDung u ON u.Id = q.NguoiDungId AND u.IsDeleted = 0
             LEFT JOIN TaiKhoan a ON u.Id = a.NguoiDungId
+            LEFT JOIN TepTaiLieu atl ON a.AnhDaiDienId = atl.Id AND atl.IsDeleted = 0
             {sqlWhere}
             """;
 
@@ -352,7 +406,8 @@ public class QuanHeCuTruDapperRepository : IQuanHeCuTruDapperRepository
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
         var items = rows.Select(r => new ThanhVienCuTruResponse
         {
-            Id = r.Id,
+            QuanHeCuTruId = r.Id,
+            UserId = r.UserId,
             LoaiQuanHeCuTruId = r.LoaiQuanHeCuTruId,
             LoaiQuanHeTen = loaiQuanHeMap.GetValueOrDefault(r.LoaiQuanHeCuTruId, string.Empty),
             NgayBatDau = r.NgayBatDau,

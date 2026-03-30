@@ -46,4 +46,13 @@ public class NguoiDung : AggregateRoot
     {
         _documents.Add(document);
     }
+
+    public void RemoveDocument(int documentId)
+    {
+        var doc = _documents.FirstOrDefault(d => d.Id == documentId);
+        if (doc != null)
+        {
+            _documents.Remove(doc);
+        }
+    }
 }

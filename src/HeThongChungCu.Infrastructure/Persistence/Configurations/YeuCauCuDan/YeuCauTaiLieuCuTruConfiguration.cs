@@ -23,8 +23,14 @@ public class YeuCauTaiLieuCuTruConfiguration : IEntityTypeConfiguration<YeuCauTa
                 v => LoaiGiayTo.FromValue(v, null)!)
             .IsRequired();
 
+        builder.Property(x => x.TaiLieuCuTruId);
+
         builder.HasMany(x => x.Files)
             .WithMany()
             .UsingEntity(j => j.ToTable("TepYeuCauTaiLieuCuTru"));
+
+        builder.Navigation(x => x.Files)
+            .HasField("_files")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

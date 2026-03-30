@@ -17,5 +17,5 @@ public class UserInfoResponse
     public string DiaChi { get; set; } = string.Empty;
     public string? IdCard { get; set; }
 
-    public List<TaiLieuResponse> Documents { get; set; } = [];
+    public List<TaiLieuResponse> TaiLieuCuTrus { get; set; } = [];
 }

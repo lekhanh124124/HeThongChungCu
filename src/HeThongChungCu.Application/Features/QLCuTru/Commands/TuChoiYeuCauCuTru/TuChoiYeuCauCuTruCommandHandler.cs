@@ -53,30 +53,30 @@ public class TuChoiYeuCauCuTruCommandHandler : ICommandHandler<TuChoiYeuCauCuTru
         {
             Id = yeuCau.Id,
             CanHoId = yeuCau.CanHoId,
-            MaCanHo = yeuCau.CanHo?.MaCanHo ?? string.Empty,
             LoaiYeuCauId = yeuCau.LoaiYeuCauId.Value,
             TenLoaiYeuCau = yeuCau.LoaiYeuCauId.Name,
-            QuanHeCuTruId = yeuCau.QuanHeCuTruId,
-            ProposedFirstName = yeuCau.YeuCauTen,
-            ProposedLastName = yeuCau.YeuCauHo,
-            ProposedDob = yeuCau.YeuCauNgaySinh,
-            ProposedGioiTinhId = yeuCau.YeuCauGioiTinhId,
-            ProposedPhoneNumber = yeuCau.YeuCauSoDienThoai,
-            ProposedLoaiQuanHeId = yeuCau.YeuCauLoaiQuanHeId,
+            TargetQuanHeCuTruId = yeuCau.QuanHeCuTruId,
+            YeuCauTen = yeuCau.YeuCauTen,
+            YeuCauHo = yeuCau.YeuCauHo,
+            YeuCauNgaySinh = yeuCau.YeuCauNgaySinh,
+            YeuCauGioiTinhId = yeuCau.YeuCauGioiTinhId,
+            YeuCauSoDienThoai = yeuCau.YeuCauSoDienThoai,
+            YeuCauLoaiQuanHeId = yeuCau.YeuCauLoaiQuanHeId,
             NoiDung = yeuCau.NoiDung,
-            Reason = yeuCau.LyDo,
+            LyDo = yeuCau.LyDo,
             TrangThaiId = yeuCau.TrangThaiId.Value,
             TenTrangThai = yeuCau.TrangThaiId.Name,
             CreatedAt = yeuCau.CreatedAt,
-            ProcessedAt = yeuCau.NgayXuLy,
-            ProcessedBy = yeuCau.NguoiXuLyId,
-            Documents = yeuCau.Documents.Select(d => new TaiLieuResponse
+            NgayXuLy = yeuCau.NgayXuLy,
+            NguoiXuLyId = yeuCau.NguoiXuLyId,
+            Documents = yeuCau.YeuCauTaiLieuCuTrus.Select(d => new TaiLieuResponse
             {
                 Id = d.Id,
                 LoaiGiayToId = d.LoaiGiayToId.Value,
                 TenLoaiGiayTo = d.LoaiGiayToId.Name,
                 SoGiayTo = d.SoGiayTo,
                 NgayPhatHanh = d.NgayPhatHanh,
+                TargetTaiLieuCuTruId = d.TaiLieuCuTruId,
                 Files = d.Files.Select(f => new TepTaiLieuResponse(f.Id, f.FileUrl, f.FileName, f.ContentType)).ToList()
             }).ToList()
         });

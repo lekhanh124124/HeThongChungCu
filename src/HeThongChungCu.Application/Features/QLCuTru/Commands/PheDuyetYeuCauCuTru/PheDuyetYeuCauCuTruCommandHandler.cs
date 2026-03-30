@@ -61,7 +61,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
                 soDienThoai: yeuCau.YeuCauSoDienThoai);
 
             // 2. Add Documents if any
-            foreach (var docReq in yeuCau.Documents)
+            foreach (var docReq in yeuCau.YeuCauTaiLieuCuTrus)
             {
                 var newDoc = new TaiLieuNguoiDung(
                     null,
@@ -87,7 +87,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
             if (relation == null)
                 return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.NotFoundById(yeuCau.QuanHeCuTruId.Value));
 
-            var user = await _userRepository.GetByIdAsync(relation.NguoiDungId, cancellationToken);
+            var user = await _userRepository.GetByIdWithDocumentsAsync(relation.NguoiDungId, cancellationToken);
             if (user == null)
                 return Result.Failure<YeuCauCuTruResponse>(UserErrors.NotFound);
 
@@ -97,17 +97,61 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
                 _quanHeCuTruRepository.Update(relation);
             }
 
-            foreach (var docReq in yeuCau.Documents)
+            // --- Document Reconciliation Logic ---
+            var currentDocs = user.TaiLieu.ToList();
+            var proposedDocs = yeuCau.YeuCauTaiLieuCuTrus;
+
+            // 1. Remove documents not in the request
+            var proposedOriginalIds = proposedDocs.Where(d => d.TaiLieuCuTruId.HasValue)
+                                                .Select(d => d.TaiLieuCuTruId!.Value)
+                                                .ToList();
+            
+            foreach (var doc in currentDocs)
             {
-                var newDoc = new TaiLieuNguoiDung(
-                    user.Id,
-                    docReq.LoaiGiayToId,
-                    docReq.SoGiayTo,
-                    docReq.NgayPhatHanh,
-                    docReq.Files);
-                user.AddDocument(newDoc);
+                if (!proposedOriginalIds.Contains(doc.Id))
+                {
+                    user.RemoveDocument(doc.Id);
+                }
             }
 
+            // 2. Update existing or Add new
+            foreach (var propDoc in proposedDocs)
+            {
+                if (propDoc.TaiLieuCuTruId.HasValue)
+                {
+                    // Update existing
+                    var existingDoc = user.TaiLieu.FirstOrDefault(d => d.Id == propDoc.TaiLieuCuTruId.Value);
+                    if (existingDoc != null)
+                    {
+                        existingDoc.UpdateInfo(propDoc.LoaiGiayToId, propDoc.SoGiayTo, propDoc.NgayPhatHanh);
+                        existingDoc.SyncFiles(propDoc.Files);
+                    }
+                }
+                else
+                {
+                    // Add new
+                    var newDoc = new TaiLieuNguoiDung(
+                        user.Id,
+                        propDoc.LoaiGiayToId,
+                        propDoc.SoGiayTo,
+                        propDoc.NgayPhatHanh,
+                        propDoc.Files);
+                    user.AddDocument(newDoc);
+                }
+            }
+
+            // Sync personal info if provided
+            if (!string.IsNullOrEmpty(yeuCau.YeuCauTen) || !string.IsNullOrEmpty(yeuCau.YeuCauHo) || yeuCau.YeuCauNgaySinh.HasValue)
+            {
+                user.UpdateProfile(
+                    yeuCau.YeuCauTen ?? user.Ten,
+                    yeuCau.YeuCauHo ?? user.Ho,
+                    yeuCau.YeuCauNgaySinh ?? user.NgaySinh,
+                    yeuCau.YeuCauGioiTinhId.HasValue ? GioiTinh.FromValue(yeuCau.YeuCauGioiTinhId.Value, null)! : user.GioiTinhId,
+                    user.DiaChi, // Keep existing address
+                    user.CCCD,   // Keep existing CCCD
+                    yeuCau.YeuCauSoDienThoai ?? user.SoDienThoai);
+            }
             _userRepository.Update(user);
         }
         else if (yeuCau.LoaiYeuCauId == LoaiYeuCau.Xoa)
@@ -129,30 +173,30 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         {
             Id = yeuCau.Id,
             CanHoId = yeuCau.CanHoId,
-            MaCanHo = yeuCau.CanHo?.MaCanHo ?? string.Empty,
             LoaiYeuCauId = yeuCau.LoaiYeuCauId.Value,
             TenLoaiYeuCau = yeuCau.LoaiYeuCauId.Name,
-            QuanHeCuTruId = yeuCau.QuanHeCuTruId,
-            ProposedFirstName = yeuCau.YeuCauTen,
-            ProposedLastName = yeuCau.YeuCauHo,
-            ProposedDob = yeuCau.YeuCauNgaySinh,
-            ProposedGioiTinhId = yeuCau.YeuCauGioiTinhId,
-            ProposedPhoneNumber = yeuCau.YeuCauSoDienThoai,
-            ProposedLoaiQuanHeId = yeuCau.YeuCauLoaiQuanHeId,
+            TargetQuanHeCuTruId = yeuCau.QuanHeCuTruId,
+            YeuCauTen = yeuCau.YeuCauTen,
+            YeuCauHo = yeuCau.YeuCauHo,
+            YeuCauNgaySinh = yeuCau.YeuCauNgaySinh,
+            YeuCauGioiTinhId = yeuCau.YeuCauGioiTinhId,
+            YeuCauSoDienThoai = yeuCau.YeuCauSoDienThoai,
+            YeuCauLoaiQuanHeId = yeuCau.YeuCauLoaiQuanHeId,
             NoiDung = yeuCau.NoiDung,
-            Reason = yeuCau.LyDo,
+            LyDo = yeuCau.LyDo,
             TrangThaiId = yeuCau.TrangThaiId.Value,
             TenTrangThai = yeuCau.TrangThaiId.Name,
             CreatedAt = yeuCau.CreatedAt,
-            ProcessedAt = yeuCau.NgayXuLy,
-            ProcessedBy = yeuCau.NguoiXuLyId,
-            Documents = yeuCau.Documents.Select(d => new TaiLieuResponse
+            NgayXuLy = yeuCau.NgayXuLy,
+            NguoiXuLyId = yeuCau.NguoiXuLyId,
+            Documents = yeuCau.YeuCauTaiLieuCuTrus.Select(d => new TaiLieuResponse
             {
                 Id = d.Id,
                 LoaiGiayToId = d.LoaiGiayToId.Value,
                 TenLoaiGiayTo = d.LoaiGiayToId.Name,
                 SoGiayTo = d.SoGiayTo,
                 NgayPhatHanh = d.NgayPhatHanh,
+                TargetTaiLieuCuTruId = d.TaiLieuCuTruId,
                 Files = d.Files.Select(f => new TepTaiLieuResponse(f.Id, f.FileUrl, f.FileName, f.ContentType)).ToList()
             }).ToList()
         });

@@ -1,8 +1,9 @@
-﻿namespace HeThongChungCu.Application.Features.CuDan.DTOs
+namespace HeThongChungCu.Application.Features.CuDan.DTOs
 {
     public class ThanhVienCuTruResponse
     {
-        public int Id { get; set; }
+        public int QuanHeCuTruId { get; set; }
+        public int UserId { get; set; }
         public int LoaiQuanHeCuTruId { get; set; }
         public string LoaiQuanHeTen { get; set; } = string.Empty;
         public DateTime NgayBatDau { get; set; }

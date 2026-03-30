@@ -14,6 +14,5 @@ public class CuDanResponse
     public DateTime NgayBatDau { get; set; }
     public DateTime? NgayKetThuc { get; set; }
     public int TrangThaiCuTruId { get; init; }
-    public string? UserCode { get; init; }
-    public List<TaiLieuResponse> Documents { get; init; } = [];
+    public string TenTrangThaiCuTru { get; set; } = string.Empty;
 }

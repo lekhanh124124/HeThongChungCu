@@ -20,6 +20,14 @@ public class NguoiDungEFRepository : INguoiDungEFRepository
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public async Task<NguoiDung?> GetByIdWithDocumentsAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.NguoiDung
+            .Include(x => x.TaiLieu)
+                .ThenInclude(d => d.Files)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    }
+
     public async Task<NguoiDung?> GetByCCCDAsync(string cccd, CancellationToken cancellationToken = default)
     {
         return await _dbContext.NguoiDung

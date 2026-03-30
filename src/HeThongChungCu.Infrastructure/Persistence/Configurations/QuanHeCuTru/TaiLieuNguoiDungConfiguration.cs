@@ -31,5 +31,9 @@ public class TaiLieuNguoiDungConfiguration : IEntityTypeConfiguration<TaiLieuNgu
         builder.HasMany(x => x.Files)
             .WithMany()
             .UsingEntity(j => j.ToTable("TepTaiLieuNguoiDung"));
+
+        builder.Navigation(x => x.Files)
+            .HasField("_files")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

@@ -75,8 +75,11 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
                 LoaiGiayTo.FromValue(a.LoaiGiayToId, null)!,
                 a.SoGiayTo,
                 a.NgayPhatHanh,
-                files);
+                files,
+                a.TaiLieuCuTruId);
         }).ToList();
+
+        var initialStatus = request.IsSubmit ? TrangThaiYeuCau.Pending : TrangThaiYeuCau.Saved;
 
         YeuCauCuTru yeuCau;
         if (loaiYeuCau == LoaiYeuCau.Them)
@@ -87,7 +90,7 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
             yeuCau = YeuCauCuTru.CreateAddMemberRequest(
                 request.CanHoId,
                 userId.Value,
-                request.QuanHeCuTruId,
+                request.TargetQuanHeCuTruId,
                 request.LoaiQuanHeId.Value,
                 request.FirstName,
                 request.LastName,
@@ -96,18 +99,19 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
                 request.PhoneNumber,
                 request.NoiDung,
                 requestDocuments,
-                _dateTimeProvider.UtcNow);
+                _dateTimeProvider.Now,
+                initialStatus);
         }
         else if (loaiYeuCau == LoaiYeuCau.Sua)
         {
-            if (request.QuanHeCuTruId == null)
+            if (request.TargetQuanHeCuTruId == null)
                 return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.BadRequest("QuanHeCuTruId is required for update request."));
 
             yeuCau = YeuCauCuTru.CreateUpdateMemberRequest(
                 request.CanHoId,
                 userId.Value,
-                request.QuanHeCuTruId.Value,
-                request.NewLoaiQuanHeId,
+                request.TargetQuanHeCuTruId.Value,
+                request.LoaiQuanHeId,
                 request.FirstName,
                 request.LastName,
                 request.Dob,
@@ -115,19 +119,21 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
                 request.PhoneNumber,
                 request.NoiDung,
                 requestDocuments,
-                _dateTimeProvider.UtcNow);
+                _dateTimeProvider.Now,
+                initialStatus);
         }
         else // Xoa
         {
-            if (request.QuanHeCuTruId == null)
+            if (request.TargetQuanHeCuTruId == null)
                 return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.BadRequest("QuanHeCuTruId is required for remove request."));
 
             yeuCau = YeuCauCuTru.CreateRemoveMemberRequest(
                request.CanHoId,
                userId.Value,
-               request.QuanHeCuTruId.Value,
+               request.TargetQuanHeCuTruId.Value,
                request.NoiDung,
-               _dateTimeProvider.UtcNow);
+               _dateTimeProvider.Now,
+               initialStatus);
         }
 
         await _yeuCauRepository.AddAsync(yeuCau, cancellationToken);
@@ -141,11 +147,32 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
             TenLoaiYeuCau = yeuCau.LoaiYeuCauId.Name,
             TrangThaiId = yeuCau.TrangThaiId.Value,
             TenTrangThai = yeuCau.TrangThaiId.Name,
-            Reason = yeuCau.LyDo,
+            LyDo = yeuCau.LyDo,
             NoiDung = yeuCau.NoiDung,
             CreatedAt = yeuCau.CreatedAt,
-            ProposedLoaiQuanHeId = yeuCau.YeuCauLoaiQuanHeId,
-            QuanHeCuTruId = yeuCau.QuanHeCuTruId
+            YeuCauTen = yeuCau.YeuCauTen,
+            YeuCauHo = yeuCau.YeuCauHo,
+            YeuCauNgaySinh = yeuCau.YeuCauNgaySinh,
+            YeuCauGioiTinhId = yeuCau.YeuCauGioiTinhId,
+            YeuCauSoDienThoai = yeuCau.YeuCauSoDienThoai,
+            YeuCauLoaiQuanHeId = yeuCau.YeuCauLoaiQuanHeId,
+            TargetQuanHeCuTruId = yeuCau.QuanHeCuTruId,
+            NgayXuLy = yeuCau.NgayXuLy,
+            NguoiXuLyId = yeuCau.NguoiXuLyId,
+            Documents = yeuCau.YeuCauTaiLieuCuTrus.Select(d => new TaiLieuResponse
+            {
+                Id = d.Id,
+                LoaiGiayToId = d.LoaiGiayToId.Value,
+                TenLoaiGiayTo = d.LoaiGiayToId.Name,
+                SoGiayTo = d.SoGiayTo,
+                NgayPhatHanh = d.NgayPhatHanh,
+                TargetTaiLieuCuTruId = d.TaiLieuCuTruId,
+                Files = d.Files.Select(f => new TepTaiLieuResponse(
+                    f.Id,
+                    f.FileUrl,
+                    f.FileName,
+                    f.ContentType)).ToList()
+            }).ToList()
         };
     }
 }

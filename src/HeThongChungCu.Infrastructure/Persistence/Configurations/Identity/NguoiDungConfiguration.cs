@@ -44,5 +44,9 @@ public class NguoiDungConfiguration : IEntityTypeConfiguration<NguoiDung>
             .WithOne()
             .HasForeignKey(d => d.NguoiDungId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(u => u.TaiLieu)
+            .HasField("_documents")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

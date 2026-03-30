@@ -78,7 +78,7 @@ public class XacNhanDinhDanhCommandHandler : ICommandHandler<XacNhanDinhDanhComm
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         // 6. Return User Info
-        var user = await _userRepository.GetByIdAsync(userId.Value, cancellationToken);
+        var user = await _userRepository.GetByIdWithDocumentsAsync(userId.Value, cancellationToken);
         if (user is null)
         {
             return Result.Failure<UserInfoResponse>(UserErrors.NotFoundById(userId.Value));
@@ -95,7 +95,7 @@ public class XacNhanDinhDanhCommandHandler : ICommandHandler<XacNhanDinhDanhComm
             DiaChi = user.DiaChi,
             IdCard = user.CCCD,
             PhoneNumber = user.SoDienThoai ?? string.Empty,
-            Documents = user.TaiLieu.Select(d => new TaiLieuResponse
+            TaiLieuCuTrus = user.TaiLieu.Select(d => new TaiLieuResponse
             {
                 Id = d.Id,
                 LoaiGiayToId = d.LoaiGiayToId.Value,

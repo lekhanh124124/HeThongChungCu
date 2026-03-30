@@ -29,20 +29,20 @@ public class YeuCauCuTruConfiguration : IEntityTypeConfiguration<YeuCauCuTru>
             .IsRequired();
 
 
-        builder.HasOne(x => x.CanHo)
+        builder.HasOne<CanHo>()
             .WithMany()
             .HasForeignKey(x => x.CanHoId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(x => x.QuanHeCuTru)
-            .WithMany()
-            .HasForeignKey(x => x.QuanHeCuTruId)
-            .OnDelete(DeleteBehavior.SetNull);
 
-        builder.HasMany(x => x.Documents)
+        builder.HasMany(x => x.YeuCauTaiLieuCuTrus)
             .WithOne(x => x.YeuCauCuTru)
             .HasForeignKey(x => x.YeuCauCuTruId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(x => x.YeuCauTaiLieuCuTrus)
+            .HasField("_yeuCauTaiLieuCuTrus")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Property(e => e.LyDo)
             .HasMaxLength(500);

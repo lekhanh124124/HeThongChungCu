@@ -50,10 +50,12 @@ public class YeuCauCuTruDapperRepository : IYeuCauCuTruDapperRepository
                 y.CanHoId,
                 y.LoaiYeuCauId,
                 y.TrangThaiId,
-                y.LyDo as Reason,
+                y.LyDo,
                 y.NoiDung,
                 y.CreatedAt,
-                y.YeuCauLoaiQuanHeId as ProposedLoaiQuanHeId,
+                y.NgayXuLy,
+                y.NguoiXuLyId,
+                y.YeuCauLoaiQuanHeId,
                 y.QuanHeCuTruId
             FROM YeuCauCuTru y
             {(string.IsNullOrEmpty(sqlWhere) ? "" : sqlWhere)}
@@ -75,11 +77,13 @@ public class YeuCauCuTruDapperRepository : IYeuCauCuTruDapperRepository
             TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(r.LoaiYeuCauId, string.Empty),
             TrangThaiId = r.TrangThaiId,
             TenTrangThai = trangThaiMap.GetValueOrDefault(r.TrangThaiId, string.Empty),
-            Reason = r.Reason,
+            LyDo = r.LyDo,
             NoiDung = r.NoiDung,
             CreatedAt = r.CreatedAt,
-            ProposedLoaiQuanHeId = r.ProposedLoaiQuanHeId,
-            QuanHeCuTruId = r.QuanHeCuTruId
+            NgayXuLy = r.NgayXuLy,
+            NguoiXuLyId = r.NguoiXuLyId,
+            YeuCauLoaiQuanHeId = r.YeuCauLoaiQuanHeId,
+            TargetQuanHeCuTruId = r.QuanHeCuTruId
         }).ToList();
 
         return new PagedResult<YeuCauCuTruResponse>

@@ -6,6 +6,7 @@ namespace HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
 public interface INguoiDungEFRepository
 {
     Task<NguoiDung?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<NguoiDung?> GetByIdWithDocumentsAsync(int id, CancellationToken cancellationToken = default);
     Task<NguoiDung?> GetByCCCDAsync(string cccd, CancellationToken cancellationToken = default);
 
     Task<bool> AnyAsync(Expression<Func<NguoiDung, bool>> expression, CancellationToken cancellationToken = default);

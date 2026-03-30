@@ -45,7 +45,7 @@ public class TaoHoSoCommandHandler : ICommandHandler<TaoHoSoCommand, UserInfoRes
                     DiaChi = user.DiaChi,
                     IdCard = user.CCCD,
                     PhoneNumber = user.SoDienThoai ?? string.Empty,
-                    Documents = user.TaiLieu.Select(d => new TaiLieuResponse
+                    TaiLieuCuTrus = user.TaiLieu.Select(d => new TaiLieuResponse
                     {
                         Id = d.Id,
                         LoaiGiayToId = d.LoaiGiayToId.Value,
@@ -69,13 +69,13 @@ public class TaoHoSoCommandHandler : ICommandHandler<TaoHoSoCommand, UserInfoRes
         await _userRepository.AddAsync(user, cancellationToken);
 
         // 2. Fetch all TepTaiLieus at once
-        var allFileIds = request.Documents?.SelectMany(d => d.FileIds).Distinct().ToList() ?? new List<int>();
+        var allFileIds = request.TaiLieuCuTrus?.SelectMany(d => d.FileIds).Distinct().ToList() ?? new List<int>();
         var tepTaiLieus = await _tepTaiLieuRepository.GetByIdsAsync(allFileIds, cancellationToken);
         var tepTaiLieuDict = tepTaiLieus.ToDictionary(f => f.Id);
 
-        if (request.Documents != null && request.Documents.Any())
+        if (request.TaiLieuCuTrus != null && request.TaiLieuCuTrus.Any())
         {
-            foreach (var docReq in request.Documents)
+            foreach (var docReq in request.TaiLieuCuTrus)
             {
                 var loaiGiayTo = LoaiGiayTo.FromValue(docReq.LoaiGiayToId, null);
                 if (loaiGiayTo is null) continue;
@@ -113,7 +113,7 @@ public class TaoHoSoCommandHandler : ICommandHandler<TaoHoSoCommand, UserInfoRes
             DiaChi = user.DiaChi,
             IdCard = user.CCCD,
             PhoneNumber = user.SoDienThoai ?? string.Empty,
-            Documents = user.TaiLieu.Select(d => new TaiLieuResponse
+            TaiLieuCuTrus = user.TaiLieu.Select(d => new TaiLieuResponse
             {
                 Id = d.Id,
                 LoaiGiayToId = d.LoaiGiayToId.Value,

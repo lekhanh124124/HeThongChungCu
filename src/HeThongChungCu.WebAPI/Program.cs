@@ -81,7 +81,12 @@ namespace HeThongChungCu.WebAPI
             //}
 
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(c =>
+            {
+                c.InjectJavascript("/swagger-custom.js");
+            });
+
+            app.UseStaticFiles();
 
 
             app.UseRouting();

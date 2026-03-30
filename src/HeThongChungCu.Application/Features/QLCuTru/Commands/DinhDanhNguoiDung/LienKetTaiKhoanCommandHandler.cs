@@ -62,7 +62,7 @@ public class LienKetTaiKhoanCommandHandler : ICommandHandler<LienKetTaiKhoanComm
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         // 5. Return User Info
-        var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken);
+        var user = await _userRepository.GetByIdWithDocumentsAsync(request.UserId, cancellationToken);
         if (user is null)
         {
             return Result.Failure<UserInfoResponse>(UserErrors.NotFoundById(request.UserId));
@@ -79,7 +79,7 @@ public class LienKetTaiKhoanCommandHandler : ICommandHandler<LienKetTaiKhoanComm
             DiaChi = user.DiaChi,
             IdCard = user.CCCD,
             PhoneNumber = user.SoDienThoai ?? string.Empty,
-            Documents = user.TaiLieu.Select(d => new TaiLieuResponse
+            TaiLieuCuTrus = user.TaiLieu.Select(d => new TaiLieuResponse
             {
                 Id = d.Id,
                 LoaiGiayToId = d.LoaiGiayToId.Value,

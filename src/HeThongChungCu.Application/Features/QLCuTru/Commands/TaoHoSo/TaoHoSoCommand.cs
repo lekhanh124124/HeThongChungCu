@@ -9,4 +9,4 @@ public record TaoHoSoCommand(
     int GioiTinhId,
     string DiaChi,
     string? IdCard,
-    List<TaiLieuRequest>? Documents = null) : ICommand<UserInfoResponse>;
+    List<TaiLieuRequest>? TaiLieuCuTrus = null) : ICommand<UserInfoResponse>;
