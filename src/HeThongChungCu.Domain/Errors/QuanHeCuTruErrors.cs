@@ -27,4 +27,9 @@ public static class QuanHeCuTruErrors
     public static readonly Error LoaiQuanHeKhongHopLe = new(
         "QuanHeCuTru.LoaiQuanHeKhongHopLe",
         "Loại quan hệ cư trú không hợp lệ.");
+
+    public static readonly Error HouseholderNotFound = new(
+        "QuanHeCuTru.HouseholderNotFound",
+        "Căn hộ chưa có chủ hộ. Vui lòng thiết lập chủ hộ trước khi thêm thành viên khác.");
+
 }

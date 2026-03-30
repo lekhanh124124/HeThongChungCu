@@ -13,6 +13,8 @@ public record YeuCauCuTruResponse
     public DateTime? YeuCauNgaySinh { get; init; }
     public int? YeuCauGioiTinhId { get; init; }
     public string? YeuCauSoDienThoai { get; init; }
+    public string? YeuCauCCCD { get; init; }
+    public string? YeuCauDiaChi { get; init; }
     public int? YeuCauLoaiQuanHeId { get; init; }
     
     public string? NoiDung { get; init; }

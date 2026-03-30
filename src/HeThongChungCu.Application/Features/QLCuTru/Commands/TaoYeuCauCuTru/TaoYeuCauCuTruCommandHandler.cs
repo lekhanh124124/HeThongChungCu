@@ -43,16 +43,13 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
             return Result.Failure<YeuCauCuTruResponse>(UserErrors.NotFound);
 
         var loaiYeuCau = LoaiYeuCau.FromValue(request.LoaiYeuCauId, null);
-        if (loaiYeuCau == null)
-            return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.InvalidEnumValue);
-
         // Fetch the relation of the current user for this apartment to validate ChuHo
         var requesterRelation = await _quanHeRepository.GetByUserAndCanHoAsync(userId.Value, request.CanHoId, cancellationToken);
         if (requesterRelation == null)
-            return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.NotFoundById(request.CanHoId));
+            return Result.Failure<YeuCauCuTruResponse>(CanHoErrors.NotFoundById(request.CanHoId));
 
         if (requesterRelation.LoaiQuanHeCuTruId != LoaiQuanHeCuTru.ChuHo)
-            return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.Forbidden("Chỉ có chủ hộ của căn hộ này mới có quyền tạo yêu cầu cư trú."));
+            return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.Forbidden);
 
 
         // Fetch all TepTaiLieus at once
@@ -84,19 +81,18 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         YeuCauCuTru yeuCau;
         if (loaiYeuCau == LoaiYeuCau.Them)
         {
-            if (string.IsNullOrEmpty(request.FirstName) || string.IsNullOrEmpty(request.LastName) || request.LoaiQuanHeId == null)
-                return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.BadRequest("Missing member information."));
-
             yeuCau = YeuCauCuTru.CreateAddMemberRequest(
                 request.CanHoId,
                 userId.Value,
                 request.TargetQuanHeCuTruId,
-                request.LoaiQuanHeId.Value,
+                request.LoaiQuanHeId!.Value,
                 request.FirstName,
                 request.LastName,
                 request.Dob,
                 request.GioiTinhId,
                 request.PhoneNumber,
+                request.CCCD,
+                request.DiaChi,
                 request.NoiDung,
                 requestDocuments,
                 _dateTimeProvider.Now,
@@ -104,19 +100,18 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         }
         else if (loaiYeuCau == LoaiYeuCau.Sua)
         {
-            if (request.TargetQuanHeCuTruId == null)
-                return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.BadRequest("QuanHeCuTruId is required for update request."));
-
             yeuCau = YeuCauCuTru.CreateUpdateMemberRequest(
                 request.CanHoId,
                 userId.Value,
-                request.TargetQuanHeCuTruId.Value,
+                request.TargetQuanHeCuTruId!.Value,
                 request.LoaiQuanHeId,
                 request.FirstName,
                 request.LastName,
                 request.Dob,
                 request.GioiTinhId,
                 request.PhoneNumber,
+                request.CCCD,
+                request.DiaChi,
                 request.NoiDung,
                 requestDocuments,
                 _dateTimeProvider.Now,
@@ -124,13 +119,10 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         }
         else // Xoa
         {
-            if (request.TargetQuanHeCuTruId == null)
-                return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.BadRequest("QuanHeCuTruId is required for remove request."));
-
             yeuCau = YeuCauCuTru.CreateRemoveMemberRequest(
                request.CanHoId,
                userId.Value,
-               request.TargetQuanHeCuTruId.Value,
+               request.TargetQuanHeCuTruId!.Value,
                request.NoiDung,
                _dateTimeProvider.Now,
                initialStatus);
@@ -155,6 +147,8 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
             YeuCauNgaySinh = yeuCau.YeuCauNgaySinh,
             YeuCauGioiTinhId = yeuCau.YeuCauGioiTinhId,
             YeuCauSoDienThoai = yeuCau.YeuCauSoDienThoai,
+            YeuCauCCCD = yeuCau.YeuCauCCCD,
+            YeuCauDiaChi = yeuCau.YeuCauDiaChi,
             YeuCauLoaiQuanHeId = yeuCau.YeuCauLoaiQuanHeId,
             TargetQuanHeCuTruId = yeuCau.QuanHeCuTruId,
             NgayXuLy = yeuCau.NgayXuLy,

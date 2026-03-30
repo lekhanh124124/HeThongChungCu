@@ -52,7 +52,20 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
         // 2. Setup Residency
         var loaiQuanHe = LoaiQuanHeCuTru.FromValue(request.LoaiQuanHeCuTruId);
         var existingRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
+
+        // Ensure apartment has a householder before adding other members
+        if (loaiQuanHe != LoaiQuanHeCuTru.ChuHo)
+        {
+            var hasActiveHouseholder = existingRelations.Any(x =>
+                x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo &&
+                x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
+
+            if (!hasActiveHouseholder)
+                return Result.Failure<CuDanResponse>(QuanHeCuTruErrors.HouseholderNotFound);
+        }
+
         var now = _dateTimeProvider.Now.DateTime;
+
 
         var quanHe = new QuanHeCuTru(canHo.Id, user.Id, loaiQuanHe!, now, existingRelations);
 

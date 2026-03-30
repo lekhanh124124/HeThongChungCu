@@ -28,43 +28,32 @@ public class TaoHoSoCommandHandler : ICommandHandler<TaoHoSoCommand, UserInfoRes
     public async Task<Result<UserInfoResponse>> Handle(TaoHoSoCommand request, CancellationToken cancellationToken)
     {
         // Double check by IdCard before creating to prevent duplicates if someone calls this directly after search
-        NguoiDung? user;
         if (!string.IsNullOrEmpty(request.IdCard))
         {
-            user = await _userRepository.GetByCCCDAsync(request.IdCard, cancellationToken);
-            if (user != null)
+            var IdCardExists = await _userRepository.AnyAsync(u => u.CCCD == request.IdCard, cancellationToken);
+            if (IdCardExists)
             {
-                return Result.Success(new UserInfoResponse
-                {
-                    Id = user.Id,
-                    FirstName = user.Ten,
-                    LastName = user.Ho,
-                    Dob = user.NgaySinh,
-                    GioiTinhId = user.GioiTinhId.Value,
-                    GioiTinhName = user.GioiTinhId.Name,
-                    DiaChi = user.DiaChi,
-                    IdCard = user.CCCD,
-                    PhoneNumber = user.SoDienThoai ?? string.Empty,
-                    TaiLieuCuTrus = user.TaiLieu.Select(d => new TaiLieuResponse
-                    {
-                        Id = d.Id,
-                        LoaiGiayToId = d.LoaiGiayToId.Value,
-                        TenLoaiGiayTo = d.LoaiGiayToId.Name,
-                        SoGiayTo = d.SoGiayTo,
-                        NgayPhatHanh = d.NgayPhatHanh,
-                        Files = d.Files.Select(f => new TepTaiLieuResponse(f.Id, f.FileUrl, f.FileName, f.ContentType)).ToList()
-                    }).ToList()
-                });
+                return Result.Failure<UserInfoResponse>(UserErrors.IdCardAlreadyExists);
             }
         }
 
-        user = new NguoiDung(
+        if (!string.IsNullOrEmpty(request.PhoneNumber))
+        {
+            var phoneExists = await _userRepository.AnyAsync(u => u.SoDienThoai == request.PhoneNumber, cancellationToken);
+            if (phoneExists)
+            {
+                return Result.Failure<UserInfoResponse>(UserErrors.PhoneNumberAlreadyExists);
+            }
+        }
+
+        var user = new NguoiDung(
             request.FirstName,
             request.LastName,
             request.Dob,
             GioiTinh.FromValue(request.GioiTinhId)!,
             request.DiaChi,
-            request.IdCard);
+            request.IdCard,
+            request.PhoneNumber);
 
         await _userRepository.AddAsync(user, cancellationToken);
 
@@ -73,7 +62,7 @@ public class TaoHoSoCommandHandler : ICommandHandler<TaoHoSoCommand, UserInfoRes
         var tepTaiLieus = await _tepTaiLieuRepository.GetByIdsAsync(allFileIds, cancellationToken);
         var tepTaiLieuDict = tepTaiLieus.ToDictionary(f => f.Id);
 
-        if (request.TaiLieuCuTrus != null && request.TaiLieuCuTrus.Any())
+        if (request.TaiLieuCuTrus != null && request.TaiLieuCuTrus.Count != 0)
         {
             foreach (var docReq in request.TaiLieuCuTrus)
             {
@@ -112,7 +101,7 @@ public class TaoHoSoCommandHandler : ICommandHandler<TaoHoSoCommand, UserInfoRes
             GioiTinhName = user.GioiTinhId.Name,
             DiaChi = user.DiaChi,
             IdCard = user.CCCD,
-            PhoneNumber = user.SoDienThoai ?? string.Empty,
+            PhoneNumber = user.SoDienThoai,
             TaiLieuCuTrus = user.TaiLieu.Select(d => new TaiLieuResponse
             {
                 Id = d.Id,

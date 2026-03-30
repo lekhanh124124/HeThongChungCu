@@ -23,11 +23,27 @@ public class YeuCauCuTruEFRepository : IYeuCauCuTruEFRepository
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public async Task<IEnumerable<YeuCauCuTru>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Set<YeuCauCuTru>()
+            .Where(x => ids.Contains(x.Id))
+            .Include(x => x.YeuCauTaiLieuCuTrus)
+                .ThenInclude(x => x.Files)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IEnumerable<YeuCauCuTru>> GetByCanHoIdAsync(int canHoId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<YeuCauCuTru>()
             .Where(x => x.CanHoId == canHoId)
             .OrderByDescending(x => x.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<YeuCauCuTru>> GetByCanHoIdAndStatusesAsync(int canHoId, IEnumerable<TrangThaiYeuCau> statuses, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Set<YeuCauCuTru>()
+            .Where(x => x.CanHoId == canHoId && statuses.Contains(x.TrangThaiId))
             .ToListAsync(cancellationToken);
     }
 
@@ -57,5 +73,10 @@ public class YeuCauCuTruEFRepository : IYeuCauCuTruEFRepository
     public void Delete(YeuCauCuTru yeuCau)
     {
         _dbContext.Set<YeuCauCuTru>().Remove(yeuCau);
+    }
+
+    public void DeleteRange(IEnumerable<YeuCauCuTru> yeuCaus)
+    {
+        _dbContext.Set<YeuCauCuTru>().RemoveRange(yeuCaus);
     }
 }

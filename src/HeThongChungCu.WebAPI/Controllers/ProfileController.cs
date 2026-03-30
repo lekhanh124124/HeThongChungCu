@@ -1,6 +1,5 @@
 using HeThongChungCu.Application.Features.Profile.Commands.ChangePassword;
 using HeThongChungCu.Application.Features.Profile.Commands.UpdateAvatar;
-using HeThongChungCu.Application.Features.Profile.Commands.UpdateProfile;
 using HeThongChungCu.Application.Features.Profile.DTOs;
 using HeThongChungCu.Application.Features.Profile.Queries.GetProfile;
 using HeThongChungCu.Domain.Common;
@@ -53,20 +52,6 @@ public class ProfileController : ApiControllerBase
         return HandleResult(await _sender.Send(new GetProfileQuery(), cancellationToken));
     }
 
-    /// <summary>
-    /// Cập nhật thông tin cá nhân của người dùng đang đăng nhập
-    /// </summary>
-    /// <remarks>
-    /// Cho phép người dùng chỉnh sửa các thông tin cá nhân như Họ Tên, Số điện thoại, CCCD, Ngày sinh, Giới tính, Địa chỉ.
-    /// Trả về thông tin Profile mới nhất sau khi cập nhật.
-    /// </remarks>
-    [HttpPut]
-    [ProducesResponseType(typeof(ApiResponse<UserProfileDetailResponse>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileCommand command, CancellationToken cancellationToken)
-    {
-        return HandleResult(await _sender.Send(command, cancellationToken));
-    }
 
     /// <summary>
     /// Cập nhật ảnh đại diện của người dùng đang đăng nhập

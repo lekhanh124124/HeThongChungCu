@@ -10,9 +10,11 @@ public record TaoYeuCauCuTruCommand(
     // Add Member info
     string? FirstName,
     string? LastName,
-    string? PhoneNumber,
-    DateTime? Dob,
     int? GioiTinhId,
+    DateTime? Dob,
+    string? CCCD,
+    string? PhoneNumber,
+    string? DiaChi,
     int? LoaiQuanHeId,
     // Action info
     List<TaiLieuRequest>? TaiLieuCuTrus,

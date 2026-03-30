@@ -38,10 +38,10 @@ public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuT
 
         var yeuCau = await _yeuCauRepository.GetByIdAsync(request.Id, cancellationToken);
         if (yeuCau == null)
-            return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.NotFoundById(request.Id));
+            return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.NotFoundById(request.Id));
 
         if (yeuCau.CreatedBy != userId)
-            return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.Forbidden("Bạn không có quyền chỉnh sửa yêu cầu này."));
+            return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.Forbidden);
 
         var currentTime = _dateTimeProvider.UtcNow;
 
@@ -86,6 +86,8 @@ public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuT
                 request.Dob,
                 request.GioiTinhId,
                 request.PhoneNumber,
+                request.CCCD,
+                request.DiaChi,
                 request.LoaiQuanHeId ?? yeuCau.YeuCauLoaiQuanHeId, // Use existing if null? Actually command should probably send full state or handle partial
                 request.NoiDung,
                 requestDocuments,
@@ -117,6 +119,8 @@ public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuT
             YeuCauNgaySinh = yeuCau.YeuCauNgaySinh,
             YeuCauGioiTinhId = yeuCau.YeuCauGioiTinhId,
             YeuCauSoDienThoai = yeuCau.YeuCauSoDienThoai,
+            YeuCauCCCD = yeuCau.YeuCauCCCD,
+            YeuCauDiaChi = yeuCau.YeuCauDiaChi,
             YeuCauLoaiQuanHeId = yeuCau.YeuCauLoaiQuanHeId,
             TargetQuanHeCuTruId = yeuCau.QuanHeCuTruId,
             NgayXuLy = yeuCau.NgayXuLy,

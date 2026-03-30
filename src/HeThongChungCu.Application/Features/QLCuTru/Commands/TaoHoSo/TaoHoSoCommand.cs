@@ -7,6 +7,7 @@ public record TaoHoSoCommand(
     string LastName,
     DateTime Dob,
     int GioiTinhId,
-    string DiaChi,
+    string? DiaChi,
     string? IdCard,
+    string? PhoneNumber,
     List<TaiLieuRequest>? TaiLieuCuTrus = null) : ICommand<UserInfoResponse>;

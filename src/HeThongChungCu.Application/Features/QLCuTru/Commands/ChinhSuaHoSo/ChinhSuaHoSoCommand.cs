@@ -8,7 +8,8 @@ public record ChinhSuaHoSoCommand(
     string LastName,
     DateTime Dob,
     int GioiTinhId,
-    string DiaChi,
+    string? DiaChi,
+    int LoaiQuanHeCuTruId,
     string? IdCard,
     string? PhoneNumber,
     List<TaiLieuRequest>? TaiLieuCuTrus = null) : ICommand<UserInfoResponse>;

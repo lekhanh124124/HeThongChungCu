@@ -11,6 +11,7 @@ public class ChinhSuaHoSoCommandValidator : AbstractValidator<ChinhSuaHoSoComman
         RuleFor(x => x.LastName).NotEmpty().MaximumLength(100);
         RuleFor(x => x.Dob).NotEmpty();
         RuleFor(x => x.GioiTinhId).InclusiveBetween(1, 2);
-        RuleFor(x => x.DiaChi).NotEmpty().MaximumLength(500);
+        RuleFor(x => x.DiaChi).MaximumLength(500);
+        RuleFor(x => x.LoaiQuanHeCuTruId).GreaterThan(0);
     }
 }

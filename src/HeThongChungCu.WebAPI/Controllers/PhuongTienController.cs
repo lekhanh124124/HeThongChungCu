@@ -29,6 +29,45 @@ public class PhuongTienController : ApiControllerBase
     }
 
     /// <summary>
+    /// Lấy danh sách phương tiện trong chung cư với bộ lọc và tìm kiếm nâng cao
+    /// </summary>
+    /// <remarks>
+    /// API truy vấn danh sách phương tiện hỗ trợ các chức năng:
+    /// - **Phạm vi (ID)**: Lọc chính xác theo ToaNhaId, TangId, CanHoId.
+    /// - **Từ khóa**: Tìm kiếm theo TenPhuongTien, BienSo, MauXe (qua tham số Keyword).
+    /// - **Bộ lọc**: 
+    ///     - Mã định danh: MaToaNha, MaTang, MaCanHo.
+    ///     - Thông tin xe: LoaiPhuongTienId, MauXe, TrangThaiPhuongTienId.
+    /// - **Sắp xếp**: Hỗ trợ sắp xếp theo MaToaNha, MaTang, MaCanHo, TenPhuongTien, BienSo, MauXe, TrangThaiPhuongTienId.
+    /// - **Phân trang**: PageNumber và PageSize.
+    /// </remarks>
+    [HttpPost("get-list")]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<PhuongTienResponse>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetList(
+        [FromBody] LayDSPhuongTienTrongChungCuQuery query,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(query, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Lấy thông tin chi tiết phương tiện cùng danh sách thẻ
+    /// </summary>
+    /// <param name="query">Dữ liệu yêu cầu (Id)</param>
+    /// <param name="cancellationToken">Token hủy bỏ tác vụ</param>
+    [HttpPost("get-by-id")]
+    [ProducesResponseType(typeof(ApiResponse<PhuongTienResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetById(
+        [FromBody] GetPhuongTienByIdQuery query,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(query, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
     /// Đăng ký phương tiện mới cho căn hộ
     /// </summary>
     /// <remarks>
@@ -98,45 +137,6 @@ public class PhuongTienController : ApiControllerBase
     }
 
     /// <summary>
-    /// Lấy danh sách phương tiện trong chung cư với bộ lọc và tìm kiếm nâng cao
-    /// </summary>
-    /// <remarks>
-    /// API truy vấn danh sách phương tiện hỗ trợ các chức năng:
-    /// - **Phạm vi (ID)**: Lọc chính xác theo ToaNhaId, TangId, CanHoId.
-    /// - **Từ khóa**: Tìm kiếm theo TenPhuongTien, BienSo, MauXe (qua tham số Keyword).
-    /// - **Bộ lọc**: 
-    ///     - Mã định danh: MaToaNha, MaTang, MaCanHo.
-    ///     - Thông tin xe: LoaiPhuongTienId, MauXe, TrangThaiPhuongTienId.
-    /// - **Sắp xếp**: Hỗ trợ sắp xếp theo MaToaNha, MaTang, MaCanHo, TenPhuongTien, BienSo, MauXe, TrangThaiPhuongTienId.
-    /// - **Phân trang**: PageNumber và PageSize.
-    /// </remarks>
-    [HttpPost("get-list")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<PhuongTienResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetList(
-        [FromBody] LayDSPhuongTienTrongChungCuQuery query,
-        CancellationToken cancellationToken)
-    {
-        var result = await _sender.Send(query, cancellationToken);
-        return HandleResult(result);
-    }
-
-    /// <summary>
-    /// Lấy thông tin chi tiết phương tiện cùng danh sách thẻ
-    /// </summary>
-    /// <param name="query">Dữ liệu yêu cầu (Id)</param>
-    /// <param name="cancellationToken">Token hủy bỏ tác vụ</param>
-    [HttpPost("get-by-id")]
-    [ProducesResponseType(typeof(ApiResponse<PhuongTienResponse>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(
-        [FromBody] GetPhuongTienByIdQuery query,
-        CancellationToken cancellationToken)
-    {
-        var result = await _sender.Send(query, cancellationToken);
-        return HandleResult(result);
-    }
-
-    /// <summary>
     /// Gợi ý mã thẻ phương tiện
     /// </summary>
     /// <remarks>
@@ -170,7 +170,7 @@ public class PhuongTienController : ApiControllerBase
     }
 
     /// <summary>
-    /// Xóa phương tiện (Xóa mềm)
+    /// Xóa phương tiện
     /// </summary>
     /// <param name="command">Danh sách ID phương tiện cần xóa</param>
     /// <param name="cancellationToken">Token hủy bỏ tác vụ</param>

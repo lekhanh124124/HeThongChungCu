@@ -26,6 +26,8 @@ public class YeuCauCuTru : AggregateRoot
     public DateTime? YeuCauNgaySinh { get; private set; }
     public int? YeuCauGioiTinhId { get; private set; }
     public string? YeuCauSoDienThoai { get; private set; }
+    public string? YeuCauCCCD { get; private set; }
+    public string? YeuCauDiaChi { get; private set; }
 
     // Proposed changes to Relation Info
     public int? YeuCauLoaiQuanHeId { get; private set; }
@@ -45,14 +47,16 @@ public class YeuCauCuTru : AggregateRoot
 
     public static YeuCauCuTru CreateAddMemberRequest(
         int canHoId,
-        int requesterAccountId,
-        int? quanHeCuTruId,
-        int loaiQuanHeId,
-        string? firstName,
-        string? lastName,
-        DateTime? dob,
-        int? gioiTinhId,
-        string? phoneNumber,
+        int taiKhoanYeuCauId,
+        int? quanHeCuTruYeuCauId,
+        int loaiQuanHeYeuCauId,
+        string? tenYeuCau,
+        string? hoYeuCau,
+        DateTime? ngaySinhYeuCau,
+        int? gioiTinhYeuCauId,
+        string? soDienThoaiYeuCau,
+        string? cccdYeuCau,
+        string? diaChiYeuCau,
         string? noiDung,
         IEnumerable<YeuCauTaiLieuCuTru>? documents,
         DateTimeOffset createdAt,
@@ -60,13 +64,15 @@ public class YeuCauCuTru : AggregateRoot
     {
         var request = new YeuCauCuTru(canHoId, LoaiYeuCau.Them, noiDung, initialStatus)
         {
-            QuanHeCuTruId = quanHeCuTruId,
-            YeuCauLoaiQuanHeId = loaiQuanHeId,
-            YeuCauTen = firstName,
-            YeuCauHo = lastName,
-            YeuCauNgaySinh = dob,
-            YeuCauGioiTinhId = gioiTinhId,
-            YeuCauSoDienThoai = phoneNumber
+            QuanHeCuTruId = quanHeCuTruYeuCauId,
+            YeuCauLoaiQuanHeId = loaiQuanHeYeuCauId,
+            YeuCauTen = tenYeuCau,
+            YeuCauHo = hoYeuCau,
+            YeuCauNgaySinh = ngaySinhYeuCau,
+            YeuCauGioiTinhId = gioiTinhYeuCauId,
+            YeuCauSoDienThoai = soDienThoaiYeuCau,
+            YeuCauCCCD = cccdYeuCau,
+            YeuCauDiaChi = diaChiYeuCau
         };
 
         if (documents != null)
@@ -77,7 +83,7 @@ public class YeuCauCuTru : AggregateRoot
             }
         }
 
-        request.SetCreated(requesterAccountId, createdAt);
+        request.SetCreated(taiKhoanYeuCauId, createdAt);
         return request;
     }
 
@@ -91,7 +97,9 @@ public class YeuCauCuTru : AggregateRoot
         DateTime? dob,
         int? gioiTinhId,
         string? phoneNumber,
-        string? noiDung, 
+        string? cccd,
+        string? diaChi,
+        string? noiDung,
         IEnumerable<YeuCauTaiLieuCuTru>? documents,
         DateTimeOffset createdAt,
         TrangThaiYeuCau? initialStatus = null)
@@ -104,7 +112,9 @@ public class YeuCauCuTru : AggregateRoot
             YeuCauHo = lastName,
             YeuCauNgaySinh = dob,
             YeuCauGioiTinhId = gioiTinhId,
-            YeuCauSoDienThoai = phoneNumber
+            YeuCauSoDienThoai = phoneNumber,
+            YeuCauCCCD = cccd,
+            YeuCauDiaChi = diaChi
         };
 
         if (documents != null)
@@ -165,6 +175,8 @@ public class YeuCauCuTru : AggregateRoot
         DateTime? dob,
         int? gioiTinhId,
         string? phoneNumber,
+        string? cccd,
+        string? diaChi,
         int? loaiQuanHeId,
         string? noiDung,
         IEnumerable<YeuCauTaiLieuCuTru>? documents,
@@ -179,6 +191,8 @@ public class YeuCauCuTru : AggregateRoot
         YeuCauNgaySinh = dob;
         YeuCauGioiTinhId = gioiTinhId;
         YeuCauSoDienThoai = phoneNumber;
+        YeuCauCCCD = cccd;
+        YeuCauDiaChi = diaChi;
         YeuCauLoaiQuanHeId = loaiQuanHeId;
         NoiDung = noiDung;
 
@@ -210,5 +224,14 @@ public class YeuCauCuTru : AggregateRoot
 
         TrangThaiId = TrangThaiYeuCau.Withdrawn;
         SetModified(modifierAccountId, updatedAt);
+    }
+
+    public void Invalidate(string? lyDo)
+    {
+        if (TrangThaiId != TrangThaiYeuCau.Pending && TrangThaiId != TrangThaiYeuCau.Saved)
+            return;
+
+        TrangThaiId = TrangThaiYeuCau.Invalidated;
+        LyDo = string.IsNullOrWhiteSpace(LyDo) ? lyDo : $"{LyDo} | {lyDo}";
     }
 }

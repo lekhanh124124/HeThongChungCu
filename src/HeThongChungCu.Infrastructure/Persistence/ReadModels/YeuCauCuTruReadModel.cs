@@ -14,6 +14,13 @@ public record YeuCauCuTruReadModel
     public int? NguoiXuLyId { get; init; }
 
     // Flattened fields
+    public string? YeuCauTen { get; init; }
+    public string? YeuCauHo { get; init; }
+    public DateTime? YeuCauNgaySinh { get; init; }
+    public int? YeuCauGioiTinhId { get; init; }
+    public string? YeuCauSoDienThoai { get; init; }
+    public string? YeuCauCCCD { get; init; }
+    public string? YeuCauDiaChi { get; init; }
     public int? YeuCauLoaiQuanHeId { get; init; }
     public int? QuanHeCuTruId { get; init; }
 }

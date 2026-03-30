@@ -11,7 +11,7 @@ public class NguoiDung : AggregateRoot
 
     public DateTime NgaySinh { get; private set; }
     public GioiTinh GioiTinhId { get; private set; } = null!;
-    public string DiaChi { get; private set; } = string.Empty;
+    public string? DiaChi { get; private set; }
     public string? CCCD { get; private set; }
     public string? SoDienThoai { get; private set; }
 
@@ -20,7 +20,7 @@ public class NguoiDung : AggregateRoot
 
     private NguoiDung() { } // EF Core
 
-    public NguoiDung(string ten, string ho, DateTime ngaySinh, GioiTinh gioiTinhId, string diaChi, string? cccd = null, string? soDienThoai = null)
+    public NguoiDung(string ten, string ho, DateTime ngaySinh, GioiTinh gioiTinhId, string? diaChi, string? cccd = null, string? soDienThoai = null)
     {
         Ten = ten;
         Ho = ho;
@@ -31,7 +31,7 @@ public class NguoiDung : AggregateRoot
         SoDienThoai = soDienThoai;
     }
 
-    public void UpdateProfile(string ten, string ho, DateTime ngaySinh, GioiTinh gioiTinhId, string diaChi, string? cccd = null, string? soDienThoai = null)
+    public void UpdateProfile(string ten, string ho, DateTime ngaySinh, GioiTinh gioiTinhId, string? diaChi, string? cccd = null, string? soDienThoai = null)
     {
         Ten = ten;
         Ho = ho;

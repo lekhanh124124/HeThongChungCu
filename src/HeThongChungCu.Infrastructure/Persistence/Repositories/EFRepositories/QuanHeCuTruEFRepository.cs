@@ -51,18 +51,20 @@ public class QuanHeCuTruEFRepository : IQuanHeCuTruEFRepository
     public async Task<IEnumerable<QuanHeCuTru>> GetByCanHoIdAsync(int canHoId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<QuanHeCuTru>()
-            .Where(q => q.CanHoId == canHoId && !q.IsDeleted)
+            .Where(q =>
+                q.CanHoId == canHoId &&
+                !q.IsDeleted)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<QuanHeCuTru?> GetByUserAndCanHoAsync(int nguoiDungId, int canHoId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<QuanHeCuTru>()
-            .FirstOrDefaultAsync(q => 
-                q.NguoiDungId == nguoiDungId && 
-                q.CanHoId == canHoId && 
-                !q.IsDeleted && 
-                q.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru, 
+            .FirstOrDefaultAsync(q =>
+                q.NguoiDungId == nguoiDungId &&
+                q.CanHoId == canHoId &&
+                !q.IsDeleted &&
+                q.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru,
                 cancellationToken);
     }
 }

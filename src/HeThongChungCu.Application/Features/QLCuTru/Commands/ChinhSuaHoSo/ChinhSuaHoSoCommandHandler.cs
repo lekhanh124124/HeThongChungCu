@@ -30,7 +30,7 @@ public class ChinhSuaHoSoCommandHandler : ICommandHandler<ChinhSuaHoSoCommand, U
     {
         var relation = await _quanHeCuTruRepository.GetByIdAsync(request.QuanHeCuTruId, cancellationToken);
         if (relation == null)
-            return Result.Failure<UserInfoResponse>(GeneralErrors.NotFoundById(request.QuanHeCuTruId));
+            return Result.Failure<UserInfoResponse>(QuanHeCuTruErrors.NotFound);
 
         var user = await _userRepository.GetByIdWithDocumentsAsync(relation.NguoiDungId, cancellationToken);
         if (user == null)
@@ -46,7 +46,10 @@ public class ChinhSuaHoSoCommandHandler : ICommandHandler<ChinhSuaHoSoCommand, U
             request.IdCard,
             request.PhoneNumber);
 
-        // 2. Document Reconciliation Logic (similar to PheDuyetYeuCauCuTru)
+        // 2. Update relationship info
+        relation.ThayDoiLoaiQuanHe(LoaiQuanHeCuTru.FromValue(request.LoaiQuanHeCuTruId)!);
+
+        // 3. Document Reconciliation Logic (similar to PheDuyetYeuCauCuTru)
         if (request.TaiLieuCuTrus != null)
         {
             var currentDocs = user.TaiLieu.ToList();
@@ -56,7 +59,7 @@ public class ChinhSuaHoSoCommandHandler : ICommandHandler<ChinhSuaHoSoCommand, U
             var proposedOriginalIds = proposedDocs.Where(d => d.TaiLieuCuTruId.HasValue)
                                                 .Select(d => d.TaiLieuCuTruId!.Value)
                                                 .ToList();
-            
+
             foreach (var doc in currentDocs)
             {
                 if (!proposedOriginalIds.Contains(doc.Id))
@@ -102,6 +105,7 @@ public class ChinhSuaHoSoCommandHandler : ICommandHandler<ChinhSuaHoSoCommand, U
         }
 
         _userRepository.Update(user);
+        _quanHeCuTruRepository.Update(relation);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new UserInfoResponse
@@ -115,6 +119,8 @@ public class ChinhSuaHoSoCommandHandler : ICommandHandler<ChinhSuaHoSoCommand, U
             DiaChi = user.DiaChi,
             IdCard = user.CCCD,
             PhoneNumber = user.SoDienThoai ?? string.Empty,
+            LoaiQuanHeCuTruId = relation.LoaiQuanHeCuTruId.Value,
+            TenLoaiQuanHeCuTru = relation.LoaiQuanHeCuTruId.Name,
             TaiLieuCuTrus = user.TaiLieu.Select(d => new TaiLieuResponse
             {
                 Id = d.Id,

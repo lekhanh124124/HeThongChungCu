@@ -34,16 +34,9 @@ public class TuChoiYeuCauCuTruCommandHandler : ICommandHandler<TuChoiYeuCauCuTru
 
         var yeuCau = await _yeuCauRepository.GetByIdAsync(request.YeuCauCuTruId, cancellationToken);
         if (yeuCau == null)
-            return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.NotFoundById(request.YeuCauCuTruId));
-
-        if (yeuCau.TrangThaiId != TrangThaiYeuCau.Pending)
-            return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.BadRequest("Yêu cầu này đã được xử lý hoặc không ở trạng thái chờ."));
-
-        if (string.IsNullOrEmpty(request.LyDo))
-            return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.BadRequest("Lý do từ chối là bắt buộc."));
+            return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.NotFound);
 
         var now = _dateTimeProvider.UtcNow.DateTime;
-
         yeuCau.Reject(userId.Value, request.LyDo, now);
         _yeuCauRepository.Update(yeuCau);
 

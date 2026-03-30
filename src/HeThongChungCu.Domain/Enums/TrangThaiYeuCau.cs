@@ -10,6 +10,8 @@ public class TrangThaiYeuCau : BaseEnum<TrangThaiYeuCau, int>
     public static readonly TrangThaiYeuCau Saved = new(4, "Đã lưu");
     public static readonly TrangThaiYeuCau Withdrawn = new(5, "Đã thu hồi");
 
+    public static readonly TrangThaiYeuCau Invalidated = new(6, "Hết hiệu lực");
+
     private TrangThaiYeuCau(int value, string name) : base(value, name)
     {
     }

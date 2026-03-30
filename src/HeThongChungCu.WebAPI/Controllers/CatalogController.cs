@@ -245,4 +245,22 @@ public class CatalogController : ApiControllerBase
 
         return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
+
+    /// <summary>
+    /// Lấy danh sách trạng thái yêu cầu cư trú để chọn
+    /// </summary>
+    [HttpPost("trang-thai-yeu-cau-cu-tru-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTrangThaiYeuCauCuTruForSelector()
+    {
+        var result = TrangThaiYeuCauCuTru.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
 }

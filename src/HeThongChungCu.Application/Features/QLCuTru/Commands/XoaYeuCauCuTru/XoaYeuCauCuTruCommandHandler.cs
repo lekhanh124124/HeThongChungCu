@@ -16,17 +16,16 @@ public class XoaYeuCauCuTruCommandHandler : ICommandHandler<XoaYeuCauCuTruComman
 
     public async Task<Result<bool>> Handle(XoaYeuCauCuTruCommand request, CancellationToken cancellationToken)
     {
-        if (request.Ids == null || request.Ids.Count == 0)
-            return Result.Failure<bool>(GeneralErrors.BadRequest("Danh sách ID không được để trống."));
+        var yeuCaus = (await _yeuCauRepository.GetByIdsAsync(request.Ids, cancellationToken)).ToList();
 
-        foreach (var id in request.Ids)
+        if (yeuCaus.Count != request.Ids.Count)
         {
-            var yeuCau = await _yeuCauRepository.GetByIdAsync(id, cancellationToken);
-            if (yeuCau != null)
-            {
-                _yeuCauRepository.Delete(yeuCau);
-            }
+            var foundIds = yeuCaus.Select(y => y.Id).ToList();
+            var missingIds = request.Ids.Except(foundIds).ToList();
+            return YeuCauCuTruErrors.NotFoundByIds(missingIds);
         }
+
+        _yeuCauRepository.DeleteRange(yeuCaus);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return true;

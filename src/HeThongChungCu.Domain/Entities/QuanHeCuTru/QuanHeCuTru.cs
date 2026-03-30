@@ -1,6 +1,7 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
+using HeThongChungCu.Domain.Events;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -16,16 +17,22 @@ public class QuanHeCuTru : AggregateRoot
     private QuanHeCuTru() { } // EF Core
 
     public QuanHeCuTru(
-        int canHoId, 
-        int nguoiDungId, 
-        LoaiQuanHeCuTru loaiQuanHeCuTruId, 
+        int canHoId,
+        int nguoiDungId,
+        LoaiQuanHeCuTru loaiQuanHeCuTruId,
         DateTime ngayBatDau,
         IEnumerable<QuanHeCuTru> existingRelations)
     {
-        if (existingRelations.Any(x => x.NguoiDungId == nguoiDungId && x.CanHoId == canHoId && x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
+        if (existingRelations.Any(x =>
+                x.NguoiDungId == nguoiDungId &&
+                x.CanHoId == canHoId &&
+                x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
             throw new BusinessException("Cư dân này đã đang cư trú tại căn hộ này.");
 
-        if (loaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && existingRelations.Any(x => x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
+        if (loaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo &&
+            existingRelations.Any(x =>
+                x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo &&
+                x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
             throw new BusinessException("Căn hộ đã có chủ hộ.");
 
         CanHoId = canHoId;
@@ -50,5 +57,7 @@ public class QuanHeCuTru : AggregateRoot
 
         NgayKetThuc = ngayKetThuc;
         TrangThaiCuTruId = TrangThaiCuTru.DaKetThuc;
+
+        AddDomainEvent(new KetThucCuTruEvent(CanHoId, LoaiQuanHeCuTruId));
     }
 }

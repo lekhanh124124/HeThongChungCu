@@ -55,6 +55,13 @@ public class YeuCauCuTruDapperRepository : IYeuCauCuTruDapperRepository
                 y.CreatedAt,
                 y.NgayXuLy,
                 y.NguoiXuLyId,
+                y.YeuCauTen,
+                y.YeuCauHo,
+                y.YeuCauNgaySinh,
+                y.YeuCauGioiTinhId,
+                y.YeuCauSoDienThoai,
+                y.YeuCauCCCD,
+                y.YeuCauDiaChi,
                 y.YeuCauLoaiQuanHeId,
                 y.QuanHeCuTruId
             FROM YeuCauCuTru y
@@ -82,6 +89,13 @@ public class YeuCauCuTruDapperRepository : IYeuCauCuTruDapperRepository
             CreatedAt = r.CreatedAt,
             NgayXuLy = r.NgayXuLy,
             NguoiXuLyId = r.NguoiXuLyId,
+            YeuCauTen = r.YeuCauTen,
+            YeuCauHo = r.YeuCauHo,
+            YeuCauNgaySinh = r.YeuCauNgaySinh,
+            YeuCauGioiTinhId = r.YeuCauGioiTinhId,
+            YeuCauSoDienThoai = r.YeuCauSoDienThoai,
+            YeuCauCCCD = r.YeuCauCCCD,
+            YeuCauDiaChi = r.YeuCauDiaChi,
             YeuCauLoaiQuanHeId = r.YeuCauLoaiQuanHeId,
             TargetQuanHeCuTruId = r.QuanHeCuTruId
         }).ToList();

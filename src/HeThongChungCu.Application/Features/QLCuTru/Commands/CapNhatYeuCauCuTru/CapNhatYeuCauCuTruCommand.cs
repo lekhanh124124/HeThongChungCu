@@ -10,6 +10,8 @@ public record CapNhatYeuCauCuTruCommand(
     string? PhoneNumber = null,
     DateTime? Dob = null,
     int? GioiTinhId = null,
+    string? CCCD = null,
+    string? DiaChi = null,
     int? LoaiQuanHeId = null,
     // Action info
     int? NewLoaiQuanHeId = null,

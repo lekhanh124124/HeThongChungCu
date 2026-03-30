@@ -4,7 +4,6 @@ using HeThongChungCu.Application.Features.CuDan.Queries.LayThanhVienCuTru;
 using HeThongChungCu.Application.Features.CuDan.Queries.LayThongTinCuDan;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Application.Features.QLCuTru.Queries.LayDSCuDanTrongChungCu;
-using HeThongChungCu.Application.Features.QLCuTru.Queries.LayLichSuCuTru;
 
 namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 
@@ -14,9 +13,6 @@ public interface IQuanHeCuTruDapperRepository
         LayDSCuDanTrongChungCuQuerySpecification spec,
         CancellationToken cancellationToken = default);
 
-    Task<PagedResult<LichSuCuTruResponse>> GetLichSuAsync(
-        LayLichSuCuTruSpecification spec,
-        CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<QuanHeCuTruResponse>> LayDSCuTruByUserId(
         LayDSCuTruCuaNguoiDungSpecification spec,

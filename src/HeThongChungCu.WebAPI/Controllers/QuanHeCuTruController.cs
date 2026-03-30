@@ -1,5 +1,4 @@
 using HeThongChungCu.Application.Common.Models;
-using HeThongChungCu.Application.Features.QLCuTru.Commands.CapNhatQuanHe;
 using HeThongChungCu.Application.Features.QLCuTru.Commands.KetThucCuTru;
 using HeThongChungCu.Application.Features.QLCuTru.Commands.ThietLapCuTru;
 using HeThongChungCu.Application.Features.QLCuTru.Commands.PheDuyetYeuCauCuTru;
@@ -9,7 +8,6 @@ using HeThongChungCu.Application.Features.QLCuTru.Queries.GetYeuCauCuTruById;
 using HeThongChungCu.Application.Features.QLCuTru.Queries.LayDSYeuCauCuTru;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Application.Features.QLCuTru.Queries.LayDSCuDanTrongChungCu;
-using HeThongChungCu.Application.Features.QLCuTru.Queries.LayLichSuCuTru;
 using HeThongChungCu.Application.Features.QLCuTru.Commands.TaoHoSo;
 using HeThongChungCu.Application.Features.QLCuTru.Commands.TaoMaDinhDanh;
 using HeThongChungCu.Application.Features.QLCuTru.Queries.TimHoSoTheoCCCD;
@@ -36,7 +34,7 @@ public class QuanHeCuTruController : ApiControllerBase
         _sender = sender;
     }
 
-    #region Group 1: Resident Information & History (Read/Query focused)
+    #region Group 1: Quản lý hồ sơ cư trú
 
     /// <summary>
     /// Lấy danh sách cư dân trong chung cư với bộ lọc và tìm kiếm nâng cao
@@ -60,24 +58,6 @@ public class QuanHeCuTruController : ApiControllerBase
         return HandleResult(await _sender.Send(query, cancellationToken));
     }
 
-    /// <summary>
-    /// Lấy lịch sử cư trú của một cư dân
-    /// </summary>
-    /// <remarks>
-    /// API truy vấn lịch sử các lần cư trú của một người dựa trên UserId:
-    /// - **Người dùng**: Lọc theo UserId (Bắt buộc).
-    /// - **Thông tin cư trú**: Loại quan hệ cư trú.
-    /// - **Thời gian**: Khoảng ngày bắt đầu (NgayBatDauFrom/To) và khoảng ngày kết thúc (NgayKetThucFrom/To).
-    /// - **Sắp xếp**: Hỗ trợ sắp xếp theo NgayBatDau, NgayKetThuc, MaCanHo, LoaiQuanHeCuTruId.
-    /// - **Phân trang**: PageNumber và PageSize.
-    /// </remarks>
-    [HttpPost("lich-su")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<LichSuCuTruResponse>>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> LayLichSuCuTru([FromBody] LayLichSuCuTruQuery query, CancellationToken cancellationToken)
-    {
-        return HandleResult(await _sender.Send(query, cancellationToken));
-    }
 
     /// <summary>
     /// Tìm hồ sơ cư dân (Search User) theo CCCD
@@ -93,9 +73,67 @@ public class QuanHeCuTruController : ApiControllerBase
         return HandleResult(await _sender.Send(query, cancellationToken));
     }
 
+    /// <summary>
+    /// Thiết lập cư trú – thêm cư dân vào căn hộ (Dành cho BQL)
+    /// </summary>
+    /// <remarks>
+    /// API dành cho BQL để gán một Hồ sơ người dùng vào một căn hộ cụ thể.
+    /// Hệ thống sẽ tạo một bản ghi Quan hệ cư trú (QuanHeCuTru) liên kết User với CanHo.
+    /// </remarks>
+    [HttpPost]
+    [ProducesResponseType(typeof(ApiResponse<CuDanResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ThietLapCuTru([FromBody] ThietLapCuTruCommand command, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(command, cancellationToken));
+    }
+
+
+    /// <summary>
+    /// Kết thúc cư trú – đánh dấu cư dân đã chuyển đi
+    /// </summary>
+    /// <remarks>
+    /// API dùng để kết thúc khoảng thời gian sinh sống của cư dân tại căn hộ.
+    /// Yêu cầu truyền vào `QuanHeCuTruId`. Hệ thống sẽ cập nhật trạng thái `TrangThaiCuTruId` thành `DaKetThuc` và cập nhật 'NgayKetThuc' của quan hệ cư trú.
+    /// </remarks>
+    [HttpDelete]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> KetThucCuTru([FromBody] KetThucCuTruCommand command, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(command, cancellationToken));
+    }
+
+    /// <summary>
+    /// Tạo hồ sơ cư dân mới
+    /// </summary>
+    /// <remarks>
+    /// API dùng để tạo mới một Hồ sơ người dùng (User) khi cư dân đó chưa từng tồn tại trong hệ thống.
+    /// Hồ sơ này chỉ chứa thông tin định danh cơ bản, chưa liên kết với căn hộ hay tài khoản đăng nhập.
+    /// </remarks>
+    [HttpPost("ho-so")]
+    [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> TaoHoSo([FromBody] TaoHoSoCommand command, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(command, cancellationToken));
+    }
+
+    /// <summary>
+    /// Chỉnh sửa hồ sơ cư dân (Dành cho BQL)
+    /// </summary>
+    /// <remarks>
+    /// API dùng để chỉnh sửa thông tin hồ sơ của cư dân trong căn hộ.
+    /// Cho phép cập nhật thông tin cá nhân và các tài liệu cư trú đi kèm.
+    /// </remarks>
+    [HttpPut("ho-so")]
+    [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ChinhSuaHoSo([FromBody] ChinhSuaHoSoCommand command, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(command, cancellationToken));
+    }
+
     #endregion
 
-    #region Group 2: Residency Request Flow (Citizen <-> Management)
+    #region Group 2: Quản lý yêu cầu cư trú
 
     /// <summary>
     /// Lấy danh sách yêu cầu cư trú (Dành cho BQL) với bộ lọc, sắp xếp và phân trang nâng cao
@@ -198,83 +236,7 @@ public class QuanHeCuTruController : ApiControllerBase
 
     #endregion
 
-    #region Group 3: Direct Residency Management (Management Direct Actions)
-
-    /// <summary>
-    /// Tạo hồ sơ cư dân mới
-    /// </summary>
-    /// <remarks>
-    /// API dùng để tạo mới một Hồ sơ người dùng (User) khi cư dân đó chưa từng tồn tại trong hệ thống.
-    /// Hồ sơ này chỉ chứa thông tin định danh cơ bản, chưa liên kết với căn hộ hay tài khoản đăng nhập.
-    /// </remarks>
-    [HttpPost("ho-so")]
-    [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> TaoHoSo([FromBody] TaoHoSoCommand command, CancellationToken cancellationToken)
-    {
-        return HandleResult(await _sender.Send(command, cancellationToken));
-    }
-
-    /// <summary>
-    /// Chỉnh sửa hồ sơ cư dân (Dành cho BQL)
-    /// </summary>
-    /// <remarks>
-    /// API dùng để chỉnh sửa thông tin hồ sơ của cư dân trong căn hộ.
-    /// Cho phép cập nhật thông tin cá nhân và các tài liệu cư trú đi kèm.
-    /// </remarks>
-    [HttpPut("ho-so")]
-    [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ChinhSuaHoSo([FromBody] ChinhSuaHoSoCommand command, CancellationToken cancellationToken)
-    {
-        return HandleResult(await _sender.Send(command, cancellationToken));
-    }
-
-    /// <summary>
-    /// Thiết lập cư trú – thêm cư dân vào căn hộ (Dành cho BQL)
-    /// </summary>
-    /// <remarks>
-    /// API dành cho BQL để gán một Hồ sơ người dùng vào một căn hộ cụ thể.
-    /// Hệ thống sẽ tạo một bản ghi Quan hệ cư trú (QuanHeCuTru) liên kết User với CanHo.
-    /// </remarks>
-    [HttpPost]
-    [ProducesResponseType(typeof(ApiResponse<CuDanResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ThietLapCuTru([FromBody] ThietLapCuTruCommand command, CancellationToken cancellationToken)
-    {
-        return HandleResult(await _sender.Send(command, cancellationToken));
-    }
-
-    /// <summary>
-    /// Cập nhật quan hệ cư trú (loại quan hệ trong căn hộ)
-    /// </summary>
-    /// <remarks>
-    /// API dùng để sửa thông tin về quan hệ cư trú
-    /// Cho phép đổi loại quan hệ (`LoaiQuanHeCuTruId`).
-    /// </remarks>
-    [HttpPut]
-    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CapNhatQuanHe([FromBody] CapNhatQuanHeCommand command, CancellationToken cancellationToken)
-    {
-        return HandleResult(await _sender.Send(command, cancellationToken));
-    }
-
-    /// <summary>
-    /// Kết thúc cư trú – đánh dấu cư dân đã chuyển đi
-    /// </summary>
-    /// <remarks>
-    /// API dùng để kết thúc khoảng thời gian sinh sống của cư dân tại căn hộ.
-    /// Yêu cầu truyền vào `QuanHeCuTruId`. Hệ thống sẽ cập nhật trạng thái `TrangThaiCuTruId` thành `DaKetThuc` và cập nhật 'NgayKetThuc' của quan hệ cư trú.
-    /// </remarks>
-    [HttpDelete]
-    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> KetThucCuTru([FromBody] KetThucCuTruCommand command, CancellationToken cancellationToken)
-    {
-        return HandleResult(await _sender.Send(command, cancellationToken));
-    }
-
-    #endregion
-
-    #region Group 4: Identity & Account Linking
+    #region Group 4: Liên kết tài khoản
 
     /// <summary>
     /// Tạo mã định danh (sinh token)

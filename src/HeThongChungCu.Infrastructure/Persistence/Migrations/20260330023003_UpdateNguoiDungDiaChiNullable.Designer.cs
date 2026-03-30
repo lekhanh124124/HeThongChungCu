@@ -4,6 +4,7 @@ using HeThongChungCu.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HeThongChungCu.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260330023003_UpdateNguoiDungDiaChiNullable")]
+    partial class UpdateNguoiDungDiaChiNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1177,12 +1180,6 @@ namespace HeThongChungCu.Infrastructure.Migrations
 
                     b.Property<int>("TrangThaiId")
                         .HasColumnType("int");
-
-                    b.Property<string>("YeuCauCCCD")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("YeuCauDiaChi")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("YeuCauGioiTinhId")
                         .HasColumnType("int");

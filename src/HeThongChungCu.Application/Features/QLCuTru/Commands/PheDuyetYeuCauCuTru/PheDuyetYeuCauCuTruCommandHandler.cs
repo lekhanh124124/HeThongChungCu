@@ -41,24 +41,44 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
 
         var yeuCau = await _yeuCauRepository.GetByIdAsync(request.YeuCauCuTruId, cancellationToken);
         if (yeuCau == null)
-            return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.NotFoundById(request.YeuCauCuTruId));
-
-        if (yeuCau.TrangThaiId != TrangThaiYeuCau.Pending)
-            return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.BadRequest("Yêu cầu này đã được xử lý hoặc không ở trạng thái chờ."));
+            return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.NotFound);
 
         var now = _dateTimeProvider.UtcNow.DateTime;
+        yeuCau.Approve(adminId.Value, now);
 
         // Logic Phê duyệt
         if (yeuCau.LoaiYeuCauId == LoaiYeuCau.Them)
         {
+            // Check if CCCD already exists
+            if (!string.IsNullOrEmpty(yeuCau.YeuCauCCCD))
+            {
+                var cccdExists = await _userRepository.AnyAsync(u => u.CCCD == yeuCau.YeuCauCCCD, cancellationToken);
+                if (cccdExists)
+                {
+                    return Result.Failure<YeuCauCuTruResponse>(UserErrors.IdCardAlreadyExists);
+                }
+            }
+
+            // Check if SoDienThoai already exists
+            if (!string.IsNullOrEmpty(yeuCau.YeuCauSoDienThoai))
+            {
+                var phoneExists = await _userRepository.AnyAsync(u => u.SoDienThoai == yeuCau.YeuCauSoDienThoai, cancellationToken);
+                if (phoneExists)
+                {
+                    return Result.Failure<YeuCauCuTruResponse>(UserErrors.PhoneNumberAlreadyExists);
+                }
+            }
+
             // 1. Create User
             var newUser = new NguoiDung(
                 yeuCau.YeuCauTen!,
                 yeuCau.YeuCauHo!,
                 yeuCau.YeuCauNgaySinh ?? DateTime.MinValue,
                 GioiTinh.FromValue(yeuCau.YeuCauGioiTinhId ?? 1, null)!,
-                string.Empty,
+                yeuCau.YeuCauDiaChi,
+                cccd: yeuCau.YeuCauCCCD,
                 soDienThoai: yeuCau.YeuCauSoDienThoai);
+
 
             // 2. Add Documents if any
             foreach (var docReq in yeuCau.YeuCauTaiLieuCuTrus)
@@ -85,7 +105,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         {
             var relation = await _quanHeCuTruRepository.GetByIdAsync(yeuCau.QuanHeCuTruId!.Value, cancellationToken);
             if (relation == null)
-                return Result.Failure<YeuCauCuTruResponse>(GeneralErrors.NotFoundById(yeuCau.QuanHeCuTruId.Value));
+                return Result.Failure<YeuCauCuTruResponse>(QuanHeCuTruErrors.NotFound);
 
             var user = await _userRepository.GetByIdWithDocumentsAsync(relation.NguoiDungId, cancellationToken);
             if (user == null)
@@ -105,7 +125,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
             var proposedOriginalIds = proposedDocs.Where(d => d.TaiLieuCuTruId.HasValue)
                                                 .Select(d => d.TaiLieuCuTruId!.Value)
                                                 .ToList();
-            
+
             foreach (var doc in currentDocs)
             {
                 if (!proposedOriginalIds.Contains(doc.Id))
@@ -148,8 +168,8 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
                     yeuCau.YeuCauHo ?? user.Ho,
                     yeuCau.YeuCauNgaySinh ?? user.NgaySinh,
                     yeuCau.YeuCauGioiTinhId.HasValue ? GioiTinh.FromValue(yeuCau.YeuCauGioiTinhId.Value, null)! : user.GioiTinhId,
-                    user.DiaChi, // Keep existing address
-                    user.CCCD,   // Keep existing CCCD
+                    yeuCau.YeuCauDiaChi ?? user.DiaChi,
+                    yeuCau.YeuCauCCCD ?? user.CCCD,
                     yeuCau.YeuCauSoDienThoai ?? user.SoDienThoai);
             }
             _userRepository.Update(user);
@@ -164,7 +184,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
             }
         }
 
-        yeuCau.Approve(adminId.Value, now);
+
         _yeuCauRepository.Update(yeuCau);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -198,7 +218,9 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
                 NgayPhatHanh = d.NgayPhatHanh,
                 TargetTaiLieuCuTruId = d.TaiLieuCuTruId,
                 Files = d.Files.Select(f => new TepTaiLieuResponse(f.Id, f.FileUrl, f.FileName, f.ContentType)).ToList()
-            }).ToList()
+            }).ToList(),
+            YeuCauCCCD = yeuCau.YeuCauCCCD,
+            YeuCauDiaChi = yeuCau.YeuCauDiaChi
         });
     }
 }
