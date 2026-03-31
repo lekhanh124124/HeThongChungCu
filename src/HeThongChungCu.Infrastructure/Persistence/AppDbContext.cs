@@ -48,6 +48,8 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<YeuCauCuTru> YeuCauCuTrus => Set<YeuCauCuTru>();
     public DbSet<YeuCauTaiLieuCuTru> YeuCauTaiLieuCuTrus => Set<YeuCauTaiLieuCuTru>();
     public DbSet<YeuCauPhuongTien> YeuCauPhuongTiens => Set<YeuCauPhuongTien>();
+    public DbSet<ThongBao> ThongBaos => Set<ThongBao>();
+    public DbSet<PhanBoThongBao> PhanBoThongBaos => Set<PhanBoThongBao>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

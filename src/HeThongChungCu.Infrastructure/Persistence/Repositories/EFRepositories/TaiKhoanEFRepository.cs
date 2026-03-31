@@ -108,4 +108,13 @@ public class TaiKhoanEFRepository : ITaiKhoanEFRepository
     {
         _dbContext.TaiKhoan.Remove(taiKhoan);
     }
+
+    public async Task<List<int>> GetNguoiDungIdsByRoleAsync(Role role, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.TaiKhoan
+            .Where(tk => tk.PhanQuyens.Any(pq => pq.RoleId == role) && tk.NguoiDungId.HasValue)
+            .Select(tk => tk.NguoiDungId!.Value)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
 }

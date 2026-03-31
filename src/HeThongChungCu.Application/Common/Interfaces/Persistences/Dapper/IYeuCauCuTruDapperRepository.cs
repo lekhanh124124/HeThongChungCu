@@ -10,4 +10,5 @@ public interface IYeuCauCuTruDapperRepository
         LayDSYeuCauCuTruQuerySpecification spec,
         CancellationToken cancellationToken = default);
     Task<YeuCauCuTruResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<DSYeuCauCuTruResponse?> GetListResponseByIdAsync(int id, CancellationToken cancellationToken = default);
 }

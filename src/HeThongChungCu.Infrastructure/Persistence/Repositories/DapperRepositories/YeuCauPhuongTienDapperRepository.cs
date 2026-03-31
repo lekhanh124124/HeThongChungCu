@@ -8,6 +8,7 @@ using HeThongChungCu.Infrastructure.Persistence.ReadModels;
 using System.Data;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
 
@@ -84,7 +85,8 @@ public class YeuCauPhuongTienDapperRepository : IYeuCauPhuongTienDapperRepositor
             {sqlPagination}
             """;
 
-        var rows = (await connection.QueryAsync<YeuCauPhuongTienReadModel>(sql, parameters)).ToList();
+        var transaction = _dbContext.GetDbTransaction();
+        var rows = (await connection.QueryAsync<YeuCauPhuongTienReadModel>(sql, parameters, transaction: transaction)).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var loaiYeuCauMap = LoaiYeuCau.ToDictionary();
@@ -159,7 +161,8 @@ public class YeuCauPhuongTienDapperRepository : IYeuCauPhuongTienDapperRepositor
             WHERE j.YeuCauPhuongTienId = @Id;
             """;
 
-        using var multi = await connection.QueryMultipleAsync(sql, new { Id = id });
+        var transaction = _dbContext.GetDbTransaction();
+        using var multi = await connection.QueryMultipleAsync(sql, new { Id = id }, transaction: transaction);
 
         var readModel = await multi.ReadFirstOrDefaultAsync<YeuCauPhuongTienReadModel>();
         if (readModel == null) return null;
@@ -196,6 +199,79 @@ public class YeuCauPhuongTienDapperRepository : IYeuCauPhuongTienDapperRepositor
             YeuCauBienSo = readModel.YeuCauBienSo,
             YeuCauMauXe = readModel.YeuCauMauXe,
             YeuCauHinhAnhPhuongTiens = images
+        };
+    }
+
+    public async Task<DSYeuCauPhuongTienResponse?> GetListResponseByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var connection = _dbContext.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync(cancellationToken);
+
+        var sql = $"""
+            SELECT
+                y.Id,
+                y.CanHoId,
+                y.YeuCauPhuongTienId,
+                y.LoaiYeuCauId,
+                y.TrangThaiId,
+                y.LyDo,
+                y.NoiDung,
+                y.CreatedAt,
+                y.NgayXuLy,
+                y.NguoiXuLyId,
+                y.CreatedBy,
+                y.YeuCauTenPhuongTien,
+                y.YeuCauLoaiPhuongTienId,
+                y.YeuCauBienSo,
+                y.YeuCauMauXe,
+                ch.TenCanHo,
+                tg.TenTang,
+                tg.ToaNhaId,
+                ch.TangId,
+                tn.TenToaNha,
+                COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10))) AS TenNguoiGui,
+                COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10))) AS TenNguoiXuLy
+            FROM YeuCauPhuongTien y
+            LEFT JOIN CanHo ch ON y.CanHoId = ch.Id
+            LEFT JOIN Tang tg ON ch.TangId = tg.Id
+            LEFT JOIN ToaNha tn ON tg.ToaNhaId = tn.Id
+            LEFT JOIN NguoiDung nd1 ON y.CreatedBy = nd1.Id
+            LEFT JOIN TaiKhoan tk1 ON nd1.Id = tk1.NguoiDungId
+            LEFT JOIN NguoiDung nd2 ON y.NguoiXuLyId = nd2.Id
+            LEFT JOIN TaiKhoan tk2 ON nd2.Id = tk2.NguoiDungId
+            WHERE y.Id = @Id AND y.IsDeleted = 0
+            """;
+
+        var transaction = _dbContext.GetDbTransaction();
+        var row = await connection.QueryFirstOrDefaultAsync<YeuCauPhuongTienReadModel>(sql, new { Id = id }, transaction: transaction);
+        if (row == null) return null;
+
+        var loaiYeuCauMap = LoaiYeuCau.ToDictionary();
+        var trangThaiMap = TrangThaiYeuCau.ToDictionary();
+
+        return new DSYeuCauPhuongTienResponse
+        {
+            Id = row.Id,
+            CanHoId = row.CanHoId,
+            TenCanHo = row.TenCanHo,
+            TenTang = row.TenTang,
+            TenToaNha = row.TenToaNha,
+            LoaiYeuCauId = row.LoaiYeuCauId,
+            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(row.LoaiYeuCauId, string.Empty),
+            TrangThaiId = row.TrangThaiId,
+            TenTrangThai = trangThaiMap.GetValueOrDefault(row.TrangThaiId, string.Empty),
+            LyDo = row.LyDo,
+            NoiDung = row.NoiDung,
+            CreatedAt = row.CreatedAt,
+            NgayXuLy = row.NgayXuLy,
+            NguoiXuLyId = row.NguoiXuLyId,
+            CreatedBy = row.CreatedBy,
+            TenNguoiGui = row.TenNguoiGui,
+            TenNguoiXuLy = row.TenNguoiXuLy,
+            YeuCauTenPhuongTien = row.YeuCauTenPhuongTien,
+            YeuCauBienSo = row.YeuCauBienSo
         };
     }
 }

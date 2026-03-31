@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignalR Real-time Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f4f7f6; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .config-section { margin-bottom: 20px; padding: 15px; background: #e8f4fd; border-radius: 5px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #2980b9; }
+        #logs { height: 300px; overflow-y: auto; background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 4px; font-family: 'Courier New', Courier, monospace; font-size: 14px; }
+        .log-entry { margin-bottom: 8px; border-bottom: 1px solid #3e5871; padding-bottom: 5px; }
+        .log-time { color: #95a5a6; font-size: 12px; }
+        .log-msg { color: #2ecc71; font-weight: bold; }
+        .status { font-weight: bold; margin-bottom: 10px; }
+        .status.connected { color: #27ae60; }
+        .status.disconnected { color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔔 SignalR Notification Tester</h1>
+    
+    <div class="config-section">
+        <label><b>Hub URL:</b> (Ví dụ: https://localhost:7112/notifications)</label>
+        <input type="text" id="hubUrl" value="https://localhost:7112/notifications">
+        
+        <label><b>JWT Token:</b> (Lấy từ Login API)</label>
+        <input type="text" id="token" placeholder="Dán Bearer Token vào đây...">
+        
+        <button id="btnConnect" onclick="connect()">Connect to Hub</button>
+        <button id="btnClear" onclick="clearLogs()" style="background: #95a5a6;">Clear Logs</button>
+    </div>
+
+    <div id="status" class="status disconnected">Status: Disconnected</div>
+    
+    <h3>Received Messages:</h3>
+    <div id="logs">
+        <div class="log-entry">Waiting for connection...</div>
+    </div>
+</div>
+
+<script>
+    let connection = null;
+
+    function log(message, isData = false) {
+        const logsDiv = document.getElementById('logs');
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        
+        const now = new Date().toLocaleTimeString();
+        const timeSpan = `<span class="log-time">[${now}]</span> `;
+        
+        if (isData) {
+            entry.innerHTML = `${timeSpan} <span class="log-msg">REAL-TIME DATA RECEIVED:</span> <pre>${JSON.stringify(message, null, 2)}</pre>`;
+        } else {
+            entry.innerHTML = `${timeSpan} ${message}`;
+        }
+        
+        logsDiv.prepend(entry);
+    }
+
+    async function connect() {
+        const url = document.getElementById('hubUrl').value;
+        const token = document.getElementById('token').value;
+
+        if (!token) {
+            alert('Vui lòng dán JWT Token để xác thực!');
+            return;
+        }
+
+        if (connection) {
+            await connection.stop();
+        }
+
+        connection = new signalR.HubConnectionBuilder()
+            .withUrl(url, {
+                accessTokenFactory: () => token
+            })
+            .withAutomaticReconnect()
+            .build();
+
+        // Đăng ký sự kiện lắng nghe "ReceiveNotification"
+        connection.on("ReceiveNotification", (data) => {
+            console.log("Data received:", data);
+            log(data, true);
+            
+            // Hiển thị thông báo trình duyệt nếu được phép
+            if (Notification.permission === "granted") {
+                new Notification(data.TieuDe, { body: data.NoiDung });
+            }
+        });
+
+        try {
+            const statusDiv = document.getElementById('status');
+            log(`Attempting to connect to ${url}...`);
+            
+            await connection.start();
+            
+            statusDiv.innerHTML = "Status: Connected ✅";
+            statusDiv.className = "status connected";
+            log("Successfully connected to SignalR Hub!");
+
+            // Xin quyền hiện thông báo desktop
+            if (Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+
+        } catch (err) {
+            log(`Error: ${err.message}`);
+            document.getElementById('status').innerHTML = "Status: Connection Failed ❌";
+            document.getElementById('status').className = "status disconnected";
+        }
+    }
+
+    function clearLogs() {
+        document.getElementById('logs').innerHTML = "";
+    }
+</script>
+
+</body>
+</html>

@@ -17,6 +17,7 @@ public interface ITaiKhoanEFRepository
     Task<TaiKhoan?> GetByRefreshTokenAsync(string refreshTokenHash, CancellationToken cancellationToken = default);
     Task<TaiKhoan?> GetByTokenAsync(string tokenHash, TokenType tokenType, CancellationToken cancellationToken = default);
     Task<bool> AnyAsync(Expression<Func<TaiKhoan, bool>> expression, CancellationToken cancellationToken = default);
+    Task<List<int>> GetNguoiDungIdsByRoleAsync(Role role, CancellationToken cancellationToken = default);
 
     Task AddAsync(TaiKhoan taiKhoan, CancellationToken cancellationToken = default);
     void Update(TaiKhoan taiKhoan);

@@ -11,4 +11,5 @@ public interface IYeuCauPhuongTienDapperRepository
         CancellationToken cancellationToken = default);
 
     Task<YeuCauPhuongTienResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<DSYeuCauPhuongTienResponse?> GetListResponseByIdAsync(int id, CancellationToken cancellationToken = default);
 }

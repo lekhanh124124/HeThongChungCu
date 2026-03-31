@@ -3,6 +3,7 @@ using HeThongChungCu.Application;
 using HeThongChungCu.Application.Common.Options;
 using HeThongChungCu.Infrastructure;
 using HeThongChungCu.Infrastructure.Persistence;
+using HeThongChungCu.Infrastructure.Notifications;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
@@ -99,6 +100,7 @@ namespace HeThongChungCu.WebAPI
             app.UseAuthorization();
 
             app.MapControllers();
+            app.MapHub<NotificationHub>("/notifications");
 
             // ================== MAP ENDPOINT FOR HEALTH CHECKS ==================
             app.MapHealthChecks("/health/live", new HealthCheckOptions

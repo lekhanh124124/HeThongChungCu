@@ -80,6 +80,10 @@ public static class DependencyInjection
 
         services.AddScoped<IDangKyDichVuEFRepository, DangKyDichVuEFRepository>();
         // services.AddScoped<IDangKyDichVuDapperRepository, DangKyDichVuDapperRepository>();
+        
+        services.AddScoped<IThongBaoEFRepository, ThongBaoEFRepository>();
+        services.AddScoped<IThongBaoDapperRepository, ThongBaoDapperRepository>();
+        
         return services;
     }
 }

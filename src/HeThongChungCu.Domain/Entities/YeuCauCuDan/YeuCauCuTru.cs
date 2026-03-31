@@ -1,5 +1,6 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Events;
 using HeThongChungCu.Domain.Exceptions;
 
 namespace HeThongChungCu.Domain.Entities;
@@ -79,6 +80,11 @@ public class YeuCauCuTru : AggregateRoot
             }
         }
 
+        if (request.TrangThaiId == TrangThaiYeuCau.Pending)
+        {
+            request.AddDomainEvent(new YeuCauCuTruCreatedEvent(request));
+        }
+
         return request;
     }
 
@@ -118,6 +124,11 @@ public class YeuCauCuTru : AggregateRoot
             }
         }
 
+        if (request.TrangThaiId == TrangThaiYeuCau.Pending)
+        {
+            request.AddDomainEvent(new YeuCauCuTruCreatedEvent(request));
+        }
+
         return request;
     }
 
@@ -131,6 +142,12 @@ public class YeuCauCuTru : AggregateRoot
         {
             YeuCauQuanHeCuTruId = quanHeCuTruId
         };
+
+        if (request.TrangThaiId == TrangThaiYeuCau.Pending)
+        {
+            request.AddDomainEvent(new YeuCauCuTruCreatedEvent(request));
+        }
+
         return request;
     }
 
@@ -199,6 +216,7 @@ public class YeuCauCuTru : AggregateRoot
             throw new BusinessException("Chỉ có thể gửi yêu cầu đang ở trạng thái đã lưu hoặc đã thu hồi.");
 
         TrangThaiId = TrangThaiYeuCau.Pending;
+        AddDomainEvent(new YeuCauCuTruCreatedEvent(this));
     }
 
     public void Withdraw()
