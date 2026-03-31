@@ -40,15 +40,14 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Lấy danh sách cư dân trong chung cư với bộ lọc và tìm kiếm nâng cao
     /// </summary>
     /// <remarks>
-    /// API truy vấn danh sách cư dân hỗ trợ các chức năng:
-    /// - **Phạm vi (ID)**: Lọc chính xác theo ToaNhaId, TangId, CanHoId.
-    /// - **Từ khóa**: Tìm kiếm theo HoTen, MaToaNha, MaTang, MaCanHo (qua tham số Keyword).
-    /// - **Bộ lọc**: 
-    ///     - Mã định danh: MaToaNha, MaTang, MaCanHo.
-    ///     - Trạng thái: LoaiQuanHeCuTruId, TrangThaiCuTruId.
-    ///     - Thời gian: Khoảng ngày bắt đầu (NgayBatDauFrom/To) và khoảng ngày kết thúc (NgayKetThucFrom/To).
-    /// - **Sắp xếp**: Hỗ trợ sắp xếp theo MaToaNha, MaTang, MaCanHo, HoTen, LoaiQuanHeCuTruId, NgayBatDau, NgayKetThuc, TrangThaiCuTruId.
-    /// - **Phân trang**: PageNumber và PageSize.
+    /// - **Hoàn cảnh sử dụng**: BQL truy vấn danh sách toàn bộ cư dân trong hệ thống để quản lý hồ sơ, phục vụ công tác thống kê hoặc hỗ trợ cư dân.
+    /// - **Hệ thống xử lý**: 
+    ///     - Truy vấn kết hợp thông tin cư dân, căn hộ và tòa nhà.
+    ///     - Hỗ trợ đa dạng các bộ lọc (HoTen, MaToaNha, MaTang, MaCanHo qua Keyword).
+    ///     - Sắp xếp và phân trang phía Server.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `PageNumber`, `PageSize`.
+    ///     - **Tùy chọn (Filter)**: `ToaNhaId`, `TangId`, `CanHoId`, `Keyword`, `MaToaNha`, `MaTang`, `MaCanHo`, `LoaiQuanHeCuTruId` (api/catalog/loai-quan-he-cu-tru-for-selector), `TrangThaiCuTruId` (api/catalog/trang-thai-cu-tru-for-selector), `NgayBatDauFrom/To`, `NgayKetThucFrom/To`, `SortCol`, `IsAsc`.
     /// </remarks>
     [HttpPost("cu-dan")]
     [ProducesResponseType(typeof(ApiResponse<PagedResult<CuDanResponse>>), StatusCodes.Status200OK)]
@@ -63,11 +62,14 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Tìm hồ sơ cư dân (Search User) theo CCCD
     /// </summary>
     /// <remarks>
-    /// API sử dụng khi Nhân viên BQL muốn kiểm tra xem cư dân đã có hồ sơ trong hệ thống hay chưa dựa trên thông tin CCCD.
-    /// Tra cứu thông tin để tránh tạo trùng lặp hồ sơ người dùng và chuẩn bị cho bước thiết lập cư trú.
+    /// - **Hoàn cảnh sử dụng**: Nhân viên BQL kiểm tra sự tồn tại của hồ sơ dựa trên CCCD để quyết định tạo mới hay sử dụng lại hồ sơ cũ khi thiết lập cư trú.
+    /// - **Hệ thống xử lý**: Tìm kiếm chính xác hồ sơ cư dân theo mã CCCD trong toàn hệ thống.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `CCCD`.
     /// </remarks>
     [HttpPost("search-user")]
     [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> TimHoSoTheoCCCD([FromBody] TimHoSoTheoCCCDQuery query, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(query, cancellationToken));
@@ -77,11 +79,17 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Thiết lập cư trú – thêm cư dân vào căn hộ (Dành cho BQL)
     /// </summary>
     /// <remarks>
-    /// API dành cho BQL để gán một Hồ sơ người dùng vào một căn hộ cụ thể.
-    /// Hệ thống sẽ tạo một bản ghi Quan hệ cư trú (QuanHeCuTru) liên kết User với CanHo.
+    /// - **Hoàn cảnh sử dụng**: Nhân viên BQL thực hiện thêm cư dân vào căn hộ một cách thủ công (ví dụ: khi cư dân đến làm việc trực tiếp tại văn phòng).
+    /// - **Hệ thống xử lý**: 
+    ///     - Xác thực sự tồn tại của căn hộ và hồ sơ người dùng.
+    ///     - Kiểm tra điều kiện ràng buộc: Căn hộ phải có ít nhất một "Chủ hộ" đang cư trú trước khi thêm các thành viên khác.
+    ///     - Thiết lập quan hệ cư trú và tự động nâng cấp vai trò tài khoản từ "Khách" lên "Cư dân" nếu tài khoản đã tồn tại.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `CanHoId`, `UserId`, `LoaiQuanHeCuTruId` (1-Chủ hộ, 2-Thành viên, 3-Khách thuê, ... - Lấy danh sách tại api/catalog/loai-quan-he-cu-tru-for-selector).
     /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<CuDanResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ThietLapCuTru([FromBody] ThietLapCuTruCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
@@ -92,8 +100,12 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Kết thúc cư trú – đánh dấu cư dân đã chuyển đi
     /// </summary>
     /// <remarks>
-    /// API dùng để kết thúc khoảng thời gian sinh sống của cư dân tại căn hộ.
-    /// Yêu cầu truyền vào `QuanHeCuTruId`. Hệ thống sẽ cập nhật trạng thái `TrangThaiCuTruId` thành `DaKetThuc` và cập nhật 'NgayKetThuc' của quan hệ cư trú.
+    /// - **Hoàn cảnh sử dụng**: Khi cư dân chuyển đi hoặc không còn sinh sống tại căn hộ.
+    /// - **Hệ thống xử lý**: 
+    ///     - Cập nhật ngày kết thúc cư trú và chuyển trạng thái sang "Đã kết thúc".
+    ///     - Tự động thu hồi các quyền truy cập hoặc các dịch vụ liên quan gắn liền với quan hệ cư trú này (ví dụ: thẻ xe - nếu có cấu hình).
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `QuanHeCuTruId`.
     /// </remarks>
     [HttpDelete]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
@@ -107,11 +119,17 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Tạo hồ sơ cư dân mới
     /// </summary>
     /// <remarks>
-    /// API dùng để tạo mới một Hồ sơ người dùng (User) khi cư dân đó chưa từng tồn tại trong hệ thống.
-    /// Hồ sơ này chỉ chứa thông tin định danh cơ bản, chưa liên kết với căn hộ hay tài khoản đăng nhập.
+    /// - **Hoàn cảnh sử dụng**: BQL tạo bản ghi hồ sơ cá nhân cho một cư dân hoàn toàn mới trong hệ thống.
+    /// - **Hệ thống xử lý**: 
+    ///     - Tạo mới một bản ghi Người dùng với thông tin định danh và tài liệu đi kèm.
+    ///     - Đảm bảo tính duy nhất của mã số định danh (nếu có cung cấp).
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `FirstName`, `LastName`, `Dob`, `GioiTinhId` (Lấy tại api/catalog/gioi-tinh-for-selector).
+    ///     - **Tùy chọn**: `DiaChi`, `IdCard`, `PhoneNumber`, `TaiLieuCuTrus`.
     /// </remarks>
     [HttpPost("ho-so")]
     [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> TaoHoSo([FromBody] TaoHoSoCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
@@ -121,11 +139,15 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Chỉnh sửa hồ sơ cư dân (Dành cho BQL)
     /// </summary>
     /// <remarks>
-    /// API dùng để chỉnh sửa thông tin hồ sơ của cư dân trong căn hộ.
-    /// Cho phép cập nhật thông tin cá nhân và các tài liệu cư trú đi kèm.
+    /// - **Hoàn cảnh sử dụng**: BQL hoặc cư dân có thẩm quyền cập nhật các thông tin cá nhân hoặc tài liệu định danh của cư dân đang cư trú.
+    /// - **Hệ thống xử lý**: Cập nhật thông tin chi tiết của cư dân và đồng bộ hóa các tài liệu pháp lý liên quan.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `QuanHeCuTruId`, `FirstName`, `LastName`, `Dob`, `LoaiQuanHeCuTruId` (api/catalog/loai-quan-he-cu-tru-for-selector).
+    ///     - **Tùy chọn**: `GioiTinhId` (api/catalog/gioi-tinh-for-selector), `DiaChi`.
     /// </remarks>
     [HttpPut("ho-so")]
     [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> ChinhSuaHoSo([FromBody] ChinhSuaHoSoCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
@@ -139,15 +161,15 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Lấy danh sách yêu cầu cư trú (Dành cho BQL) với bộ lọc, sắp xếp và phân trang nâng cao
     /// </summary>
     /// <remarks>
-    /// API truy vấn danh sách các yêu cầu cư trú hỗ trợ các chức năng:
-    /// - **Phạm vi**: Lọc theo căn hộ (`CanHoId`).
-    /// - **Loại yêu cầu**: Lọc theo loại yêu cầu (`LoaiYeuCauId` - Thêm, Sửa, Xóa).
-    /// - **Trạng thái**: Lọc theo trạng thái xử lý (`TrangThaiId` - Chờ duyệt, Đã duyệt, Từ chối).
-    /// - **Sắp xếp**: Hỗ trợ sắp xếp theo các cột thông qua `SortCol` và `IsAsc`.
-    /// - **Phân trang**: Hỗ trợ phân trang qua `PageNumber` và `PageSize`.
+    /// - **Hoàn cảnh sử dụng**: BQL theo dõi và quản lý luồng yêu cầu chưa được xử lý từ phía cư dân.
+    /// - **Hệ thống xử lý**: Truy xuất danh sách yêu cầu kèm theo thông tin chi tiết về căn hộ và loại thay đổi, hỗ trợ phân trang và lọc theo tòa/tầng/căn hộ hoặc trạng thái.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `PageNumber`, `PageSize`.
+    ///     - **Tùy chọn (Filter)**: `ToaNhaId`, `TangId`, `CanHoId`, `LoaiYeuCauId` (api/catalog/loai-yeu-cau-for-selector), `TrangThaiId` (api/catalog/trang-thai-yeu-cau-cu-tru-for-selector), `SortCol`, `IsAsc`.
     /// </remarks>
     [HttpPost("yeu-cau/get-list")]
-    [ProducesResponseType(typeof(ApiResponse<PagedResult<YeuCauCuTruResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<DSYeuCauCuTruResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> LayDSYeuCau([FromBody] LayDSYeuCauCuTruQuery query, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(query, cancellationToken));
@@ -155,9 +177,12 @@ public class QuanHeCuTruController : ApiControllerBase
 
     /// <summary>
     /// Lấy chi tiết yêu cầu cư trú
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Id`.
     /// </summary>
     [HttpPost("yeu-cau/get-by-id")]
     [ProducesResponseType(typeof(ApiResponse<YeuCauCuTruResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetYeuCauById([FromBody] GetYeuCauCuTruByIdQuery query, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(query, cancellationToken));
@@ -167,11 +192,23 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Tạo yêu cầu cư trú (Dành cho Cư dân)
     /// </summary>
     /// <remarks>
-    /// API cho phép Chủ hộ chủ động gửi yêu cầu Thêm/Sửa/Xóa thành viên cư trú trong căn hộ của mình.
-    /// Yêu cầu sẽ được lưu dưới dạng bản ghi tạm thời, bao gồm cả thông tin thành viên đề xuất và các tài liệu đính kèm, chờ BQL phê duyệt.
+    /// - **Hoàn cảnh sử dụng**: Chủ hộ chủ động cập nhật nhân sự cho căn hộ của mình thông qua ứng dụng (Mobile/Web).
+    /// - **Hệ thống xử lý**: 
+    ///     - Kiểm tra quyền hạn của người gửi (phải là Chủ hộ đang cư trú).
+    ///     - Lưu trữ thông tin dưới dạng "Yêu cầu chờ duyệt", không thay đổi dữ liệu cư dân thực tế cho đến khi được BQL phê duyệt.
+    ///     - **Cơ chế nộp yêu cầu**:
+    ///         - `IsSubmit = true`: Chốt dữ liệu và gửi cho BQL phê duyệt (chuyển trạng thái sang "Chờ duyệt"). Sau khi nộp, cư dân không thể tự chỉnh sửa.
+    ///         - `IsSubmit = false` (Mặc định): Chỉ lưu thông tin nháp, yêu cầu ở trạng thái "Đã lưu" để có thể tiếp tục chỉnh sửa sau.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc hoàn cảnh**: 
+    ///         - Luôn bắt buộc: `CanHoId`, `LoaiYeuCauId` (api/catalog/loai-yeu-cau-for-selector).
+    ///         - Khi **Thêm mới**: Bắt buộc nhập đầy đủ `FirstName`, `LastName`, `Dob`, `GioiTinhId` (api/catalog/gioi-tinh-for-selector), `LoaiQuanHeId` (api/catalog/loai-quan-he-cu-tru-for-selector).
+    ///         - Khi **Sửa/Xóa**: Bắt buộc cung cấp `TargetQuanHeCuTruId`.
+    ///     - **Tùy chọn**: `CCCD`, `PhoneNumber`, `DiaChi`, `TaiLieuCuTrus`, `IsSubmit`.
     /// </remarks>
     [HttpPost("yeu-cau")]
     [ProducesResponseType(typeof(ApiResponse<YeuCauCuTruResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> TaoYeuCau([FromBody] TaoYeuCauCuTruCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
@@ -181,11 +218,19 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Cập nhật yêu cầu cư trú (Dành cho Cư dân)
     /// </summary>
     /// <remarks>
-    /// API cho phép cư dân chỉnh sửa yêu cầu đang ở trạng thái "Đã lưu".
-    /// Có thể chuyển sang trạng thái "Đang chờ duyệt" (IsSubmit = true) hoặc "Đã thu hồi" (IsWithdraw = true).
+    /// - **Hoàn cảnh sử dụng**: Cư dân bổ sung thông tin hoặc đính kèm tài liệu vào một yêu cầu cư trú trước khi gửi duyệt.
+    /// - **Hệ thống xử lý**: Cập nhật chi tiết các thuộc tính yêu cầu và cho phép chuyển đổi trạng thái giữa "Đã lưu" và "Đang chờ duyệt" hoặc "Thu hồi".
+    /// - **Cơ chế nộp và rút yêu cầu**:
+    ///     - `IsSubmit = true`: Chốt dữ liệu và gửi cho BQL phê duyệt (chuyển từ "Đã lưu" sang "Chờ duyệt").
+    ///     - `IsWithdraw = true`: Cư dân chủ động rút lại yêu cầu (chuyển sang trạng thái "Đã rút"). Hành động này ưu tiên hơn cập nhật nội dung.
+    ///     - Nếu cả hai đều `false`: Chỉ cập nhật thay đổi nội dung và giữ yêu cầu ở trạng thái "Đã lưu".
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Id`.
+    ///     - **Tùy chọn**: `FirstName`, `LastName`, `PhoneNumber`, `CCCD`, `DiaChi`, `TaiLieuCuTrus`, `IsSubmit`, `IsWithdraw`.
     /// </remarks>
     [HttpPut("yeu-cau")]
     [ProducesResponseType(typeof(ApiResponse<YeuCauCuTruResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CapNhatYeuCau([FromBody] CapNhatYeuCauCuTruCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
@@ -195,10 +240,14 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Xóa yêu cầu cư trú (Dành cho BQL)
     /// </summary>
     /// <remarks>
-    /// API cho phép BQL xóa các yêu cầu dư thừa hoặc không cần thiết. Cho phép xóa nhiều yêu cầu cùng lúc.
+    /// - **Hoàn cảnh sử dụng**: BQL dọn dẹp các yêu cầu rác hoặc yêu cầu bị nhầm lẫn.
+    /// - **Hệ thống xử lý**: Thực hiện xóa cứng các bản ghi yêu cầu cư trú tương ứng.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Ids` (Danh sách ID yêu cầu).
     /// </remarks>
     [HttpDelete("yeu-cau")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> XoaYeuCau([FromBody] XoaYeuCauCuTruCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
@@ -208,13 +257,18 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Phê duyệt yêu cầu cư trú (Dành cho BQL)
     /// </summary>
     /// <remarks>
-    /// API dùng để BQL duyệt yêu cầu do cư dân gửi lên. 
-    /// Sau khi duyệt:
-    /// - Nếu là yêu cầu Thêm: Hệ thống tự động tạo User, thêm tài liệu và gán vào căn hộ.
-    /// - Nếu là yêu cầu Sửa/Xóa: Cập nhật thông tin thực tế của cư dân tương ứng.
+    /// - **Hoàn cảnh sử dụng**: BQL phê duyệt yêu cầu hợp lệ của cư dân để cập nhật dữ liệu chính thức vào hệ thống.
+    /// - **Hệ thống xử lý**: 
+    ///     - **Thêm mới**: Tự động tạo Hồ sơ người dùng, lưu trữ tài liệu đính kèm và thiết lập quan hệ cư trú mới.
+    ///     - **Chỉnh sửa**: Cập nhật thông tin cá nhân và quản lý tài liệu (thêm/sửa/xóa tài liệu cũ để khớp với yêu cầu).
+    ///     - **Xóa**: Chấm dứt quan hệ cư trú hiện tại.
+    ///     - Chuyển trạng thái yêu cầu sang "Đã duyệt" và ghi nhận người xử lý.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `YeuCauCuTruId`.
     /// </remarks>
     [HttpPost("yeu-cau/phe-duyet")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PheDuyetYeuCau([FromBody] PheDuyetYeuCauCuTruCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
@@ -224,11 +278,14 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Từ chối yêu cầu cư trú (Dành cho BQL)
     /// </summary>
     /// <remarks>
-    /// BQL dùng API này để bác bỏ yêu cầu của cư dân nếu thông tin không hợp lệ hoặc thiếu tài liệu.
-    /// Yêu cầu bắt buộc phải truyền vào Lý do từ chối để thông báo cho cư dân.
+    /// - **Hoàn cảnh sử dụng**: BQL không chấp nhận yêu cầu của cư dân (thiếu hồ sơ, thông tin sai, v.v.).
+    /// - **Hệ thống xử lý**: Ghi nhận lý do từ chối, chuyển trạng thái yêu cầu sang "Từ chối" và gửi phản hồi đến cư dân qua hệ thống thông báo.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `YeuCauCuTruId`, `LyDo`.
     /// </remarks>
     [HttpPost("yeu-cau/tu-choi")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> TuChoiYeuCau([FromBody] TuChoiYeuCauCuTruCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
@@ -242,11 +299,14 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Tạo mã định danh (sinh token)
     /// </summary>
     /// <remarks>
-    /// API dùng để sinh ra một mã xác thực (Token) để cư dân có thể sử dụng mã này tự liên kết với tài khoản ứng dụng cá nhân.
-    /// Giúp bảo mật quá trình bàn giao tài khoản cho cư dân chính chủ.
+    /// - **Hoàn cảnh sử dụng**: BQL chuẩn bị quy trình bàn giao tài khoản ứng dụng cho cư dân một cách an toàn.
+    /// - **Hệ thống xử lý**: Sinh mã định danh (Token) liên kết với UserId và có thời hạn xác thực ngắn hạn.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `UserId`.
     /// </remarks>
     [HttpPost("tao-ma-dinh-danh")]
     [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> TaoMaDinhDanh([FromBody] TaoMaDinhDanhCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
@@ -256,11 +316,14 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Xác nhận định danh (dành cho Cư dân - qua link email)
     /// </summary>
     /// <remarks>
-    /// API được gọi khi cư dân nhấn vào link xác nhận trong email. 
-    /// Hệ thống sẽ giải mã token để lấy thông tin UserId và thực hiện liên kết tài khoản.
+    /// - **Hoàn cảnh sử dụng**: Cư dân xác thực link từ Email để chính thức kết nối hồ sơ cư dân với tài khoản đăng nhập.
+    /// - **Hệ thống xử lý**: Giải mã/Xác thực Token, thiết lập liên kết quan hệ và cập nhật quyền truy cập cho tài khoản.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Token`.
     /// </remarks>
     [HttpPost("xac-nhan-dinh-danh")]
     [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> XacNhanDinhDanh([FromBody] XacNhanDinhDanhCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
@@ -270,11 +333,17 @@ public class QuanHeCuTruController : ApiControllerBase
     /// Liên kết tài khoản trực tiếp (dành cho BQL)
     /// </summary>
     /// <remarks>
-    /// API cho phép BQL trực tiếp liên kết một Hồ sơ cư dân với một Tài khoản người dùng dựa trên Email.
-    /// Không cần thông qua quy trình gửi email xác nhận.
+    /// - **Hoàn cảnh sử dụng**: BQL thực hiện kết nối hồ sơ cư dân đã có với một tài khoản email đã đăng ký trên hệ thống.
+    /// - **Hệ thống xử lý**: 
+    ///     - Kiểm tra Email và User ID hợp lệ.
+    ///     - Cập nhật liên kết trực tiếp trong cơ sở dữ liệu.
+    ///     - Đồng bộ quyền hạn (Resident) cho tài khoản sau khi liên kết thành công.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `UserId`, `Email` (đúng định dạng email).
     /// </remarks>
     [HttpPost("lien-ket-tai-khoan")]
     [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> LienKetTaiKhoan([FromBody] LienKetTaiKhoanCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));

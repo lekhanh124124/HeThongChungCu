@@ -6,7 +6,8 @@ namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 
 public interface IYeuCauCuTruDapperRepository
 {
-    Task<PagedResult<YeuCauCuTruResponse>> GetPagedListAsync(
+    Task<PagedResult<DSYeuCauCuTruResponse>> GetPagedListAsync(
         LayDSYeuCauCuTruQuerySpecification spec,
         CancellationToken cancellationToken = default);
+    Task<YeuCauCuTruResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 }

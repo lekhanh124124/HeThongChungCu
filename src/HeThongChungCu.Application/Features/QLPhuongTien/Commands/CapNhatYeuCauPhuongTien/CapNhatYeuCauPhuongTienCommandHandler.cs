@@ -63,9 +63,9 @@ public class CapNhatYeuCauPhuongTienCommandHandler : ICommandHandler<CapNhatYeuC
 
             yeuCau.Update(
                 loaiPhuongTien,
-                request.TenPhuongTien,
-                request.BienSo,
-                request.MauXe,
+                request.YeuCauTenPhuongTien,
+                request.YeuCauBienSo,
+                request.YeuCauMauXe,
                 request.NoiDung,
                 images);
 

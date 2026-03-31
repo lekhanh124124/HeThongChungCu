@@ -4,12 +4,12 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.TaoYeuCauPhu
 
 public record TaoYeuCauPhuongTienCommand(
     int CanHoId,
-    int? PhuongTienId,
+    int? YeuCauPhuongTienId,
     int LoaiYeuCauId,
-    int? LoaiPhuongTienId,
-    string? TenPhuongTien,
-    string? BienSo,
-    string? MauXe,
+    int? YeuCauLoaiPhuongTienId,
+    string? YeuCauTenPhuongTien,
+    string? YeuCauBienSo,
+    string? YeuCauMauXe,
     string? NoiDung,
     List<int>? FileIds
 ) : ICommand<YeuCauPhuongTienResponse>;

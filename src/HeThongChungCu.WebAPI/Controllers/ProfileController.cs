@@ -26,8 +26,13 @@ public class ProfileController : ApiControllerBase
     /// Thay đổi mật khẩu cho người dùng đang đăng nhập
     /// </summary>
     /// <remarks>
-    /// Yêu cầu người dùng đang đăng nhập cung cấp `CurrentPassword`, `NewPassword` và `ConfirmNewPassword`.
-    /// Hệ thống sẽ kiểm tra mật khẩu hiện tại trước khi cập nhật sang mật khẩu mới.
+    /// - **Hoàn cảnh sử dụng**: Người dùng đang đăng nhập muốn cập nhật lại mật khẩu để tăng cường bảo mật hoặc theo định kỳ.
+    /// - **Hệ thống xử lý**: 
+    ///     - Xác thực mật khẩu cũ bằng cách so sánh hash.
+    ///     - Kiểm tra tính hợp lệ của mật khẩu mới (không trùng mật khẩu cũ, khớp với xác nhận).
+    ///     - Mã hóa mật khẩu mới và cập nhật vào cơ bản dữ liệu tài khoản.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `OldPassword`, `NewPassword`, `ConfirmPassword`.
     /// </remarks>
     [HttpPost("change-password")]
     [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
@@ -41,8 +46,11 @@ public class ProfileController : ApiControllerBase
     /// Lấy thông tin cá nhân của người dùng đang đăng nhập
     /// </summary>
     /// <remarks>
-    /// API trả về toàn bộ thông tin cá nhân (Profile) của user hiện tại đang được xác thực qua Access Token.
-    /// Bao gồm thông tin cơ bản, căn hộ đang sinh sống, avatar, v.v.
+    /// - **Hoàn cảnh sử dụng**: Ứng dụng client lấy thông tin chi tiết của người dùng hiện tại để hiển thị trên trang cá nhân hoặc các thành phần giao diện liên quan.
+    /// - **Hệ thống xử lý**: 
+    ///     - Trích xuất UserId từ thông tin định danh (Claims) của người dùng hiện hành.
+    ///     - Truy xuất toàn bộ thông tin hồ sơ (User Profile) và thông tin tài khoản (Account) liên kết.
+    /// - **Yêu cầu dữ liệu**: Không có.
     /// </remarks>
     [HttpPost("get-profile")]
     [ProducesResponseType(typeof(ApiResponse<UserProfileDetailResponse>), StatusCodes.Status200OK)]
@@ -57,9 +65,12 @@ public class ProfileController : ApiControllerBase
     /// Cập nhật ảnh đại diện của người dùng đang đăng nhập
     /// </summary>
     /// <remarks>
-    /// API dùng để upload file ảnh làm Avatar.
-    /// Sử dụng Content-Type là `multipart/form-data`. Đối số `avatar` là file ảnh gửi lên.
-    /// Trả về URL của ảnh đại diện mới.
+    /// - **Hoàn cảnh sử dụng**: Người dùng thay đổi ảnh đại diện cá nhân.
+    /// - **Hệ thống xử lý**: 
+    ///     - Tiếp nhận luồng dữ liệu file từ yêu cầu `multipart/form-data`.
+    ///     - Tải tệp lên dịch vụ lưu trữ (Cloud Storage) và cập nhật đường dẫn URL vào hồ sơ người dùng.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: File ảnh (`avatar`) gửi qua `multipart/form-data`.
     /// </remarks>
     [HttpPost("change-avatar")]
     [Consumes("multipart/form-data")]

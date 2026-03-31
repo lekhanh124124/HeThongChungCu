@@ -6,10 +6,12 @@ public class LayDSYeuCauCuTruQuerySpecification : BaseSpecification
 {
     public override HashSet<string> AllowedSortColumns => new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "CanHoId", "LoaiYeuCauId", "TrangThaiId", "CreatedAt"
+        "Id", "CanHoId", "LoaiYeuCauId", "TrangThaiId", "CreatedAt", "ToaNhaId", "TangId"
     };
 
     public LayDSYeuCauCuTruQuerySpecification(
+        int? toaNhaId,
+        int? tangId,
         int? canHoId,
         int? loaiYeuCauId,
         int? trangThaiId,
@@ -18,6 +20,12 @@ public class LayDSYeuCauCuTruQuerySpecification : BaseSpecification
         int? pageNumber,
         int? pageSize) : base(sortCol, isAsc, pageNumber, pageSize)
     {
+        if (toaNhaId != null)
+            AddFilter("ToaNhaId", FilterOperator.Equal, toaNhaId);
+        
+        if (tangId != null)
+            AddFilter("TangId", FilterOperator.Equal, tangId);
+
         if (canHoId != null)
             AddFilter("CanHoId", FilterOperator.Equal, canHoId);
         

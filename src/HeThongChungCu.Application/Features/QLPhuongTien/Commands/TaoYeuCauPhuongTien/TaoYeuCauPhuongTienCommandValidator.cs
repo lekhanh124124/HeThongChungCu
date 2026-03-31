@@ -20,20 +20,20 @@ public class TaoYeuCauPhuongTienCommandValidator : AbstractValidator<TaoYeuCauPh
 
         When(x => x.LoaiYeuCauId == LoaiYeuCau.Them.Value, () => // AddVehicle
         {
-            RuleFor(x => x.LoaiPhuongTienId)
+            RuleFor(x => x.YeuCauLoaiPhuongTienId)
                 .NotEmpty()
                 .WithMessage("Loại phương tiện không được để trống.");
-            RuleFor(x => x.TenPhuongTien)
+            RuleFor(x => x.YeuCauTenPhuongTien)
                 .NotEmpty()
                 .WithMessage("Tên phương tiện không được để trống.")
                 .MaximumLength(100)
                 .WithMessage("Tên phương tiện không được vượt quá 100 ký tự.");
-            RuleFor(x => x.BienSo)
+            RuleFor(x => x.YeuCauBienSo)
                 .NotEmpty()
                 .WithMessage("Biển số không được để trống.")
                 .MaximumLength(20)
                 .WithMessage("Biển số không được vượt quá 20 ký tự.");
-            RuleFor(x => x.MauXe)
+            RuleFor(x => x.YeuCauMauXe)
                 .NotEmpty()
                 .WithMessage("Màu xe không được để trống.")
                 .MaximumLength(50)
@@ -42,7 +42,7 @@ public class TaoYeuCauPhuongTienCommandValidator : AbstractValidator<TaoYeuCauPh
 
         When(x => x.LoaiYeuCauId == LoaiYeuCau.Sua.Value || x.LoaiYeuCauId == LoaiYeuCau.Xoa.Value, () => // Update/Delete
         {
-            RuleFor(x => x.PhuongTienId)
+            RuleFor(x => x.YeuCauPhuongTienId)
                 .NotEmpty()
                 .WithMessage("PhuongTienId không được để trống.");
         });

@@ -5,7 +5,7 @@ using HeThongChungCu.Domain.Common;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Queries.LayDSYeuCauCuTru;
 
-public class LayDSYeuCauCuTruQueryHandler : IQueryHandler<LayDSYeuCauCuTruQuery, PagedResult<YeuCauCuTruResponse>>
+public class LayDSYeuCauCuTruQueryHandler : IQueryHandler<LayDSYeuCauCuTruQuery, PagedResult<DSYeuCauCuTruResponse>>
 {
     private readonly IYeuCauCuTruDapperRepository _dapperRepository;
 
@@ -14,9 +14,11 @@ public class LayDSYeuCauCuTruQueryHandler : IQueryHandler<LayDSYeuCauCuTruQuery,
         _dapperRepository = dapperRepository;
     }
 
-    public async Task<Result<PagedResult<YeuCauCuTruResponse>>> Handle(LayDSYeuCauCuTruQuery request, CancellationToken cancellationToken)
+    public async Task<Result<PagedResult<DSYeuCauCuTruResponse>>> Handle(LayDSYeuCauCuTruQuery request, CancellationToken cancellationToken)
     {
         var spec = new LayDSYeuCauCuTruQuerySpecification(
+            request.ToaNhaId,
+            request.TangId,
             request.CanHoId,
             request.LoaiYeuCauId,
             request.TrangThaiId,

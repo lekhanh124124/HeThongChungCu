@@ -28,8 +28,14 @@ public class ToaNhaController : ApiControllerBase
     /// Tạo mới một tòa nhà
     /// </summary>
     /// <remarks>
-    /// API dùng đề đăng ký một tòa nhà mới vào hệ thống quản lý.
-    /// Yêu cầu cung cấp `MaToaNha`, `TenToaNha`, `DiaChi`, `MoTa` và `TrangThaiToaNhaId`.
+    /// - **Hoàn cảnh sử dụng**: Quản trị viên hệ thống thiết lập thông tin cơ sở hạ tầng ban đầu cho các tòa nhà trong dự án.
+    /// - **Hệ thống xử lý**: 
+    ///     - Kiểm tra tính duy nhất của mã tòa nhà (`MaToaNha`) trong toàn hệ thống.
+    ///     - Lưu trữ địa chỉ và thông tin mô tả chi tiết của tòa nhà.
+    ///     - Thiết lập trạng thái hoạt động mặc định.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `MaToaNha`, `TenToaNha`, `DiaChi`.
+    ///     - **Tùy chọn**: `MoTa`.
     /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<ToaNhaDetailResponse>), StatusCodes.Status200OK)]
@@ -43,8 +49,13 @@ public class ToaNhaController : ApiControllerBase
     /// Cập nhật thông tin tòa nhà
     /// </summary>
     /// <remarks>
-    /// Chỉnh sửa các thông tin hiện tại của một tòa nhà đã tồn tại. Yêu cầu truyền `Id` của tòa nhà.
-    /// Trả về chi tiết Tòa nhà sau khi đã được cập nhật thành công.
+    /// - **Hoàn cảnh sử dụng**: BQL cập nhật tên tòa nhà, địa chỉ hoặc thay đổi trạng thái vận hành (ví dụ: Tạm dừng hoạt động).
+    /// - **Hệ thống xử lý**: 
+    ///     - Cập nhật thông tin vào cơ sở dữ liệu.
+    ///     - Ghi nhận trạng thái mới (`TrangThaiToaNhaId`) tác động đến hiển thị và quản lý các tầng/căn hộ thuộc tòa nhà này.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Id`, `MaToaNha`, `TenToaNha`, `DiaChi`, `TrangThaiToaNhaId` (Lấy tại api/catalog/trang-thai-toa-nha-for-selector).
+    ///     - **Tùy chọn**: `MoTa`.
     /// </remarks>
     [HttpPut]
     [ProducesResponseType(typeof(ApiResponse<ToaNhaDetailResponse>), StatusCodes.Status200OK)]
@@ -58,8 +69,12 @@ public class ToaNhaController : ApiControllerBase
     /// Xóa một hoặc nhiều tòa nhà theo danh sách ID
     /// </summary>
     /// <remarks>
-    /// API cho phép xóa (dạng soft-delete) nhiều tòa nhà cùng một lúc.
-    /// Nhận vào danh sách `Ids`. Không thể xóa tòa nhà nếu bên trong vẫn còn Căn hộ đang hoạt động.
+    /// - **Hoàn cảnh sử dụng**: Loại bỏ các tòa nhà nhập sai hoặc không còn thuộc phạm vi quản lý của dự án.
+    /// - **Hệ thống xử lý**: 
+    ///     - Kiểm tra ràng buộc dữ liệu: Tòa nhà không được chứa bất kỳ tầng nào để đảm bảo tính toàn vẹn hệ thống.
+    ///     - Xóa các bản ghi tòa nhà theo danh sách IDs cung cấp.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Ids` (Danh sách ID tòa nhà).
     /// </remarks>
     [HttpDelete]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ToaNhaDetailResponse>>), StatusCodes.Status200OK)]
@@ -73,10 +88,13 @@ public class ToaNhaController : ApiControllerBase
     /// Lấy danh sách tòa nhà (hỗ trợ tìm kiếm, lọc, sắp xếp, phân trang)
     /// </summary>
     /// <remarks>
-    /// Truy vấn danh sách tòa nhà kèm theo bộ lọc:
-    /// - Tìm kiếm theo Tên hoặc Mã tòa nhà (`SearchTerm`).
-    /// - Lọc theo Trạng thái hoạt động (`TrangThaiToaNhaId`).
-    /// - Hỗ trợ phân trang, sắp xếp.
+    /// - **Hoàn cảnh sử dụng**: Quản lý tổng thể danh sách tòa nhà, tra cứu nhanh thông tin vị trí và trạng thái.
+    /// - **Hệ thống xử lý**: 
+    ///     - Truy vấn danh sách tòa nhà kèm theo các bộ lọc trạng thái và từ khóa tìm kiếm (theo mã hoặc tên tòa nhà).
+    ///     - Áp dụng phân trang và sắp xếp linh hoạt theo yêu cầu từ giao diện.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `PageNumber`, `PageSize`.
+    ///     - **Tùy chọn (Filter)**: `Keyword`, `TrangThaiToaNhaId` (api/catalog/trang-thai-toa-nha-for-selector), `SortCol`, `IsAsc`.
     /// </remarks>
     [HttpPost("get-list")]
     [ProducesResponseType(typeof(ApiResponse<PagedResult<ToaNhaDetailResponse>>), StatusCodes.Status200OK)]
@@ -90,7 +108,10 @@ public class ToaNhaController : ApiControllerBase
     /// Lấy chi tiết tòa nhà theo ID
     /// </summary>
     /// <remarks>
-    /// Trả về toàn bộ thông tin chi tiết của một Tòa nhà cụ thể dựa vào `Id`.
+    /// - **Hoàn cảnh sử dụng**: Xem thông tin cấu hình chi tiết và các thuộc tính liên quan của một tòa nhà cụ thể.
+    /// - **Hệ thống xử lý**: Truy xuất bản ghi tòa nhà và trả về thông tin chi tiết đầy đủ.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Id`.
     /// </remarks>
     [HttpPost("get-by-id")]
     [ProducesResponseType(typeof(ApiResponse<ToaNhaResponse>), StatusCodes.Status200OK)]

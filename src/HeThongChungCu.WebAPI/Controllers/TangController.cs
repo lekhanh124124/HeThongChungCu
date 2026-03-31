@@ -27,6 +27,15 @@ public class TangController : ApiControllerBase
     /// <summary>
     /// Tạo mới một tầng
     /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Nhân viên BQL thiết lập phân cấp hạ tầng cho tòa nhà bằng cách thêm các tầng.
+    /// - **Hệ thống xử lý**: 
+    ///     - Xác thực tòa nhà (`ToaNhaId`) tồn tại.
+    ///     - Kiểm tra tính duy nhất của mã tầng trong cùng một tòa nhà.
+    ///     - Phân loại tầng dựa trên `LoaiTangId` (Tầng ở, Tầng kỹ thuật, Hầm, v.v.).
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `MaTang`, `TenTang`, `ToaNhaId`, `LoaiTangId` (Lấy tại api/catalog/loai-tang-for-selector).
+    /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<TangDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -38,6 +47,14 @@ public class TangController : ApiControllerBase
     /// <summary>
     /// Cập nhật thông tin tầng
     /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: BQL thay đổi tên gọi, mã định danh hoặc chức năng của tầng.
+    /// - **Hệ thống xử lý**: 
+    ///     - Cập nhật các thông tin cơ bản của tầng.
+    ///     - Đảm bảo tính nhất quán với tòa nhà chủ quản.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Id`, `MaTang`, `TenTang`, `ToaNhaId`, `LoaiTangId` (Lấy tại api/catalog/loai-tang-for-selector).
+    /// </remarks>
     [HttpPut]
     [ProducesResponseType(typeof(ApiResponse<TangDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -49,6 +66,14 @@ public class TangController : ApiControllerBase
     /// <summary>
     /// Xóa tầng theo sách ID
     /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Xóa các tầng nhập sai hoặc hạ tầng không còn tồn tại.
+    /// - **Hệ thống xử lý**: 
+    ///     - Kiểm tra ràng buộc: Tầng không được chứa bất kỳ căn hộ nào để đảm bảo tính toàn vẹn dữ liệu.
+    ///     - Thực hiện xóa các bản ghi tầng tương ứng.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Ids` (Danh sách ID tầng).
+    /// </remarks>
     [HttpDelete]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<TangDetailResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -60,6 +85,15 @@ public class TangController : ApiControllerBase
     /// <summary>
     /// Lấy danh sách tầng
     /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Duyệt danh sách hạ tầng tầng của tòa nhà phục vụ quản lý hoặc chọn lọc.
+    /// - **Hệ thống xử lý**: 
+    ///     - Truy vấn danh sách tầng kèm theo thông tin tòa nhà.
+    ///     - Hỗ trợ lọc theo loại tầng và tìm kiếm theo tên/mã (qua Keyword).
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `PageNumber`, `PageSize`.
+    ///     - **Tùy chọn (Filter)**: `ToaNhaId`, `LoaiTangId` (api/catalog/loai-tang-for-selector), `Keyword`, `SortCol`, `IsAsc`.
+    /// </remarks>
     [HttpPost("get-list")]
     [ProducesResponseType(typeof(ApiResponse<PagedResult<TangDetailResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -71,6 +105,12 @@ public class TangController : ApiControllerBase
     /// <summary>
     /// Lấy chi tiết tầng theo ID
     /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Xem cấu hình chi tiết của một tầng nhất định.
+    /// - **Hệ thống xử lý**: Truy xuất thông tin tầng và các thuộc tính liên quan.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Id`.
+    /// </remarks>
     [HttpPost("get-by-id")]
     [ProducesResponseType(typeof(ApiResponse<TangResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

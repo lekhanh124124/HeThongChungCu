@@ -5,9 +5,9 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatYeuCa
 public record CapNhatYeuCauPhuongTienCommand(
     int Id,
     int? LoaiPhuongTienId = null,
-    string? TenPhuongTien = null,
-    string? BienSo = null,
-    string? MauXe = null,
+    string? YeuCauTenPhuongTien = null,
+    string? YeuCauBienSo = null,
+    string? YeuCauMauXe = null,
     string? NoiDung = null,
     List<int>? FileIds = null,
     bool IsSubmit = false,

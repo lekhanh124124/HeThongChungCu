@@ -10,8 +10,9 @@ public record YeuCauCuTruReadModel
     public string? LyDo { get; init; }
     public string? NoiDung { get; init; }
     public DateTimeOffset CreatedAt { get; init; }
-    public DateTime? NgayXuLy { get; init; }
+    public DateTimeOffset? NgayXuLy { get; init; }
     public int? NguoiXuLyId { get; init; }
+    public int CreatedBy { get; init; }
 
     // Flattened fields
     public string? YeuCauTen { get; init; }
@@ -22,5 +23,16 @@ public record YeuCauCuTruReadModel
     public string? YeuCauCCCD { get; init; }
     public string? YeuCauDiaChi { get; init; }
     public int? YeuCauLoaiQuanHeId { get; init; }
-    public int? QuanHeCuTruId { get; init; }
+    public int? YeuCauQuanHeCuTruId { get; init; }
+
+    // Join fields
+    public string TenCanHo { get; init; } = null!;
+    public string TenTang { get; init; } = null!;
+    public string TenToaNha { get; init; } = null!;
+    public string TenNguoiGui { get; init; } = null!;
+    public string? TenNguoiXuLy { get; init; }
+    
+    // Filter fields from join
+    public int ToaNhaId { get; init; }
+    public int TangId { get; init; }
 }

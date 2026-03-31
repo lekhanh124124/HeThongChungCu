@@ -11,13 +11,13 @@ public class CapNhatYeuCauPhuongTienCommandValidator : AbstractValidator<CapNhat
 
         When(x => !x.IsWithdraw, () =>
         {
-            RuleFor(x => x.TenPhuongTien)
+            RuleFor(x => x.YeuCauTenPhuongTien)
                 .MaximumLength(100).WithMessage("Tên phương tiện không được vượt quá 100 ký tự.");
 
-            RuleFor(x => x.BienSo)
+            RuleFor(x => x.YeuCauBienSo)
                 .MaximumLength(20).WithMessage("Biển số không được vượt quá 20 ký tự.");
 
-            RuleFor(x => x.MauXe)
+            RuleFor(x => x.YeuCauMauXe)
                 .MaximumLength(50).WithMessage("Màu xe không được vượt quá 50 ký tự.");
 
             When(x => x.FileIds != null, () =>

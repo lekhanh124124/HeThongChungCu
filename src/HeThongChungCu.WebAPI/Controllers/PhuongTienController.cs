@@ -36,14 +36,14 @@ public class PhuongTienController : ApiControllerBase
     /// Lấy danh sách phương tiện trong chung cư với bộ lọc và tìm kiếm nâng cao
     /// </summary>
     /// <remarks>
-    /// API truy vấn danh sách phương tiện hỗ trợ các chức năng:
-    /// - **Phạm vi (ID)**: Lọc chính xác theo ToaNhaId, TangId, CanHoId.
-    /// - **Từ khóa**: Tìm kiếm theo TenPhuongTien, BienSo, MauXe (qua tham số Keyword).
-    /// - **Bộ lọc**: 
-    ///     - Mã định danh: MaToaNha, MaTang, MaCanHo.
-    ///     - Thông tin xe: LoaiPhuongTienId, MauXe, TrangThaiPhuongTienId.
-    /// - **Sắp xếp**: Hỗ trợ sắp xếp theo MaToaNha, MaTang, MaCanHo, TenPhuongTien, BienSo, MauXe, TrangThaiPhuongTienId.
-    /// - **Phân trang**: PageNumber và PageSize.
+    /// - **Hoàn cảnh sử dụng**: Nhân viên BQL truy vấn danh sách toàn bộ phương tiện trong chung cư để kiểm soát số lượng, vị trí đỗ và trạng thái vận hành.
+    /// - **Hệ thống xử lý**: 
+    ///     - Truy vấn kết hợp thông tin phương tiện, chủ sở hữu (căn hộ) và vị trí (tòa nhà/tầng).
+    ///     - Hỗ trợ bộ lọc động theo loại xe, biển số, màu sắc và trạng thái (tìm kiếm theo tên xe, biển số, màu xe qua Keyword).
+    ///     - Thực hiện phân trang và sắp xếp phía Server.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `PageNumber`, `PageSize`.
+    ///     - **Tùy chọn (Filter)**: `ToaNhaId`, `TangId`, `CanHoId`, `Keyword`, `LoaiPhuongTienId` (api/catalog/loai-phuong-tien-for-selector), `MauXe`, `TrangThaiPhuongTienId` (api/catalog/trang-thai-phuong-tien-for-selector), `SortCol`, `IsAsc`.
     /// </remarks>
     [HttpPost("get-list")]
     [ProducesResponseType(typeof(ApiResponse<PagedResult<PhuongTienResponse>>), StatusCodes.Status200OK)]
@@ -58,8 +58,12 @@ public class PhuongTienController : ApiControllerBase
     /// <summary>
     /// Lấy thông tin chi tiết phương tiện cùng danh sách thẻ
     /// </summary>
-    /// <param name="query">Dữ liệu yêu cầu (Id)</param>
-    /// <param name="cancellationToken">Token hủy bỏ tác vụ</param>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Xem chi tiết thông số kỹ thuật, hình ảnh và danh sách các thẻ xe (RFID) đang liên kết với phương tiện này.
+    /// - **Hệ thống xử lý**: Truy xuất thông tin phương tiện kèm theo các tệp hình ảnh và thông tin thẻ xe liên quan.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Id`.
+    /// </remarks>
     [HttpPost("get-by-id")]
     [ProducesResponseType(typeof(ApiResponse<PhuongTienResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -75,8 +79,14 @@ public class PhuongTienController : ApiControllerBase
     /// Đăng ký phương tiện mới cho căn hộ
     /// </summary>
     /// <remarks>
-    /// API dùng để tạo một bản ghi phương tiện mới thuộc về một `CanHo`.
-    /// Yêu cầu cung cấp `CanHoId`, `TenPhuongTien`, ID loại phương tiện (`LoaiPhuongTienId`), `BienSo`, `MauXe`, `HinhAnhPhuongTiens`.
+    /// - **Hoàn cảnh sử dụng**: Nhân viên BQL thực hiện đăng ký xe chính thức cho cư dân sau khi kiểm tra hồ sơ giấy tờ trực tiếp.
+    /// - **Hệ thống xử lý**: 
+    ///     - Xác thực sự tồn tại của căn hộ.
+    ///     - Kiểm tra hạn mức (quota) số lượng xe tối đa của căn hộ để đảm bảo không vượt quá quy định.
+    ///     - Tạo bản ghi phương tiện và lưu trữ thông tin hình ảnh đi kèm.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `CanHoId`, `TenPhuongTien`, `LoaiPhuongTienId` (Lấy tại api/catalog/loai-phuong-tien-for-selector), `BienSo`, `MauXe`.
+    ///     - **Tùy chọn**: `HinhAnhIds`.
     /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<PhuongTienResponse>), StatusCodes.Status200OK)]
@@ -93,7 +103,11 @@ public class PhuongTienController : ApiControllerBase
     /// Cập nhật thông tin phương tiện
     /// </summary>
     /// <remarks>
-    /// API dùng để sửa thông tin cơ bản của phương tiện như tên, loại, biển số, màu xe, hình ảnh.
+    /// - **Hoàn cảnh sử dụng**: BQL sửa đổi các thông tin cơ bản của xe (tên xe, biển số, màu sắc) do nhập sai hoặc cư dân thay đổi thông tin.
+    /// - **Hệ thống xử lý**: Cập nhật các thuộc tính của bản ghi phương tiện và cập nhật lại danh sách hình ảnh đính kèm.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `PhuongTienId`, `TenPhuongTien`, `LoaiPhuongTienId` (api/catalog/loai-phuong-tien-for-selector), `BienSo`, `MauXe`.
+    ///     - **Tùy chọn**: `HinhAnhIds`.
     /// </remarks>
     [HttpPut]
     [ProducesResponseType(typeof(ApiResponse<PhuongTienResponse>), StatusCodes.Status200OK)]
@@ -110,7 +124,12 @@ public class PhuongTienController : ApiControllerBase
     /// Kích hoạt một hoặc nhiều phương tiện
     /// </summary>
     /// <remarks>
-    /// API dùng để kích hoạt lại phương tiện sang trạng thái Active. Kiểm tra hạn mức căn hộ trước khi kích hoạt.
+    /// - **Hoàn cảnh sử dụng**: Khôi phục trạng thái hoạt động cho các phương tiện đang bị khóa hoặc tạm dừng.
+    /// - **Hệ thống xử lý**: 
+    ///     - Kiểm tra lại hạn mức xe của căn hộ tại thời điểm kích hoạt (để tránh trường hợp đã hết chỗ trong lúc phương tiện đang bị khóa).
+    ///     - Cập nhật trạng thái phương tiện sang "Active".
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `PhuongTienIds` (Danh sách ID phương tiện).
     /// </remarks>
     [HttpPut("kich-hoat")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
@@ -127,8 +146,12 @@ public class PhuongTienController : ApiControllerBase
     /// Hủy một hoặc nhiều phương tiện
     /// </summary>
     /// <remarks>
-    /// API dùng để chuyển trạng thái phương tiện sang Inactive và khóa tất cả thẻ liên quan.
-    /// Các phương tiện đã bị hủy sẽ không thể kích hoạt lại.
+    /// - **Hoàn cảnh sử dụng**: Chấm dứt quyền gửi xe của cư dân (ví dụ: cư dân chuyển đi hoặc không còn nhu cầu gửi xe).
+    /// - **Hệ thống xử lý**: 
+    ///     - Chuyển trạng thái phương tiện sang "Đã hủy" (Inactive).
+    ///     - Tự động khóa toàn bộ các thẻ xe đang liên kết với phương tiện này để ngăn chặn việc ra vào.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `PhuongTienIds` (Danh sách ID phương tiện).
     /// </remarks>
     [HttpPut("huy")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
@@ -145,7 +168,12 @@ public class PhuongTienController : ApiControllerBase
     /// Khóa một hoặc nhiều phương tiện
     /// </summary>
     /// <remarks>
-    /// API dùng để chuyển trạng thái phương tiện sang Blocked và khóa tất cả thẻ liên quan.
+    /// - **Hoàn cảnh sử dụng**: BQL tạm thời đình chỉ quyền gửi xe của cư dân do vi phạm quy định hoặc nợ phí gửi xe.
+    /// - **Hệ thống xử lý**: 
+    ///     - Cập nhật trạng thái phương tiện sang "Bị khóa" (Blocked).
+    ///     - Vô hiệu hóa tính năng quẹt thẻ của thẻ xe liên kết cho đến khi được mở khóa lại.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `PhuongTienIds` (Danh sách ID phương tiện).
     /// </remarks>
     [HttpPut("khoa")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
@@ -162,7 +190,12 @@ public class PhuongTienController : ApiControllerBase
     /// Tạo thẻ phương tiện (gán mã thẻ cho phương tiện)
     /// </summary>
     /// <remarks>
-    /// API dùng để gán một mã thẻ (`MaThe`) cho một phương tiện (`PhuongTienId`) đã có.
+    /// - **Hoàn cảnh sử dụng**: Gán một thẻ vật lý (chip RFID) cho một phương tiện đã đăng ký để bắt đầu sử dụng dịch vụ trông giữ xe.
+    /// - **Hệ thống xử lý**: 
+    ///     - Kiểm tra tính duy nhất của mã thẻ (`MaThe`) trong hệ thống.
+    ///     - Tạo liên kết giữa thẻ và phương tiện, thiết lập trạng thái hoạt động cho thẻ.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `PhuongTienId`, `MaThe`.
     /// </remarks>
     [HttpPost("the-phuong-tien")]
     [ProducesResponseType(typeof(ApiResponse<ThePhuongTienResponse>), StatusCodes.Status200OK)]
@@ -179,9 +212,10 @@ public class PhuongTienController : ApiControllerBase
     /// Gợi ý mã thẻ phương tiện
     /// </summary>
     /// <remarks>
-    /// API dùng để gợi ý một mã thẻ mới dựa trên `PhuongTienId` và ID thẻ cuối cùng.
-    /// Quy tắc: `CARD-V-{PhuongTienId:D4}{last ThePhuongTienId + 1 : D4}`
-    /// Các số 0 padding sẽ được thay bằng số ngẫu nhiên.
+    /// - **Hoàn cảnh sử dụng**: Hỗ trợ BQL nhanh chóng lấy một mã thẻ gợi ý (thường dựa trên mã phương tiện hoặc số thứ tự) khi cấp thẻ mới.
+    /// - **Hệ thống xử lý**: Sinh mã thẻ gợi ý dựa trên quy tắc đánh số của hệ thống và kiểm tra tính khả dụng.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `PhuongTienId`.
     /// </remarks>
     [HttpPost("the-phuong-tien/goi-y-ma-the")]
     [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
@@ -195,9 +229,14 @@ public class PhuongTienController : ApiControllerBase
     }
 
     /// <summary>
-    /// Khóa thẻ phương tiện 
-    /// Các thẻ đã bị khóa sẽ không thể sử dụng.
+    /// Khóa thẻ phương tiện
     /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: BQL vô hiệu hóa thủ công một hoặc nhiều thẻ xe cụ thể (ví dụ: thẻ bị hỏng hoặc thu hồi riêng lẻ).
+    /// - **Hệ thống xử lý**: Chuyển trạng thái thẻ sang "Bị khóa", ngăn chặn quẹt thẻ tại các máy iParking.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `TheIds` (Danh sách ID thẻ).
+    /// </remarks>
     [HttpPut("the-phuong-tien/khoa")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -213,8 +252,12 @@ public class PhuongTienController : ApiControllerBase
     /// Báo mất thẻ phương tiện (Dành cho cư dân)
     /// </summary>
     /// <remarks>
-    /// API cho phép cư dân báo mất thẻ xe của mình. Hệ thống sẽ khóa thẻ và ghi nhận trạng thái mất.
-    /// Yêu cầu: Người dùng phải là cư dân đang cư trú hợp pháp tại căn hộ sở hữu phương tiện.
+    /// - **Hoàn cảnh sử dụng**: Cư dân chủ động báo cáo khi bị mất thẻ gửi xe để đảm bảo an ninh, tránh kẻ gian sử dụng thẻ.
+    /// - **Hệ thống xử lý**: 
+    ///     - Xác thực quyền sở hữu của cư dân đối với thẻ xe.
+    ///     - Ngay lập tức chuyển trạng thái các thẻ trong danh sách sang "Khóa" và ghi nhận lý do bảo mật.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `TheIds` (Danh sách ID thẻ).
     /// </remarks>
     [HttpPut("the-phuong-tien/bao-mat")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
@@ -231,10 +274,16 @@ public class PhuongTienController : ApiControllerBase
     /// Tạo yêu cầu về phương tiện (Thêm, Sửa, Xóa) - Dành cho cư dân
     /// </summary>
     /// <remarks>
-    /// API cho phép cư dân tạo các yêu cầu liên quan đến phương tiện của mình:
-    /// - **Thêm (LoaiYeuCauId = 1)**: Đăng ký xe mới cho căn hộ.
-    /// - **Sửa (LoaiYeuCauId = 2)**: Cập nhật thông tin xe hiện có (yêu cầu `PhuongTienId`).
-    /// - **Xóa (LoaiYeuCauId = 3)**: Hủy đăng ký xe hiện có (yêu cầu `PhuongTienId`).
+    /// - **Hoàn cảnh sử dụng**: Cư dân gửi yêu cầu đăng ký mới, sửa đổi thông tin hoặc hủy phương tiện thông qua ứng dụng Mobile.
+    /// - **Hệ thống xử lý**: 
+    ///     - Kiểm tra quyền truy cập của cư dân vào căn hộ được gửi yêu cầu.
+    ///     - Lưu trữ nội dung dưới dạng "Yêu cầu chờ duyệt" (Pending) hoặc "Bản nháp" (Saved).
+    ///     - Toàn bộ thay đổi sẽ chỉ có hiệu lực sau khi được BQL phê duyệt chính thức.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `CanHoId`, `LoaiYeuCauId` (api/catalog/loai-yeu-cau-for-selector).
+    ///     - **Trường hợp Thêm (LoaiYeuCauId = 1)**: Cần `YeuCauLoaiPhuongTienId` (api/catalog/loai-phuong-tien-for-selector), `YeuCauTenPhuongTien`, `YeuCauBienSo`, `YeuCauMauXe`.
+    ///     - **Trường hợp Sửa/Xóa (LoaiYeuCauId = 2, 3)**: Cần `YeuCauPhuongTienId`.
+    ///     - **Tùy chọn**: `FileIds`.
     /// </remarks>
     [HttpPost("yeu-cau")]
     [ProducesResponseType(typeof(ApiResponse<YeuCauPhuongTienResponse>), StatusCodes.Status200OK)]
@@ -251,10 +300,18 @@ public class PhuongTienController : ApiControllerBase
     /// Cập nhật yêu cầu về phương tiện - Dành cho cư dân
     /// </summary>
     /// <remarks>
-    /// API cho phép cư dân cập nhật, gửi (Submit) hoặc thu hồi (Withdraw) yêu cầu phương tiện:
-    /// - **Cập nhật**: Chỉnh sửa thông tin khi yêu cầu đang ở trạng thái `Saved`.
-    /// - **Gửi (`IsSubmit = true`)**: Chuyển trạng thái yêu cầu từ `Saved` sang `Pending`.
-    /// - **Thu hồi (`IsWithdraw = true`)**: Chuyển trạng thái yêu cầu từ `Pending/Saved` sang `Withdrawn`.
+    /// - **Hoàn cảnh sử dụng**: Cư dân quản lý các yêu cầu phương tiện hiện có (gửi duyệt hoặc thu hồi).
+    /// - **Hệ thống xử lý**: 
+    ///     - Cho phép chỉnh sửa thông tin yêu cầu khi đang ở trạng thái "Bản nháp" (Saved).
+    ///     - Chuyển trạng thái yêu cầu sang "Đang chờ duyệt" (IsSubmit = true) để BQL nhìn thấy hoặc "Đã rút" (IsWithdraw = true) để hủy yêu cầu.
+    /// - **Cơ chế nộp và rút yêu cầu**:
+    ///     - `IsSubmit = true`: Chốt dữ liệu và gửi cho BQL phê duyệt (chuyển từ "Đã lưu" sang "Chờ duyệt"). Sau khi nộp, cư dân không thể tự chỉnh sửa.
+    ///     - `IsWithdraw = true`: Cư dân chủ động rút lại yêu cầu (chuyển sang trạng thái "Đã rút"). Hành động này ưu tiên hơn cập nhật nội dung.
+    ///     - Nếu cả hai đều `false`: Chỉ cập nhật thay đổi nội dung và giữ yêu cầu ở trạng thái "Đã lưu".
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Id`.
+    ///     - **Khi cập nhật nội dung (IsSubmit/IsWithdraw = false)**: `YeuCauTenPhuongTien`, `YeuCauBienSo`, `YeuCauMauXe`.
+    ///     - **Khi gửi/thu hồi**: Chỉ cần `Id` và `IsSubmit=true` hoặc `IsWithdraw=true`.
     /// </remarks>
     [HttpPut("yeu-cau")]
     [ProducesResponseType(typeof(ApiResponse<YeuCauPhuongTienResponse>), StatusCodes.Status200OK)]

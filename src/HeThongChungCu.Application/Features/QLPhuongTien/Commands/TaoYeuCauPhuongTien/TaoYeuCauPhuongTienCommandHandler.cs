@@ -60,35 +60,35 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
 
         if (loaiYeuCau == LoaiYeuCau.Them)
         {
-            var loaiPhuongTien = LoaiPhuongTien.FromValue(request.LoaiPhuongTienId!.Value, null);
+            var loaiPhuongTien = LoaiPhuongTien.FromValue(request.YeuCauLoaiPhuongTienId!.Value, null);
             yeuCau = YeuCauPhuongTien.CreateAddRequest(
                 request.CanHoId,
                 loaiPhuongTien!,
-                request.TenPhuongTien!,
-                request.BienSo!,
-                request.MauXe!,
+                request.YeuCauTenPhuongTien!,
+                request.YeuCauBienSo!,
+                request.YeuCauMauXe!,
                 request.NoiDung,
                 tepTaiLieus);
         }
         else // Sua hoặc Xoa
         {
-            var phuongTien = await _phuongTienRepository.GetPhuongTienByIdAsync(request.PhuongTienId!.Value, cancellationToken);
+            var phuongTien = await _phuongTienRepository.GetPhuongTienByIdAsync(request.YeuCauPhuongTienId!.Value, cancellationToken);
             if (phuongTien == null || phuongTien.CanHoId != request.CanHoId)
                 return Result.Failure<YeuCauPhuongTienResponse>(PhuongTienErrors.NotFound);
 
             if (loaiYeuCau == LoaiYeuCau.Sua)
             {
-                var loaiPhuongTien = request.LoaiPhuongTienId.HasValue
-                    ? LoaiPhuongTien.FromValue(request.LoaiPhuongTienId.Value, null)!
+                var loaiPhuongTien = request.YeuCauLoaiPhuongTienId.HasValue
+                    ? LoaiPhuongTien.FromValue(request.YeuCauLoaiPhuongTienId.Value, null)!
                     : phuongTien.LoaiPhuongTienId;
 
                 yeuCau = YeuCauPhuongTien.CreateUpdateRequest(
                     request.CanHoId,
                     phuongTien.Id,
                     loaiPhuongTien,
-                    request.TenPhuongTien ?? phuongTien.TenPhuongTien,
-                    request.BienSo ?? phuongTien.BienSo,
-                    request.MauXe ?? phuongTien.MauXe,
+                    request.YeuCauTenPhuongTien ?? phuongTien.TenPhuongTien,
+                    request.YeuCauBienSo ?? phuongTien.BienSo,
+                    request.YeuCauMauXe ?? phuongTien.MauXe,
                     request.NoiDung,
                     tepTaiLieus);
             }

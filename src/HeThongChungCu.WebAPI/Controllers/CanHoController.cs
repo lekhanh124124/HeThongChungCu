@@ -28,9 +28,13 @@ public class CanHoController : ApiControllerBase
     /// Tạo mới một căn hộ
     /// </summary>
     /// <remarks>
-    /// API dùng để thêm một căn hộ mới vào một tòa nhà cụ thể.
-    /// Yêu cầu cung cấp đầy đủ thông tin: MaCanHo, DienTich, Tang, SoPhongNgu, SoPhongTam, LoaiCanHoId.
-    /// Trả về chi tiết Căn hộ vừa được tạo.
+    /// - **Hoàn cảnh sử dụng**: Nhân viên BQL thiết lập dữ liệu ban đầu cho các căn hộ trong tòa nhà.
+    /// - **Hệ thống xử lý**: 
+    ///     - Xác thực tầng (`TangId`) tồn tại.
+    ///     - Kiểm tra tính duy nhất của mã căn hộ trong phạm vi tòa nhà.
+    ///     - Khởi tạo trạng thái mặc định cho căn hộ mới (thường là "Trống").
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `MaCanHo`, `TenCanHo`, `DienTich`, `TangId`, `SoPhongNgu`, `SoPhongTam`, `LoaiCanHoId` (Lấy tại api/catalog/loai-can-ho-for-selector).
     /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<CanHoDetailResponse>), StatusCodes.Status200OK)]
@@ -44,9 +48,12 @@ public class CanHoController : ApiControllerBase
     /// Cập nhật thông tin căn hộ
     /// </summary>
     /// <remarks>
-    /// API dùng để chỉnh sửa thông tin của một căn hộ đã tồn tại.
-    /// Yêu cầu truyền `Id` của căn hộ và các thông tin cần cập nhật.
-    /// Trả về thông tin Căn hộ sau khi đã cập nhật thành công.
+    /// - **Hoàn cảnh sử dụng**: BQL cập nhật lại thông số kỹ thuật hoặc thay đổi trạng thái kinh doanh của căn hộ.
+    /// - **Hệ thống xử lý**: 
+    ///     - Cập nhật các trường thông tin theo yêu cầu.
+    ///     - Kiểm tra tính hợp lệ của việc chuyển đổi trạng thái (`TinhTrangCanHoId`).
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Id`, `MaCanHo`, `TenCanHo`, `DienTich`, `TangId`, `SoPhongNgu`, `SoPhongTam`, `LoaiCanHoId` (api/catalog/loai-can-ho-for-selector), `TinhTrangCanHoId` (api/catalog/tinh-trang-can-ho-for-selector).
     /// </remarks>
     [HttpPut]
     [ProducesResponseType(typeof(ApiResponse<CanHoDetailResponse>), StatusCodes.Status200OK)]
@@ -60,8 +67,12 @@ public class CanHoController : ApiControllerBase
     /// Xóa một hoặc nhiều căn hộ theo danh sách ID
     /// </summary>
     /// <remarks>
-    /// API cho phép xóa (soft-delete) một danh sách các căn hộ.
-    /// Truyền vào danh sách `Ids`. Trả về danh sách thông tin các căn hộ vừa bị xóa.
+    /// - **Hoàn cảnh sử dụng**: Loại bỏ các căn hộ nhập sai hoặc không còn thuộc quản lý.
+    /// - **Hệ thống xử lý**: 
+    ///     - Kiểm tra điều kiện xóa: Căn hộ không được có cư dân đang cư trú hoặc phương tiện đang đăng ký.
+    ///     - Thực hiện xóa mềm (Soft-delete) để bảo toàn lịch sử dữ liệu nếu cần.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Ids` (Danh sách ID căn hộ).
     /// </remarks>
     [HttpDelete]
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<CanHoDetailResponse>>), StatusCodes.Status200OK)]
@@ -75,10 +86,13 @@ public class CanHoController : ApiControllerBase
     /// Lấy danh sách căn hộ (hỗ trợ tìm kiếm, lọc theo tòa nhà, sắp xếp, phân trang)
     /// </summary>
     /// <remarks>
-    /// API dùng để truy vấn danh sách căn hộ theo nhiều tiêu chí:
-    /// - Lọc theo: `TangId`, `LoaiCanHoId`, `TinhTrangCanHoId`.
-    /// - Tìm kiếm theo `SearchTerm` (mã căn hộ).
-    /// - Hỗ trợ phân trang (`PageNumber`, `PageSize`) và sắp xếp (`OrderBy`).
+    /// - **Hoàn cảnh sử dụng**: Quản lý tổng thể danh sách căn hộ, phục vụ tìm kiếm nhanh hoặc báo cáo.
+    /// - **Hệ thống xử lý**: 
+    ///     - Truy vấn kết hợp thông tin Tòa nhà, Tầng để hiển thị đầy đủ vị trí.
+    ///     - Áp dụng các bộ lọc động và cơ chế phân trang phía Server để tối ưu hiệu suất (tìm kiếm theo mã hoặc tên căn hộ).
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `PageNumber`, `PageSize`.
+    ///     - **Tùy chọn (Filter)**: `TangId`, `LoaiCanHoId` (api/catalog/loai-can-ho-for-selector), `TinhTrangCanHoId` (api/catalog/tinh-trang-can-ho-for-selector), `Keyword`, `SortCol`, `IsAsc`.
     /// </remarks>
     [HttpPost("get-list")]
     [ProducesResponseType(typeof(ApiResponse<PagedResult<CanHoDetailResponse>>), StatusCodes.Status200OK)]
@@ -92,7 +106,10 @@ public class CanHoController : ApiControllerBase
     /// Lấy chi tiết căn hộ theo ID
     /// </summary>
     /// <remarks>
-    /// API lấy thông tin chi tiết đầy đủ của một căn hộ cụ thể thông qua `Id`.
+    /// - **Hoàn cảnh sử dụng**: Xem chi tiết thông số và lịch sử của một căn hộ cụ thể.
+    /// - **Hệ thống xử lý**: Truy xuất thông tin căn hộ kèm theo cấu trúc phân cấp (Tầng -> Tòa nhà).
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Id`.
     /// </remarks>
     [HttpPost("get-by-id")]
     [ProducesResponseType(typeof(ApiResponse<CanHoResponse>), StatusCodes.Status200OK)]
