@@ -103,9 +103,6 @@ public class PhuongTien : AggregateRoot
         string mauXe,
         IEnumerable<TepTaiLieu>? hinhAnhs = null)
     {
-        if (TrangThaiPhuongTienId == TrangThaiPhuongTien.Active)
-             throw new BusinessException("Không được sửa phương tiện đang hoạt động.");
-
         TenPhuongTien = tenPhuongTien;
         LoaiPhuongTienId = loaiPhuongTienId;
         BienSo = bienSo;

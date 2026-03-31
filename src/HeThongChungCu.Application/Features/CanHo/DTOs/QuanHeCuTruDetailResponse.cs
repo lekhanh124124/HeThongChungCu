@@ -11,5 +11,6 @@ namespace HeThongChungCu.Application.Features.CanHo.DTOs
         public DateTime NgayBatDau { get; set; }
         public DateTime? NgayKetThuc { get; set; }
         public int TrangThaiCuTruId { get; set; }
+        public string TenTrangThaiCuTru { get; set; } = string.Empty;
     }
 }

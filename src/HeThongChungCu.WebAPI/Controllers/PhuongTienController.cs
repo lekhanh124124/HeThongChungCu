@@ -9,10 +9,15 @@ using HeThongChungCu.Application.Features.QLPhuongTien.Commands.BaoMatThePhuongT
 using HeThongChungCu.Application.Features.QLPhuongTien.Commands.TaoThePhuongTien;
 using HeThongChungCu.Application.Features.QLPhuongTien.Commands.TaoYeuCauPhuongTien;
 using HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatYeuCauPhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.XoaYeuCauPhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.PheDuyetYeuCauPhuongTien;
+using HeThongChungCu.Application.Features.QLPhuongTien.Commands.TuChoiYeuCauPhuongTien;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 using HeThongChungCu.Application.Features.QLPhuongTien.Queries.GetPhuongTienById;
+using HeThongChungCu.Application.Features.QLPhuongTien.Queries.GetYeuCauPhuongTienById;
 using HeThongChungCu.Application.Features.QLPhuongTien.Queries.GoiYMaThePhuongTien;
 using HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSPhuongTienTrongChungCu;
+using HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSYeuCauPhuongTien;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -84,6 +89,7 @@ public class PhuongTienController : ApiControllerBase
     ///     - Xác thực sự tồn tại của căn hộ.
     ///     - Kiểm tra hạn mức (quota) số lượng xe tối đa của căn hộ để đảm bảo không vượt quá quy định.
     ///     - Tạo bản ghi phương tiện và lưu trữ thông tin hình ảnh đi kèm.
+    ///     - **Lưu ý về Tệp tin**: Các tệp tin hình ảnh phải được tải lên trước thông qua API `POST api/upload-media` để lấy danh sách `Id`. Sau đó, sử dụng các `Id` này để điền vào trường `HinhAnhIds`.
     /// - **Yêu cầu dữ liệu**: 
     ///     - **Bắt buộc**: `CanHoId`, `TenPhuongTien`, `LoaiPhuongTienId` (Lấy tại api/catalog/loai-phuong-tien-for-selector), `BienSo`, `MauXe`.
     ///     - **Tùy chọn**: `HinhAnhIds`.
@@ -105,6 +111,7 @@ public class PhuongTienController : ApiControllerBase
     /// <remarks>
     /// - **Hoàn cảnh sử dụng**: BQL sửa đổi các thông tin cơ bản của xe (tên xe, biển số, màu sắc) do nhập sai hoặc cư dân thay đổi thông tin.
     /// - **Hệ thống xử lý**: Cập nhật các thuộc tính của bản ghi phương tiện và cập nhật lại danh sách hình ảnh đính kèm.
+    /// - **Lưu ý về Tệp tin**: Các tệp tin hình ảnh mới phải được tải lên trước thông qua API `POST api/upload-media` để lấy danh sách `Id`. Sau đó, sử dụng các `Id` này để điền vào trường `HinhAnhIds`.
     /// - **Yêu cầu dữ liệu**: 
     ///     - **Bắt buộc**: `PhuongTienId`, `TenPhuongTien`, `LoaiPhuongTienId` (api/catalog/loai-phuong-tien-for-selector), `BienSo`, `MauXe`.
     ///     - **Tùy chọn**: `HinhAnhIds`.
@@ -279,8 +286,12 @@ public class PhuongTienController : ApiControllerBase
     ///     - Kiểm tra quyền truy cập của cư dân vào căn hộ được gửi yêu cầu.
     ///     - Lưu trữ nội dung dưới dạng "Yêu cầu chờ duyệt" (Pending) hoặc "Bản nháp" (Saved).
     ///     - Toàn bộ thay đổi sẽ chỉ có hiệu lực sau khi được BQL phê duyệt chính thức.
+    ///     - **Lưu ý về Tệp tin**: Các tệp tin hình ảnh phải được tải lên trước thông qua API `POST api/upload-media` để lấy danh sách `Id`. Sau đó, sử dụng các `Id` này để điền vào trường `FileIds`.
     /// - **Yêu cầu dữ liệu**: 
-    ///     - **Bắt buộc**: `CanHoId`, `LoaiYeuCauId` (api/catalog/loai-yeu-cau-for-selector).
+    ///     - **Bắt buộc**: `CanHoId`, `LoaiYeuCauId` (api/catalog/loai-yeu-cau-for-selector), `IsSubmit`.
+    ///     - **IsSubmit**:
+    ///         - `true`: Chốt dữ liệu và gửi cho BQL phê duyệt (Trạng thái "Chờ duyệt").
+    ///         - `false`: Lưu tạm thời để chỉnh sửa sau (Trạng thái "Đã lưu").
     ///     - **Trường hợp Thêm (LoaiYeuCauId = 1)**: Cần `YeuCauLoaiPhuongTienId` (api/catalog/loai-phuong-tien-for-selector), `YeuCauTenPhuongTien`, `YeuCauBienSo`, `YeuCauMauXe`.
     ///     - **Trường hợp Sửa/Xóa (LoaiYeuCauId = 2, 3)**: Cần `YeuCauPhuongTienId`.
     ///     - **Tùy chọn**: `FileIds`.
@@ -308,6 +319,7 @@ public class PhuongTienController : ApiControllerBase
     ///     - `IsSubmit = true`: Chốt dữ liệu và gửi cho BQL phê duyệt (chuyển từ "Đã lưu" sang "Chờ duyệt"). Sau khi nộp, cư dân không thể tự chỉnh sửa.
     ///     - `IsWithdraw = true`: Cư dân chủ động rút lại yêu cầu (chuyển sang trạng thái "Đã rút"). Hành động này ưu tiên hơn cập nhật nội dung.
     ///     - Nếu cả hai đều `false`: Chỉ cập nhật thay đổi nội dung và giữ yêu cầu ở trạng thái "Đã lưu".
+    ///     - **Lưu ý về Tệp tin**: Các tệp tin hình ảnh mới phải được tải lên trước thông qua API `POST api/upload-media` để lấy danh sách `Id`. Sau đó, sử dụng các `Id` này để điền vào trường `FileIds`.
     /// - **Yêu cầu dữ liệu**: 
     ///     - **Bắt buộc**: `Id`.
     ///     - **Khi cập nhật nội dung (IsSubmit/IsWithdraw = false)**: `YeuCauTenPhuongTien`, `YeuCauBienSo`, `YeuCauMauXe`.
@@ -318,6 +330,112 @@ public class PhuongTienController : ApiControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CapNhatYeuCauPhuongTien(
         [FromBody] CapNhatYeuCauPhuongTienCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Xóa yêu cầu phương tiện (Dành cho BQL)
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Nhân viên BQL dọn dẹp các yêu cầu rác, yêu cầu bị gửi nhầm hoặc không còn giá trị xử lý.
+    /// - **Hệ thống xử lý**: Thực hiện xóa cứng các bản ghi yêu cầu tương ứng khỏi hệ thống.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `Ids` (Danh sách ID yêu cầu).
+    /// </remarks>
+    [HttpDelete("yeu-cau")]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> XoaYeuCau(
+        [FromBody] XoaYeuCauPhuongTienCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Lấy thông tin chi tiết yêu cầu phương tiện
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Xem chi tiết nội dung của một yêu cầu (Thêm/Sửa/Xóa xe) kèm theo các hình ảnh minh chứng và thông tin người gửi/xử lý.
+    /// - **Hệ thống xử lý**: Truy xuất thông tin yêu cầu kết hợp với thông tin căn hộ, tòa nhà và lịch sử xử lý.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `RequestId`.
+    /// </remarks>
+    [HttpPost("yeu-cau/get-by-id")]
+    [ProducesResponseType(typeof(ApiResponse<YeuCauPhuongTienResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetYeuCauById(
+        [FromBody] GetYeuCauPhuongTienByIdQuery query,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(query, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Lấy danh sách yêu cầu phương tiện với bộ lọc và phân trang
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: BQL truy vấn danh sách các yêu cầu đang chờ xử lý hoặc lịch sử yêu cầu của cư dân. Cư dân theo dõi trạng thái các yêu cầu của chính mình.
+    /// - **Hệ thống xử lý**: 
+    ///     - Hỗ trợ bộ lọc theo tòa nhà, tầng, căn hộ, loại yêu cầu và trạng thái. 
+    ///     - Trả về thông tin tóm tắt kèm theo metadata về người gửi, người xử lý và vị trí căn hộ.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Tùy chọn (Filter)**: `ToaNhaId`, `TangId`, `CanHoId`, `LoaiYeuCauId`, `TrangThaiId`.
+    ///     - **Phân trang**: `PageNumber`, `PageSize`.
+    /// </remarks>
+    [HttpPost("yeu-cau/get-list")]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<DSYeuCauPhuongTienResponse>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetYeuCauList(
+        [FromBody] LayDSYeuCauPhuongTienQuery query,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(query, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Phê duyệt yêu cầu về phương tiện (Dành cho BQL)
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: BQL phê duyệt yêu cầu đăng ký/thay đổi/hủy xe của cư dân để cập nhật dữ liệu chính thức vào hệ thống.
+    /// - **Hệ thống xử lý**: 
+    ///     - **Thêm mới**: Tự động tạo bản ghi phương tiện chính thức và lưu trữ hình ảnh.
+    ///     - **Chỉnh sửa**: Cập nhật thông tin phương tiện hiện có.
+    ///     - **Xóa**: Chấm dứt quyền sử dụng dịch vụ của phương tiện (Inactive).
+    ///     - Chuyển trạng thái yêu cầu sang "Đã duyệt" và ghi nhận người xử lý.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `YeuCauPhuongTienId`.
+    /// </remarks>
+    [HttpPost("yeu-cau/phe-duyet")]
+    [ProducesResponseType(typeof(ApiResponse<YeuCauPhuongTienResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> PheDuyetYeuCau(
+        [FromBody] PheDuyetYeuCauPhuongTienCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(command, cancellationToken);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Từ chối yêu cầu về phương tiện (Dành cho BQL)
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: BQL không chấp nhận yêu cầu của cư dân (thiếu hình ảnh, thông tin sai, v.v.).
+    /// - **Hệ thống xử lý**: Ghi nhận lý do từ chối, chuyển trạng thái yêu cầu sang "Từ chối" và gửi phản hồi đến cư dân qua hệ thống thông báo.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `YeuCauPhuongTienId`, `LyDo`.
+    /// </remarks>
+    [HttpPost("yeu-cau/tu-choi")]
+    [ProducesResponseType(typeof(ApiResponse<YeuCauPhuongTienResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> TuChoiYeuCau(
+        [FromBody] TuChoiYeuCauPhuongTienCommand command,
         CancellationToken cancellationToken)
     {
         var result = await _sender.Send(command, cancellationToken);

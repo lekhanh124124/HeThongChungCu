@@ -9,5 +9,6 @@ public class FileStorageOptions
     public string BuildingContainer { get; set; } = string.Empty;
     public string ApartmentContainer { get; set; } = string.Empty;
     public string DocumentContainer { get; set; } = string.Empty;
+    public string VehicleContainer { get; set; } = string.Empty;
     public int MaxFileSizeInMB { get; set; } = 5;
 }

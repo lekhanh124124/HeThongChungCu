@@ -11,5 +11,6 @@ public record TaoYeuCauPhuongTienCommand(
     string? YeuCauBienSo,
     string? YeuCauMauXe,
     string? NoiDung,
-    List<int>? FileIds
+    List<int>? FileIds,
+    bool IsSubmit
 ) : ICommand<YeuCauPhuongTienResponse>;

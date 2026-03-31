@@ -2,31 +2,40 @@ using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 
-public class YeuCauPhuongTienResponse
+public record YeuCauPhuongTienResponse
 {
-    public int Id { get; set; }
-    public int CanHoId { get; set; }
-    public int? PhuongTienId { get; set; }
+    // Thông tin người gửi
+    public int Id { get; init; }
+    public int CreatedBy { get; init; }
+    public string TenNguoiGui { get; init; } = null!;
+    public DateTimeOffset CreatedAt { get; init; }
+    public int CanHoId { get; init; }
+    public string TenCanHo { get; init; } = null!;
+    public string TenTang { get; init; } = null!;
+    public string TenToaNha { get; init; } = null!;
 
-    public int LoaiYeuCauId { get; set; }
-    public string TenLoaiYeuCau { get; set; } = string.Empty;
+    // Thông tin người xử lý
+    public int? NguoiXuLyId { get; init; }
+    public string? TenNguoiXuLy { get; init; }
+    public DateTimeOffset? NgayXuLy { get; init; }
 
-    public int TrangThaiId { get; set; }
-    public string TenTrangThai { get; set; } = string.Empty;
+    // Chi tiết yêu cầu
+    public int? PhuongTienId { get; init; }
+    public int LoaiYeuCauId { get; init; }
+    public string TenLoaiYeuCau { get; init; } = string.Empty;
 
-    public string? NoiDung { get; set; }
-    public string? LyDo { get; set; }
+    public int TrangThaiId { get; init; }
+    public string TenTrangThai { get; init; } = string.Empty;
 
-    public int? NguoiXuLyId { get; set; }
-    public DateTimeOffset? NgayXuLy { get; set; }
+    public string? NoiDung { get; init; }
+    public string? LyDo { get; init; }
 
     // Thông tin xe đề xuất
-    public string YeuCauTenPhuongTien { get; set; } = string.Empty;
-    public int YeuCauLoaiPhuongTienId { get; set; }
-    public string TenYeuCauLoaiPhuongTien { get; set; } = string.Empty;
-    public string YeuCauBienSo { get; set; } = string.Empty;
-    public string YeuCauMauXe { get; set; } = string.Empty;
+    public string YeuCauTenPhuongTien { get; init; } = string.Empty;
+    public int YeuCauLoaiPhuongTienId { get; init; }
+    public string TenYeuCauLoaiPhuongTien { get; init; } = string.Empty;
+    public string YeuCauBienSo { get; init; } = string.Empty;
+    public string YeuCauMauXe { get; init; } = string.Empty;
 
-    public DateTimeOffset CreatedAt { get; set; }
-    public IReadOnlyList<TepTaiLieuResponse> YeuCauHinhAnhPhuongTiens { get; set; } = new List<TepTaiLieuResponse>();
+    public IReadOnlyList<TepTaiLieuResponse> YeuCauHinhAnhPhuongTiens { get; init; } = new List<TepTaiLieuResponse>();
 }

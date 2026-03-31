@@ -6,12 +6,11 @@ using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
 
-namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatYeuCauPhuongTien;
+namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.TuChoiYeuCauPhuongTien;
 
-public class CapNhatYeuCauPhuongTienCommandHandler : ICommandHandler<CapNhatYeuCauPhuongTienCommand, YeuCauPhuongTienResponse>
+public class TuChoiYeuCauPhuongTienCommandHandler : ICommandHandler<TuChoiYeuCauPhuongTienCommand, YeuCauPhuongTienResponse>
 {
     private readonly IYeuCauPhuongTienEFRepository _yeuCauRepository;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
     private readonly INguoiDungEFRepository _nguoiDungRepository;
     private readonly ICanHoEFRepository _canHoEFRepository;
     private readonly IToaNhaEFRepository _toaNhaEFRepository;
@@ -19,9 +18,8 @@ public class CapNhatYeuCauPhuongTienCommandHandler : ICommandHandler<CapNhatYeuC
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CapNhatYeuCauPhuongTienCommandHandler(
+    public TuChoiYeuCauPhuongTienCommandHandler(
         IYeuCauPhuongTienEFRepository yeuCauRepository,
-        ITepTaiLieuRepository tepTaiLieuRepository,
         INguoiDungEFRepository nguoiDungRepository,
         ICanHoEFRepository canHoEFRepository,
         IToaNhaEFRepository toaNhaEFRepository,
@@ -30,7 +28,6 @@ public class CapNhatYeuCauPhuongTienCommandHandler : ICommandHandler<CapNhatYeuC
         IUnitOfWork unitOfWork)
     {
         _yeuCauRepository = yeuCauRepository;
-        _tepTaiLieuRepository = tepTaiLieuRepository;
         _nguoiDungRepository = nguoiDungRepository;
         _canHoEFRepository = canHoEFRepository;
         _toaNhaEFRepository = toaNhaEFRepository;
@@ -39,67 +36,33 @@ public class CapNhatYeuCauPhuongTienCommandHandler : ICommandHandler<CapNhatYeuC
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Result<YeuCauPhuongTienResponse>> Handle(CapNhatYeuCauPhuongTienCommand request, CancellationToken cancellationToken)
+    public async Task<Result<YeuCauPhuongTienResponse>> Handle(TuChoiYeuCauPhuongTienCommand request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId;
         if (userId == null)
             return Result.Failure<YeuCauPhuongTienResponse>(UserErrors.NotFound);
 
-        var yeuCau = await _yeuCauRepository.GetByIdAsync(request.Id, cancellationToken);
+        var yeuCau = await _yeuCauRepository.GetByIdAsync(request.YeuCauPhuongTienId, cancellationToken);
         if (yeuCau == null)
             return Result.Failure<YeuCauPhuongTienResponse>(YeuCauPhuongTienErrors.NotFound);
 
-        if (yeuCau.CreatedBy != userId)
-            return Result.Failure<YeuCauPhuongTienResponse>(YeuCauPhuongTienErrors.Forbidden);
+        if (yeuCau.TrangThaiId != TrangThaiYeuCau.Pending)
+            return Result.Failure<YeuCauPhuongTienResponse>(new Error("YeuCauPhuongTien.InvalidStatus", "Chỉ có thể từ chối yêu cầu đang chờ duyệt."));
 
-        if (request.IsWithdraw)
-        {
-            yeuCau.Withdraw();
-        }
-        else
-        {
-            // Fetch TepTaiLieus if provided
-            List<TepTaiLieu>? images = null;
-            if (request.FileIds != null)
-            {
-                var tepTaiLieus = await _tepTaiLieuRepository.GetByIdsAsync(request.FileIds, cancellationToken);
-                images = tepTaiLieus.ToList();
-            }
-
-            var loaiPhuongTien = request.LoaiPhuongTienId.HasValue 
-                ? LoaiPhuongTien.FromValue(request.LoaiPhuongTienId.Value, null) 
-                : null;
-
-            yeuCau.Update(
-                loaiPhuongTien,
-                request.YeuCauTenPhuongTien,
-                request.YeuCauBienSo,
-                request.YeuCauMauXe,
-                request.NoiDung,
-                images);
-
-            if (request.IsSubmit)
-            {
-                yeuCau.Submit();
-            }
-        }
-
+        var now = _dateTimeProvider.UtcNow;
+        yeuCau.Reject(userId.Value, request.LyDo, now);
         _yeuCauRepository.Update(yeuCau);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var sender = await _nguoiDungRepository.GetByIdAsync(userId.Value, cancellationToken);
+        var sender = await _nguoiDungRepository.GetByIdAsync(yeuCau.CreatedBy, cancellationToken);
         var canHo = await _canHoEFRepository.GetByIdAsync(yeuCau.CanHoId, cancellationToken);
         var toaNha = await _toaNhaEFRepository.GetToaNhaByTangIdAsync(canHo!.TangId, cancellationToken);
         var tang = toaNha!.Tangs.First(t => t.Id == canHo.TangId);
-        
-        string? processorName = null;
-        if (yeuCau.NguoiXuLyId.HasValue)
-        {
-            var processor = await _nguoiDungRepository.GetByIdAsync(yeuCau.NguoiXuLyId.Value, cancellationToken);
-             processorName = processor != null ? $"{processor.Ho} {processor.Ten}".Trim() : null;
-        }
 
-        return new YeuCauPhuongTienResponse
+        var processor = await _nguoiDungRepository.GetByIdAsync(userId.Value, cancellationToken);
+
+        return Result.Success(new YeuCauPhuongTienResponse
         {
             Id = yeuCau.Id,
             CreatedBy = yeuCau.CreatedBy,
@@ -117,7 +80,7 @@ public class CapNhatYeuCauPhuongTienCommandHandler : ICommandHandler<CapNhatYeuC
             NoiDung = yeuCau.NoiDung,
             LyDo = yeuCau.LyDo,
             NguoiXuLyId = yeuCau.NguoiXuLyId,
-            TenNguoiXuLy = processorName,
+            TenNguoiXuLy = $"{processor!.Ho} {processor.Ten}".Trim(),
             NgayXuLy = yeuCau.NgayXuLy,
             YeuCauTenPhuongTien = yeuCau.YeuCauTenPhuongTien,
             YeuCauLoaiPhuongTienId = yeuCau.YeuCauLoaiPhuongTienId.Value,
@@ -129,6 +92,6 @@ public class CapNhatYeuCauPhuongTienCommandHandler : ICommandHandler<CapNhatYeuC
                 f.FileUrl,
                 f.FileName,
                 f.ContentType)).ToList()
-        };
+        });
     }
 }

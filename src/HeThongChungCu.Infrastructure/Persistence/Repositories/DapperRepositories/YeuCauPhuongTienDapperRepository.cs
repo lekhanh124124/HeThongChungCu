@@ -1,26 +1,27 @@
 using Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
 using HeThongChungCu.Application.Common.Models;
-using HeThongChungCu.Application.Features.QLCuTru.DTOs;
-using HeThongChungCu.Application.Features.QLCuTru.Queries.LayDSYeuCauCuTru;
+using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
+using HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSYeuCauPhuongTien;
 using HeThongChungCu.Infrastructure.Persistence.Helpers;
 using HeThongChungCu.Infrastructure.Persistence.ReadModels;
 using System.Data;
 using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
 
-public class YeuCauCuTruDapperRepository : IYeuCauCuTruDapperRepository
+public class YeuCauPhuongTienDapperRepository : IYeuCauPhuongTienDapperRepository
 {
     private readonly AppDbContext _dbContext;
 
-    public YeuCauCuTruDapperRepository(AppDbContext dbContext)
+    public YeuCauPhuongTienDapperRepository(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }
 
-    public async Task<PagedResult<DSYeuCauCuTruResponse>> GetPagedListAsync(
-        LayDSYeuCauCuTruQuerySpecification spec,
+    public async Task<PagedResult<DSYeuCauPhuongTienResponse>> GetPagedListAsync(
+        LayDSYeuCauPhuongTienQuerySpecification spec,
         CancellationToken cancellationToken = default)
     {
         var connection = _dbContext.GetDbConnection();
@@ -50,6 +51,7 @@ public class YeuCauCuTruDapperRepository : IYeuCauCuTruDapperRepository
                 COUNT(*) OVER() AS TotalCount,
                 y.Id,
                 y.CanHoId,
+                y.YeuCauPhuongTienId,
                 y.LoaiYeuCauId,
                 y.TrangThaiId,
                 y.LyDo,
@@ -58,15 +60,10 @@ public class YeuCauCuTruDapperRepository : IYeuCauCuTruDapperRepository
                 y.NgayXuLy,
                 y.NguoiXuLyId,
                 y.CreatedBy,
-                y.YeuCauTen,
-                y.YeuCauHo,
-                y.YeuCauNgaySinh,
-                y.YeuCauGioiTinhId,
-                y.YeuCauSoDienThoai,
-                y.YeuCauCCCD,
-                y.YeuCauDiaChi,
-                y.YeuCauLoaiQuanHeId,
-                y.YeuCauQuanHeCuTruId,
+                y.YeuCauTenPhuongTien,
+                y.YeuCauLoaiPhuongTienId,
+                y.YeuCauBienSo,
+                y.YeuCauMauXe,
                 ch.TenCanHo,
                 tg.TenTang,
                 tg.ToaNhaId,
@@ -74,7 +71,7 @@ public class YeuCauCuTruDapperRepository : IYeuCauCuTruDapperRepository
                 tn.TenToaNha,
                 COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10))) AS TenNguoiGui,
                 COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10))) AS TenNguoiXuLy
-            FROM YeuCauCuTru y
+            FROM YeuCauPhuongTien y
             LEFT JOIN CanHo ch ON y.CanHoId = ch.Id
             LEFT JOIN Tang tg ON ch.TangId = tg.Id
             LEFT JOIN ToaNha tn ON tg.ToaNhaId = tn.Id
@@ -87,13 +84,13 @@ public class YeuCauCuTruDapperRepository : IYeuCauCuTruDapperRepository
             {sqlPagination}
             """;
 
-        var rows = (await connection.QueryAsync<YeuCauCuTruReadModel>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<YeuCauPhuongTienReadModel>(sql, parameters)).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var loaiYeuCauMap = LoaiYeuCau.ToDictionary();
         var trangThaiMap = TrangThaiYeuCau.ToDictionary();
 
-        var items = rows.Select(r => new DSYeuCauCuTruResponse
+        var items = rows.Select(r => new DSYeuCauPhuongTienResponse
         {
             Id = r.Id,
             CanHoId = r.CanHoId,
@@ -111,10 +108,12 @@ public class YeuCauCuTruDapperRepository : IYeuCauCuTruDapperRepository
             NguoiXuLyId = r.NguoiXuLyId,
             CreatedBy = r.CreatedBy,
             TenNguoiGui = r.TenNguoiGui,
-            TenNguoiXuLy = r.TenNguoiXuLy
+            TenNguoiXuLy = r.TenNguoiXuLy,
+            YeuCauTenPhuongTien = r.YeuCauTenPhuongTien,
+            YeuCauBienSo = r.YeuCauBienSo
         }).ToList();
 
-        return new PagedResult<DSYeuCauCuTruResponse>
+        return new PagedResult<DSYeuCauPhuongTienResponse>
         {
             Items = items,
             PagingInfo = new PagingInfo
@@ -126,7 +125,7 @@ public class YeuCauCuTruDapperRepository : IYeuCauCuTruDapperRepository
         };
     }
 
-    public async Task<YeuCauCuTruResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<YeuCauPhuongTienResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var connection = _dbContext.GetDbConnection();
 
@@ -136,15 +135,13 @@ public class YeuCauCuTruDapperRepository : IYeuCauCuTruDapperRepository
         var sql = $"""
             -- 1. Main Info
             SELECT
-                y.Id, y.CanHoId, y.LoaiYeuCauId, y.TrangThaiId, y.LyDo, y.NoiDung, 
+                y.Id, y.CanHoId, y.YeuCauPhuongTienId, y.LoaiYeuCauId, y.TrangThaiId, y.LyDo, y.NoiDung, 
                 y.CreatedAt, y.NgayXuLy, y.NguoiXuLyId, y.CreatedBy,
-                y.YeuCauTen, y.YeuCauHo, y.YeuCauNgaySinh, y.YeuCauGioiTinhId,
-                y.YeuCauSoDienThoai, y.YeuCauCCCD, y.YeuCauDiaChi,
-                y.YeuCauLoaiQuanHeId, y.YeuCauQuanHeCuTruId AS TargetQuanHeCuTruId,
+                y.YeuCauTenPhuongTien, y.YeuCauLoaiPhuongTienId, y.YeuCauBienSo, y.YeuCauMauXe,
                 ch.TenCanHo, tg.TenTang, tn.TenToaNha,
                 COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10))) AS TenNguoiGui,
                 COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10))) AS TenNguoiXuLy
-            FROM YeuCauCuTru y
+            FROM YeuCauPhuongTien y
             LEFT JOIN CanHo ch ON y.CanHoId = ch.Id
             LEFT JOIN Tang tg ON ch.TangId = tg.Id
             LEFT JOIN ToaNha tn ON tg.ToaNhaId = tn.Id
@@ -154,55 +151,51 @@ public class YeuCauCuTruDapperRepository : IYeuCauCuTruDapperRepository
             LEFT JOIN TaiKhoan tk2 ON nd2.Id = tk2.NguoiDungId
             WHERE y.Id = @Id AND y.IsDeleted = 0;
 
-            -- 2. Documents
+            -- 2. Images
             SELECT 
-                ytl.Id, ytl.LoaiGiayToId, ytl.SoGiayTo, ytl.NgayPhatHanh, 
-                ytl.TaiLieuCuTruId AS TargetTaiLieuCuTruId
-            FROM YeuCauTaiLieuCuTru ytl
-            WHERE ytl.YeuCauCuTruId = @Id;
-
-            -- 3. Files
-            SELECT 
-                ttl.Id, ttl.FileUrl, ttl.FileName, ttl.ContentType,
-                j.YeuCauTaiLieuCuTruId AS DocumentId
+                ttl.Id, ttl.FileUrl, ttl.FileName, ttl.ContentType
             FROM TepTaiLieu ttl
-            JOIN TepYeuCauTaiLieuCuTru j ON ttl.Id = j.FilesId
-            WHERE j.YeuCauTaiLieuCuTruId IN (SELECT Id FROM YeuCauTaiLieuCuTru WHERE YeuCauCuTruId = @Id);
+            JOIN TepYeuCauHinhAnhPhuongTien j ON ttl.Id = j.YeuCauHinhAnhPhuongTiensId
+            WHERE j.YeuCauPhuongTienId = @Id;
             """;
 
         using var multi = await connection.QueryMultipleAsync(sql, new { Id = id });
 
-        var response = await multi.ReadFirstOrDefaultAsync<YeuCauCuTruResponse>();
-        if (response == null) return null;
+        var readModel = await multi.ReadFirstOrDefaultAsync<YeuCauPhuongTienReadModel>();
+        if (readModel == null) return null;
 
         var loaiYeuCauMap = LoaiYeuCau.ToDictionary();
         var trangThaiMap = TrangThaiYeuCau.ToDictionary();
-        var loaiGiayToMap = LoaiGiayTo.ToDictionary();
-        var gioiTinhMap = GioiTinh.ToDictionary();
-        var loaiQuanHeCuTruMap = LoaiQuanHeCuTru.ToDictionary();
+        var loaiPhuongTienMap = LoaiPhuongTien.ToDictionary();
 
-        // Enrich main info
-        response = response with
+        var images = (await multi.ReadAsync<TepTaiLieuResponse>()).ToList();
+
+        return new YeuCauPhuongTienResponse
         {
-            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(response.LoaiYeuCauId, string.Empty),
-            TenTrangThai = trangThaiMap.GetValueOrDefault(response.TrangThaiId, string.Empty),
-            YeuCauGioiTinhTen = response.YeuCauGioiTinhId.HasValue ? gioiTinhMap.GetValueOrDefault(response.YeuCauGioiTinhId.Value, string.Empty) : null,
-            YeuCauLoaiQuanHeTen = response.YeuCauLoaiQuanHeId.HasValue ? loaiQuanHeCuTruMap.GetValueOrDefault(response.YeuCauLoaiQuanHeId.Value, string.Empty) : null,
+            Id = readModel.Id,
+            CreatedBy = readModel.CreatedBy,
+            TenNguoiGui = readModel.TenNguoiGui,
+            CreatedAt = readModel.CreatedAt,
+            CanHoId = readModel.CanHoId,
+            TenCanHo = readModel.TenCanHo,
+            TenTang = readModel.TenTang,
+            TenToaNha = readModel.TenToaNha,
+            NguoiXuLyId = readModel.NguoiXuLyId,
+            TenNguoiXuLy = readModel.TenNguoiXuLy,
+            NgayXuLy = readModel.NgayXuLy,
+            PhuongTienId = readModel.YeuCauPhuongTienId,
+            LoaiYeuCauId = readModel.LoaiYeuCauId,
+            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(readModel.LoaiYeuCauId, string.Empty),
+            TrangThaiId = readModel.TrangThaiId,
+            TenTrangThai = trangThaiMap.GetValueOrDefault(readModel.TrangThaiId, string.Empty),
+            NoiDung = readModel.NoiDung,
+            LyDo = readModel.LyDo,
+            YeuCauTenPhuongTien = readModel.YeuCauTenPhuongTien,
+            YeuCauLoaiPhuongTienId = readModel.YeuCauLoaiPhuongTienId,
+            TenYeuCauLoaiPhuongTien = loaiPhuongTienMap.GetValueOrDefault(readModel.YeuCauLoaiPhuongTienId, string.Empty),
+            YeuCauBienSo = readModel.YeuCauBienSo,
+            YeuCauMauXe = readModel.YeuCauMauXe,
+            YeuCauHinhAnhPhuongTiens = images
         };
-
-        var documents = (await multi.ReadAsync<TaiLieuResponse>()).ToList();
-        var fileRows = (await multi.ReadAsync<dynamic>()).ToList();
-
-        // Map Enums and Stitch Files
-        foreach (var doc in documents)
-        {
-            doc.TenLoaiGiayTo = loaiGiayToMap.GetValueOrDefault(doc.LoaiGiayToId, string.Empty);
-            doc.Files = fileRows
-                .Where(f => (int)f.DocumentId == doc.Id)
-                .Select(f => new TepTaiLieuResponse((int)f.Id, (string)f.FileUrl, (string)f.FileName, (string)f.ContentType))
-                .ToList();
-        }
-
-        return response with { Documents = documents };
     }
 }

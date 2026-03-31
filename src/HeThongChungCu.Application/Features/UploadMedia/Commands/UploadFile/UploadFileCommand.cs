@@ -4,4 +4,5 @@ using HeThongChungCu.Application.Features.UploadMedia.DTOs;
 namespace HeThongChungCu.Application.Features.UploadMedia.Commands.UploadFile;
 
 public record UploadFileCommand(
-    List<FileUploadItem> Files) : ICommand<List<UploadFileResponse>>;
+    List<FileUploadItem> Files,
+    string? TargetContainer = null) : ICommand<List<UploadFileResponse>>;

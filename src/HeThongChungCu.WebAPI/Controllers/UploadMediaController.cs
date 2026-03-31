@@ -29,14 +29,21 @@ public class UploadMediaController : ApiControllerBase
     /// - **Hệ thống xử lý**: 
     ///     - Tiếp nhận danh sách tệp tin qua luồng dữ liệu `multipart/form-data`.
     ///     - Tải tệp lên dịch vụ lưu trữ đám mây.
-    ///     - Lưu thông tin tệp vào cơ sở dữ liệu và trả về danh sách ID/URL để client sử dụng cho các bước tiếp theo.
+    ///     - Lưu thông tin tệp vào cơ sở dữ liệu và trả về danh sách ID/URL. 
+    ///     - **Lưu ý**: Client cần lưu lại các `Id` này để điền vào các yêu cầu nghiệp vụ tiếp theo (ví dụ: `HinhAnhIds`, `FileIds`, `TaiLieuCuTrus`).
     /// - **Yêu cầu dữ liệu**: 
     ///     - **Bắt buộc**: Danh sách tệp tin (`files`) gửi qua `multipart/form-data`.
+    ///     - **Tùy chọn**: `targetContainer` (string) - Chỉ định tên blob container để lưu trữ. Các giá trị hợp lệ hiện có:
+    ///         - `tai-lieu-cu-tru` (Mặc định)
+    ///         - `tai-lieu-phuong-tien` (Dành cho phương tiện)
+    ///         - `anh-dai-dien-nguoi-dung`
+    ///         - `hinh-anh-toa-nha`
+    ///         - `hinh-anh-can-ho`
     /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<List<UploadFileResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Upload(List<IFormFile> files, CancellationToken cancellationToken)
+    public async Task<IActionResult> Upload([FromForm] string? targetContainer, List<IFormFile> files, CancellationToken cancellationToken)
     {
         var fileItems = files.Select(f => new FileUploadItem
         {
@@ -46,7 +53,7 @@ public class UploadMediaController : ApiControllerBase
             Size = f.Length
         }).ToList();
 
-        var command = new UploadFileCommand(fileItems);
+        var command = new UploadFileCommand(fileItems, targetContainer);
         var result = await _sender.Send(command, cancellationToken);
 
         return HandleResult(result);

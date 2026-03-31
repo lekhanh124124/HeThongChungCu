@@ -46,10 +46,23 @@ public class UploadFileCommandHandler : ICommandHandler<UploadFileCommand, List<
                 $"{Guid.NewGuid():N}{extension}",
                 _dateTimeProvider.UtcNow.DateTime);
 
+            var validContainers = new List<string>
+            {
+                _fileStorageOptions.VehicleContainer,
+                _fileStorageOptions.ApartmentContainer,
+                _fileStorageOptions.BuildingContainer,
+                _fileStorageOptions.UserAvatarContainer,
+                _fileStorageOptions.DocumentContainer
+            };
+
+            var containerName = validContainers.FirstOrDefault(c =>
+                c.Equals(request.TargetContainer, StringComparison.OrdinalIgnoreCase))
+                ?? _fileStorageOptions.DocumentContainer;
+
             var fileUrl = await _fileStorageService.UploadFileAsync(
                 file.Content,
                 uniqueFileName,
-                _fileStorageOptions.DocumentContainer,
+                containerName,
                 file.ContentType,
                 cancellationToken);
 

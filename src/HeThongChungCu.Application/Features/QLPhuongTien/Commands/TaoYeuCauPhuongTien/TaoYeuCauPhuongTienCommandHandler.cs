@@ -14,6 +14,9 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
     private readonly IPhuongTienEFRepository _phuongTienRepository;
     private readonly IQuanHeCuTruEFRepository _quanHeRepository;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly INguoiDungEFRepository _nguoiDungRepository;
+    private readonly ICanHoEFRepository _canHoEFRepository;
+    private readonly IToaNhaEFRepository _toaNhaEFRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
@@ -23,6 +26,9 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
         IPhuongTienEFRepository phuongTienRepository,
         IQuanHeCuTruEFRepository quanHeRepository,
         ITepTaiLieuRepository tepTaiLieuRepository,
+        INguoiDungEFRepository nguoiDungRepository,
+        ICanHoEFRepository canHoEFRepository,
+        IToaNhaEFRepository toaNhaEFRepository,
         ICurrentUserService currentUserService,
         IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)
@@ -31,6 +37,9 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
         _phuongTienRepository = phuongTienRepository;
         _quanHeRepository = quanHeRepository;
         _tepTaiLieuRepository = tepTaiLieuRepository;
+        _nguoiDungRepository = nguoiDungRepository;
+        _canHoEFRepository = canHoEFRepository;
+        _toaNhaEFRepository = toaNhaEFRepository;
         _currentUserService = currentUserService;
         _dateTimeProvider = dateTimeProvider;
         _unitOfWork = unitOfWork;
@@ -55,6 +64,8 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
         // Fetch all TepTaiLieus at once
         var tepTaiLieus = await _tepTaiLieuRepository.GetByIdsAsync(request.FileIds ?? new List<int>(), cancellationToken);
 
+        var initialStatus = request.IsSubmit ? TrangThaiYeuCau.Pending : TrangThaiYeuCau.Saved;
+
         YeuCauPhuongTien yeuCau;
         var now = _dateTimeProvider.Now;
 
@@ -68,7 +79,8 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
                 request.YeuCauBienSo!,
                 request.YeuCauMauXe!,
                 request.NoiDung,
-                tepTaiLieus);
+                tepTaiLieus,
+                initialStatus);
         }
         else // Sua hoặc Xoa
         {
@@ -90,7 +102,8 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
                     request.YeuCauBienSo ?? phuongTien.BienSo,
                     request.YeuCauMauXe ?? phuongTien.MauXe,
                     request.NoiDung,
-                    tepTaiLieus);
+                    tepTaiLieus,
+                    initialStatus);
             }
             else // Xoa
             {
@@ -101,17 +114,29 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
                     phuongTien.TenPhuongTien,
                     phuongTien.BienSo,
                     phuongTien.MauXe,
-                    request.NoiDung);
+                    request.NoiDung,
+                    initialStatus);
             }
         }
 
         await _yeuCauRepository.AddAsync(yeuCau, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+        var sender = await _nguoiDungRepository.GetByIdAsync(userId.Value, cancellationToken);
+        var canHo = await _canHoEFRepository.GetByIdAsync(request.CanHoId, cancellationToken);
+        var toaNha = await _toaNhaEFRepository.GetToaNhaByTangIdAsync(canHo!.TangId, cancellationToken);
+        var tang = toaNha!.Tangs.First(t => t.Id == canHo.TangId);
+
         return new YeuCauPhuongTienResponse
         {
             Id = yeuCau.Id,
+            CreatedBy = userId.Value,
+            TenNguoiGui = $"{sender!.Ho} {sender.Ten}".Trim(),
+            CreatedAt = yeuCau.CreatedAt,
             CanHoId = yeuCau.CanHoId,
+            TenCanHo = canHo.MaCanHo,
+            TenTang = tang.MaTang,
+            TenToaNha = toaNha.MaToaNha,
             PhuongTienId = yeuCau.YeuCauPhuongTienId,
             LoaiYeuCauId = yeuCau.LoaiYeuCauId.Value,
             TenLoaiYeuCau = yeuCau.LoaiYeuCauId.Name,
@@ -126,7 +151,6 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
             TenYeuCauLoaiPhuongTien = yeuCau.YeuCauLoaiPhuongTienId.Name,
             YeuCauBienSo = yeuCau.YeuCauBienSo,
             YeuCauMauXe = yeuCau.YeuCauMauXe,
-            CreatedAt = yeuCau.CreatedAt,
             YeuCauHinhAnhPhuongTiens = yeuCau.YeuCauHinhAnhPhuongTiens.Select(f => new TepTaiLieuResponse(
                 f.Id,
                 f.FileUrl,

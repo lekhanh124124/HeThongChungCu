@@ -32,6 +32,7 @@ public class YeuCauPhuongTien : AggregateRoot
     private YeuCauPhuongTien(
         int canHoId,
         LoaiYeuCau loaiYeuCau,
+        TrangThaiYeuCau trangThaiId,
         LoaiPhuongTien loaiPhuongTien,
         string tenPhuongTien,
         string bienSo,
@@ -41,13 +42,13 @@ public class YeuCauPhuongTien : AggregateRoot
     {
         CanHoId = canHoId;
         LoaiYeuCauId = loaiYeuCau;
+        TrangThaiId = trangThaiId;
         YeuCauLoaiPhuongTienId = loaiPhuongTien;
         YeuCauTenPhuongTien = tenPhuongTien;
         YeuCauBienSo = bienSo;
         YeuCauMauXe = mauXe;
         NoiDung = noiDung;
         YeuCauPhuongTienId = phuongTienId;
-        TrangThaiId = TrangThaiYeuCau.Pending;
     }
 
     public static YeuCauPhuongTien CreateAddRequest(
@@ -57,9 +58,10 @@ public class YeuCauPhuongTien : AggregateRoot
         string bienSo,
         string mauXe,
         string? noiDung,
-        IEnumerable<TepTaiLieu>? images)
+        IEnumerable<TepTaiLieu>? images,
+        TrangThaiYeuCau trangThaiId)
     {
-        var request = new YeuCauPhuongTien(canHoId, LoaiYeuCau.Them, loaiPhuongTien, tenPhuongTien, bienSo, mauXe, noiDung);
+        var request = new YeuCauPhuongTien(canHoId, LoaiYeuCau.Them, trangThaiId, loaiPhuongTien, tenPhuongTien, bienSo, mauXe, noiDung);
 
         if (images != null)
         {
@@ -81,9 +83,10 @@ public class YeuCauPhuongTien : AggregateRoot
         string bienSo,
         string mauXe,
         string? noiDung,
-        IEnumerable<TepTaiLieu>? images)
+        IEnumerable<TepTaiLieu>? images,
+        TrangThaiYeuCau trangThaiId)
     {
-        var request = new YeuCauPhuongTien(canHoId, LoaiYeuCau.Sua, loaiPhuongTien, tenPhuongTien, bienSo, mauXe, noiDung, phuongTienId);
+        var request = new YeuCauPhuongTien(canHoId, LoaiYeuCau.Sua, trangThaiId, loaiPhuongTien, tenPhuongTien, bienSo, mauXe, noiDung, phuongTienId);
 
         if (images != null)
         {
@@ -104,9 +107,10 @@ public class YeuCauPhuongTien : AggregateRoot
         string tenPhuongTien,
         string bienSo,
         string mauXe,
-        string? noiDung)
+        string? noiDung,
+        TrangThaiYeuCau trangThaiId)
     {
-        var request = new YeuCauPhuongTien(canHoId, LoaiYeuCau.Xoa, loaiPhuongTien, tenPhuongTien, bienSo, mauXe, noiDung, phuongTienId);
+        var request = new YeuCauPhuongTien(canHoId, LoaiYeuCau.Xoa, trangThaiId, loaiPhuongTien, tenPhuongTien, bienSo, mauXe, noiDung, phuongTienId);
         return request;
     }
 

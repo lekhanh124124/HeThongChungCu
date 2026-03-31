@@ -123,6 +123,7 @@ public class QuanHeCuTruController : ApiControllerBase
     /// - **Hệ thống xử lý**: 
     ///     - Tạo mới một bản ghi Người dùng với thông tin định danh và tài liệu đi kèm.
     ///     - Đảm bảo tính duy nhất của mã số định danh (nếu có cung cấp).
+    ///     - **Lưu ý về Tệp tin**: Các tệp tin tài liệu định danh phải được tải lên trước thông qua API `POST api/upload-media` để lấy danh sách `Id`. Sau đó, sử dụng các `Id` này để điền vào trường `FileIds` trong danh sách `TaiLieuCuTrus`.
     /// - **Yêu cầu dữ liệu**: 
     ///     - **Bắt buộc**: `FirstName`, `LastName`, `Dob`, `GioiTinhId` (Lấy tại api/catalog/gioi-tinh-for-selector).
     ///     - **Tùy chọn**: `DiaChi`, `IdCard`, `PhoneNumber`, `TaiLieuCuTrus`.
@@ -141,6 +142,7 @@ public class QuanHeCuTruController : ApiControllerBase
     /// <remarks>
     /// - **Hoàn cảnh sử dụng**: BQL hoặc cư dân có thẩm quyền cập nhật các thông tin cá nhân hoặc tài liệu định danh của cư dân đang cư trú.
     /// - **Hệ thống xử lý**: Cập nhật thông tin chi tiết của cư dân và đồng bộ hóa các tài liệu pháp lý liên quan.
+    /// - **Lưu ý về Tệp tin**: Các tệp tin tài liệu định danh mới phải được tải lên trước thông qua API `POST api/upload-media` để lấy danh sách `Id`. Sau đó, sử dụng các `Id` này để điền vào trường `FileIds` trong danh sách `TaiLieuCuTrus`.
     /// - **Yêu cầu dữ liệu**: 
     ///     - **Bắt buộc**: `QuanHeCuTruId`, `FirstName`, `LastName`, `Dob`, `LoaiQuanHeCuTruId` (api/catalog/loai-quan-he-cu-tru-for-selector).
     ///     - **Tùy chọn**: `GioiTinhId` (api/catalog/gioi-tinh-for-selector), `DiaChi`.
@@ -176,10 +178,14 @@ public class QuanHeCuTruController : ApiControllerBase
     }
 
     /// <summary>
-    /// Lấy chi tiết yêu cầu cư trú
-    /// - **Yêu cầu dữ liệu**: 
-    ///     - **Bắt buộc**: `Id`.
+    /// Lấy chi tiết yêu cầu cư trú theo ID
     /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Nhân viên BQL hoặc cư dân xem chi tiết nội dung, trạng thái và các tài liệu đính kèm của một yêu cầu cư trú cụ thể.
+    /// - **Hệ thống xử lý**: Truy xuất thông tin yêu cầu cư trú từ cơ sở dữ liệu, bao gồm các thông tin thay đổi và danh sách hồ sơ tài liệu liên quan.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `RequestId`.
+    /// </remarks>
     [HttpPost("yeu-cau/get-by-id")]
     [ProducesResponseType(typeof(ApiResponse<YeuCauCuTruResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
@@ -199,6 +205,7 @@ public class QuanHeCuTruController : ApiControllerBase
     ///     - **Cơ chế nộp yêu cầu**:
     ///         - `IsSubmit = true`: Chốt dữ liệu và gửi cho BQL phê duyệt (chuyển trạng thái sang "Chờ duyệt"). Sau khi nộp, cư dân không thể tự chỉnh sửa.
     ///         - `IsSubmit = false` (Mặc định): Chỉ lưu thông tin nháp, yêu cầu ở trạng thái "Đã lưu" để có thể tiếp tục chỉnh sửa sau.
+    ///     - **Lưu ý về Tệp tin**: Các tệp tin tài liệu phải được tải lên trước thông qua API `POST api/upload-media` để lấy danh sách `Id`. Sau đó, sử dụng các `Id` này để điền vào trường `FileIds` trong danh sách `TaiLieuCuTrus`.
     /// - **Yêu cầu dữ liệu**: 
     ///     - **Bắt buộc hoàn cảnh**: 
     ///         - Luôn bắt buộc: `CanHoId`, `LoaiYeuCauId` (api/catalog/loai-yeu-cau-for-selector).
@@ -224,6 +231,7 @@ public class QuanHeCuTruController : ApiControllerBase
     ///     - `IsSubmit = true`: Chốt dữ liệu và gửi cho BQL phê duyệt (chuyển từ "Đã lưu" sang "Chờ duyệt").
     ///     - `IsWithdraw = true`: Cư dân chủ động rút lại yêu cầu (chuyển sang trạng thái "Đã rút"). Hành động này ưu tiên hơn cập nhật nội dung.
     ///     - Nếu cả hai đều `false`: Chỉ cập nhật thay đổi nội dung và giữ yêu cầu ở trạng thái "Đã lưu".
+    ///     - **Lưu ý về Tệp tin**: Các tệp tin tài liệu mới phải được tải lên trước thông qua API `POST api/upload-media` để lấy danh sách `Id`. Sau đó, sử dụng các `Id` này để điền vào trường `FileIds` trong danh sách `TaiLieuCuTrus`.
     /// - **Yêu cầu dữ liệu**: 
     ///     - **Bắt buộc**: `Id`.
     ///     - **Tùy chọn**: `FirstName`, `LastName`, `PhoneNumber`, `CCCD`, `DiaChi`, `TaiLieuCuTrus`, `IsSubmit`, `IsWithdraw`.

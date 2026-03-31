@@ -93,6 +93,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
             }
 
             await _userRepository.AddAsync(newUser, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             // 3. Create Residency Relation
             var loaiQuanHe = LoaiQuanHeCuTru.FromValue(yeuCau.YeuCauLoaiQuanHeId!.Value, null);

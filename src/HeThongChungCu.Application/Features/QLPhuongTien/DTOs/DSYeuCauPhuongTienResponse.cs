@@ -1,6 +1,6 @@
-namespace HeThongChungCu.Application.Features.QLCuTru.DTOs;
+namespace HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 
-public record YeuCauCuTruResponse
+public record DSYeuCauPhuongTienResponse
 {
     // Thông tin người gửi
     public int Id { get; init; }
@@ -20,23 +20,12 @@ public record YeuCauCuTruResponse
     // Chi tiết yêu cầu
     public int LoaiYeuCauId { get; init; }
     public string TenLoaiYeuCau { get; init; } = null!;
-    public int? TargetQuanHeCuTruId { get; init; }
-
-    public string? YeuCauTen { get; init; }
-    public string? YeuCauHo { get; init; }
-    public DateTime? YeuCauNgaySinh { get; init; }
-    public int? YeuCauGioiTinhId { get; init; }
-    public string? YeuCauGioiTinhTen { get; init; }
-    public string? YeuCauSoDienThoai { get; init; }
-    public string? YeuCauCCCD { get; init; }
-    public string? YeuCauDiaChi { get; init; }
-    public int? YeuCauLoaiQuanHeId { get; init; }
-    public string? YeuCauLoaiQuanHeTen { get; init; }
-
-    public string? NoiDung { get; init; }
-    public string? LyDo { get; init; }
     public int TrangThaiId { get; init; }
     public string TenTrangThai { get; init; } = null!;
-
-    public List<TaiLieuResponse> Documents { get; init; } = [];
+    public string? LyDo { get; init; }
+    public string? NoiDung { get; init; }
+    
+    // Thông tin xe (ngắn gọn cho danh sách)
+    public string YeuCauTenPhuongTien { get; init; } = string.Empty;
+    public string YeuCauBienSo { get; init; } = string.Empty;
 }
