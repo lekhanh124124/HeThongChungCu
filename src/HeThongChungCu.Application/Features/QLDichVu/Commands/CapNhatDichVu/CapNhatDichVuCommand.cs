@@ -3,6 +3,7 @@ using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.CapNhatDichVu;
 
@@ -15,9 +16,13 @@ public sealed class CapNhatDichVuCommandValidator : AbstractValidator<CapNhatDic
 {
     public CapNhatDichVuCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
-        RuleFor(x => x.TenDichVu).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.DonViTinh).NotEmpty().MaximumLength(50);
+        RuleFor(x => x.Id).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+        RuleFor(x => x.TenDichVu)
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
+            .MaximumLength(200).WithMessage(ValidationErrors.MaxLength(200).Description);
+        RuleFor(x => x.DonViTinh)
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
+            .MaximumLength(50).WithMessage(ValidationErrors.MaxLength(50).Description);
     }
 }
 
@@ -37,7 +42,7 @@ internal sealed class CapNhatDichVuCommandHandler : ICommandHandler<CapNhatDichV
         var dichVu = await _dichVuRepository.GetByIdAsync(request.Id, cancellationToken);
         if (dichVu is null)
         {
-            return Result.Failure<bool>(new Error("DichVu.NotFound", "Không tìm thấy dịch vụ."));
+            return Result.Failure<bool>(DichVuErrors.NotFound);
         }
 
         dichVu.Update(request.TenDichVu, request.DonViTinh);

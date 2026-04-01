@@ -1,4 +1,5 @@
 using FluentValidation;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.TuChoiYeuCauPhuongTien;
 
@@ -7,9 +8,9 @@ public class TuChoiYeuCauPhuongTienCommandValidator : AbstractValidator<TuChoiYe
     public TuChoiYeuCauPhuongTienCommandValidator()
     {
         RuleFor(x => x.YeuCauPhuongTienId)
-            .NotEmpty().WithMessage("ID yêu cầu không được để trống.");
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
 
         RuleFor(x => x.LyDo)
-            .NotEmpty().WithMessage("Lý do từ chối không được để trống.");
+            .NotEmpty().WithMessage(YeuCauPhuongTienErrors.LyDoNotEmpty.Description);
     }
 }

@@ -1,3 +1,6 @@
+using FluentValidation;
+using HeThongChungCu.Domain.Errors;
+
 namespace HeThongChungCu.Application.Features.Profile.Commands.ChangePassword;
 
 public class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCommand>
@@ -5,15 +8,16 @@ public class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCo
     public ChangePasswordCommandValidator()
     {
         RuleFor(x => x.OldPassword)
-            .NotEmpty().WithMessage("Mật khẩu cũ không được để trống.");
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
 
         RuleFor(x => x.NewPassword)
-            .NotEmpty().WithMessage("Mật khẩu mới không được để trống.")
-            .MinimumLength(6).WithMessage("Mật khẩu mới phải có ít nhất 6 ký tự.")
-            .NotEqual(x => x.OldPassword).WithMessage("Mật khẩu mới không được trùng với mật khẩu cũ.");
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
+            .MinimumLength(6).WithMessage(ValidationErrors.MinLength(6).Description)
+            .NotEqual(x => x.OldPassword).WithMessage(AuthErrors.PasswordNotChanged.Description);
 
 
         RuleFor(x => x.ConfirmPassword)
-            .Equal(x => x.NewPassword).WithMessage("Mật khẩu xác nhận không khớp.");
+            .Equal(x => x.NewPassword).WithMessage(AuthErrors.PasswordConfirmationMismatch.Description);
     }
 }
+

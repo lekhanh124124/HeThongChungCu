@@ -1,4 +1,5 @@
 using FluentValidation;
+using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatThongTinPhuongTien;
@@ -9,33 +10,32 @@ public sealed class CapNhatThongTinPhuongTienCommandValidator : AbstractValidato
     {
         RuleFor(x => x.PhuongTienId)
             .GreaterThan(0)
-            .WithMessage("Phương tiện không hợp lệ.");
+            .WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
 
         RuleFor(x => x.TenPhuongTien)
             .NotEmpty()
-            .WithMessage("Tên phương tiện không được để trống.")
+            .WithMessage(ValidationErrors.NotEmpty.Description)
             .MaximumLength(100)
-            .WithMessage("Tên phương tiện không được vượt quá 100 ký tự.");
+            .WithMessage(ValidationErrors.MaxLength(100).Description);
 
         RuleFor(x => x.LoaiPhuongTienId)
             .Must(id => LoaiPhuongTien.GetAll().Any(l => l.Value == id))
-            .WithMessage($"Loại phương tiện không hợp lệ. Các giá trị hợp lệ: " +
-                         $"{string.Join(", ", LoaiPhuongTien.GetAll().Select(l => $"{l.Value} ({l.Name})"))}.");
+            .WithMessage(PhuongTienErrors.InvalidType(LoaiPhuongTien.GetAll().Select(l => $"{l.Value} ({l.Name})")).Description);
 
         RuleFor(x => x.BienSo)
             .NotEmpty()
-            .WithMessage("Biển số không được để trống.")
+            .WithMessage(ValidationErrors.NotEmpty.Description)
             .MaximumLength(20)
-            .WithMessage("Biển số không được vượt quá 20 ký tự.");
+            .WithMessage(ValidationErrors.MaxLength(20).Description);
 
         RuleFor(x => x.MauXe)
             .NotEmpty()
-            .WithMessage("Màu xe không được để trống.")
+            .WithMessage(ValidationErrors.NotEmpty.Description)
             .MaximumLength(50)
-            .WithMessage("Màu xe không được vượt quá 50 ký tự.");
+            .WithMessage(ValidationErrors.MaxLength(50).Description);
 
         RuleForEach(x => x.HinhAnhIds)
             .GreaterThan(0)
-            .WithMessage("ID hình ảnh không hợp lệ.");
+            .WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
     }
 }

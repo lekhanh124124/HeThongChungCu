@@ -40,4 +40,8 @@ public static class UserErrors
     public static readonly Error Forbidden = new(
         "User.Forbidden",
         "Bạn không có quyền thực hiện hành động này.");
+
+    public static Error InvalidGender(IEnumerable<string> allowedValues) => new(
+        "User.InvalidGender",
+        $"Giới tính không hợp lệ. Các giá trị hợp lệ: {string.Join(", ", allowedValues)}.");
 }

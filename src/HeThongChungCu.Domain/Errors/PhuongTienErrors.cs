@@ -19,4 +19,8 @@ public static class PhuongTienErrors
     public static Error NotFoundByIds(IEnumerable<int> ids) => new(
         "PhuongTien.NotFoundByIds", 
         $"Không tìm thấy phương tiện với các ID: {string.Join(", ", ids)}.");
+
+    public static Error InvalidType(IEnumerable<string> allowedValues) => new(
+        "PhuongTien.InvalidType",
+        $"Loại phương tiện không hợp lệ. Các giá trị hợp lệ: {string.Join(", ", allowedValues)}.");
 }

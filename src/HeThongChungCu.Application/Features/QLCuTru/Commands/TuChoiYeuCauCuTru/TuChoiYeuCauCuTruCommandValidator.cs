@@ -1,3 +1,6 @@
+using FluentValidation;
+using HeThongChungCu.Domain.Errors;
+
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.TuChoiYeuCauCuTru;
 
 public class TuChoiYeuCauCuTruCommandValidator : AbstractValidator<TuChoiYeuCauCuTruCommand>
@@ -5,10 +8,10 @@ public class TuChoiYeuCauCuTruCommandValidator : AbstractValidator<TuChoiYeuCauC
     public TuChoiYeuCauCuTruCommandValidator()
     {
         RuleFor(x => x.YeuCauCuTruId)
-            .NotEmpty().WithMessage("ID yêu cầu không được để trống.");
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
 
         RuleFor(x => x.LyDo)
-            .NotEmpty().WithMessage("Lý do từ chối là bắt buộc.")
-            .MaximumLength(500).WithMessage("Lý do không được vượt quá 500 ký tự.");
+            .NotEmpty().WithMessage(YeuCauCuTruErrors.LyDoNotEmpty.Description)
+            .MaximumLength(500).WithMessage(ValidationErrors.MaxLength(500).Description);
     }
 }

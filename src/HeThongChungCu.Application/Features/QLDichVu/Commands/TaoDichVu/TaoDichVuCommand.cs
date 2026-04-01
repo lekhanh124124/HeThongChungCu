@@ -4,6 +4,7 @@ using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.TaoDichVu;
 
@@ -16,9 +17,15 @@ public sealed class TaoDichVuCommandValidator : AbstractValidator<TaoDichVuComma
 {
     public TaoDichVuCommandValidator()
     {
-        RuleFor(x => x.MaDichVu).NotEmpty().MaximumLength(20);
-        RuleFor(x => x.TenDichVu).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.DonViTinh).NotEmpty().MaximumLength(50);
+        RuleFor(x => x.MaDichVu)
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
+            .MaximumLength(20).WithMessage(ValidationErrors.MaxLength(20).Description);
+        RuleFor(x => x.TenDichVu)
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
+            .MaximumLength(200).WithMessage(ValidationErrors.MaxLength(200).Description);
+        RuleFor(x => x.DonViTinh)
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
+            .MaximumLength(50).WithMessage(ValidationErrors.MaxLength(50).Description);
     }
 }
 
@@ -38,7 +45,7 @@ internal sealed class TaoDichVuCommandHandler : ICommandHandler<TaoDichVuCommand
         var isCodeUnique = await _dichVuRepository.MaDichVuExistsAsync(request.MaDichVu, cancellationToken);
         if (isCodeUnique)
         {
-            return Result.Failure<DichVuResponse>(new Error("DichVu.MaDichVuAlreadyExists", "Mã dịch vụ đã tồn tại"));
+            return Result.Failure<DichVuResponse>(DichVuErrors.MaDichVuAlreadyExists);
         }
 
         var dichVu = new DichVu(

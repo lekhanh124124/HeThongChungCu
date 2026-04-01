@@ -1,4 +1,6 @@
-using HeThongChungCu.Application.Features.ToaNha.Commands.UpdateToaNha;
+using FluentValidation;
+using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Application.Features.ToaNha.Commands.UpdateToaNha;
 
@@ -7,24 +9,23 @@ public class UpdateToaNhaCommandValidator : AbstractValidator<UpdateToaNhaComman
     public UpdateToaNhaCommandValidator()
     {
         RuleFor(x => x.Id)
-            .GreaterThan(0).WithMessage("ID tòa nhà không hợp lệ.");
+            .GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
 
         RuleFor(x => x.MaToaNha)
-            .NotEmpty().WithMessage("Mã tòa nhà không được để trống.")
-            .MaximumLength(20).WithMessage("Mã tòa nhà không được vượt quá 20 ký tự.");
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
+            .MaximumLength(20).WithMessage(ValidationErrors.MaxLength(20).Description);
 
         RuleFor(x => x.TenToaNha)
-            .NotEmpty().WithMessage("Tên tòa nhà không được để trống.")
-            .MaximumLength(100).WithMessage("Tên tòa nhà không được vượt quá 100 ký tự.");
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
+            .MaximumLength(100).WithMessage(ValidationErrors.MaxLength(100).Description);
 
 
         RuleFor(x => x.DiaChi)
-            .NotEmpty().WithMessage("Địa chỉ toàn nhà không được để trống.")
-            .MaximumLength(255).WithMessage("Địa chỉ toàn nhà không được vượt quá 255 ký tự.");
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
+            .MaximumLength(255).WithMessage(ValidationErrors.MaxLength(255).Description);
 
         RuleFor(x => x.TrangThaiToaNhaId)
             .Must(id => TrangThaiToaNha.GetAll().Any(g => g.Value == id))
-            .WithMessage($"Trạng thái tòa nhà không hợp lệ. Các giá trị hợp lệ: " +
-                         $"{string.Join(", ", TrangThaiToaNha.GetAll().Select(l => $"{l.Value} ({l.Name})"))}.");
+            .WithMessage(ToaNhaErrors.InvalidStatus(TrangThaiToaNha.GetAll().Select(l => $"{l.Value} ({l.Name})")).Description);
     }
 }

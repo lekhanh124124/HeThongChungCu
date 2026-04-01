@@ -1,3 +1,6 @@
+using FluentValidation;
+using HeThongChungCu.Domain.Errors;
+
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.XoaYeuCauCuTru;
 
 public class XoaYeuCauCuTruCommandValidator : AbstractValidator<XoaYeuCauCuTruCommand>
@@ -5,6 +8,6 @@ public class XoaYeuCauCuTruCommandValidator : AbstractValidator<XoaYeuCauCuTruCo
     public XoaYeuCauCuTruCommandValidator()
     {
         RuleFor(x => x.Ids)
-            .NotEmpty().WithMessage("ID yêu cầu không được để trống.");
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
     }
 }

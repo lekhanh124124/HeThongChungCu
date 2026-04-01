@@ -19,4 +19,8 @@ public static class ToaNhaErrors
     public static Error NotFoundByIds(IEnumerable<int> ids) => new(
         "ToaNha.NotFoundByIds",
         $"Không tìm thấy tòa nhà với các ID: {string.Join(", ", ids)}.");
+
+    public static Error InvalidStatus(IEnumerable<string> allowedValues) => new(
+        "ToaNha.InvalidStatus",
+        $"Trạng thái tòa nhà không hợp lệ. Các giá trị hợp lệ: {string.Join(", ", allowedValues)}.");
 }

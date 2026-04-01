@@ -1,4 +1,5 @@
 using FluentValidation;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.HuyPhuongTien;
 
@@ -7,9 +8,9 @@ public sealed class HuyPhuongTienCommandValidator : AbstractValidator<HuyPhuongT
     public HuyPhuongTienCommandValidator()
     {
         RuleFor(x => x.PhuongTienIds)
-            .NotEmpty().WithMessage("Danh sách ID phương tiện không được để trống.");
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
             
         RuleForEach(x => x.PhuongTienIds)
-            .GreaterThan(0).WithMessage("ID phương tiện không hợp lệ.");
+            .GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
     }
 }

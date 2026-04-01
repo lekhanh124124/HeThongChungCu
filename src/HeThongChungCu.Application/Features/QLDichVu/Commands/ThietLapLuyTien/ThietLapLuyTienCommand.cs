@@ -4,6 +4,7 @@ using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.ThietLapLuyTien;
 
@@ -17,15 +18,15 @@ public sealed class ThietLapLuyTienCommandValidator : AbstractValidator<ThietLap
 {
     public ThietLapLuyTienCommandValidator()
     {
-        RuleFor(x => x.BangGiaId).NotEmpty();
-        RuleFor(x => x.Tiers).NotEmpty();
+        RuleFor(x => x.BangGiaId).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+        RuleFor(x => x.Tiers).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
         RuleForEach(x => x.Tiers).ChildRules(tier =>
         {
-            tier.RuleFor(t => t.TuMuc).GreaterThanOrEqualTo(0);
-            tier.RuleFor(t => t.DonGia).GreaterThanOrEqualTo(0);
+            tier.RuleFor(t => t.TuMuc).GreaterThanOrEqualTo(0).WithMessage(ValidationErrors.Range(0, double.MaxValue).Description);
+            tier.RuleFor(t => t.DonGia).GreaterThanOrEqualTo(0).WithMessage(ValidationErrors.Range(0, double.MaxValue).Description);
             tier.RuleFor(t => t)
                 .Must(t => t.DenMuc == null || t.DenMuc > t.TuMuc)
-                .WithMessage("Đến số phải lớn hơn Từ số.");
+                .WithMessage(ValidationErrors.InvalidDateRange.Description); // Reusing InvalidDateRange for numeric range
         });
     }
 }
@@ -46,12 +47,12 @@ internal sealed class ThietLapLuyTienCommandHandler : ICommandHandler<ThietLapLu
         var bangGia = await _bangGiaRepository.GetByIdAsync(request.BangGiaId, cancellationToken);
         if (bangGia is null)
         {
-            return Result.Failure<BangGiaResponse>(new Error("BangGia.NotFound", "Không tìm thấy bảng giá."));
+            return Result.Failure<BangGiaResponse>(BangGiaErrors.NotFound);
         }
 
         if (bangGia.LoaiDinhGiaId != Domain.Enums.LoaiDinhGia.LuyTien)
         {
-            return Result.Failure<BangGiaResponse>(new Error("BangGia.InvalidType", "Bảng giá này không hỗ trợ định giá lũy tiến."));
+            return Result.Failure<BangGiaResponse>(BangGiaErrors.LuyTienNotSupported);
         }
 
         bangGia.ClearLuyTien();

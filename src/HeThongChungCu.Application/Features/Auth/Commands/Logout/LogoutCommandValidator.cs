@@ -1,4 +1,4 @@
-namespace HeThongChungCu.Application.Features.Auth.Commands.Logout;
+﻿namespace HeThongChungCu.Application.Features.Auth.Commands.Logout;
 
 public class LogoutCommandValidator : AbstractValidator<LogoutCommand>
 {
@@ -6,3 +6,4 @@ public class LogoutCommandValidator : AbstractValidator<LogoutCommand>
     {
     }
 }
+

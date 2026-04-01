@@ -28,10 +28,7 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
         var notFoundIds = request.Ids.Except(canHos.Select(c => c.Id)).ToList();
         if (notFoundIds.Count > 0)
         {
-            var ids = string.Join(", ", notFoundIds);
-            return Result.Failure<IReadOnlyList<CanHoDetailResponse>>(new Error(
-                "CanHo.NotFound",
-                $"Không tìm thấy căn hộ với ID: {ids}."));
+            return Result.Failure<IReadOnlyList<CanHoDetailResponse>>(CanHoErrors.NotFoundByIds(notFoundIds));
         }
 
         var tangIds = canHos.Select(c => c.TangId).Distinct().ToList();

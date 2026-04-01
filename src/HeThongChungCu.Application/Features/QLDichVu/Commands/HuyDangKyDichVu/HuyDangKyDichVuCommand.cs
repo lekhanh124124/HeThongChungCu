@@ -3,6 +3,7 @@ using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.HuyDangKyDichVu;
 
@@ -14,8 +15,8 @@ public sealed class HuyDangKyDichVuCommandValidator : AbstractValidator<HuyDangK
 {
     public HuyDangKyDichVuCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
-        RuleFor(x => x.NgayKetThuc).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+        RuleFor(x => x.NgayKetThuc).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
     }
 }
 
@@ -35,7 +36,7 @@ internal sealed class HuyDangKyDichVuCommandHandler : ICommandHandler<HuyDangKyD
         var registration = await _dangKyDichVuRepository.GetByIdAsync(request.Id, cancellationToken);
         if (registration is null)
         {
-            return Result.Failure<DangKyDichVuResponse>(new Error("DangKyDichVu.NotFound", "Không tìm thấy thông tin đăng ký dịch vụ."));
+            return Result.Failure<DangKyDichVuResponse>(DangKyDichVuErrors.NotFound);
         }
 
         try 
@@ -44,7 +45,7 @@ internal sealed class HuyDangKyDichVuCommandHandler : ICommandHandler<HuyDangKyD
         }
         catch (HeThongChungCu.Domain.Exceptions.BusinessException ex)
         {
-            return Result.Failure<DangKyDichVuResponse>(new Error("DangKyDichVu.BusinessError", ex.Message));
+            return Result.Failure<DangKyDichVuResponse>(DangKyDichVuErrors.BusinessError(ex.Message));
         }
 
         _dangKyDichVuRepository.Update(registration);

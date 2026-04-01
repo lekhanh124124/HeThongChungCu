@@ -23,4 +23,24 @@ public static class FileErrors
     public static readonly Error UnrecognizedCategory = new(
         "File.UnrecognizedCategory",
         "Loại tệp tin không được hệ thống hỗ trợ.");
+
+    public static readonly Error EmptyTargetContainer = new(
+        "File.EmptyTargetContainer",
+        "Mục đích tải lên (Target Container/Category) không được để trống.");
+
+    public static readonly Error EmptyFileName = new(
+        "File.EmptyFileName",
+        "Tên tệp tin không được để trống.");
+
+    public static readonly Error EmptyContent = new(
+        "File.EmptyContent",
+        "Nội dung tệp tin không được để trống.");
+
+    public static readonly Error InvalidSize = new(
+        "File.InvalidSize",
+        "Tệp tin không được rỗng.");
+
+    public static Error InvalidContentType(string[] allowedTypes) => new(
+        "File.InvalidContentType",
+        $"Chỉ cho phép định dạng: {string.Join(", ", allowedTypes)}.");
 }

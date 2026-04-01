@@ -1,4 +1,5 @@
 using FluentValidation;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.BaoMatThePhuongTien;
 
@@ -7,6 +8,7 @@ public class BaoMatThePhuongTienCommandValidator : AbstractValidator<BaoMatThePh
     public BaoMatThePhuongTienCommandValidator()
     {
         RuleFor(x => x.TheIds)
-            .NotEmpty().WithMessage("Danh sách ID thẻ không được để trống.");
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
     }
 }
+

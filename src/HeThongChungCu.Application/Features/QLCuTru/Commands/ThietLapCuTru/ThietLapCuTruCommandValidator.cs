@@ -1,3 +1,7 @@
+using FluentValidation;
+using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Enums;
+
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.ThietLapCuTru;
 
 public class ThietLapCuTruCommandValidator : AbstractValidator<ThietLapCuTruCommand>
@@ -5,14 +9,14 @@ public class ThietLapCuTruCommandValidator : AbstractValidator<ThietLapCuTruComm
     public ThietLapCuTruCommandValidator()
     {
         RuleFor(x => x.CanHoId)
-            .GreaterThan(0).WithMessage("ID căn hộ không hợp lệ.");
+            .GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
 
         RuleFor(x => x.UserId)
-            .GreaterThan(0).WithMessage("ID cư dân không hợp lệ.");
+            .GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
 
         RuleFor(x => x.LoaiQuanHeCuTruId)
             .Must(id => LoaiQuanHeCuTru.GetAll().Any(l => l.Value == id))
-            .WithMessage($"Loại quan hệ cư trú không hợp lệ.");
+            .WithMessage(YeuCauCuTruErrors.InvalidRelationType(LoaiQuanHeCuTru.GetAll().Select(l => $"{l.Value} ({l.Name})")).Description);
 
     }
 }

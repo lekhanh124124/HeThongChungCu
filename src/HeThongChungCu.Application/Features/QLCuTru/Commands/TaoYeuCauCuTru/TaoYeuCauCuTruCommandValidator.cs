@@ -1,4 +1,6 @@
 using FluentValidation;
+using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.TaoYeuCauCuTru;
 
@@ -8,78 +10,77 @@ public class TaoYeuCauCuTruCommandValidator : AbstractValidator<TaoYeuCauCuTruCo
     {
         RuleFor(x => x.CanHoId)
             .NotEmpty()
-            .WithMessage("CanHoId không được để trống.");
+            .WithMessage(ValidationErrors.NotEmpty.Description);
 
         RuleFor(x => x.LoaiYeuCauId)
             .NotEmpty()
-            .WithMessage("LoaiYeuCauId không được để trống.")
+            .WithMessage(ValidationErrors.NotEmpty.Description)
             .Must(id => LoaiYeuCau.GetAll().Any(g => g.Value == id))
-            .WithMessage($"Loại yêu cầu không hợp lệ. Các giá trị hợp lệ: " +
-                             $"{string.Join(", ", LoaiYeuCau.GetAll().Select(l => $"{l.Value} ({l.Name})"))}.");
+            .WithMessage(YeuCauCuTruErrors.InvalidType(LoaiYeuCau.GetAll().Select(l => $"{l.Value} ({l.Name})")).Description);
 
 
         When(x => x.LoaiYeuCauId == LoaiYeuCau.Them.Value, () => // AddMember
         {
             RuleFor(x => x.FirstName)
                 .NotEmpty()
-                .WithMessage("Tên không được để trống.")
+                .WithMessage(ValidationErrors.NotEmpty.Description)
                 .MaximumLength(50)
-                .WithMessage("Tên không được vượt quá 50 ký tự.");
+                .WithMessage(ValidationErrors.MaxLength(50).Description);
             RuleFor(x => x.LastName)
                 .NotEmpty()
-                .WithMessage("Họ không được để trống.")
+                .WithMessage(ValidationErrors.NotEmpty.Description)
                 .MaximumLength(50)
-                .WithMessage("Họ không được vượt quá 50 ký tự.");
+                .WithMessage(ValidationErrors.MaxLength(50).Description);
             RuleFor(x => x.PhoneNumber)
                 .MaximumLength(20)
-                .WithMessage("Số điện thoại không được vượt quá 20 ký tự.");
+                .WithMessage(ValidationErrors.MaxLength(20).Description);
             RuleFor(x => x.Dob)
                 .NotEmpty()
-                .WithMessage("Ngày sinh không được để trống.");
+                .WithMessage(ValidationErrors.NotEmpty.Description);
             RuleFor(x => x.GioiTinhId)
                 .NotEmpty()
-                .WithMessage("Giới tính không được để trống.");
+                .WithMessage(ValidationErrors.NotEmpty.Description);
             RuleFor(x => x.CCCD)
                 .MaximumLength(50)
-                .WithMessage("CCCD không được vượt quá 50 ký tự.");
+                .WithMessage(ValidationErrors.MaxLength(50).Description);
             RuleFor(x => x.DiaChi)
                 .MaximumLength(200)
-                .WithMessage("Địa chỉ không được vượt quá 200 ký tự.");
+                .WithMessage(ValidationErrors.MaxLength(200).Description);
             RuleFor(x => x.LoaiQuanHeId)
                 .NotEmpty()
-                .WithMessage("Loại quan hệ không được để trống.");
+                .WithMessage(ValidationErrors.NotEmpty.Description);
         });
 
         When(x => x.LoaiYeuCauId != LoaiYeuCau.Them.Value, () => // Update/Remove/ChangeHead
         {
             RuleFor(x => x.TargetQuanHeCuTruId)
                 .NotEmpty()
-                .WithMessage("TargetQuanHeCuTruId không được để trống.");
+                .WithMessage(ValidationErrors.NotEmpty.Description);
         });
 
         When(x => x.LoaiYeuCauId == LoaiYeuCau.Sua.Value, () => // UpdateRelationship
         {
             RuleFor(x => x.LoaiQuanHeId)
                 .NotEmpty()
-                .WithMessage("Loại quan hệ không được để trống.");
+                .WithMessage(ValidationErrors.NotEmpty.Description);
         });
 
         RuleForEach(x => x.TaiLieuCuTrus).ChildRules(attachment =>
         {
             attachment.RuleFor(a => a.LoaiGiayToId)
                 .NotEmpty()
-                .WithMessage("Loại giấy tờ không được để trống.");
+                .WithMessage(ValidationErrors.NotEmpty.Description);
             attachment.RuleFor(a => a.SoGiayTo)
                 .NotEmpty()
-                .WithMessage("Số giấy tờ không được để trống.")
+                .WithMessage(ValidationErrors.NotEmpty.Description)
                 .MaximumLength(100)
-                .WithMessage("Số giấy tờ không được vượt quá 100 ký tự.");
+                .WithMessage(ValidationErrors.MaxLength(100).Description);
             attachment.RuleFor(a => a.FileIds)
                 .NotEmpty()
-                .WithMessage("Mỗi tài liệu phải có ít nhất một tệp tin đính kèm.");
+                .WithMessage(ValidationErrors.NotEmpty.Description);
             attachment.RuleForEach(a => a.FileIds)
                 .GreaterThan(0)
-                .WithMessage("ID của tệp tin không hợp lệ.");
+                .WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
         });
     }
 }

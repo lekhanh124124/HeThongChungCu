@@ -2,8 +2,8 @@ using FluentValidation;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
-using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.CapNhatChiSoTieuThu;
 
@@ -19,8 +19,8 @@ public sealed class CapNhatChiSoTieuThuCommandValidator : AbstractValidator<CapN
 {
     public CapNhatChiSoTieuThuCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
-        RuleFor(x => x.ChiSoMoi).GreaterThanOrEqualTo(x => x.ChiSoCu);
+        RuleFor(x => x.Id).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+        RuleFor(x => x.ChiSoMoi).GreaterThanOrEqualTo(x => x.ChiSoCu).WithMessage(ChiSoTieuThuErrors.InvalidReading.Description);
     }
 }
 
@@ -40,7 +40,7 @@ internal sealed class CapNhatChiSoTieuThuCommandHandler : ICommandHandler<CapNha
         var chiSo = await _chiSoTieuThuRepository.GetByIdAsync(request.Id, cancellationToken);
         if (chiSo is null)
         {
-            return Result.Failure<ChiSoTieuThuResponse>(new Error("ChiSoTieuThu.NotFound", "Không tìm thấy chỉ số tiêu thụ."));
+            return Result.Failure<ChiSoTieuThuResponse>(ChiSoTieuThuErrors.NotFound);
         }
 
         chiSo.Update(request.ChiSoCu, request.ChiSoMoi, request.Thang, request.Nam, request.NgayChot);

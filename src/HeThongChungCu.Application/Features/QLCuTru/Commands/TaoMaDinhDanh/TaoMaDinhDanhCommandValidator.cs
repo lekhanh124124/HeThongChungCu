@@ -1,4 +1,5 @@
 using FluentValidation;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.TaoMaDinhDanh;
 
@@ -6,7 +7,9 @@ public class TaoMaDinhDanhCommandValidator : AbstractValidator<TaoMaDinhDanhComm
 {
     public TaoMaDinhDanhCommandValidator()
     {
-        RuleFor(x => x.UserId).GreaterThan(0);
-        RuleFor(x => x.Email).NotEmpty().EmailAddress();
+        RuleFor(x => x.UserId).GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
+            .EmailAddress().WithMessage(ValidationErrors.InvalidFormat("Email").Description);
     }
 }

@@ -8,13 +8,13 @@ public class UploadFileCommandValidator : AbstractValidator<UploadFileCommand>
     public UploadFileCommandValidator()
     {
         RuleFor(x => x.TargetContainer)
-            .NotEmpty().WithMessage("Mục đích tải lên (Target Container/Category) không được để trống.");
+            .NotEmpty().WithMessage(FileErrors.EmptyTargetContainer.Description);
 
         RuleForEach(x => x.Files).ChildRules(file =>
         {
-            file.RuleFor(f => f.FileName).NotEmpty().WithMessage("Tên tệp tin không được để trống.");
-            file.RuleFor(f => f.Content).NotNull().WithMessage("Nội dung tệp tin không được để trống.");
-            file.RuleFor(f => f.Size).GreaterThan(0).WithMessage("Tệp tin không được rỗng.");
+            file.RuleFor(f => f.FileName).NotEmpty().WithMessage(FileErrors.EmptyFileName.Description);
+            file.RuleFor(f => f.Content).NotNull().WithMessage(FileErrors.EmptyContent.Description);
+            file.RuleFor(f => f.Size).GreaterThan(0).WithMessage(FileErrors.InvalidSize.Description);
         });
 
         RuleFor(x => x.Files)

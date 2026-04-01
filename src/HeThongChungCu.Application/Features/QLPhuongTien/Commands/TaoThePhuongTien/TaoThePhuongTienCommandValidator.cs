@@ -1,4 +1,5 @@
 using FluentValidation;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.TaoThePhuongTien;
 
@@ -8,12 +9,12 @@ public sealed class TaoThePhuongTienCommandValidator : AbstractValidator<TaoTheP
     {
         RuleFor(x => x.PhuongTienId)
             .GreaterThan(0)
-            .WithMessage("Phương tiện không hợp lệ.");
+            .WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
 
         RuleFor(x => x.MaThe)
             .NotEmpty()
-            .WithMessage("Mã thẻ không được để trống.")
+            .WithMessage(ValidationErrors.NotEmpty.Description)
             .MaximumLength(50)
-            .WithMessage("Mã thẻ không được vượt quá 50 ký tự.");
+            .WithMessage(ValidationErrors.MaxLength(50).Description);
     }
 }

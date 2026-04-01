@@ -4,6 +4,7 @@ using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.DangKyDichVuChoCanHo;
 
@@ -16,9 +17,9 @@ public sealed class DangKyDichVuChoCanHoCommandValidator : AbstractValidator<Dan
 {
     public DangKyDichVuChoCanHoCommandValidator()
     {
-        RuleFor(x => x.CanHoId).NotEmpty();
-        RuleFor(x => x.DichVuId).NotEmpty();
-        RuleFor(x => x.NgayBatDau).NotEmpty();
+        RuleFor(x => x.CanHoId).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+        RuleFor(x => x.DichVuId).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+        RuleFor(x => x.NgayBatDau).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
     }
 }
 
@@ -43,13 +44,13 @@ internal sealed class DangKyDichVuChoCanHoCommandHandler : ICommandHandler<DangK
         var dichVu = await _dichVuRepository.GetByIdAsync(request.DichVuId, cancellationToken);
         if (dichVu is null)
         {
-            return Result.Failure<DangKyDichVuResponse>(new Error("DichVu.NotFound", "Không tìm thấy dịch vụ."));
+            return Result.Failure<DangKyDichVuResponse>(DichVuErrors.NotFound);
         }
 
         var activeRegistration = await _dangKyDichVuRepository.GetActiveAsync(request.CanHoId, request.DichVuId, cancellationToken);
         if (activeRegistration is not null)
         {
-            return Result.Failure<DangKyDichVuResponse>(new Error("DangKyDichVu.AlreadyActive", "Căn hộ này đã đăng ký dịch vụ này và vẫn đang hoạt động."));
+            return Result.Failure<DangKyDichVuResponse>(DangKyDichVuErrors.AlreadyActive);
         }
 
         var registration = new DangKyDichVu(request.CanHoId, request.DichVuId, request.NgayBatDau);

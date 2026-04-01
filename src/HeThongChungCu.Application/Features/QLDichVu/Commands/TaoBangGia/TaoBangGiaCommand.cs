@@ -5,6 +5,7 @@ using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.TaoBangGia;
 
@@ -20,15 +21,17 @@ public sealed class TaoBangGiaCommandValidator : AbstractValidator<TaoBangGiaCom
 {
     public TaoBangGiaCommandValidator()
     {
-        RuleFor(x => x.DichVuId).NotEmpty();
-        RuleFor(x => x.TenBangGia).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.NgayApDung).NotEmpty();
-        RuleFor(x => x.LoaiDinhGiaId).NotEmpty();
-        RuleFor(x => x.DonGia).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.DichVuId).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+        RuleFor(x => x.TenBangGia)
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
+            .MaximumLength(200).WithMessage(ValidationErrors.MaxLength(200).Description);
+        RuleFor(x => x.NgayApDung).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+        RuleFor(x => x.LoaiDinhGiaId).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+        RuleFor(x => x.DonGia).GreaterThanOrEqualTo(0).WithMessage(ValidationErrors.Range(0, double.MaxValue).Description);
         
         RuleFor(x => x)
             .Must(x => x.NgayKetThuc == null || x.NgayKetThuc > x.NgayApDung)
-            .WithMessage("Ngày kết thúc phải lớn hơn ngày áp dụng.");
+            .WithMessage(ValidationErrors.InvalidDateRange.Description);
     }
 }
 
@@ -53,20 +56,20 @@ internal sealed class TaoBangGiaCommandHandler : ICommandHandler<TaoBangGiaComma
         var dichVu = await _dichVuRepository.GetByIdAsync(request.DichVuId, cancellationToken);
         if (dichVu is null)
         {
-            return Result.Failure<BangGiaResponse>(new Error("DichVu.NotFound", "Không tìm thấy dịch vụ."));
+            return Result.Failure<BangGiaResponse>(DichVuErrors.NotFound);
         }
 
         // Check overlaps
         var existingPrices = await _bangGiaRepository.GetByDichVuIdAsync(request.DichVuId, cancellationToken);
         if (existingPrices.Any(p => p.IsOverlapping(request.NgayApDung, request.NgayKetThuc)))
         {
-            return Result.Failure<BangGiaResponse>(new Error("BangGia.Overlap", "Thời gian áp dụng bảng giá bị chồng lấn với bảng giá hiện có."));
+            return Result.Failure<BangGiaResponse>(BangGiaErrors.Overlap);
         }
 
         var loaiDinhGia = LoaiDinhGia.FromValue(request.LoaiDinhGiaId);
         if (loaiDinhGia is null)
         {
-            return Result.Failure<BangGiaResponse>(new Error("LoaiDinhGia.Invalid", "Loại định giá không hợp lệ."));
+            return Result.Failure<BangGiaResponse>(BangGiaErrors.InvalidType(LoaiDinhGia.GetAll().Select(l => $"{l.Value} ({l.Name})")));
         }
 
         var bangGia = new BangGia(

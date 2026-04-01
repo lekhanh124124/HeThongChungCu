@@ -43,4 +43,24 @@ public static class AuthErrors
     public static readonly Error AccountNotFound = new(
         "Auth.AccountNotFound",
         "Tài khoản không tồn tại.");
+
+    public static readonly Error PasswordRequiresUpper = new(
+        "Auth.PasswordRequiresUpper",
+        "Mật khẩu phải chứa ít nhất một chữ cái viết hoa.");
+
+    public static readonly Error PasswordRequiresLower = new(
+        "Auth.PasswordRequiresLower",
+        "Mật khẩu phải chứa ít nhất một chữ cái viết thường.");
+
+    public static readonly Error PasswordRequiresDigit = new(
+        "Auth.PasswordRequiresDigit",
+        "Mật khẩu phải chứa ít nhất một chữ số.");
+
+    public static readonly Error PasswordRequiresNonAlphanumeric = new(
+        "Auth.PasswordRequiresNonAlphanumeric",
+        "Mật khẩu phải chứa ít nhất một ký tự đặc biệt.");
+
+    public static readonly Error PasswordConfirmationMismatch = new(
+        "Auth.PasswordConfirmationMismatch",
+        "Xác nhận mật khẩu phải khớp với mật khẩu.");
 }

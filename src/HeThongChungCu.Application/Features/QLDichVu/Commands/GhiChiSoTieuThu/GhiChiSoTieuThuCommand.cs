@@ -4,6 +4,7 @@ using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.GhiChiSoTieuThu;
 
@@ -20,11 +21,11 @@ public sealed class GhiChiSoTieuThuCommandValidator : AbstractValidator<GhiChiSo
 {
     public GhiChiSoTieuThuCommandValidator()
     {
-        RuleFor(x => x.CanHoId).NotEmpty();
-        RuleFor(x => x.DichVuId).NotEmpty();
-        RuleFor(x => x.ChiSoMoi).GreaterThanOrEqualTo(x => x.ChiSoCu);
-        RuleFor(x => x.Thang).InclusiveBetween(1, 12);
-        RuleFor(x => x.Nam).GreaterThan(2000);
+        RuleFor(x => x.CanHoId).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+        RuleFor(x => x.DichVuId).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+        RuleFor(x => x.ChiSoMoi).GreaterThanOrEqualTo(x => x.ChiSoCu).WithMessage(ChiSoTieuThuErrors.InvalidReading.Description);
+        RuleFor(x => x.Thang).InclusiveBetween(1, 12).WithMessage(ValidationErrors.Range(1, 12).Description);
+        RuleFor(x => x.Nam).GreaterThan(2000).WithMessage(ValidationErrors.Range(2001, int.MaxValue).Description);
     }
 }
 
@@ -50,7 +51,7 @@ internal sealed class GhiChiSoTieuThuCommandHandler : ICommandHandler<GhiChiSoTi
 
         if (existing is not null)
         {
-            return Result.Failure<ChiSoTieuThuResponse>(new Error("ChiSoTieuThu.AlreadyExists", "Chỉ số tiêu thụ cho tháng/năm này đã tồn tại."));
+            return Result.Failure<ChiSoTieuThuResponse>(ChiSoTieuThuErrors.AlreadyExists);
         }
 
         var chiSo = new ChiSoTieuThu(

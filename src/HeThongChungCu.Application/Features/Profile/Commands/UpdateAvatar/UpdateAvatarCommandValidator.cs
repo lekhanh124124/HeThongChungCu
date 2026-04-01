@@ -17,20 +17,20 @@ public class UpdateAvatarCommandValidator : AbstractValidator<UpdateAvatarComman
     public UpdateAvatarCommandValidator()
     {
         RuleFor(x => x.FileName)
-            .NotEmpty()
+            .NotEmpty().WithMessage(FileErrors.EmptyFileName.Description)
             .Must(HaveValidExtension)
             .WithMessage(x => FileErrors.InvalidType(
                 Path.GetExtension(x.FileName), 
                 FileCategory.Avatar.AllowedExtensions).Description);
 
         RuleFor(x => x.ContentType)
-            .NotEmpty()
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
             .Must(x => AllowedContentTypes.Contains(x))
-            .WithMessage("Chỉ cho phép định dạng ảnh (image/jpeg, image/png, image/jpg, image/webp).");
+            .WithMessage(FileErrors.InvalidContentType(AllowedContentTypes).Description);
 
         RuleFor(x => x.AvatarStream)
             .NotNull()
-            .WithMessage("File không được để trống.");
+            .WithMessage(FileErrors.EmptyContent.Description);
     }
 
     private bool HaveValidExtension(string fileName)
@@ -39,3 +39,4 @@ public class UpdateAvatarCommandValidator : AbstractValidator<UpdateAvatarComman
         return FileCategory.Avatar.AllowedExtensions.Contains(extension);
     }
 }
+

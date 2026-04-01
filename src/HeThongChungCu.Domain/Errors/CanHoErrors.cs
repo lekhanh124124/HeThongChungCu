@@ -27,4 +27,12 @@ public static class CanHoErrors
     public static Error NotFoundByIds(IEnumerable<int> ids) => new(
         "CanHo.NotFound",
         $"Không tìm thấy căn hộ với ID trong danh sách: {string.Join(", ", ids)}.");
+
+    public static Error InvalidType(IEnumerable<string> allowedValues) => new(
+        "CanHo.InvalidType",
+        $"Loại căn hộ không hợp lệ. Các giá trị hợp lệ: {string.Join(", ", allowedValues)}.");
+
+    public static Error InvalidStatus(IEnumerable<string> allowedValues) => new(
+        "CanHo.InvalidStatus",
+        $"Tình trạng căn hộ không hợp lệ. Các giá trị hợp lệ: {string.Join(", ", allowedValues)}.");
 }

@@ -23,4 +23,8 @@ public static class TangErrors
     public static Error NotFoundByIds(IEnumerable<int> ids) => new(
         "Tang.NotFoundByIds",
         $"Không tìm thấy tầng với các ID: {string.Join(", ", ids)}.");
+
+    public static Error InvalidType(IEnumerable<string> allowedValues) => new(
+        "Tang.InvalidType",
+        $"Loại tầng không hợp lệ. Các giá trị hợp lệ: {string.Join(", ", allowedValues)}.");
 }

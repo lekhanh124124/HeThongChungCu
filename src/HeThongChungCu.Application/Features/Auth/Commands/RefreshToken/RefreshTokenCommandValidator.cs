@@ -1,3 +1,6 @@
+using FluentValidation;
+using HeThongChungCu.Domain.Errors;
+
 namespace HeThongChungCu.Application.Features.Auth.Commands.RefreshToken;
 
 public class RefreshTokenCommandValidator : AbstractValidator<RefreshTokenCommand>
@@ -5,6 +8,7 @@ public class RefreshTokenCommandValidator : AbstractValidator<RefreshTokenComman
     public RefreshTokenCommandValidator()
     {
         RuleFor(x => x.RefreshToken)
-            .NotEmpty().WithMessage("RefreshToken không du?c d? tr?ng.");
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
     }
 }
+

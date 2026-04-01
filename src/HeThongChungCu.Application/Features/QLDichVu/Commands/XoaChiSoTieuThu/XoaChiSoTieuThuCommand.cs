@@ -2,6 +2,7 @@ using FluentValidation;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.XoaChiSoTieuThu;
 
@@ -11,7 +12,7 @@ public sealed class XoaChiSoTieuThuCommandValidator : AbstractValidator<XoaChiSo
 {
     public XoaChiSoTieuThuCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Id).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
     }
 }
 
@@ -31,12 +32,12 @@ internal sealed class XoaChiSoTieuThuCommandHandler : ICommandHandler<XoaChiSoTi
         var chiSoTieuThu = await _chiSoTieuThuRepository.GetByIdAsync(request.Id, cancellationToken);
         if (chiSoTieuThu is null)
         {
-            return Result.Failure<bool>(new Error("ChiSoTieuThu.NotFound", "Không tìm thấy chỉ số tiêu thụ."));
+            return Result.Failure<bool>(ChiSoTieuThuErrors.NotFound);
         }
 
         if (chiSoTieuThu.IsLock)
         {
-            return Result.Failure<bool>(new Error("ChiSoTieuThu.Locked", "Không thể xóa chỉ số tiêu thụ đã bị khóa."));
+            return Result.Failure<bool>(ChiSoTieuThuErrors.Locked);
         }
 
         // Resolve ambiguous Remove call by being explicit about the interface

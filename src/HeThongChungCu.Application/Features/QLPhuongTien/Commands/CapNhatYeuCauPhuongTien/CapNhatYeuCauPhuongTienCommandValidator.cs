@@ -1,4 +1,5 @@
 using FluentValidation;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatYeuCauPhuongTien;
 
@@ -7,23 +8,23 @@ public class CapNhatYeuCauPhuongTienCommandValidator : AbstractValidator<CapNhat
     public CapNhatYeuCauPhuongTienCommandValidator()
     {
         RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("ID yêu cầu không được để trống.");
+            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
 
         When(x => !x.IsWithdraw, () =>
         {
             RuleFor(x => x.YeuCauTenPhuongTien)
-                .MaximumLength(100).WithMessage("Tên phương tiện không được vượt quá 100 ký tự.");
+                .MaximumLength(100).WithMessage(ValidationErrors.MaxLength(100).Description);
 
             RuleFor(x => x.YeuCauBienSo)
-                .MaximumLength(20).WithMessage("Biển số không được vượt quá 20 ký tự.");
+                .MaximumLength(20).WithMessage(ValidationErrors.MaxLength(20).Description);
 
             RuleFor(x => x.YeuCauMauXe)
-                .MaximumLength(50).WithMessage("Màu xe không được vượt quá 50 ký tự.");
+                .MaximumLength(50).WithMessage(ValidationErrors.MaxLength(50).Description);
 
             When(x => x.FileIds != null, () =>
             {
                 RuleForEach(x => x.FileIds)
-                    .GreaterThan(0).WithMessage("ID tệp tin không hợp lệ.");
+                    .GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
             });
         });
     }
