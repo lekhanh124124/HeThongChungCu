@@ -32,13 +32,12 @@ public class UploadMediaController : ApiControllerBase
     ///     - Lưu thông tin tệp vào cơ sở dữ liệu và trả về danh sách ID/URL. 
     ///     - **Lưu ý**: Client cần lưu lại các `Id` này để điền vào các yêu cầu nghiệp vụ tiếp theo (ví dụ: `HinhAnhIds`, `FileIds`, `TaiLieuCuTrus`).
     /// - **Yêu cầu dữ liệu**: 
-    ///     - **Bắt buộc**: Danh sách tệp tin (`files`) gửi qua `multipart/form-data`.
-    ///     - **Tùy chọn**: `targetContainer` (string) - Chỉ định tên blob container để lưu trữ. Các giá trị hợp lệ hiện có:
-    ///         - `tai-lieu-cu-tru` (Mặc định)
-    ///         - `tai-lieu-phuong-tien` (Dành cho phương tiện)
-    ///         - `anh-dai-dien-nguoi-dung`
-    ///         - `hinh-anh-toa-nha`
-    ///         - `hinh-anh-can-ho`
+    ///     - **Bắt buộc**: 
+    ///         - Danh sách tệp tin (`files`) gửi qua `multipart/form-data`.
+    ///     - **Tùy chọn**: 
+    ///         - `targetContainer` (string) - Định danh loại tệp tin (File Category). Các giá trị hợp lệ:
+    ///             - `tai-lieu-cu-tru` (mặc định)
+    ///             - `tai-lieu-phuong-tien`
     /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<List<UploadFileResponse>>), StatusCodes.Status200OK)]

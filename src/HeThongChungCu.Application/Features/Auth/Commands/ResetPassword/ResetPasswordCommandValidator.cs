@@ -1,25 +1,25 @@
-﻿namespace HeThongChungCu.Application.Features.Auth.Commands.ResetPassword;
+namespace HeThongChungCu.Application.Features.Auth.Commands.ResetPassword;
 
 public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordCommand>
 {
     public ResetPasswordCommandValidator()
     {
         RuleFor(x => x.Username)
-            .NotEmpty().WithMessage("Tên đăng nhập không được để trống.");
+            .NotEmpty().WithMessage("T�n dang nh?p kh�ng du?c d? tr?ng.");
 
         RuleFor(x => x.ResetCode)
-            .NotEmpty().WithMessage("Mã khôi phục không được để trống.");
+            .NotEmpty().WithMessage("M� kh�i ph?c kh�ng du?c d? tr?ng.");
 
         RuleFor(x => x.NewPassword)
-            .NotEmpty().WithMessage("Mật khẩu không được để trống.")
-            .MinimumLength(6).WithMessage("Mật khẩu phải có ít nhất 6 ký tự.")
-            .Matches(@"[A-Z]").WithMessage("Mật khẩu phải chứa ít nhất một chữ cái viết hoa.")
-            .Matches(@"[a-z]").WithMessage("Mật khẩu phải chứa ít nhất một chữ cái viết thường.")
-            .Matches(@"[0-9]").WithMessage("Mật khẩu phải chứa ít nhất một chữ số.")
-            .Matches(@"[^a-zA-Z0-9]").WithMessage("Mật khẩu phải chứa ít nhất một ký tự đặc biệt.");
+            .NotEmpty().WithMessage("M?t kh?u kh�ng du?c d? tr?ng.")
+            .MinimumLength(6).WithMessage("M?t kh?u ph?i c� �t nh?t 6 k� t?.")
+            .Matches(@"[A-Z]").WithMessage("M?t kh?u ph?i ch?a �t nh?t m?t ch? c�i vi?t hoa.")
+            .Matches(@"[a-z]").WithMessage("M?t kh?u ph?i ch?a �t nh?t m?t ch? c�i vi?t thu?ng.")
+            .Matches(@"[0-9]").WithMessage("M?t kh?u ph?i ch?a �t nh?t m?t ch? s?.")
+            .Matches(@"[^a-zA-Z0-9]").WithMessage("M?t kh?u ph?i ch?a �t nh?t m?t k� t? d?c bi?t.");
 
 
         RuleFor(x => x.ConfirmPassword)
-            .Equal(x => x.NewPassword).WithMessage("Mật khẩu xác nhận không khớp.");
+            .Equal(x => x.NewPassword).WithMessage("M?t kh?u x�c nh?n kh�ng kh?p.");
     }
 }

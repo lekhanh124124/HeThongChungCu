@@ -1,5 +1,5 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Entities;
@@ -12,22 +12,22 @@ namespace HeThongChungCu.Application.Features.QLCuTru.EventHandlers;
 
 public class YeuCauCuTruCreatedEventHandler : INotificationHandler<YeuCauCuTruCreatedEvent>
 {
-    private readonly ITaiKhoanEFRepository _taiKhoanRepository;
-    private readonly IThongBaoEFRepository _thongBaoRepository;
-    private readonly IYeuCauCuTruDapperRepository _yeuCauDapperRepository;
+    private readonly ITaiKhoanCommandRepository _taiKhoanRepository;
+    private readonly IThongBaoCommandRepository _thongBaoRepository;
+    private readonly IYeuCauCuTruQueryRepository _yeuCauQueryRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly INotificationService _notificationService;
 
     public YeuCauCuTruCreatedEventHandler(
-        ITaiKhoanEFRepository taiKhoanRepository,
-        IThongBaoEFRepository thongBaoRepository,
-        IYeuCauCuTruDapperRepository yeuCauDapperRepository,
+        ITaiKhoanCommandRepository taiKhoanRepository,
+        IThongBaoCommandRepository thongBaoRepository,
+        IYeuCauCuTruQueryRepository yeuCauQueryRepository,
         IUnitOfWork unitOfWork,
         INotificationService notificationService)
     {
         _taiKhoanRepository = taiKhoanRepository;
         _thongBaoRepository = thongBaoRepository;
-        _yeuCauDapperRepository = yeuCauDapperRepository;
+        _yeuCauQueryRepository = yeuCauQueryRepository;
         _unitOfWork = unitOfWork;
         _notificationService = notificationService;
     }
@@ -50,7 +50,7 @@ public class YeuCauCuTruCreatedEventHandler : INotificationHandler<YeuCauCuTruCr
         if (allRecipientIds.Count == 0) return;
 
         // Lấy dữ liệu đầy đủ để đưa vào Metadata (Giúp Frontend hiển thị ngay mà không cần gọi API)
-        var listResponse = await _yeuCauDapperRepository.GetListResponseByIdAsync(yeuCau.Id, cancellationToken);
+        var listResponse = await _yeuCauQueryRepository.GetListResponseByIdAsync(yeuCau.Id, cancellationToken);
         string? metadataJson = listResponse != null ? JsonSerializer.Serialize(listResponse) : null;
 
         // 2. Tạo thực thể ThongBao và Phân bổ

@@ -3,11 +3,11 @@ using HeThongChungCu.Infrastructure.Email;
 using HeThongChungCu.Infrastructure.FileStorage;
 using HeThongChungCu.Infrastructure.HealthChecks;
 using HeThongChungCu.Infrastructure.Persistence;
-using HeThongChungCu.Infrastructure.Persistence.Repositories.EFRepositories;
+using HeThongChungCu.Infrastructure.Persistence.Repositories.CommandRepositories;
 using HeThongChungCu.Infrastructure.Qdrant;
 using HeThongChungCu.Infrastructure.Services;
 using HeThongChungCu.Infrastructure.Notifications;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

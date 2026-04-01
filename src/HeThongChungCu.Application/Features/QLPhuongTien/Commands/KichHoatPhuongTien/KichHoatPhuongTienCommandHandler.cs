@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
@@ -7,23 +7,23 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.KichHoatPhuo
 
 internal sealed class KichHoatPhuongTienCommandHandler : ICommandHandler<KichHoatPhuongTienCommand, bool>
 {
-    private readonly IPhuongTienEFRepository _phuongTienEFRepository;
-    private readonly ICanHoEFRepository _canHoEFRepository;
+    private readonly IPhuongTienCommandRepository _phuongTienCommandRepository;
+    private readonly ICanHoCommandRepository _canHoCommandRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public KichHoatPhuongTienCommandHandler(
-        IPhuongTienEFRepository phuongTienEFRepository,
-        ICanHoEFRepository canHoEFRepository,
+        IPhuongTienCommandRepository phuongTienCommandRepository,
+        ICanHoCommandRepository canHoCommandRepository,
         IUnitOfWork unitOfWork)
     {
-        _phuongTienEFRepository = phuongTienEFRepository;
-        _canHoEFRepository = canHoEFRepository;
+        _phuongTienCommandRepository = phuongTienCommandRepository;
+        _canHoCommandRepository = canHoCommandRepository;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<bool>> Handle(KichHoatPhuongTienCommand request, CancellationToken cancellationToken)
     {
-        var phuongTiens = await _phuongTienEFRepository.GetPhuongTiensByIdsAsync(request.PhuongTienIds, cancellationToken);
+        var phuongTiens = await _phuongTienCommandRepository.GetPhuongTiensByIdsAsync(request.PhuongTienIds, cancellationToken);
         
         if (phuongTiens.Count == 0)
         {
@@ -36,12 +36,12 @@ internal sealed class KichHoatPhuongTienCommandHandler : ICommandHandler<KichHoa
         foreach (var group in groupedByCanHo)
         {
             var canHoId = group.Key;
-            var canHo = await _canHoEFRepository.GetByIdAsync(canHoId, cancellationToken);
+            var canHo = await _canHoCommandRepository.GetByIdAsync(canHoId, cancellationToken);
             
             if (canHo == null) continue;
 
             // Lấy tất cả phương tiện hiện có của căn hộ này (để check quota)
-            var existingVehicles = await _phuongTienEFRepository.GetPhuongTiensByCanHoIdAsync(canHoId, cancellationToken);
+            var existingVehicles = await _phuongTienCommandRepository.GetPhuongTiensByCanHoIdAsync(canHoId, cancellationToken);
             
             foreach (var phuongTien in group)
             {
@@ -52,7 +52,7 @@ internal sealed class KichHoatPhuongTienCommandHandler : ICommandHandler<KichHoa
                                x.Id != phuongTien.Id);
 
                 phuongTien.KichHoat(canHo.LoaiCanHoId, currentCount);
-                _phuongTienEFRepository.Update(phuongTien);
+                _phuongTienCommandRepository.Update(phuongTien);
                 
                 // Cập nhật danh sách existingVehicles giả định để xe tiếp theo trong group thấy được sự thay đổi
                 // (Trong trường hợp một lệnh kích hoạt nhiều xe cùng loại cho 1 căn hộ)

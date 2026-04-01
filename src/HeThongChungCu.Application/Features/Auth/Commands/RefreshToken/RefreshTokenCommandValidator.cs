@@ -1,10 +1,10 @@
-﻿namespace HeThongChungCu.Application.Features.Auth.Commands.RefreshToken;
+namespace HeThongChungCu.Application.Features.Auth.Commands.RefreshToken;
 
 public class RefreshTokenCommandValidator : AbstractValidator<RefreshTokenCommand>
 {
     public RefreshTokenCommandValidator()
     {
         RuleFor(x => x.RefreshToken)
-            .NotEmpty().WithMessage("RefreshToken không được để trống.");
+            .NotEmpty().WithMessage("RefreshToken kh�ng du?c d? tr?ng.");
     }
 }

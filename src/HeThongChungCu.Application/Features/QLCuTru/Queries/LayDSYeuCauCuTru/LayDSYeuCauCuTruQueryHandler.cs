@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -7,11 +7,11 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Queries.LayDSYeuCauCuTru;
 
 public class LayDSYeuCauCuTruQueryHandler : IQueryHandler<LayDSYeuCauCuTruQuery, PagedResult<DSYeuCauCuTruResponse>>
 {
-    private readonly IYeuCauCuTruDapperRepository _dapperRepository;
+    private readonly IYeuCauCuTruQueryRepository _QueryRepository;
 
-    public LayDSYeuCauCuTruQueryHandler(IYeuCauCuTruDapperRepository dapperRepository)
+    public LayDSYeuCauCuTruQueryHandler(IYeuCauCuTruQueryRepository QueryRepository)
     {
-        _dapperRepository = dapperRepository;
+        _QueryRepository = QueryRepository;
     }
 
     public async Task<Result<PagedResult<DSYeuCauCuTruResponse>>> Handle(LayDSYeuCauCuTruQuery request, CancellationToken cancellationToken)
@@ -27,7 +27,7 @@ public class LayDSYeuCauCuTruQueryHandler : IQueryHandler<LayDSYeuCauCuTruQuery,
             request.PageNumber,
             request.PageSize);
 
-        var result = await _dapperRepository.GetPagedListAsync(spec, cancellationToken);
+        var result = await _QueryRepository.GetPagedListAsync(spec, cancellationToken);
         return Result.Success(result);
     }
 }

@@ -1,11 +1,13 @@
 using HeThongChungCu.Application.Common.Behaviors;
+using FluentValidation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HeThongChungCu.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplicationCore(this IServiceCollection services)
+    public static IServiceCollection AddApplicationCore(this IServiceCollection services, IConfiguration configuration)
     {
         var assembly = typeof(DependencyInjection).Assembly;
 

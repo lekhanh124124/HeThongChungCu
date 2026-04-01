@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using Microsoft.Extensions.Logging;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Seed;

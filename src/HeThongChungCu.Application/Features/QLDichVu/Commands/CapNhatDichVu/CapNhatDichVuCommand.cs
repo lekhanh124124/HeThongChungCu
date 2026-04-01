@@ -1,6 +1,6 @@
 using FluentValidation;
 using HeThongChungCu.Application.Common.Messaging;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Common;
 
@@ -23,10 +23,10 @@ public sealed class CapNhatDichVuCommandValidator : AbstractValidator<CapNhatDic
 
 internal sealed class CapNhatDichVuCommandHandler : ICommandHandler<CapNhatDichVuCommand, bool>
 {
-    private readonly IDichVuEFRepository _dichVuRepository;
+    private readonly IDichVuCommandRepository _dichVuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CapNhatDichVuCommandHandler(IDichVuEFRepository dichVuRepository, IUnitOfWork unitOfWork)
+    public CapNhatDichVuCommandHandler(IDichVuCommandRepository dichVuRepository, IUnitOfWork unitOfWork)
     {
         _dichVuRepository = dichVuRepository;
         _unitOfWork = unitOfWork;

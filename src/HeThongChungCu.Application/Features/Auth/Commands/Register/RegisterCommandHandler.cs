@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.Auth.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -12,22 +12,22 @@ namespace HeThongChungCu.Application.Features.Auth.Commands.Register;
 public class RegisterCommandHandler : ICommandHandler<RegisterCommand, AuthResponse>
 {
 
-    private readonly ITaiKhoanEFRepository _accountRepository;
+    private readonly ITaiKhoanCommandRepository _accountRepository;
     private readonly IHasherService _hasherService;
-    private readonly IJwtTokenGenerator _jwtTokenGenerator;
+    private readonly ITokenService _tokenService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public RegisterCommandHandler(
-        ITaiKhoanEFRepository accountRepository,
+        ITaiKhoanCommandRepository accountRepository,
         IHasherService hasherService,
-        IJwtTokenGenerator jwtTokenGenerator,
+        ITokenService tokenService,
         IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)
     {
         _accountRepository = accountRepository;
         _hasherService = hasherService;
-        _jwtTokenGenerator = jwtTokenGenerator;
+        _tokenService = tokenService;
         _dateTimeProvider = dateTimeProvider;
         _unitOfWork = unitOfWork;
     }
@@ -55,7 +55,7 @@ public class RegisterCommandHandler : ICommandHandler<RegisterCommand, AuthRespo
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var roles = account.PhanQuyens.Select(pq => pq.RoleId.Name).ToList();
-        var accessToken = _jwtTokenGenerator.GenerateToken(account.Id, account.TenDangNhap, roles, account.NguoiDungId);
+        var accessToken = _tokenService.GenerateToken(account.Id, account.TenDangNhap, roles, account.NguoiDungId);
         var refreshTokenString = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
         var refreshTokenHash = _hasherService.HashToken(refreshTokenString);
  

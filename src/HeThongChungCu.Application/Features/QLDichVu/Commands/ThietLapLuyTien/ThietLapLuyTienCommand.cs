@@ -1,6 +1,6 @@
 using FluentValidation;
 using HeThongChungCu.Application.Common.Messaging;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Common;
@@ -32,10 +32,10 @@ public sealed class ThietLapLuyTienCommandValidator : AbstractValidator<ThietLap
 
 internal sealed class ThietLapLuyTienCommandHandler : ICommandHandler<ThietLapLuyTienCommand, BangGiaResponse>
 {
-    private readonly IBangGiaEFRepository _bangGiaRepository;
+    private readonly IBangGiaCommandRepository _bangGiaRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public ThietLapLuyTienCommandHandler(IBangGiaEFRepository bangGiaRepository, IUnitOfWork unitOfWork)
+    public ThietLapLuyTienCommandHandler(IBangGiaCommandRepository bangGiaRepository, IUnitOfWork unitOfWork)
     {
         _bangGiaRepository = bangGiaRepository;
         _unitOfWork = unitOfWork;

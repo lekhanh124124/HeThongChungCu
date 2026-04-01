@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Features.Catalog.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -7,9 +7,9 @@ namespace HeThongChungCu.Application.Features.Catalog.Queries.LayDichVuForSelect
 
 public class LayDichVuForSelectorQueryHandler : IQueryHandler<LayDichVuForSelectorQuery, IReadOnlyList<ItemForSelectorResponse>>
 {
-    private readonly IDichVuEFRepository _repository;
+    private readonly IDichVuCommandRepository _repository;
 
-    public LayDichVuForSelectorQueryHandler(IDichVuEFRepository repository)
+    public LayDichVuForSelectorQueryHandler(IDichVuCommandRepository repository)
     {
         _repository = repository;
     }

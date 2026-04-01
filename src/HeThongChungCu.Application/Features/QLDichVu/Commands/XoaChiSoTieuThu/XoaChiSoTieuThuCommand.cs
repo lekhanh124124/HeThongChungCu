@@ -1,6 +1,6 @@
 using FluentValidation;
 using HeThongChungCu.Application.Common.Messaging;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Domain.Common;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.XoaChiSoTieuThu;
@@ -17,10 +17,10 @@ public sealed class XoaChiSoTieuThuCommandValidator : AbstractValidator<XoaChiSo
 
 internal sealed class XoaChiSoTieuThuCommandHandler : ICommandHandler<XoaChiSoTieuThuCommand, bool>
 {
-    private readonly IChiSoTieuThuEFRepository _chiSoTieuThuRepository;
+    private readonly IChiSoTieuThuCommandRepository _chiSoTieuThuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public XoaChiSoTieuThuCommandHandler(IChiSoTieuThuEFRepository chiSoTieuThuRepository, IUnitOfWork unitOfWork)
+    public XoaChiSoTieuThuCommandHandler(IChiSoTieuThuCommandRepository chiSoTieuThuRepository, IUnitOfWork unitOfWork)
     {
         _chiSoTieuThuRepository = chiSoTieuThuRepository;
         _unitOfWork = unitOfWork;

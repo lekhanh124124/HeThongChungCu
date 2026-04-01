@@ -1,4 +1,4 @@
-﻿namespace HeThongChungCu.Application.Common.Models
+namespace HeThongChungCu.Application.Common.Models
 {
     public class PagedResult<T>
     {

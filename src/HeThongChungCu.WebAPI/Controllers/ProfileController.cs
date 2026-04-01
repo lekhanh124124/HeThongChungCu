@@ -76,17 +76,8 @@ public class ProfileController : ApiControllerBase
     [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateAvatar(IFormFile? avatar, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateAvatar(IFormFile avatar, CancellationToken cancellationToken)
     {
-        if (avatar == null || avatar.Length == 0)
-        {
-            return BadRequest(new ApiResponse<object>
-            {
-                IsOk = false,
-                Errors = new List<Error> { new Error("File.Empty", "File is empty.") }
-            });
-        }
-
         await using var stream = avatar.OpenReadStream();
 
         var command = new UpdateAvatarCommand(

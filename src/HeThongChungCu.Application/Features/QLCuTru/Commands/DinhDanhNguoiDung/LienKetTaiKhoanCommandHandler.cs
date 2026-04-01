@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -9,13 +9,13 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Commands.DinhDanhNguoiDung
 
 public class LienKetTaiKhoanCommandHandler : ICommandHandler<LienKetTaiKhoanCommand, UserInfoResponse>
 {
-    private readonly ITaiKhoanEFRepository _accountRepository;
-    private readonly INguoiDungEFRepository _userRepository;
+    private readonly ITaiKhoanCommandRepository _accountRepository;
+    private readonly INguoiDungCommandRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public LienKetTaiKhoanCommandHandler(
-        ITaiKhoanEFRepository accountRepository,
-        INguoiDungEFRepository userRepository,
+        ITaiKhoanCommandRepository accountRepository,
+        INguoiDungCommandRepository userRepository,
         IUnitOfWork unitOfWork)
     {
         _accountRepository = accountRepository;

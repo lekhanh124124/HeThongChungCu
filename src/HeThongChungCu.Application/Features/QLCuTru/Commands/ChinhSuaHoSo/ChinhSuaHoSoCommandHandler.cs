@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Entities;
@@ -9,14 +9,14 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Commands.ChinhSuaHoSo;
 
 public class ChinhSuaHoSoCommandHandler : ICommandHandler<ChinhSuaHoSoCommand, UserInfoResponse>
 {
-    private readonly IQuanHeCuTruEFRepository _quanHeCuTruRepository;
-    private readonly INguoiDungEFRepository _userRepository;
+    private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
+    private readonly INguoiDungCommandRepository _userRepository;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public ChinhSuaHoSoCommandHandler(
-        IQuanHeCuTruEFRepository quanHeCuTruRepository,
-        INguoiDungEFRepository userRepository,
+        IQuanHeCuTruCommandRepository quanHeCuTruRepository,
+        INguoiDungCommandRepository userRepository,
         ITepTaiLieuRepository tepTaiLieuRepository,
         IUnitOfWork unitOfWork)
     {

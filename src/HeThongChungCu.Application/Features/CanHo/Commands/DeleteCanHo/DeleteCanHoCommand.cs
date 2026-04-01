@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Features.CanHo.DTOs;
+using HeThongChungCu.Application.Features.CanHo.DTOs;
 
 namespace HeThongChungCu.Application.Features.CanHo.Commands.DeleteCanHo;
 

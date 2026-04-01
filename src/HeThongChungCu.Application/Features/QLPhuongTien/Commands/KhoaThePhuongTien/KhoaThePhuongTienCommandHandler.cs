@@ -1,21 +1,21 @@
-﻿namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.KhoaThePhuongTien
+namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.KhoaThePhuongTien
 {
     public class KhoaThePhuongTienCommandHandler : ICommandHandler<KhoaThePhuongTienCommand, bool>
     {
-        private readonly IPhuongTienEFRepository _phuongTienEFRepository;
+        private readonly IPhuongTienCommandRepository _phuongTienCommandRepository;
         private readonly IDateTimeProvider _dateTimeProvider;
 
         public KhoaThePhuongTienCommandHandler(
-            IPhuongTienEFRepository phuongTienEFRepository, 
+            IPhuongTienCommandRepository phuongTienCommandRepository, 
             IDateTimeProvider dateTimeProvider)
         {
-            _phuongTienEFRepository = phuongTienEFRepository;
+            _phuongTienCommandRepository = phuongTienCommandRepository;
             _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<bool>> Handle(KhoaThePhuongTienCommand request, CancellationToken cancellationToken)
         {
-            var phuongTiens = await _phuongTienEFRepository.GetPhuongTiensByTheIdsAsync(request.TheIds, cancellationToken);
+            var phuongTiens = await _phuongTienCommandRepository.GetPhuongTiensByTheIdsAsync(request.TheIds, cancellationToken);
             var now = _dateTimeProvider.Now.DateTime;
 
             if (!phuongTiens.Any())
@@ -27,7 +27,7 @@
                 if (phuongTien != null)
                 {
                     phuongTien.KhoaThe(theId, now);
-                    _phuongTienEFRepository.Update(phuongTien);
+                    _phuongTienCommandRepository.Update(phuongTien);
                 }
             }
 

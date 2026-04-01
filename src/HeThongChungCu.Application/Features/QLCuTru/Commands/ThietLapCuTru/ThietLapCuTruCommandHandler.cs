@@ -4,25 +4,25 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Commands.ThietLapCuTru;
 
 public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand, CuDanResponse>
 {
-    private readonly ICanHoEFRepository _canHoRepository;
-    private readonly IToaNhaEFRepository _toaNhaEFRepository;
-    private readonly INguoiDungEFRepository _userRepository;
-    private readonly ITaiKhoanEFRepository _accountRepository;
-    private readonly IQuanHeCuTruEFRepository _quanHeCuTruRepository;
+    private readonly ICanHoCommandRepository _canHoRepository;
+    private readonly IToaNhaCommandRepository _toaNhaCommandRepository;
+    private readonly INguoiDungCommandRepository _userRepository;
+    private readonly ITaiKhoanCommandRepository _accountRepository;
+    private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
 
     public ThietLapCuTruCommandHandler(
-        ICanHoEFRepository canHoRepository,
-        IToaNhaEFRepository toaNhaEFRepository,
-        INguoiDungEFRepository userRepository,
-        ITaiKhoanEFRepository accountRepository,
-        IQuanHeCuTruEFRepository quanHeCuTruRepository,
+        ICanHoCommandRepository canHoRepository,
+        IToaNhaCommandRepository toaNhaCommandRepository,
+        INguoiDungCommandRepository userRepository,
+        ITaiKhoanCommandRepository accountRepository,
+        IQuanHeCuTruCommandRepository quanHeCuTruRepository,
         IUnitOfWork unitOfWork,
         IDateTimeProvider dateTimeProvider)
     {
         _canHoRepository = canHoRepository;
-        _toaNhaEFRepository = toaNhaEFRepository;
+        _toaNhaCommandRepository = toaNhaCommandRepository;
         _userRepository = userRepository;
         _accountRepository = accountRepository;
         _quanHeCuTruRepository = quanHeCuTruRepository;
@@ -36,7 +36,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
         if (canHo is null)
             return Result.Failure<CuDanResponse>(CanHoErrors.NotFoundById(request.CanHoId));
 
-        var toaNha = await _toaNhaEFRepository.GetToaNhaByTangIdAsync(canHo.TangId, cancellationToken);
+        var toaNha = await _toaNhaCommandRepository.GetToaNhaByTangIdAsync(canHo.TangId, cancellationToken);
         if (toaNha == null)
             return Result.Failure<CuDanResponse>(ToaNhaErrors.NotFoundById(canHo.TangId));
 

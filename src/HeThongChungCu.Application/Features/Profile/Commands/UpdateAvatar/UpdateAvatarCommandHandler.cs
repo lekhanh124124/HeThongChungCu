@@ -1,30 +1,27 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
-using HeThongChungCu.Application.Common.Options;
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
-using Microsoft.Extensions.Options;
 
 namespace HeThongChungCu.Application.Features.Profile.Commands.UpdateAvatar;
 
 public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, string>
 {
-    private readonly INguoiDungEFRepository _userRepository;
-    private readonly ITaiKhoanEFRepository _accountRepository;
+    private readonly INguoiDungCommandRepository _userRepository;
+    private readonly ITaiKhoanCommandRepository _accountRepository;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IFileStorageService _fileStorageService;
-    private readonly FileStorageOptions _fileStorageOptions;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
 
     public UpdateAvatarCommandHandler(
-        INguoiDungEFRepository userRepository,
-        ITaiKhoanEFRepository accountRepository,
+        INguoiDungCommandRepository userRepository,
+        ITaiKhoanCommandRepository accountRepository,
         ITepTaiLieuRepository tepTaiLieuRepository,
         ICurrentUserService currentUserService,
         IFileStorageService fileStorageService,
-        IOptions<FileStorageOptions> fileStorageOptions,
         IUnitOfWork unitOfWork,
         IDateTimeProvider dateTimeProvider)
     {
@@ -33,7 +30,6 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
         _tepTaiLieuRepository = tepTaiLieuRepository;
         _currentUserService = currentUserService;
         _fileStorageService = fileStorageService;
-        _fileStorageOptions = fileStorageOptions.Value;
         _unitOfWork = unitOfWork;
         _dateTimeProvider = dateTimeProvider;
     }
@@ -54,12 +50,6 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
 
         var identifier = account.TenDangNhap;
 
-        // 2. Reset stream position (just in case)
-        if (request.AvatarStream.CanSeek)
-        {
-            request.AvatarStream.Position = 0;
-        }
-
         // 3. Upload New Avatar
         var extension = Path.GetExtension(request.FileName).ToLowerInvariant();
 
@@ -69,12 +59,19 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
             fileName,
             _dateTimeProvider.UtcNow.DateTime);
 
-        var avatarUrl = await _fileStorageService.UploadFileAsync(
+        var uploadResult = await _fileStorageService.UploadFileAsync(
             request.AvatarStream,
             normalizedFileName,
-            _fileStorageOptions.UserAvatarContainer,
+            FileCategory.Avatar,
             request.ContentType,
             cancellationToken);
+
+        if (uploadResult.IsFailure)
+        {
+            return Result.Failure<string>(uploadResult.Errors);
+        }
+
+        var avatarUrl = uploadResult.Value;
 
         // 4. Create TepTaiLieu
         var tepTaiLieu = new TepTaiLieu(request.FileName, avatarUrl, request.AvatarStream.Length, request.ContentType);

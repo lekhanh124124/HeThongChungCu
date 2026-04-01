@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Errors;
@@ -7,9 +7,9 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Queries.GoiYMaThePhuo
 
 public class GoiYMaThePhuongTienQueryHandler : IQueryHandler<GoiYMaThePhuongTienQuery, string>
 {
-    private readonly IPhuongTienEFRepository _phuongTienRepository;
+    private readonly IPhuongTienCommandRepository _phuongTienRepository;
 
-    public GoiYMaThePhuongTienQueryHandler(IPhuongTienEFRepository phuongTienRepository)
+    public GoiYMaThePhuongTienQueryHandler(IPhuongTienCommandRepository phuongTienRepository)
     {
         _phuongTienRepository = phuongTienRepository;
     }

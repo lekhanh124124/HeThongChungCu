@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Errors;
@@ -7,9 +7,9 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Queries.GetYeuCauPhuo
 
 public class GetYeuCauPhuongTienByIdQueryHandler : IQueryHandler<GetYeuCauPhuongTienByIdQuery, YeuCauPhuongTienResponse>
 {
-    private readonly IYeuCauPhuongTienDapperRepository _yeuCauRepository;
+    private readonly IYeuCauPhuongTienQueryRepository _yeuCauRepository;
 
-    public GetYeuCauPhuongTienByIdQueryHandler(IYeuCauPhuongTienDapperRepository yeuCauRepository)
+    public GetYeuCauPhuongTienByIdQueryHandler(IYeuCauPhuongTienQueryRepository yeuCauRepository)
     {
         _yeuCauRepository = yeuCauRepository;
     }

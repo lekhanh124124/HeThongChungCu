@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Models;
 using MediatR;
@@ -7,10 +7,10 @@ namespace HeThongChungCu.Application.Features.ThongBao.Queries.LayDSThongBao;
 
 public class LayDSThongBaoQueryHandler : IRequestHandler<LayDSThongBaoQuery, Result<PagedResult<ThongBaoResponse>>>
 {
-    private readonly IThongBaoDapperRepository _thongBaoRepository;
+    private readonly IThongBaoQueryRepository _thongBaoRepository;
     private readonly ICurrentUserService _currentUserService;
 
-    public LayDSThongBaoQueryHandler(IThongBaoDapperRepository thongBaoRepository, ICurrentUserService currentUserService)
+    public LayDSThongBaoQueryHandler(IThongBaoQueryRepository thongBaoRepository, ICurrentUserService currentUserService)
     {
         _thongBaoRepository = thongBaoRepository;
         _currentUserService = currentUserService;

@@ -1,6 +1,6 @@
 using FluentValidation;
 using HeThongChungCu.Application.Common.Messaging;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Common;
@@ -34,13 +34,13 @@ public sealed class TaoBangGiaCommandValidator : AbstractValidator<TaoBangGiaCom
 
 internal sealed class TaoBangGiaCommandHandler : ICommandHandler<TaoBangGiaCommand, BangGiaResponse>
 {
-    private readonly IBangGiaEFRepository _bangGiaRepository;
-    private readonly IDichVuEFRepository _dichVuRepository;
+    private readonly IBangGiaCommandRepository _bangGiaRepository;
+    private readonly IDichVuCommandRepository _dichVuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public TaoBangGiaCommandHandler(
-        IBangGiaEFRepository bangGiaRepository, 
-        IDichVuEFRepository dichVuRepository, 
+        IBangGiaCommandRepository bangGiaRepository, 
+        IDichVuCommandRepository dichVuRepository, 
         IUnitOfWork unitOfWork)
     {
         _bangGiaRepository = bangGiaRepository;

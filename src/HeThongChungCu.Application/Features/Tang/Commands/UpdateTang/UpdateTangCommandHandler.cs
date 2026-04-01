@@ -4,10 +4,10 @@ namespace HeThongChungCu.Application.Features.Tang.Commands.UpdateTang;
 
 public class UpdateTangCommandHandler : ICommandHandler<UpdateTangCommand, TangDetailResponse>
 {
-    private readonly IToaNhaEFRepository _toaNhaRepository;
+    private readonly IToaNhaCommandRepository _toaNhaRepository;
 
     public UpdateTangCommandHandler(
-        IToaNhaEFRepository toaNhaRepository)
+        IToaNhaCommandRepository toaNhaRepository)
     {
         _toaNhaRepository = toaNhaRepository;
     }

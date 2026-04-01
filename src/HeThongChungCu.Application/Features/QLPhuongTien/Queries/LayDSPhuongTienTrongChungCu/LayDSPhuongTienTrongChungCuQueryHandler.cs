@@ -4,9 +4,9 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSPhuongTi
 
 public class LayDSPhuongTienTrongChungCuQueryHandler : IQueryHandler<LayDSPhuongTienTrongChungCuQuery, PagedResult<PhuongTienResponse>>
 {
-    private readonly IPhuongTienDapperRepository _queryRepository;
+    private readonly IPhuongTienQueryRepository _queryRepository;
 
-    public LayDSPhuongTienTrongChungCuQueryHandler(IPhuongTienDapperRepository queryRepository)
+    public LayDSPhuongTienTrongChungCuQueryHandler(IPhuongTienQueryRepository queryRepository)
     {
         _queryRepository = queryRepository;
     }

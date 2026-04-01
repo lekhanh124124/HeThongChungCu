@@ -1,30 +1,27 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
-using HeThongChungCu.Application.Common.Options;
 using HeThongChungCu.Application.Features.UploadMedia.DTOs;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
-using Microsoft.Extensions.Options;
+using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.UploadMedia.Commands.UploadFile;
 
 public class UploadFileCommandHandler : ICommandHandler<UploadFileCommand, List<UploadFileResponse>>
 {
     private readonly IFileStorageService _fileStorageService;
-    private readonly FileStorageOptions _fileStorageOptions;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public UploadFileCommandHandler(
         IFileStorageService fileStorageService,
-        IOptions<FileStorageOptions> fileStorageOptions,
         IDateTimeProvider dateTimeProvider,
         ITepTaiLieuRepository tepTaiLieuRepository,
         IUnitOfWork unitOfWork)
     {
         _fileStorageService = fileStorageService;
-        _fileStorageOptions = fileStorageOptions.Value;
         _dateTimeProvider = dateTimeProvider;
         _tepTaiLieuRepository = tepTaiLieuRepository;
         _unitOfWork = unitOfWork;
@@ -32,6 +29,12 @@ public class UploadFileCommandHandler : ICommandHandler<UploadFileCommand, List<
 
     public async Task<Result<List<UploadFileResponse>>> Handle(UploadFileCommand request, CancellationToken cancellationToken)
     {
+        var category = FileCategory.FromTargetContainer(request.TargetContainer ?? string.Empty);
+        if (category == null)
+        {
+            return Result.Failure<List<UploadFileResponse>>(FileErrors.UnrecognizedCategory);
+        }
+
         var responses = new List<UploadFileResponse>();
 
         foreach (var file in request.Files)
@@ -46,25 +49,19 @@ public class UploadFileCommandHandler : ICommandHandler<UploadFileCommand, List<
                 $"{Guid.NewGuid():N}{extension}",
                 _dateTimeProvider.UtcNow.DateTime);
 
-            var validContainers = new List<string>
-            {
-                _fileStorageOptions.VehicleContainer,
-                _fileStorageOptions.ApartmentContainer,
-                _fileStorageOptions.BuildingContainer,
-                _fileStorageOptions.UserAvatarContainer,
-                _fileStorageOptions.DocumentContainer
-            };
-
-            var containerName = validContainers.FirstOrDefault(c =>
-                c.Equals(request.TargetContainer, StringComparison.OrdinalIgnoreCase))
-                ?? _fileStorageOptions.DocumentContainer;
-
-            var fileUrl = await _fileStorageService.UploadFileAsync(
+            var uploadResult = await _fileStorageService.UploadFileAsync(
                 file.Content,
                 uniqueFileName,
-                containerName,
+                category,
                 file.ContentType,
                 cancellationToken);
+
+            if (uploadResult.IsFailure)
+            {
+                return Result.Failure<List<UploadFileResponse>>(uploadResult.Errors);
+            }
+
+            var fileUrl = uploadResult.Value;
 
             var tepTaiLieu = new TepTaiLieu(file.FileName, fileUrl, file.Content.Length, file.ContentType);
             await _tepTaiLieuRepository.AddAsync(tepTaiLieu, cancellationToken);

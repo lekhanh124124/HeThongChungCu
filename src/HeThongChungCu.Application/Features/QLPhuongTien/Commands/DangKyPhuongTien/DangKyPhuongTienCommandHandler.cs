@@ -5,33 +5,33 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.DangKyPhuong
 
 internal sealed class DangKyPhuongTienCommandHandler : ICommandHandler<DangKyPhuongTienCommand, PhuongTienResponse>
 {
-    private readonly IPhuongTienEFRepository _phuongTienEFRepository;
-    private readonly ICanHoEFRepository _canHoEFRepository;
-    private readonly IToaNhaEFRepository _toaNhaEFRepository;
+    private readonly IPhuongTienCommandRepository _phuongTienCommandRepository;
+    private readonly ICanHoCommandRepository _canHoCommandRepository;
+    private readonly IToaNhaCommandRepository _toaNhaCommandRepository;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public DangKyPhuongTienCommandHandler(
-        IPhuongTienEFRepository phuongTienEFRepository,
-        ICanHoEFRepository canHoEFRepository,
-        IToaNhaEFRepository toaNhaEFRepository,
+        IPhuongTienCommandRepository phuongTienCommandRepository,
+        ICanHoCommandRepository canHoCommandRepository,
+        IToaNhaCommandRepository toaNhaCommandRepository,
         ITepTaiLieuRepository tepTaiLieuRepository,
         IUnitOfWork unitOfWork)
     {
-        _phuongTienEFRepository = phuongTienEFRepository;
-        _canHoEFRepository = canHoEFRepository;
-        _toaNhaEFRepository = toaNhaEFRepository;
+        _phuongTienCommandRepository = phuongTienCommandRepository;
+        _canHoCommandRepository = canHoCommandRepository;
+        _toaNhaCommandRepository = toaNhaCommandRepository;
         _tepTaiLieuRepository = tepTaiLieuRepository;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<PhuongTienResponse>> Handle(DangKyPhuongTienCommand request, CancellationToken cancellationToken)
     {
-        var canHo = await _canHoEFRepository.GetByIdAsync(request.CanHoId, cancellationToken);
+        var canHo = await _canHoCommandRepository.GetByIdAsync(request.CanHoId, cancellationToken);
         if (canHo == null)
             return Result.Failure<PhuongTienResponse>(CanHoErrors.NotFoundById(request.CanHoId));
 
-        var toaNha = await _toaNhaEFRepository.GetToaNhaByTangIdAsync(canHo.TangId, cancellationToken);
+        var toaNha = await _toaNhaCommandRepository.GetToaNhaByTangIdAsync(canHo.TangId, cancellationToken);
         if (toaNha == null)
             return Result.Failure<PhuongTienResponse>(CanHoErrors.NotFoundById(request.CanHoId));
 
@@ -39,13 +39,13 @@ internal sealed class DangKyPhuongTienCommandHandler : ICommandHandler<DangKyPhu
         if (tang == null)
             return Result.Failure<PhuongTienResponse>(CanHoErrors.NotFoundById(request.CanHoId));
 
-        var bienSoExists = await _phuongTienEFRepository.BienSoExistsAsync(request.BienSo, cancellationToken);
+        var bienSoExists = await _phuongTienCommandRepository.BienSoExistsAsync(request.BienSo, cancellationToken);
         if (bienSoExists)
             return Result.Failure<PhuongTienResponse>(PhuongTienErrors.BienSoExists);
 
         // Kiểm tra hạn mức ngay khi đăng ký (Cảnh báo sớm)
         var loaiPhuongTien = LoaiPhuongTien.FromValue(request.LoaiPhuongTienId)!;
-        var existingVehicles = await _phuongTienEFRepository.GetPhuongTiensByCanHoIdAsync(request.CanHoId, cancellationToken);
+        var existingVehicles = await _phuongTienCommandRepository.GetPhuongTiensByCanHoIdAsync(request.CanHoId, cancellationToken);
         var currentCount = existingVehicles.Count(x => x.LoaiPhuongTienId == loaiPhuongTien && x.TrangThaiPhuongTienId == TrangThaiPhuongTien.Active);
         var quota = PhuongTienPolicy.GetQuota(canHo.LoaiCanHoId, loaiPhuongTien);
 
@@ -66,7 +66,7 @@ internal sealed class DangKyPhuongTienCommandHandler : ICommandHandler<DangKyPhu
             request.MauXe,
             hinhAnhs);
 
-        var phuongTien = await _phuongTienEFRepository.AddAsync(phuongTienEntity, cancellationToken);
+        var phuongTien = await _phuongTienCommandRepository.AddAsync(phuongTienEntity, cancellationToken);
 
         // TransactionBehavior will automatically commit if no exception is thrown, otherwise it will rollback
 

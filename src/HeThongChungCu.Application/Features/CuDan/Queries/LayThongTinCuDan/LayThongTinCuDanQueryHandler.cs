@@ -1,14 +1,14 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Features.CuDan.DTOs;
 
 namespace HeThongChungCu.Application.Features.CuDan.Queries.LayThongTinCuDan;
 
 public class LayThongTinCuDanQueryHandler : IQueryHandler<LayThongTinCuDanQuery, LayThongTinCuDanResponse>
 {
-    private readonly IQuanHeCuTruDapperRepository _quanHeCuTruRepository;
+    private readonly IQuanHeCuTruQueryRepository _quanHeCuTruRepository;
 
     public LayThongTinCuDanQueryHandler(
-        IQuanHeCuTruDapperRepository quanHeCuTruRepository)
+        IQuanHeCuTruQueryRepository quanHeCuTruRepository)
     {
         _quanHeCuTruRepository = quanHeCuTruRepository;
     }

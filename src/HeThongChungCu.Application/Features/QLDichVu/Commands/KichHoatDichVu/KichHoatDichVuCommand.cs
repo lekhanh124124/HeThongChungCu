@@ -1,5 +1,5 @@
 using HeThongChungCu.Application.Common.Messaging;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Common;
 
@@ -9,10 +9,10 @@ public sealed record KichHoatDichVuCommand(int Id) : ICommand<DichVuResponse>;
 
 internal sealed class KichHoatDichVuCommandHandler : ICommandHandler<KichHoatDichVuCommand, DichVuResponse>
 {
-    private readonly IDichVuEFRepository _dichVuRepository;
+    private readonly IDichVuCommandRepository _dichVuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public KichHoatDichVuCommandHandler(IDichVuEFRepository dichVuRepository, IUnitOfWork unitOfWork)
+    public KichHoatDichVuCommandHandler(IDichVuCommandRepository dichVuRepository, IUnitOfWork unitOfWork)
     {
         _dichVuRepository = dichVuRepository;
         _unitOfWork = unitOfWork;

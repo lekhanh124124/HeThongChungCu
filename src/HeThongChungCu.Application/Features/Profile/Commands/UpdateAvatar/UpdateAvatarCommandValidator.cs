@@ -1,15 +1,11 @@
+using FluentValidation;
+using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Errors;
+
 namespace HeThongChungCu.Application.Features.Profile.Commands.UpdateAvatar;
 
 public class UpdateAvatarCommandValidator : AbstractValidator<UpdateAvatarCommand>
 {
-    private static readonly string[] AllowedExtensions =
-    {
-        ".jpg",
-        ".jpeg",
-        ".png",
-        ".webp"
-    };
-
     private static readonly string[] AllowedContentTypes =
     {
         "image/jpeg",
@@ -23,7 +19,9 @@ public class UpdateAvatarCommandValidator : AbstractValidator<UpdateAvatarComman
         RuleFor(x => x.FileName)
             .NotEmpty()
             .Must(HaveValidExtension)
-            .WithMessage("Chỉ cho phép các định dạng file .jpg, .jpeg, .png, .webp.");
+            .WithMessage(x => FileErrors.InvalidType(
+                Path.GetExtension(x.FileName), 
+                FileCategory.Avatar.AllowedExtensions).Description);
 
         RuleFor(x => x.ContentType)
             .NotEmpty()
@@ -38,6 +36,6 @@ public class UpdateAvatarCommandValidator : AbstractValidator<UpdateAvatarComman
     private bool HaveValidExtension(string fileName)
     {
         var extension = Path.GetExtension(fileName).ToLowerInvariant();
-        return AllowedExtensions.Contains(extension);
+        return FileCategory.Avatar.AllowedExtensions.Contains(extension);
     }
 }

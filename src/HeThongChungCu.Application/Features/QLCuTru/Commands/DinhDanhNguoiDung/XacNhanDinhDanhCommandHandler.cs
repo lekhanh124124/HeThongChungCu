@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -9,30 +9,30 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Commands.DinhDanhNguoiDung
 
 public class XacNhanDinhDanhCommandHandler : ICommandHandler<XacNhanDinhDanhCommand, UserInfoResponse>
 {
-    private readonly ITaiKhoanEFRepository _accountRepository;
-    private readonly INguoiDungEFRepository _userRepository;
+    private readonly ITaiKhoanCommandRepository _accountRepository;
+    private readonly INguoiDungCommandRepository _userRepository;
     private readonly IHasherService _hasherService;
-    private readonly IJwtTokenGenerator _jwtTokenGenerator;
+    private readonly ITokenService _tokenService;
     private readonly IUnitOfWork _unitOfWork;
 
     public XacNhanDinhDanhCommandHandler(
-        ITaiKhoanEFRepository accountRepository,
-        INguoiDungEFRepository userRepository,
+        ITaiKhoanCommandRepository accountRepository,
+        INguoiDungCommandRepository userRepository,
         IHasherService hasherService,
-        IJwtTokenGenerator jwtTokenGenerator,
+        ITokenService tokenService,
         IUnitOfWork unitOfWork)
     {
         _accountRepository = accountRepository;
         _userRepository = userRepository;
         _hasherService = hasherService;
-        _jwtTokenGenerator = jwtTokenGenerator;
+        _tokenService = tokenService;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<UserInfoResponse>> Handle(XacNhanDinhDanhCommand request, CancellationToken cancellationToken)
     {
         // 1. Get UserId from token via service
-        var userId = _jwtTokenGenerator.GetUserIdFromToken(request.Token);
+        var userId = _tokenService.GetUserIdFromToken(request.Token);
         if (userId == null)
         {
             return Result.Failure<UserInfoResponse>(AuthErrors.InvalidToken);

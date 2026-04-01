@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Errors;
@@ -7,16 +7,16 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Queries.GetYeuCauCuTruById
 
 public class GetYeuCauCuTruByIdQueryHandler : IQueryHandler<GetYeuCauCuTruByIdQuery, YeuCauCuTruResponse>
 {
-    private readonly IYeuCauCuTruDapperRepository _dapperRepository;
+    private readonly IYeuCauCuTruQueryRepository _QueryRepository;
 
-    public GetYeuCauCuTruByIdQueryHandler(IYeuCauCuTruDapperRepository dapperRepository)
+    public GetYeuCauCuTruByIdQueryHandler(IYeuCauCuTruQueryRepository QueryRepository)
     {
-        _dapperRepository = dapperRepository;
+        _QueryRepository = QueryRepository;
     }
 
     public async Task<Result<YeuCauCuTruResponse>> Handle(GetYeuCauCuTruByIdQuery request, CancellationToken cancellationToken)
     {
-        var response = await _dapperRepository.GetByIdAsync(request.RequestId, cancellationToken);
+        var response = await _QueryRepository.GetByIdAsync(request.RequestId, cancellationToken);
         
         if (response == null)
             return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.NotFound);

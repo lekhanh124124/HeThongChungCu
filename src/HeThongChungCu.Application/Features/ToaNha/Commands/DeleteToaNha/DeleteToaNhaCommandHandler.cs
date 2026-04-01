@@ -4,9 +4,9 @@ namespace HeThongChungCu.Application.Features.ToaNha.Commands.DeleteToaNha;
 
 public class DeleteToaNhaCommandHandler : ICommandHandler<DeleteToaNhaCommand, IReadOnlyList<ToaNhaDetailResponse>>
 {
-    private readonly IToaNhaEFRepository _toaNhaRepository;
+    private readonly IToaNhaCommandRepository _toaNhaRepository;
 
-    public DeleteToaNhaCommandHandler(IToaNhaEFRepository toaNhaRepository)
+    public DeleteToaNhaCommandHandler(IToaNhaCommandRepository toaNhaRepository)
     {
         _toaNhaRepository = toaNhaRepository;
     }

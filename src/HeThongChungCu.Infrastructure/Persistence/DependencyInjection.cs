@@ -1,11 +1,13 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-using HeThongChungCu.Application.Common.Options;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Infrastructure.Common.Settings;
 using HeThongChungCu.Infrastructure.Persistence.Interceptors;
-using HeThongChungCu.Infrastructure.Persistence.Repositories.DapperRepositories;
-using HeThongChungCu.Infrastructure.Persistence.Repositories.EFRepositories;
+using HeThongChungCu.Infrastructure.Persistence.Repositories.QueryRepositories;
+using HeThongChungCu.Infrastructure.Persistence.Repositories.CommandRepositories;
 using HeThongChungCu.Infrastructure.Persistence.Seed;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace HeThongChungCu.Infrastructure.Persistence;
@@ -16,13 +18,13 @@ public static class DependencyInjection
     {
         services.AddScoped<AuditableEntitySaveChangesInterceptor>();
 
-        services.Configure<PersistenceOptions>(
-            configuration.GetSection(PersistenceOptions.SectionName));
+        services.Configure<PersistenceSettings>(
+            configuration.GetSection(PersistenceSettings.SectionName));
 
         services.AddDbContext<AppDbContext>((provider, options) =>
         {
             var persistenceOptions = provider
-                .GetRequiredService<IOptions<PersistenceOptions>>()
+                .GetRequiredService<IOptions<PersistenceSettings>>()
                 .Value;
 
             options
@@ -41,48 +43,48 @@ public static class DependencyInjection
 
         services.AddScoped<ApplicationDbContextInitialiser>();
         services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
-        services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<AppDbContext>());
+        services.AddScoped<IUnitOfWork>(provider => (IUnitOfWork)provider.GetRequiredService<AppDbContext>());
 
-        services.AddScoped<INguoiDungEFRepository, NguoiDungEFRepository>();
-        services.AddScoped<INguoiDungDapperRepository, NguoiDungDapperRepository>();
+        services.AddScoped<INguoiDungCommandRepository, NguoiDungCommandRepository>();
+        services.AddScoped<INguoiDungQueryRepository, NguoiDungQueryRepository>();
 
-        services.AddScoped<ITaiKhoanEFRepository, TaiKhoanEFRepository>();
+        services.AddScoped<ITaiKhoanCommandRepository, TaiKhoanCommandRepository>();
 
-        services.AddScoped<IToaNhaEFRepository, ToaNhaEFRepository>();
-        services.AddScoped<IToaNhaDapperRepository, ToaNhaDapperRepository>();
+        services.AddScoped<IToaNhaCommandRepository, ToaNhaCommandRepository>();
+        services.AddScoped<IToaNhaQueryRepository, ToaNhaQueryRepository>();
 
-        services.AddScoped<ICanHoEFRepository, CanHoEFRepository>();
-        services.AddScoped<ICanHoDapperRepository, CanHoDapperRepository>();
+        services.AddScoped<ICanHoCommandRepository, CanHoCommandRepository>();
+        services.AddScoped<ICanHoQueryRepository, CanHoQueryRepository>();
 
-        services.AddScoped<IQuanHeCuTruEFRepository, QuanHeCuTruEFRepository>();
-        services.AddScoped<IQuanHeCuTruDapperRepository, QuanHeCuTruDapperRepository>();
+        services.AddScoped<IQuanHeCuTruCommandRepository, QuanHeCuTruCommandRepository>();
+        services.AddScoped<IQuanHeCuTruQueryRepository, QuanHeCuTruQueryRepository>();
 
-        services.AddScoped<IPhuongTienEFRepository, PhuongTienEFRepository>();
-        services.AddScoped<IPhuongTienDapperRepository, PhuongTienDapperRepository>();
+        services.AddScoped<IPhuongTienCommandRepository, PhuongTienCommandRepository>();
+        services.AddScoped<IPhuongTienQueryRepository, PhuongTienQueryRepository>();
 
-        services.AddScoped<IYeuCauCuTruEFRepository, YeuCauCuTruEFRepository>();
-        services.AddScoped<IYeuCauCuTruDapperRepository, YeuCauCuTruDapperRepository>();
+        services.AddScoped<IYeuCauCuTruCommandRepository, YeuCauCuTruCommandRepository>();
+        services.AddScoped<IYeuCauCuTruQueryRepository, YeuCauCuTruQueryRepository>();
 
-        services.AddScoped<IYeuCauPhuongTienEFRepository, YeuCauPhuongTienEFRepository>();
-        services.AddScoped<IYeuCauPhuongTienDapperRepository, YeuCauPhuongTienDapperRepository>();
+        services.AddScoped<IYeuCauPhuongTienCommandRepository, YeuCauPhuongTienCommandRepository>();
+        services.AddScoped<IYeuCauPhuongTienQueryRepository, YeuCauPhuongTienQueryRepository>();
 
-        services.AddScoped<IDichVuEFRepository, DichVuEFRepository>();
-        // services.AddScoped<IDichVuDapperRepository, DichVuDapperRepository>();
+        services.AddScoped<IDichVuCommandRepository, DichVuCommandRepository>();
+        // services.AddScoped<IDichVuQueryRepository, DichVuQueryRepository>();
 
         services.AddScoped<ITepTaiLieuRepository, TepTaiLieuRepository>();
-        // services.AddScoped<ITepTaiLieuDapperRepository, TepTaiLieuDapperRepository>();
+        // services.AddScoped<ITepTaiLieuQueryRepository, TepTaiLieuQueryRepository>();
 
-        services.AddScoped<IBangGiaEFRepository, BangGiaEFRepository>();
-        // services.AddScoped<IBangGiaDapperRepository, BangGiaDapperRepository>();
+        services.AddScoped<IBangGiaCommandRepository, BangGiaCommandRepository>();
+        // services.AddScoped<IBangGiaQueryRepository, IBangGiaQueryRepository>();
 
-        services.AddScoped<IChiSoTieuThuEFRepository, ChiSoTieuThuEFRepository>();
-        // services.AddScoped<IChiSoTieuThuDapperRepository, ChiSoTieuThuDapperRepository>();
+        services.AddScoped<IChiSoTieuThuCommandRepository, ChiSoTieuThuCommandRepository>();
+        // services.AddScoped<IChiSoTieuThuQueryRepository, ChiSoTieuThuQueryRepository>();
 
-        services.AddScoped<IDangKyDichVuEFRepository, DangKyDichVuEFRepository>();
-        // services.AddScoped<IDangKyDichVuDapperRepository, DangKyDichVuDapperRepository>();
+        services.AddScoped<IDangKyDichVuCommandRepository, DangKyDichVuCommandRepository>();
+        // services.AddScoped<IDangKyDichVuQueryRepository, IDangKyDichVuQueryRepository>();
         
-        services.AddScoped<IThongBaoEFRepository, ThongBaoEFRepository>();
-        services.AddScoped<IThongBaoDapperRepository, ThongBaoDapperRepository>();
+        services.AddScoped<IThongBaoCommandRepository, ThongBaoCommandRepository>();
+        services.AddScoped<IThongBaoQueryRepository, ThongBaoQueryRepository>();
         
         return services;
     }

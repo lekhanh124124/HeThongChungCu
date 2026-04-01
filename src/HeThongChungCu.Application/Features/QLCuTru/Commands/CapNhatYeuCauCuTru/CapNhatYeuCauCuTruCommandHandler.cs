@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -10,13 +10,13 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Commands.CapNhatYeuCauCuTr
 
 public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuTruCommand, YeuCauCuTruResponse>
 {
-    private readonly IYeuCauCuTruEFRepository _yeuCauRepository;
+    private readonly IYeuCauCuTruCommandRepository _yeuCauRepository;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
 
     public CapNhatYeuCauCuTruCommandHandler(
-        IYeuCauCuTruEFRepository yeuCauRepository,
+        IYeuCauCuTruCommandRepository yeuCauRepository,
         ITepTaiLieuRepository tepTaiLieuRepository,
         ICurrentUserService currentUserService,
         IUnitOfWork unitOfWork)

@@ -1,5 +1,5 @@
 using HeThongChungCu.Application.Common.Messaging;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Common;
 
@@ -9,10 +9,10 @@ public sealed record NgungBangGiaCommand(int Id) : ICommand<BangGiaResponse>;
 
 internal sealed class NgungBangGiaCommandHandler : ICommandHandler<NgungBangGiaCommand, BangGiaResponse>
 {
-    private readonly IBangGiaEFRepository _bangGiaRepository;
+    private readonly IBangGiaCommandRepository _bangGiaRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public NgungBangGiaCommandHandler(IBangGiaEFRepository bangGiaRepository, IUnitOfWork unitOfWork)
+    public NgungBangGiaCommandHandler(IBangGiaCommandRepository bangGiaRepository, IUnitOfWork unitOfWork)
     {
         _bangGiaRepository = bangGiaRepository;
         _unitOfWork = unitOfWork;

@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
@@ -10,27 +10,27 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.TuChoiYeuCau
 
 public class TuChoiYeuCauPhuongTienCommandHandler : ICommandHandler<TuChoiYeuCauPhuongTienCommand, YeuCauPhuongTienResponse>
 {
-    private readonly IYeuCauPhuongTienEFRepository _yeuCauRepository;
-    private readonly INguoiDungEFRepository _nguoiDungRepository;
-    private readonly ICanHoEFRepository _canHoEFRepository;
-    private readonly IToaNhaEFRepository _toaNhaEFRepository;
+    private readonly IYeuCauPhuongTienCommandRepository _yeuCauRepository;
+    private readonly INguoiDungCommandRepository _nguoiDungRepository;
+    private readonly ICanHoCommandRepository _canHoCommandRepository;
+    private readonly IToaNhaCommandRepository _toaNhaCommandRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public TuChoiYeuCauPhuongTienCommandHandler(
-        IYeuCauPhuongTienEFRepository yeuCauRepository,
-        INguoiDungEFRepository nguoiDungRepository,
-        ICanHoEFRepository canHoEFRepository,
-        IToaNhaEFRepository toaNhaEFRepository,
+        IYeuCauPhuongTienCommandRepository yeuCauRepository,
+        INguoiDungCommandRepository nguoiDungRepository,
+        ICanHoCommandRepository canHoCommandRepository,
+        IToaNhaCommandRepository toaNhaCommandRepository,
         ICurrentUserService currentUserService,
         IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)
     {
         _yeuCauRepository = yeuCauRepository;
         _nguoiDungRepository = nguoiDungRepository;
-        _canHoEFRepository = canHoEFRepository;
-        _toaNhaEFRepository = toaNhaEFRepository;
+        _canHoCommandRepository = canHoCommandRepository;
+        _toaNhaCommandRepository = toaNhaCommandRepository;
         _currentUserService = currentUserService;
         _dateTimeProvider = dateTimeProvider;
         _unitOfWork = unitOfWork;
@@ -56,8 +56,8 @@ public class TuChoiYeuCauPhuongTienCommandHandler : ICommandHandler<TuChoiYeuCau
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var sender = await _nguoiDungRepository.GetByIdAsync(yeuCau.CreatedBy, cancellationToken);
-        var canHo = await _canHoEFRepository.GetByIdAsync(yeuCau.CanHoId, cancellationToken);
-        var toaNha = await _toaNhaEFRepository.GetToaNhaByTangIdAsync(canHo!.TangId, cancellationToken);
+        var canHo = await _canHoCommandRepository.GetByIdAsync(yeuCau.CanHoId, cancellationToken);
+        var toaNha = await _toaNhaCommandRepository.GetToaNhaByTangIdAsync(canHo!.TangId, cancellationToken);
         var tang = toaNha!.Tangs.First(t => t.Id == canHo.TangId);
 
         var processor = await _nguoiDungRepository.GetByIdAsync(userId.Value, cancellationToken);

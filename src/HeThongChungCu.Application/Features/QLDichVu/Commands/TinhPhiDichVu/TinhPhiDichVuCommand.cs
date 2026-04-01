@@ -1,5 +1,5 @@
 using HeThongChungCu.Application.Common.Messaging;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Common;
@@ -15,19 +15,19 @@ public sealed record TinhPhiDichVuCommand(
 
 internal sealed class TinhPhiDichVuCommandHandler : ICommandHandler<TinhPhiDichVuCommand, ChiTietPhiResponse>
 {
-    private readonly IDangKyDichVuEFRepository _dangKyDichVuRepository;
-    private readonly IDichVuEFRepository _dichVuRepository;
-    private readonly IBangGiaEFRepository _bangGiaRepository;
-    private readonly IChiSoTieuThuEFRepository _chiSoTieuThuRepository;
-    private readonly ICanHoEFRepository _canHoRepository;
+    private readonly IDangKyDichVuCommandRepository _dangKyDichVuRepository;
+    private readonly IDichVuCommandRepository _dichVuRepository;
+    private readonly IBangGiaCommandRepository _bangGiaRepository;
+    private readonly IChiSoTieuThuCommandRepository _chiSoTieuThuRepository;
+    private readonly ICanHoCommandRepository _canHoRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public TinhPhiDichVuCommandHandler(
-        IDangKyDichVuEFRepository dangKyDichVuRepository,
-        IDichVuEFRepository dichVuRepository,
-        IBangGiaEFRepository bangGiaRepository,
-        IChiSoTieuThuEFRepository chiSoTieuThuRepository,
-        ICanHoEFRepository canHoRepository,
+        IDangKyDichVuCommandRepository dangKyDichVuRepository,
+        IDichVuCommandRepository dichVuRepository,
+        IBangGiaCommandRepository bangGiaRepository,
+        IChiSoTieuThuCommandRepository chiSoTieuThuRepository,
+        ICanHoCommandRepository canHoRepository,
         IUnitOfWork unitOfWork)
     {
         _dangKyDichVuRepository = dangKyDichVuRepository;

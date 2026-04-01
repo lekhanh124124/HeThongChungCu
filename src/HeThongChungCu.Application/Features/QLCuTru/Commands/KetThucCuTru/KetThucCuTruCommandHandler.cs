@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -8,17 +8,17 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Commands.KetThucCuTru;
 
 public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, CuDanResponse>
 {
-    private readonly IQuanHeCuTruEFRepository _quanHeCuTruRepository;
-    private readonly INguoiDungEFRepository _userRepository;
-    private readonly ICanHoEFRepository _canHoRepository;
-    private readonly IToaNhaEFRepository _toaNhaRepository;
+    private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
+    private readonly INguoiDungCommandRepository _userRepository;
+    private readonly ICanHoCommandRepository _canHoRepository;
+    private readonly IToaNhaCommandRepository _toaNhaRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
 
     public KetThucCuTruCommandHandler(
-        IQuanHeCuTruEFRepository quanHeCuTruRepository,
-        INguoiDungEFRepository userRepository,
-        ICanHoEFRepository canHoRepository,
-        IToaNhaEFRepository toaNhaRepository,
+        IQuanHeCuTruCommandRepository quanHeCuTruRepository,
+        INguoiDungCommandRepository userRepository,
+        ICanHoCommandRepository canHoRepository,
+        IToaNhaCommandRepository toaNhaRepository,
         IDateTimeProvider dateTimeProvider)
     {
         _quanHeCuTruRepository = quanHeCuTruRepository;

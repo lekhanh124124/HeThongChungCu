@@ -4,9 +4,9 @@ namespace HeThongChungCu.Application.Features.ToaNha.Commands.CreateToaNha;
 
 public class CreateToaNhaCommandHandler : ICommandHandler<CreateToaNhaCommand, ToaNhaDetailResponse>
 {
-    private readonly IToaNhaEFRepository _toaNhaRepository;
+    private readonly IToaNhaCommandRepository _toaNhaRepository;
     public CreateToaNhaCommandHandler(
-        IToaNhaEFRepository toaNhaRepository)
+        IToaNhaCommandRepository toaNhaRepository)
     {
         _toaNhaRepository = toaNhaRepository;
     }

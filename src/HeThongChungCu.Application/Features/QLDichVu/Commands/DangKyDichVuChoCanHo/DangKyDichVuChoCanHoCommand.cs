@@ -1,6 +1,6 @@
 using FluentValidation;
 using HeThongChungCu.Application.Common.Messaging;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Common;
@@ -24,13 +24,13 @@ public sealed class DangKyDichVuChoCanHoCommandValidator : AbstractValidator<Dan
 
 internal sealed class DangKyDichVuChoCanHoCommandHandler : ICommandHandler<DangKyDichVuChoCanHoCommand, DangKyDichVuResponse>
 {
-    private readonly IDangKyDichVuEFRepository _dangKyDichVuRepository;
-    private readonly IDichVuEFRepository _dichVuRepository;
+    private readonly IDangKyDichVuCommandRepository _dangKyDichVuRepository;
+    private readonly IDichVuCommandRepository _dichVuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public DangKyDichVuChoCanHoCommandHandler(
-        IDangKyDichVuEFRepository dangKyDichVuRepository, 
-        IDichVuEFRepository dichVuRepository, 
+        IDangKyDichVuCommandRepository dangKyDichVuRepository, 
+        IDichVuCommandRepository dichVuRepository, 
         IUnitOfWork unitOfWork)
     {
         _dangKyDichVuRepository = dangKyDichVuRepository;

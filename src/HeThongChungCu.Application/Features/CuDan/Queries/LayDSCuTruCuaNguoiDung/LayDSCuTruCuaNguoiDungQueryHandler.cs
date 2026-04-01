@@ -4,10 +4,10 @@ namespace HeThongChungCu.Application.Features.CuDan.Queries.LayDSCuTruCuaNguoiDu
 
 public class LayDSCuTruCuaNguoiDungQueryHandler : IQueryHandler<LayDSCuTruCuaNguoiDungQuery, IReadOnlyList<QuanHeCuTruResponse>>
 {
-    private readonly IQuanHeCuTruDapperRepository _repository;
+    private readonly IQuanHeCuTruQueryRepository _repository;
     private readonly ICurrentUserService _currentUserService;
 
-    public LayDSCuTruCuaNguoiDungQueryHandler(IQuanHeCuTruDapperRepository repository, ICurrentUserService currentUserService)
+    public LayDSCuTruCuaNguoiDungQueryHandler(IQuanHeCuTruQueryRepository repository, ICurrentUserService currentUserService)
     {
         _repository = repository;
         _currentUserService = currentUserService;

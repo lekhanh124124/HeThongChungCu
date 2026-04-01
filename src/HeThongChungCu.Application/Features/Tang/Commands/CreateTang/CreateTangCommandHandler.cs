@@ -4,10 +4,10 @@ namespace HeThongChungCu.Application.Features.Tang.Commands.CreateTang;
 
 public class CreateTangCommandHandler : ICommandHandler<CreateTangCommand, TangDetailResponse>
 {
-    private readonly IToaNhaEFRepository _toaNhaRepository;
+    private readonly IToaNhaCommandRepository _toaNhaRepository;
 
     public CreateTangCommandHandler(
-        IToaNhaEFRepository toaNhaRepository)
+        IToaNhaCommandRepository toaNhaRepository)
     {
         _toaNhaRepository = toaNhaRepository;
     }

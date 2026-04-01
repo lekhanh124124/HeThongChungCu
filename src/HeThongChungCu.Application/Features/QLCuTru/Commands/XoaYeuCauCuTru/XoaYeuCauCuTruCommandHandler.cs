@@ -1,14 +1,14 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.XoaYeuCauCuTru;
 
 public class XoaYeuCauCuTruCommandHandler : ICommandHandler<XoaYeuCauCuTruCommand, bool>
 {
-    private readonly IYeuCauCuTruEFRepository _yeuCauRepository;
+    private readonly IYeuCauCuTruCommandRepository _yeuCauRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public XoaYeuCauCuTruCommandHandler(IYeuCauCuTruEFRepository yeuCauRepository, IUnitOfWork unitOfWork)
+    public XoaYeuCauCuTruCommandHandler(IYeuCauCuTruCommandRepository yeuCauRepository, IUnitOfWork unitOfWork)
     {
         _yeuCauRepository = yeuCauRepository;
         _unitOfWork = unitOfWork;

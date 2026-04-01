@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Options;
+using HeThongChungCu.Infrastructure.Common.Settings;
 using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.WebAPI.Common.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,8 +15,8 @@ public static class DependencyInjection
         services.AddControllers();
         services.AddEndpointsApiExplorer();
 
-        services.Configure<ApplicationInsightsOptions>(
-            configuration.GetSection(ApplicationInsightsOptions.SectionName));
+        services.Configure<ApplicationInsightsSettings>(
+            configuration.GetSection(ApplicationInsightsSettings.SectionName));
 
         services.AddApplicationInsightsTelemetry();
 

@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 
@@ -6,13 +6,13 @@ namespace HeThongChungCu.Application.Features.Profile.Commands.ChangePassword;
 
 public class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordCommand, string>
 {
-    private readonly ITaiKhoanEFRepository _accountRepository;
+    private readonly ITaiKhoanCommandRepository _accountRepository;
     private readonly IHasherService _hasherService;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
 
     public ChangePasswordCommandHandler(
-        ITaiKhoanEFRepository accountRepository,
+        ITaiKhoanCommandRepository accountRepository,
         IHasherService hasherService,
         ICurrentUserService currentUserService,
         IUnitOfWork unitOfWork)

@@ -4,12 +4,12 @@ namespace HeThongChungCu.Application.Features.CanHo.Commands.CreateCanHo;
 
 public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, CanHoDetailResponse>
 {
-    private readonly ICanHoEFRepository _canHoRepository;
-    private readonly IToaNhaEFRepository _toaNhaRepository;
+    private readonly ICanHoCommandRepository _canHoRepository;
+    private readonly IToaNhaCommandRepository _toaNhaRepository;
 
     public CreateCanHoCommandHandler(
-        ICanHoEFRepository canHoRepository,
-        IToaNhaEFRepository toaNhaRepository)
+        ICanHoCommandRepository canHoRepository,
+        IToaNhaCommandRepository toaNhaRepository)
     {
         _canHoRepository = canHoRepository;
         _toaNhaRepository = toaNhaRepository;

@@ -4,9 +4,9 @@ namespace HeThongChungCu.Application.Features.Tang.Commands.DeleteTang;
 
 public class DeleteTangCommandHandler : ICommandHandler<DeleteTangCommand, IReadOnlyList<TangDetailResponse>>
 {
-    private readonly IToaNhaEFRepository _toaNhaRepository;
+    private readonly IToaNhaCommandRepository _toaNhaRepository;
 
-    public DeleteTangCommandHandler(IToaNhaEFRepository toaNhaRepository)
+    public DeleteTangCommandHandler(IToaNhaCommandRepository toaNhaRepository)
     {
         _toaNhaRepository = toaNhaRepository;
     }

@@ -1,22 +1,20 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
-using HeThongChungCu.Application.Common.Options;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
-using Microsoft.Extensions.Options;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.TaoHoSo;
 
 public class TaoHoSoCommandHandler : ICommandHandler<TaoHoSoCommand, UserInfoResponse>
 {
-    private readonly INguoiDungEFRepository _userRepository;
+    private readonly INguoiDungCommandRepository _userRepository;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public TaoHoSoCommandHandler(
-        INguoiDungEFRepository userRepository,
+        INguoiDungCommandRepository userRepository,
         ITepTaiLieuRepository tepTaiLieuRepository,
         IUnitOfWork unitOfWork)
     {

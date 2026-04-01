@@ -4,16 +4,16 @@ namespace HeThongChungCu.Application.Features.CanHo.Commands.DeleteCanHo;
 
 public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IReadOnlyList<CanHoDetailResponse>>
 {
-    private readonly ICanHoEFRepository _canHoRepository;
+    private readonly ICanHoCommandRepository _canHoRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IQuanHeCuTruEFRepository _quanHeCuTruRepository;
-    private readonly IToaNhaEFRepository _toaNhaRepository;
+    private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
+    private readonly IToaNhaCommandRepository _toaNhaRepository;
 
     public DeleteCanHoCommandHandler(
-        ICanHoEFRepository canHoRepository,
+        ICanHoCommandRepository canHoRepository,
         IUnitOfWork unitOfWork,
-        IQuanHeCuTruEFRepository quanHeCuTruRepository,
-        IToaNhaEFRepository toaNhaRepository)
+        IQuanHeCuTruCommandRepository quanHeCuTruRepository,
+        IToaNhaCommandRepository toaNhaRepository)
     {
         _canHoRepository = canHoRepository;
         _unitOfWork = unitOfWork;

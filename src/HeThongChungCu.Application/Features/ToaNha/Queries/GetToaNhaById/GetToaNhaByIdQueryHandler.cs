@@ -4,9 +4,9 @@ namespace HeThongChungCu.Application.Features.ToaNha.Queries.GetToaNhaById;
 
 public class GetToaNhaByIdQueryHandler : IQueryHandler<GetToaNhaByIdQuery, ToaNhaResponse>
 {
-    private readonly IToaNhaDapperRepository _queryRepository;
+    private readonly IToaNhaQueryRepository _queryRepository;
 
-    public GetToaNhaByIdQueryHandler(IToaNhaDapperRepository queryRepository)
+    public GetToaNhaByIdQueryHandler(IToaNhaQueryRepository queryRepository)
     {
         _queryRepository = queryRepository;
     }

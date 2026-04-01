@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Features.ToaNha.DTOs;
+using HeThongChungCu.Application.Features.ToaNha.DTOs;
 
 namespace HeThongChungCu.Application.Features.ToaNha.Queries.GetToaNhaById;
 

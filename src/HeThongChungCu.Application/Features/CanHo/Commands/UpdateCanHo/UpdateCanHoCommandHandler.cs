@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
 using HeThongChungCu.Application.Features.Tang.DTOs;
 using HeThongChungCu.Domain.Enums;
@@ -9,14 +9,14 @@ namespace HeThongChungCu.Application.Features.CanHo.Commands.UpdateCanHo;
 
 public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, CanHoDetailResponse>
 {
-    private readonly ICanHoEFRepository _canHoRepository;
-    private readonly IToaNhaEFRepository _toaNhaRepository;
-    private readonly IQuanHeCuTruEFRepository _quanHeCuTruRepository;
+    private readonly ICanHoCommandRepository _canHoRepository;
+    private readonly IToaNhaCommandRepository _toaNhaRepository;
+    private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
 
     public UpdateCanHoCommandHandler(
-        ICanHoEFRepository canHoRepository,
-        IToaNhaEFRepository toaNhaRepository,
-        IQuanHeCuTruEFRepository quanHeCuTruRepository)
+        ICanHoCommandRepository canHoRepository,
+        IToaNhaCommandRepository toaNhaRepository,
+        IQuanHeCuTruCommandRepository quanHeCuTruRepository)
     {
         _canHoRepository = canHoRepository;
         _toaNhaRepository = toaNhaRepository;

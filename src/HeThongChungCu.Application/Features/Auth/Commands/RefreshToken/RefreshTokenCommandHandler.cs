@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.Auth.DTOs;
 using HeThongChungCu.Domain.Common;
 
@@ -6,21 +6,21 @@ namespace HeThongChungCu.Application.Features.Auth.Commands.RefreshToken;
 
 public class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, AuthResponse>
 {
-    private readonly ITaiKhoanEFRepository _accountRepository;
-    private readonly INguoiDungEFRepository _userRepository;
+    private readonly ITaiKhoanCommandRepository _accountRepository;
+    private readonly INguoiDungCommandRepository _userRepository;
     private readonly IHasherService _hasherService;
-    private readonly IJwtTokenGenerator _jwtTokenGenerator;
+    private readonly ITokenService _tokenService;
 
     public RefreshTokenCommandHandler(
-        ITaiKhoanEFRepository accountRepository,
-        INguoiDungEFRepository userRepository,
+        ITaiKhoanCommandRepository accountRepository,
+        INguoiDungCommandRepository userRepository,
         IHasherService hasherService,
-        IJwtTokenGenerator jwtTokenGenerator)
+        ITokenService tokenService)
     {
         _accountRepository = accountRepository;
         _userRepository = userRepository;
         _hasherService = hasherService;
-        _jwtTokenGenerator = jwtTokenGenerator;
+        _tokenService = tokenService;
     }
 
     public async Task<Result<AuthResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
@@ -50,7 +50,7 @@ public class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, A
         }
 
         var roles = account.PhanQuyens.Select(pq => pq.RoleId.Name).ToList();
-        var newAccessToken = _jwtTokenGenerator.GenerateToken(account.Id, account.TenDangNhap, roles, account.NguoiDungId);
+        var newAccessToken = _tokenService.GenerateToken(account.Id, account.TenDangNhap, roles, account.NguoiDungId);
 
         return Result.Success(new AuthResponse
         {

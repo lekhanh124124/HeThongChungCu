@@ -8,7 +8,6 @@ global using HeThongChungCu.Domain.Entities;
 
 global using HeThongChungCu.Application.Common.Messaging;
 global using HeThongChungCu.Application.Common.Models;
-global using HeThongChungCu.Application.Common.Options;
 global using HeThongChungCu.Application.Common.Interfaces.Services;
-global using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
-global using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
+global using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+global using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;

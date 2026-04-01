@@ -4,10 +4,10 @@ namespace HeThongChungCu.Application.Features.Profile.Queries.GetProfile;
 
 public class GetProfileQueryHandler : IQueryHandler<GetProfileQuery, UserProfileDetailResponse>
 {
-    private readonly INguoiDungDapperRepository _userRepository;
+    private readonly INguoiDungQueryRepository _userRepository;
     private readonly ICurrentUserService _currentUserService;
 
-    public GetProfileQueryHandler(INguoiDungDapperRepository userRepository, ICurrentUserService currentUserService)
+    public GetProfileQueryHandler(INguoiDungQueryRepository userRepository, ICurrentUserService currentUserService)
     {
         _userRepository = userRepository;
         _currentUserService = currentUserService;

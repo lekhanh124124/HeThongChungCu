@@ -1,4 +1,4 @@
-﻿namespace HeThongChungCu.Application.Features.Auth.Commands.ResetPassword;
+namespace HeThongChungCu.Application.Features.Auth.Commands.ResetPassword;
 
 public record ResetPasswordCommand(
     string Username,

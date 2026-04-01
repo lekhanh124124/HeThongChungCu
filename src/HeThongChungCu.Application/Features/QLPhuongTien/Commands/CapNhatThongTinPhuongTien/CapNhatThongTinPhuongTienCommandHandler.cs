@@ -5,21 +5,21 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatThong
 
 internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<CapNhatThongTinPhuongTienCommand, PhuongTienResponse>
 {
-    private readonly ICanHoEFRepository _canHoRepository;
-    private readonly IToaNhaEFRepository _toaNhaEFRepository;
-    private readonly IPhuongTienEFRepository _phuongTienEFRepository;
+    private readonly ICanHoCommandRepository _canHoRepository;
+    private readonly IToaNhaCommandRepository _toaNhaCommandRepository;
+    private readonly IPhuongTienCommandRepository _phuongTienCommandRepository;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CapNhatThongTinPhuongTienCommandHandler(
-        ICanHoEFRepository canHoRepository,
-        IToaNhaEFRepository toaNhaEFRepository,
-        IPhuongTienEFRepository phuongTienEFRepository,
+        ICanHoCommandRepository canHoRepository,
+        IToaNhaCommandRepository toaNhaCommandRepository,
+        IPhuongTienCommandRepository phuongTienCommandRepository,
         ITepTaiLieuRepository tepTaiLieuRepository,
         IUnitOfWork unitOfWork)
     {
-        _phuongTienEFRepository = phuongTienEFRepository;
-        _toaNhaEFRepository = toaNhaEFRepository;
+        _phuongTienCommandRepository = phuongTienCommandRepository;
+        _toaNhaCommandRepository = toaNhaCommandRepository;
         _canHoRepository = canHoRepository;
         _tepTaiLieuRepository = tepTaiLieuRepository;
         _unitOfWork = unitOfWork;
@@ -28,13 +28,13 @@ internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<
     public async Task<Result<PhuongTienResponse>> Handle(CapNhatThongTinPhuongTienCommand request, CancellationToken cancellationToken)
     {
 
-        var phuongTien = await _phuongTienEFRepository.GetPhuongTienByIdAsync(request.PhuongTienId, cancellationToken);
+        var phuongTien = await _phuongTienCommandRepository.GetPhuongTienByIdAsync(request.PhuongTienId, cancellationToken);
         if (phuongTien == null)
             return Result.Failure<PhuongTienResponse>(PhuongTienErrors.NotFound);
 
         if (phuongTien.BienSo != request.BienSo)
         {
-            var bienSoExists = await _phuongTienEFRepository.BienSoExistsAsync(request.BienSo, cancellationToken);
+            var bienSoExists = await _phuongTienCommandRepository.BienSoExistsAsync(request.BienSo, cancellationToken);
             if (bienSoExists)
                 return Result.Failure<PhuongTienResponse>(PhuongTienErrors.BienSoExists);
         }
@@ -43,7 +43,7 @@ internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<
         if (canHo == null)
             return Result.Failure<PhuongTienResponse>(CanHoErrors.NotFoundById(phuongTien.CanHoId));
 
-        var toaNha = await _toaNhaEFRepository.GetToaNhaByTangIdAsync(canHo.TangId, cancellationToken);
+        var toaNha = await _toaNhaCommandRepository.GetToaNhaByTangIdAsync(canHo.TangId, cancellationToken);
         if (toaNha == null)
             return Result.Failure<PhuongTienResponse>(CanHoErrors.NotFoundById(phuongTien.CanHoId));
 
@@ -64,7 +64,7 @@ internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<
             request.MauXe,
             hinhAnhs);
 
-        _phuongTienEFRepository.Update(phuongTien);
+        _phuongTienCommandRepository.Update(phuongTien);
 
         // TransactionBehavior will automatically commit if no exception is thrown, otherwise it will rollback
 

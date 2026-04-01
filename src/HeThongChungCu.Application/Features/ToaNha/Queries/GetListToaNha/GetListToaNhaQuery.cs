@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Models;
+using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
 
 namespace HeThongChungCu.Application.Features.ToaNha.Queries.GetListToaNha;

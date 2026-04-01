@@ -4,17 +4,17 @@ namespace HeThongChungCu.Application.Features.CuDan.Queries.LayThanhVienCuTru
 {
     public class LayThanhVienCuTruQueryHandler : IQueryHandler<LayThanhVienCuTruQuery, IReadOnlyList<ThanhVienCuTruResponse>>
     {
-        private readonly IQuanHeCuTruDapperRepository _quanHeCuTruDapperRepository;
+        private readonly IQuanHeCuTruQueryRepository _quanHeCuTruQueryRepository;
 
-        public LayThanhVienCuTruQueryHandler(IQuanHeCuTruDapperRepository quanHeCuTruDapperRepository)
+        public LayThanhVienCuTruQueryHandler(IQuanHeCuTruQueryRepository quanHeCuTruQueryRepository)
         {
-            _quanHeCuTruDapperRepository = quanHeCuTruDapperRepository;
+            _quanHeCuTruQueryRepository = quanHeCuTruQueryRepository;
         }
 
         public async Task<Result<IReadOnlyList<ThanhVienCuTruResponse>>> Handle(LayThanhVienCuTruQuery request, CancellationToken cancellationToken)
         {
             var spec = new LayThanhVienCuTruSpecification(request.CanHoId);
-            var result = await _quanHeCuTruDapperRepository.LayThanhVienCuTru(spec, cancellationToken);
+            var result = await _quanHeCuTruQueryRepository.LayThanhVienCuTru(spec, cancellationToken);
             return Result.Success(result);
         }
     }

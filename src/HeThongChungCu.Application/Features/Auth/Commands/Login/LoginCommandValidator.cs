@@ -1,13 +1,13 @@
-﻿namespace HeThongChungCu.Application.Features.Auth.Commands.Login;
+namespace HeThongChungCu.Application.Features.Auth.Commands.Login;
 
 public class LoginCommandValidator : AbstractValidator<LoginCommand>
 {
     public LoginCommandValidator()
     {
         RuleFor(x => x.Username)
-            .NotEmpty().WithMessage("Tên đăng nhập không được để trống.");
+            .NotEmpty().WithMessage("T�n dang nh?p kh�ng du?c d? tr?ng.");
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage("Mật khẩu không được để trống.");
+            .NotEmpty().WithMessage("M?t kh?u kh�ng du?c d? tr?ng.");
     }
 }

@@ -5,10 +5,10 @@ namespace HeThongChungCu.Application.Features.ToaNha.Commands.UpdateToaNha;
 
 public class UpdateToaNhaCommandHandler : ICommandHandler<UpdateToaNhaCommand, ToaNhaDetailResponse>
 {
-    private readonly IToaNhaEFRepository _toaNhaRepository;
+    private readonly IToaNhaCommandRepository _toaNhaRepository;
 
     public UpdateToaNhaCommandHandler(
-        IToaNhaEFRepository toaNhaRepository)
+        IToaNhaCommandRepository toaNhaRepository)
     {
         _toaNhaRepository = toaNhaRepository;
     }

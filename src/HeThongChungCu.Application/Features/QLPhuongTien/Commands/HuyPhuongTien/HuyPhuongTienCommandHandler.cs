@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
@@ -7,23 +7,23 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.HuyPhuongTie
 
 internal sealed class HuyPhuongTienCommandHandler : ICommandHandler<HuyPhuongTienCommand, bool>
 {
-    private readonly IPhuongTienEFRepository _phuongTienEFRepository;
+    private readonly IPhuongTienCommandRepository _phuongTienCommandRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public HuyPhuongTienCommandHandler(
-        IPhuongTienEFRepository phuongTienEFRepository,
+        IPhuongTienCommandRepository phuongTienCommandRepository,
         IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)
     {
-        _phuongTienEFRepository = phuongTienEFRepository;
+        _phuongTienCommandRepository = phuongTienCommandRepository;
         _dateTimeProvider = dateTimeProvider;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<bool>> Handle(HuyPhuongTienCommand request, CancellationToken cancellationToken)
     {
-        var phuongTiens = await _phuongTienEFRepository.GetPhuongTiensByIdsAsync(request.PhuongTienIds, cancellationToken);
+        var phuongTiens = await _phuongTienCommandRepository.GetPhuongTiensByIdsAsync(request.PhuongTienIds, cancellationToken);
         var now = _dateTimeProvider.Now.DateTime;
 
         if (phuongTiens.Count == 0)
@@ -34,7 +34,7 @@ internal sealed class HuyPhuongTienCommandHandler : ICommandHandler<HuyPhuongTie
         foreach (var phuongTien in phuongTiens)
         {
             phuongTien.Huy(now);
-            _phuongTienEFRepository.Update(phuongTien);
+            _phuongTienCommandRepository.Update(phuongTien);
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);

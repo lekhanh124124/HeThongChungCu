@@ -4,23 +4,23 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.TaoThePhuong
 
 internal sealed class TaoThePhuongTienCommandHandler : ICommandHandler<TaoThePhuongTienCommand, ThePhuongTienResponse>
 {
-    private readonly IPhuongTienEFRepository _phuongTienEFRepository;
+    private readonly IPhuongTienCommandRepository _phuongTienCommandRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public TaoThePhuongTienCommandHandler(
-        IPhuongTienEFRepository phuongTienEFRepository,
+        IPhuongTienCommandRepository phuongTienCommandRepository,
         IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)
     {
-        _phuongTienEFRepository = phuongTienEFRepository;
+        _phuongTienCommandRepository = phuongTienCommandRepository;
         _dateTimeProvider = dateTimeProvider;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<ThePhuongTienResponse>> Handle(TaoThePhuongTienCommand request, CancellationToken cancellationToken)
     {
-        var phuongTien = await _phuongTienEFRepository.GetPhuongTienByIdAsync(request.PhuongTienId, cancellationToken);
+        var phuongTien = await _phuongTienCommandRepository.GetPhuongTienByIdAsync(request.PhuongTienId, cancellationToken);
         if (phuongTien == null)
             return Result.Failure<ThePhuongTienResponse>(PhuongTienErrors.NotFound);
 
@@ -31,7 +31,7 @@ internal sealed class TaoThePhuongTienCommandHandler : ICommandHandler<TaoThePhu
         var now = _dateTimeProvider.Now.DateTime;
         var thePhuongTien = phuongTien.AddThe(request.MaThe, now);
 
-        _phuongTienEFRepository.Update(phuongTien);
+        _phuongTienCommandRepository.Update(phuongTien);
 
         // TransactionBehavior will automatically commit if no exception is thrown, otherwise it will rollback
 

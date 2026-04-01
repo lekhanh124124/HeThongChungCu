@@ -4,9 +4,9 @@ namespace HeThongChungCu.Application.Features.CanHo.Queries.GetListCanHo;
 
 public class GetListCanHoQueryHandler : IQueryHandler<GetListCanHoQuery, PagedResult<CanHoDetailResponse>>
 {
-    private readonly ICanHoDapperRepository _queryRepository;
+    private readonly ICanHoQueryRepository _queryRepository;
 
-    public GetListCanHoQueryHandler(ICanHoDapperRepository queryRepository)
+    public GetListCanHoQueryHandler(ICanHoQueryRepository queryRepository)
     {
         _queryRepository = queryRepository;
     }

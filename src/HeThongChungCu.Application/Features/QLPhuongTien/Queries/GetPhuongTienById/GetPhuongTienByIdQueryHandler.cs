@@ -4,16 +4,16 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Queries.GetPhuongTien
 
 public class GetPhuongTienByIdQueryHandler : IQueryHandler<GetPhuongTienByIdQuery, PhuongTienResponse>
 {
-    private readonly IPhuongTienDapperRepository _phuongTienDapperRepository;
+    private readonly IPhuongTienQueryRepository _phuongTienQueryRepository;
 
-    public GetPhuongTienByIdQueryHandler(IPhuongTienDapperRepository phuongTienDapperRepository)
+    public GetPhuongTienByIdQueryHandler(IPhuongTienQueryRepository phuongTienQueryRepository)
     {
-        _phuongTienDapperRepository = phuongTienDapperRepository;
+        _phuongTienQueryRepository = phuongTienQueryRepository;
     }
 
     public async Task<Result<PhuongTienResponse>> Handle(GetPhuongTienByIdQuery request, CancellationToken cancellationToken)
     {
-        var phuongTien = await _phuongTienDapperRepository.GetByIdAsync(request.Id, cancellationToken);
+        var phuongTien = await _phuongTienQueryRepository.GetByIdAsync(request.Id, cancellationToken);
         
         if (phuongTien == null)
             return Result.Failure<PhuongTienResponse>(PhuongTienErrors.NotFound);

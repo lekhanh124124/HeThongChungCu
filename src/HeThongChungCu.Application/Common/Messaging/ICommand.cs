@@ -1,4 +1,4 @@
-﻿namespace HeThongChungCu.Application.Common.Messaging;
+namespace HeThongChungCu.Application.Common.Messaging;
 
 public interface ICommand<TResponse> : IRequest<Result<TResponse>>
 {

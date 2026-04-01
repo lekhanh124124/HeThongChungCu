@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Domain.Common;
@@ -9,9 +9,9 @@ public sealed record LayDSDangKyDichVuCuaCanHoQuery(int CanHoId) : IQuery<IReadO
 
 internal sealed class LayDSDangKyDichVuCuaCanHoQueryHandler : IQueryHandler<LayDSDangKyDichVuCuaCanHoQuery, IReadOnlyList<DangKyDichVuResponse>>
 {
-    private readonly IDangKyDichVuEFRepository _dangKyDichVuRepository;
+    private readonly IDangKyDichVuCommandRepository _dangKyDichVuRepository;
 
-    public LayDSDangKyDichVuCuaCanHoQueryHandler(IDangKyDichVuEFRepository dangKyDichVuRepository)
+    public LayDSDangKyDichVuCuaCanHoQueryHandler(IDangKyDichVuCommandRepository dangKyDichVuRepository)
     {
         _dangKyDichVuRepository = dangKyDichVuRepository;
     }

@@ -4,9 +4,9 @@ namespace HeThongChungCu.Application.Features.Tang.Queries.GetTangById;
 
 public class GetTangByIdQueryHandler : IQueryHandler<GetTangByIdQuery, TangResponse>
 {
-    private readonly IToaNhaDapperRepository _queryRepository;
+    private readonly IToaNhaQueryRepository _queryRepository;
 
-    public GetTangByIdQueryHandler(IToaNhaDapperRepository queryRepository)
+    public GetTangByIdQueryHandler(IToaNhaQueryRepository queryRepository)
     {
         _queryRepository = queryRepository;
     }

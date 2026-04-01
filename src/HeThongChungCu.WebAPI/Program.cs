@@ -1,6 +1,5 @@
 using HealthChecks.UI.Client;
 using HeThongChungCu.Application;
-using HeThongChungCu.Application.Common.Options;
 using HeThongChungCu.Infrastructure;
 using HeThongChungCu.Infrastructure.Persistence;
 using HeThongChungCu.Infrastructure.Notifications;
@@ -18,7 +17,7 @@ namespace HeThongChungCu.WebAPI
             var builder = WebApplication.CreateBuilder(args);
 
             // ================= CORE SERVICES =================
-            builder.Services.AddApplicationCore();
+            builder.Services.AddApplicationCore(builder.Configuration);
             builder.Services.AddInfrastructureLayer(builder.Configuration);
             builder.Services.AddWebAPIServices(builder.Configuration);
 

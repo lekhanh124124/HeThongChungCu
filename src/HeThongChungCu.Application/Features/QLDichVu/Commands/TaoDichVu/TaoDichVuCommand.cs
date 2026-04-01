@@ -1,6 +1,6 @@
 using FluentValidation;
 using HeThongChungCu.Application.Common.Messaging;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Common;
@@ -24,10 +24,10 @@ public sealed class TaoDichVuCommandValidator : AbstractValidator<TaoDichVuComma
 
 internal sealed class TaoDichVuCommandHandler : ICommandHandler<TaoDichVuCommand, DichVuResponse>
 {
-    private readonly IDichVuEFRepository _dichVuRepository;
+    private readonly IDichVuCommandRepository _dichVuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public TaoDichVuCommandHandler(IDichVuEFRepository dichVuRepository, IUnitOfWork unitOfWork)
+    public TaoDichVuCommandHandler(IDichVuCommandRepository dichVuRepository, IUnitOfWork unitOfWork)
     {
         _dichVuRepository = dichVuRepository;
         _unitOfWork = unitOfWork;

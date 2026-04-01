@@ -4,9 +4,9 @@ namespace HeThongChungCu.Application.Features.Tang.Queries.GetListTang;
 
 public class GetListTangQueryHandler : IQueryHandler<GetListTangQuery, PagedResult<TangDetailResponse>>
 {
-    private readonly IToaNhaDapperRepository _queryRepository;
+    private readonly IToaNhaQueryRepository _queryRepository;
 
-    public GetListTangQueryHandler(IToaNhaDapperRepository queryRepository)
+    public GetListTangQueryHandler(IToaNhaQueryRepository queryRepository)
     {
         _queryRepository = queryRepository;
     }

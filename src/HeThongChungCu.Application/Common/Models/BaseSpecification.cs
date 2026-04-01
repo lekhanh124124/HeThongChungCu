@@ -1,8 +1,10 @@
+using FluentValidation;
 using FluentValidation.Results;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 
 namespace HeThongChungCu.Application.Common.Models;
 
-public abstract class BaseSpecification : IDapperSpecification
+public abstract class BaseSpecification : IQuerySpecification
 {
     public string? SortCol { get; set; }
     public bool? IsAsc { get; set; }
@@ -25,10 +27,10 @@ public abstract class BaseSpecification : IDapperSpecification
 
         if (!string.IsNullOrWhiteSpace(SortCol) && !AllowedSortColumns.Contains(SortCol))
         {
-            throw new ValidationException(new List<ValidationFailure>
-            {
-                new("SortCol", $"Không thể sắp xếp theo trường '{sortCol}'")
-            });
+            throw new ValidationException(
+            [
+                new(nameof(SortCol), $"Không thể sắp xếp theo trường '{SortCol}'")
+            ]);
         }
     }
 

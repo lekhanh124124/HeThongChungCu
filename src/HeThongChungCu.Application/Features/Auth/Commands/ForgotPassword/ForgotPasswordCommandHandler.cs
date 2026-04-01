@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Errors;
@@ -8,14 +8,14 @@ namespace HeThongChungCu.Application.Features.Auth.Commands.ForgotPassword;
 
 public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordCommand, string>
 {
-    private readonly ITaiKhoanEFRepository _accountRepository;
+    private readonly ITaiKhoanCommandRepository _accountRepository;
     private readonly IEmailService _emailService;
     private readonly IHasherService _hasherService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public ForgotPasswordCommandHandler(
-        ITaiKhoanEFRepository accountRepository,
+        ITaiKhoanCommandRepository accountRepository,
         IEmailService emailService,
         IHasherService hasherService,
         IDateTimeProvider dateTimeProvider,

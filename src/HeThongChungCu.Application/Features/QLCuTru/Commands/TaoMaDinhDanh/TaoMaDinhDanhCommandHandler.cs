@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -8,20 +8,20 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Commands.TaoMaDinhDanh;
 
 public class TaoMaDinhDanhCommandHandler : ICommandHandler<TaoMaDinhDanhCommand, string>
 {
-    private readonly ITaiKhoanEFRepository _accountRepository;
-    private readonly INguoiDungEFRepository _userRepository;
+    private readonly ITaiKhoanCommandRepository _accountRepository;
+    private readonly INguoiDungCommandRepository _userRepository;
     private readonly IHasherService _hasherService;
     private readonly IDateTimeProvider _dateTimeProvider;
-    private readonly IJwtTokenGenerator _jwtTokenGenerator;
+    private readonly ITokenService _tokenService;
     private readonly IEmailService _emailService;
     private readonly IUnitOfWork _unitOfWork;
 
     public TaoMaDinhDanhCommandHandler(
-        ITaiKhoanEFRepository accountRepository,
-        INguoiDungEFRepository userRepository,
+        ITaiKhoanCommandRepository accountRepository,
+        INguoiDungCommandRepository userRepository,
         IHasherService hasherService,
         IDateTimeProvider dateTimeProvider,
-        IJwtTokenGenerator jwtTokenGenerator,
+        ITokenService tokenService,
         IEmailService emailService,
         IUnitOfWork unitOfWork)
     {
@@ -29,7 +29,7 @@ public class TaoMaDinhDanhCommandHandler : ICommandHandler<TaoMaDinhDanhCommand,
         _userRepository = userRepository;
         _hasherService = hasherService;
         _dateTimeProvider = dateTimeProvider;
-        _jwtTokenGenerator = jwtTokenGenerator;
+        _tokenService = tokenService;
         _emailService = emailService;
         _unitOfWork = unitOfWork;
     }
@@ -46,7 +46,7 @@ public class TaoMaDinhDanhCommandHandler : ICommandHandler<TaoMaDinhDanhCommand,
 
         // Generate JWT token encoding the UserId and AccountId
         var roles = account.PhanQuyens.Select(pq => pq.RoleId.Name).ToList();
-        var token = _jwtTokenGenerator.GenerateToken(account.Id, account.TenDangNhap, roles, user.Id);
+        var token = _tokenService.GenerateToken(account.Id, account.TenDangNhap, roles, user.Id);
 
         // Hash the token and save it to the account
         var tokenHash = _hasherService.HashToken(token);

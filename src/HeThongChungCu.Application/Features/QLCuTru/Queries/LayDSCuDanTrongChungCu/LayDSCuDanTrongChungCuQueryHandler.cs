@@ -4,14 +4,14 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Queries.LayDSCuDanTrongChu
 
 public class LayDSCuDanTrongChungCuQueryHandler : IQueryHandler<LayDSCuDanTrongChungCuQuery, PagedResult<CuDanResponse>>
 {
-    private readonly ICanHoEFRepository _canHoEFRepository;
-    private readonly IQuanHeCuTruDapperRepository _queryRepository;
+    private readonly ICanHoCommandRepository _canHoCommandRepository;
+    private readonly IQuanHeCuTruQueryRepository _queryRepository;
 
     public LayDSCuDanTrongChungCuQueryHandler(
-        ICanHoEFRepository canHoEFRepository,
-        IQuanHeCuTruDapperRepository queryRepository)
+        ICanHoCommandRepository canHoCommandRepository,
+        IQuanHeCuTruQueryRepository queryRepository)
     {
-        _canHoEFRepository = canHoEFRepository;
+        _canHoCommandRepository = canHoCommandRepository;
         _queryRepository = queryRepository;
     }
 

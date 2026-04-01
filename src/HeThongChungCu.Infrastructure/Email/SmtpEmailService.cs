@@ -1,5 +1,5 @@
 using HeThongChungCu.Application.Common.Interfaces.Services;
-using HeThongChungCu.Application.Common.Options;
+using HeThongChungCu.Infrastructure.Common.Settings;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Logging;
@@ -11,14 +11,14 @@ namespace HeThongChungCu.Infrastructure.Email;
 
 internal sealed class SmtpEmailService : IEmailService
 {
-    private readonly EmailOptions _options;
+    private readonly EmailSettings _settings;
     private readonly ILogger<SmtpEmailService> _logger;
 
     public SmtpEmailService(
-        IOptions<EmailOptions> options,
+        IOptions<EmailSettings> settings,
         ILogger<SmtpEmailService> logger)
     {
-        _options = options.Value;
+        _settings = settings.Value;
         _logger = logger;
     }
 
@@ -28,7 +28,7 @@ internal sealed class SmtpEmailService : IEmailService
         string htmlBody,
         CancellationToken cancellationToken = default)
     {
-        if (!_options.EnableSending)
+        if (!_settings.EnableSending)
         {
             _logger.LogInformation("Email sending disabled. Would send to {To}: {Subject}", to, subject);
             return;
@@ -37,14 +37,14 @@ internal sealed class SmtpEmailService : IEmailService
         try
         {
             var email = new MimeMessage();
-            email.From.Add(new MailboxAddress(_options.DisplayName, _options.Mail));
+            email.From.Add(new MailboxAddress(_settings.DisplayName, _settings.Mail));
             email.To.Add(MailboxAddress.Parse(to));
             email.Subject = subject;
             email.Body = new TextPart(TextFormat.Html) { Text = htmlBody };
 
             using var smtp = new SmtpClient();
-            await smtp.ConnectAsync(_options.Host, _options.Port, SecureSocketOptions.StartTls, cancellationToken);
-            await smtp.AuthenticateAsync(_options.Mail, _options.Password, cancellationToken);
+            await smtp.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.StartTls, cancellationToken);
+            await smtp.AuthenticateAsync(_settings.Mail, _settings.Password, cancellationToken);
             await smtp.SendAsync(email, cancellationToken);
             await smtp.DisconnectAsync(true, cancellationToken);
 

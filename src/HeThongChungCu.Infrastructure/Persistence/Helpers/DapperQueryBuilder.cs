@@ -1,5 +1,5 @@
 using Dapper;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Dapper;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Models;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Helpers;
@@ -7,7 +7,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Helpers;
 public static class DapperQueryBuilder
 {
     public static (string SqlWhere, DynamicParameters Parameters) BuildWhere(
-        IDapperSpecification spec, 
+        IQuerySpecification spec, 
         Dictionary<string, string> propertyToColumnMap)
     {
         var parameters = new DynamicParameters();
@@ -106,7 +106,7 @@ public static class DapperQueryBuilder
     }
 
     public static string BuildOrderBy(
-        IDapperSpecification spec, 
+        IQuerySpecification spec, 
         Dictionary<string, string> propertyToColumnMap,
         string defaultSortCol = nameof(BaseEntity.Id))
     {
@@ -133,7 +133,7 @@ public static class DapperQueryBuilder
         return $"ORDER BY {columnName} {direction}";
     }
 
-    public static string BuildPagination(IDapperSpecification spec, DynamicParameters parameters)
+    public static string BuildPagination(IQuerySpecification spec, DynamicParameters parameters)
     {
         var pageNumber = spec.PageNumber ?? 1;
         var pageSize = spec.PageSize ?? 20;

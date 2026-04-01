@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Events;
 using MediatR;
@@ -8,12 +8,12 @@ namespace HeThongChungCu.Application.Features.QLCuTru.EventHandlers;
 
 public class KetThucCuTruEventHandler : INotificationHandler<KetThucCuTruEvent>
 {
-    private readonly IYeuCauCuTruEFRepository _yeuCauRepository;
+    private readonly IYeuCauCuTruCommandRepository _yeuCauRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<KetThucCuTruEventHandler> _logger;
 
     public KetThucCuTruEventHandler(
-        IYeuCauCuTruEFRepository yeuCauRepository,
+        IYeuCauCuTruCommandRepository yeuCauRepository,
         IUnitOfWork unitOfWork,
         ILogger<KetThucCuTruEventHandler> logger)
     {

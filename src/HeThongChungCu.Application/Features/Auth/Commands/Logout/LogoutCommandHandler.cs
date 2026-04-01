@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
@@ -7,13 +7,13 @@ namespace HeThongChungCu.Application.Features.Auth.Commands.Logout;
 
 public class LogoutCommandHandler : ICommandHandler<LogoutCommand, bool>
 {
-    private readonly ITaiKhoanEFRepository _accountRepository;
+    private readonly ITaiKhoanCommandRepository _accountRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public LogoutCommandHandler(
-        ITaiKhoanEFRepository accountRepository,
+        ITaiKhoanCommandRepository accountRepository,
         ICurrentUserService currentUserService,
         IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)

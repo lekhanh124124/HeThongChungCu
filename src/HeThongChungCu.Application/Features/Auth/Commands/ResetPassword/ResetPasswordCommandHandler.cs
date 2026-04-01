@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
@@ -8,13 +8,13 @@ namespace HeThongChungCu.Application.Features.Auth.Commands.ResetPassword;
 
 public class ResetPasswordCommandHandler : ICommandHandler<ResetPasswordCommand, string>
 {
-    private readonly ITaiKhoanEFRepository _accountRepository;
+    private readonly ITaiKhoanCommandRepository _accountRepository;
     private readonly IHasherService _hasherService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public ResetPasswordCommandHandler(
-        ITaiKhoanEFRepository accountRepository,
+        ITaiKhoanCommandRepository accountRepository,
         IHasherService hasherService,
         IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)

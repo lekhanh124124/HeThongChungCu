@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -10,17 +10,17 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Commands.PheDuyetYeuCauCuT
 
 public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauCuTruCommand, YeuCauCuTruResponse>
 {
-    private readonly IYeuCauCuTruEFRepository _yeuCauRepository;
-    private readonly INguoiDungEFRepository _userRepository;
-    private readonly IQuanHeCuTruEFRepository _quanHeCuTruRepository;
+    private readonly IYeuCauCuTruCommandRepository _yeuCauRepository;
+    private readonly INguoiDungCommandRepository _userRepository;
+    private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public PheDuyetYeuCauCuTruCommandHandler(
-        IYeuCauCuTruEFRepository yeuCauRepository,
-        INguoiDungEFRepository userRepository,
-        IQuanHeCuTruEFRepository quanHeCuTruRepository,
+        IYeuCauCuTruCommandRepository yeuCauRepository,
+        INguoiDungCommandRepository userRepository,
+        IQuanHeCuTruCommandRepository quanHeCuTruRepository,
         ICurrentUserService currentUserService,
         IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)

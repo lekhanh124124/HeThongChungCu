@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.EF;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Errors;
 
@@ -6,9 +6,9 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Queries.TimHoSoTheoCCCD;
 
 public class TimHoSoTheoCCCDQueryHandler : IQueryHandler<TimHoSoTheoCCCDQuery, UserInfoResponse>
 {
-    private readonly INguoiDungEFRepository _userRepository;
+    private readonly INguoiDungCommandRepository _userRepository;
 
-    public TimHoSoTheoCCCDQueryHandler(INguoiDungEFRepository userRepository)
+    public TimHoSoTheoCCCDQueryHandler(INguoiDungCommandRepository userRepository)
     {
         _userRepository = userRepository;
     }
