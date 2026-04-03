@@ -1,4 +1,9 @@
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
+using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Interfaces;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.ThietLapCuTru;
 
@@ -9,6 +14,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
     private readonly INguoiDungCommandRepository _userRepository;
     private readonly ITaiKhoanCommandRepository _accountRepository;
     private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
+    private readonly IResidencyService _residencyService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
 
@@ -18,6 +24,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
         INguoiDungCommandRepository userRepository,
         ITaiKhoanCommandRepository accountRepository,
         IQuanHeCuTruCommandRepository quanHeCuTruRepository,
+        IResidencyService residencyService,
         IUnitOfWork unitOfWork,
         IDateTimeProvider dateTimeProvider)
     {
@@ -26,6 +33,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
         _userRepository = userRepository;
         _accountRepository = accountRepository;
         _quanHeCuTruRepository = quanHeCuTruRepository;
+        _residencyService = residencyService;
         _unitOfWork = unitOfWork;
         _dateTimeProvider = dateTimeProvider;
     }
@@ -49,25 +57,16 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
         if (user is null)
             return Result.Failure<CuDanResponse>(UserErrors.NotFoundById(request.UserId));
 
-        // 2. Setup Residency
+        // 2. Setup Residency via Domain Service
         var loaiQuanHe = LoaiQuanHeCuTru.FromValue(request.LoaiQuanHeCuTruId);
         var existingRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
-
-        // Ensure apartment has a householder before adding other members
-        if (loaiQuanHe != LoaiQuanHeCuTru.ChuHo)
-        {
-            var hasActiveHouseholder = existingRelations.Any(x =>
-                x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo &&
-                x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
-
-            if (!hasActiveHouseholder)
-                return Result.Failure<CuDanResponse>(QuanHeCuTruErrors.HouseholderNotFound);
-        }
-
         var now = _dateTimeProvider.Now.DateTime;
 
+        var relationResult = _residencyService.CreateRelation(canHo.Id, user.Id, loaiQuanHe!, now, existingRelations);
+        if (relationResult.IsFailure)
+            return Result.Failure<CuDanResponse>(relationResult.Errors);
 
-        var quanHe = new QuanHeCuTru(canHo.Id, user.Id, loaiQuanHe!, now, existingRelations);
+        var quanHe = relationResult.Value;
 
         await _quanHeCuTruRepository.AddAsync(quanHe, cancellationToken);
 

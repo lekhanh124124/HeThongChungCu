@@ -13,12 +13,12 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 
 
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
-            .EmailAddress().WithMessage(ValidationErrors.InvalidEmail.Description);
+            .NotEmpty().WithMessage(AuthErrors.EmailNotEmpty.Description)
+            .EmailAddress().WithMessage(AuthErrors.EmailInvalid.Description);
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
-            .MinimumLength(6).WithMessage(ValidationErrors.MinLength(6).Description)
+            .NotEmpty().WithMessage(AuthErrors.PasswordNotEmpty.Description)
+            .MinimumLength(6).WithMessage(AuthErrors.PasswordMinLength(6).Description)
             .Matches(@"[A-Z]").WithMessage(AuthErrors.PasswordRequiresUpper.Description)
             .Matches(@"[a-z]").WithMessage(AuthErrors.PasswordRequiresLower.Description)
             .Matches(@"[0-9]").WithMessage(AuthErrors.PasswordRequiresDigit.Description)
@@ -26,7 +26,7 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 
 
         RuleFor(x => x.ConfirmPassword)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
+            .NotEmpty().WithMessage(AuthErrors.ConfirmPasswordNotEmpty.Description)
             .Equal(x => x.Password).WithMessage(AuthErrors.PasswordConfirmationMismatch.Description);
     }
 }

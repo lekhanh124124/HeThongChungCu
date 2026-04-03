@@ -22,7 +22,7 @@ public class ThongBaoConfiguration : IEntityTypeConfiguration<HeThongChungCu.Dom
         builder.Property(x => x.LoaiThongBao)
             .HasConversion(
                 v => v.Value,
-                v => HeThongChungCu.Domain.Enums.LoaiThongBao.FromValue(v, null)!)
+                v => LoaiThongBao.FromValue(v, null)!)
             .IsRequired();
 
         builder.Property(x => x.ReferenceId)

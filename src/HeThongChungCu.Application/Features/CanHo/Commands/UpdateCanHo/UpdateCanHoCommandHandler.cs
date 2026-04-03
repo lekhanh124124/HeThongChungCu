@@ -3,7 +3,7 @@ using HeThongChungCu.Application.Features.CanHo.DTOs;
 using HeThongChungCu.Application.Features.Tang.DTOs;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
-using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Interfaces;
 
 namespace HeThongChungCu.Application.Features.CanHo.Commands.UpdateCanHo;
 
@@ -12,15 +12,21 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
     private readonly ICanHoCommandRepository _canHoRepository;
     private readonly IToaNhaCommandRepository _toaNhaRepository;
     private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
+    private readonly ICanHoDomainService _canHoDomainService;
+    private readonly IResidencyService _residencyService;
 
     public UpdateCanHoCommandHandler(
         ICanHoCommandRepository canHoRepository,
         IToaNhaCommandRepository toaNhaRepository,
-        IQuanHeCuTruCommandRepository quanHeCuTruRepository)
+        IQuanHeCuTruCommandRepository quanHeCuTruRepository,
+        ICanHoDomainService canHoDomainService,
+        IResidencyService residencyService)
     {
         _canHoRepository = canHoRepository;
         _toaNhaRepository = toaNhaRepository;
         _quanHeCuTruRepository = quanHeCuTruRepository;
+        _canHoDomainService = canHoDomainService;
+        _residencyService = residencyService;
     }
 
     public async Task<Result<CanHoDetailResponse>> Handle(UpdateCanHoCommand request, CancellationToken cancellationToken)
@@ -32,16 +38,32 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
         var loaiCanHo = LoaiCanHo.FromValue(request.LoaiCanHoId);
         var tinhTrangCanHo = TrangThaiCanHo.FromValue(request.TinhTrangCanHoId);
 
-        // Nếu mã thay đổi, kiểm tra trùng mã
-        if (request.MaCanHo != canHo.MaCanHo)
+        var relations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
+
+        // 1. Kiểm tra logic cư trú (Có được phép sửa/xóa khi có người ở không)
+        // Lưu ý: Chỉ chặn nếu có thay đổi cấu trúc quan trọng (Diện tích, số phòng, loại căn hộ)
+        bool isStructureChanged = request.DienTich != canHo.DienTich ||
+                                  request.SoPhongNgu != canHo.SoPhongNgu ||
+                                  request.SoPhongTam != canHo.SoPhongTam ||
+                                  loaiCanHo != canHo.LoaiCanHoId;
+
+        if (isStructureChanged)
         {
-            var maExists = await _canHoRepository.MaCanHoExistsAsync(request.MaCanHo, cancellationToken);
-            if (maExists)
-                return Result.Failure<CanHoDetailResponse>(CanHoErrors.MaCanHoAlreadyExists);
+            var residencyCheck = _residencyService.CheckCanUpdateOrDeleteCanHo(canHo, relations);
+            if (residencyCheck.IsFailure)
+                return Result.Failure<CanHoDetailResponse>(residencyCheck.Errors);
         }
 
-        var relations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
-        bool hasActiveResidents = relations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
+        // 2. Kiểm tra logic cấu trúc (Mã căn hộ trùng lặp)
+        var maExists = false;
+        if (request.MaCanHo != canHo.MaCanHo)
+        {
+            maExists = await _canHoRepository.MaCanHoExistsAsync(request.MaCanHo, cancellationToken);
+        }
+
+        var structureCheck = _canHoDomainService.CanUpdateStructure(canHo, request.MaCanHo, maExists, false); // hasActiveResidents truyền false vì đã check ở bước 1
+        if (structureCheck.IsFailure)
+            return Result.Failure<CanHoDetailResponse>(structureCheck.Errors);
 
         canHo.UpdateInfo(
             request.TenCanHo, 
@@ -49,8 +71,7 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
             request.DienTich, 
             request.SoPhongNgu, 
             request.SoPhongTam, 
-            loaiCanHo!,
-            hasActiveResidents);
+            loaiCanHo!);
 
         canHo.UpdateStatus(tinhTrangCanHo!);
 

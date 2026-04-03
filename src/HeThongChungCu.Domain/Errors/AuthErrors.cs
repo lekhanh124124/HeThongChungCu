@@ -22,7 +22,11 @@ public static class AuthErrors
 
     public static readonly Error InvalidToken = new(
         "Auth.InvalidToken",
-        "Token không chính xác.");
+        "Mã xác nhận không hợp lệ hoặc đã hết hạn.");
+
+    public static readonly Error AccountAlreadyLinked = new(
+        "Auth.AccountAlreadyLinked",
+        "Tài khoản đã được liên kết với một người dùng khác.");
 
     public static readonly Error AccountLocked = new(
          "Auth.AccountLocked",
@@ -32,17 +36,13 @@ public static class AuthErrors
         "Auth.Unauthorized",
         "Bạn chưa đăng nhập.");
 
-    public static readonly Error Forbidden = new(
-        "Auth.Forbidden",
-        "Bạn không có quyền truy cập tài nguyên này.");
-
+    public static readonly Error Forbidden = Error.Forbidden("truy cập tài nguyên này");
+    
     public static readonly Error PasswordNotChanged = new(
         "Auth.PasswordNotChanged",
         "Mật khẩu mới không được giống mật khẩu cũ.");
 
-    public static readonly Error AccountNotFound = new(
-        "Auth.AccountNotFound",
-        "Tài khoản không tồn tại.");
+    public static readonly Error AccountNotFound = Error.NotFound("Tài khoản");
 
     public static readonly Error PasswordRequiresUpper = new(
         "Auth.PasswordRequiresUpper",
@@ -63,4 +63,15 @@ public static class AuthErrors
     public static readonly Error PasswordConfirmationMismatch = new(
         "Auth.PasswordConfirmationMismatch",
         "Xác nhận mật khẩu phải khớp với mật khẩu.");
+
+    public static readonly Error EmailNotEmpty = Error.NotEmpty("Email");
+    public static readonly Error EmailInvalid = Error.InvalidEmail("Email");
+    public static readonly Error PasswordNotEmpty = Error.NotEmpty("Mật khẩu");
+    public static Error PasswordMinLength(int length) => Error.MinLength("Mật khẩu", length);
+    public static readonly Error ConfirmPasswordNotEmpty = Error.NotEmpty("Xác nhận mật khẩu");
+    public static readonly Error UsernameNotEmpty = Error.NotEmpty("Tên đăng nhập");
+    public static readonly Error ResetCodeNotEmpty = Error.NotEmpty("Mã khôi phục");
+    public static readonly Error NewPasswordNotEmpty = Error.NotEmpty("Mật khẩu mới");
+    public static readonly Error CurrentPasswordNotEmpty = Error.NotEmpty("Mật khẩu hiện tại");
+    public static readonly Error RefreshTokenNotEmpty = Error.NotEmpty("Refresh token");
 }

@@ -1,6 +1,9 @@
 using FluentValidation;
 using HeThongChungCu.Domain.Errors;
 
+using FluentValidation;
+using HeThongChungCu.Domain.Errors;
+
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.XoaYeuCauCuTru;
 
 public class XoaYeuCauCuTruCommandValidator : AbstractValidator<XoaYeuCauCuTruCommand>
@@ -8,6 +11,9 @@ public class XoaYeuCauCuTruCommandValidator : AbstractValidator<XoaYeuCauCuTruCo
     public XoaYeuCauCuTruCommandValidator()
     {
         RuleFor(x => x.Ids)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+            .NotEmpty().WithMessage(YeuCauCuTruErrors.YeuCauCuTruIdsNotEmpty.Description);
+
+        RuleForEach(x => x.Ids)
+            .GreaterThan(0).WithMessage(YeuCauCuTruErrors.YeuCauCuTruIdRange.Description);
     }
 }

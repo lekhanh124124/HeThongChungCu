@@ -19,7 +19,7 @@ public class YeuCauTaiLieuCuTru : BaseEntity
 
     private YeuCauTaiLieuCuTru() { } // EF Core
 
-    public YeuCauTaiLieuCuTru(
+    internal YeuCauTaiLieuCuTru(
         LoaiGiayTo loaiGiayTo,
         string soGiayTo,
         DateTime? ngayPhatHanh,

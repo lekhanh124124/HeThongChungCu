@@ -33,31 +33,29 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<QuanHeCuTru> QuanHeCuTrus => Set<QuanHeCuTru>();
     public DbSet<PhuongTien> PhuongTiens => Set<PhuongTien>();
     public DbSet<ThePhuongTien> ThePhuongTiens => Set<ThePhuongTien>();
-    public DbSet<DichVu> DichVus => Set<DichVu>();
-    public DbSet<BangGia> BangGias => Set<BangGia>();
-    public DbSet<BangGiaLuyTien> BangGiaLuyTiens => Set<BangGiaLuyTien>();
-    public DbSet<HoaDon> HoaDons => Set<HoaDon>();
-    public DbSet<ChiTietHoaDon> ChiTietHoaDons => Set<ChiTietHoaDon>();
-    public DbSet<ThanhToan> ThanhToans => Set<ThanhToan>();
-    public DbSet<LaiChamTra> LaiChamTras => Set<LaiChamTra>();
-    public DbSet<CauHinhLai> CauHinhLais => Set<CauHinhLai>();
-    public DbSet<ChiSoTieuThu> ChiSoTieuThus => Set<ChiSoTieuThu>();
-    public DbSet<DangKyDichVu> DangKyDichVus => Set<DangKyDichVu>();
     public DbSet<TaiLieuNguoiDung> TaiLieuNguoiDungs => Set<TaiLieuNguoiDung>();
     public DbSet<TepTaiLieu> TepTaiLieus => Set<TepTaiLieu>();
+    public DbSet<YeuCau> YeuCaus => Set<YeuCau>();
     public DbSet<YeuCauCuTru> YeuCauCuTrus => Set<YeuCauCuTru>();
     public DbSet<YeuCauTaiLieuCuTru> YeuCauTaiLieuCuTrus => Set<YeuCauTaiLieuCuTru>();
     public DbSet<YeuCauPhuongTien> YeuCauPhuongTiens => Set<YeuCauPhuongTien>();
     public DbSet<ThongBao> ThongBaos => Set<ThongBao>();
     public DbSet<PhanBoThongBao> PhanBoThongBaos => Set<PhanBoThongBao>();
+    public DbSet<DichVu> DichVus => Set<DichVu>();
+    public DbSet<DoiTac> DoiTacs => Set<DoiTac>();
+    public DbSet<DangKyDichVu> DangKyDichVus => Set<DangKyDichVu>();
+    public DbSet<BangGia> BangGias => Set<BangGia>();
+    public DbSet<ChiSoTieuThu> ChiSoTieuThus => Set<ChiSoTieuThu>();
+    public DbSet<HoaDonDoiTac> HoaDonDoiTacs => Set<HoaDonDoiTac>();
+    public DbSet<NhanVien> NhanViens => Set<NhanVien>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.Ignore<BaseEvent>();
-        
+
         // Tự động Ignore tất cả các class kế thừa từ BaseEnum trong Domain assembly
         var smartEnumTypes = typeof(BaseEnum<,>).Assembly.GetTypes()
-            .Where(t => t.BaseType != null && 
+            .Where(t => t.BaseType != null &&
                         t.BaseType.IsGenericType &&
                         t.BaseType.GetGenericTypeDefinition() == typeof(BaseEnum<,>));
 
@@ -80,7 +78,7 @@ public class AppDbContext : DbContext, IUnitOfWork
         {
             // Kiểm tra kế thừa AuditableEntity (để áp dụng SoftDelete)
             // LƯU Ý: Chỉ áp dụng filter cho Root Entity trong mô hình thừa kế (TPH)
-            if (typeof(AuditableEntity).IsAssignableFrom(entityType.ClrType))
+            if (typeof(AuditableEntity).IsAssignableFrom(entityType.ClrType) && entityType.BaseType == null)
             {
                 var method = typeof(AppDbContext)
                     .GetMethod(nameof(ApplySoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Instance)

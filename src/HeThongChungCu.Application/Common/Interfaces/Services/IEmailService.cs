@@ -35,5 +35,12 @@ public interface IEmailService
         string identificationLink,
         CancellationToken cancellationToken = default);
 
+    Task SendStaffWelcomeEmailAsync(
+        string to,
+        string fullName,
+        string userName,
+        string password,
+        CancellationToken cancellationToken = default);
+
     string MaskEmail(string email);
 }

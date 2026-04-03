@@ -8,17 +8,17 @@ public class CreateToaNhaCommandValidator : AbstractValidator<CreateToaNhaComman
     public CreateToaNhaCommandValidator()
     {
         RuleFor(x => x.MaToaNha)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
-            .MaximumLength(20).WithMessage(ValidationErrors.MaxLength(20).Description);
+            .NotEmpty().WithMessage(ToaNhaErrors.MaToaNhaNotEmpty.Description)
+            .MaximumLength(20).WithMessage(ToaNhaErrors.MaToaNhaMaxLength.Description);
 
         RuleFor(x => x.TenToaNha)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
-            .MaximumLength(100).WithMessage(ValidationErrors.MaxLength(100).Description);
+            .NotEmpty().WithMessage(ToaNhaErrors.TenToaNhaNotEmpty.Description)
+            .MaximumLength(100).WithMessage(ToaNhaErrors.TenToaNhaMaxLength.Description);
 
 
         RuleFor(x => x.DiaChi)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
-            .MaximumLength(255).WithMessage(ValidationErrors.MaxLength(255).Description);
+            .NotEmpty().WithMessage(ToaNhaErrors.DiaChiNotEmpty.Description)
+            .MaximumLength(255).WithMessage(ToaNhaErrors.DiaChiMaxLength.Description);
 
     }
 }

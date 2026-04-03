@@ -20,21 +20,24 @@ public class ToaNhaSeeder
             {
                 new {
                     Ma = "SKR",
-                    Ten = "Skyline Residence",
+                    Ten = "Skyline Residence (Block A)",
+                    Block = "A",
                     DiaChi = "156 Tôn Đức Thắng, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh",
-                    MoTa = "Khu phức hợp căn hộ Skyline Residence tọa lạc tại vị trí đắc địa ven sông Sài Gòn. Tòa nhà cao cấp này mang đến không gian sống sang trọng với tầm nhìn toàn cảnh thành phố, hệ thống cửa kính chống tia UV, và các tiện ích chuẩn 5 sao bao gồm hồ bơi vô cực, vườn treo trên không và khu spa cao cấp."
+                    MoTa = "Là tòa tháp mặt tiền hướng trực diện ra sông Sài Gòn. Skyline Residence sở hữu vị trí đắc địa nhất khu phức hợp với hệ thống kính Low-E tràn viền. Tòa tháp này tập trung các căn hộ Penthouse sang trọng, hồ bơi vô cực trên tầng thượng và sảnh đón tiếp chuẩn 5 sao dành riêng cho giới thượng lưu."
                 },
                 new {
                     Ma = "HRP",
-                    Ten = "Harmony Point",
-                    DiaChi = "45 Mai Chí Thọ, Phường An Phú, TP. Thủ Đức, TP. Hồ Chí Minh",
-                    MoTa = "Tòa nhà Harmony Point là biểu tượng của sự hiện đại và tiện nghi tại khu Đông Sài Gòn. Với thiết kế kiến trúc xanh, tối ưu hóa ánh sáng tự nhiên, tòa nhà cung cấp môi trường sống lý tưởng với công viên nội khu rộng lớn, khu vui chơi trẻ em hiện đại và trung tâm thương mại sầm uất ngay dưới chân tòa nhà."
+                    Ten = "Harmony Point (Block B)",
+                    Block = "B",
+                    DiaChi = "156 Tôn Đức Thắng, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh",
+                    MoTa = "Nằm tại trung tâm nội khu, Harmony Point kết nối trực tiếp với khối đế thương mại và quảng trường nhạc nước. Đây là tòa tháp sôi động nhất, phù hợp cho các gia đình trẻ nhờ ưu thế sát cạnh khu vui chơi trẻ em, rạp chiếu phim và hệ thống nhà hàng cao cấp ngay dưới chân tòa nhà."
                 },
                 new {
                     Ma = "EMG",
-                    Ten = "Emerald Garden",
-                    DiaChi = "102 Nguyễn Tất Thành, Phường 13, Quận 4, TP. Hồ Chí Minh",
-                    MoTa = "Emerald Garden kết hợp giữa không gian sống thanh bình và sự năng động của trung tâm thành phố. Tòa nhà nổi bật với hệ thống vườn đứng bao quanh, khu gym chuyên nghiệp, sân tennis và đội ngũ an ninh 24/7, mang lại sự an tâm tuyệt đối cho cư dân."
+                    Ten = "Emerald Garden (Block C)",
+                    Block = "C",
+                    DiaChi = "156 Tôn Đức Thắng, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh",
+                    MoTa = "Tòa tháp nằm ở góc yên tĩnh nhất của dự án, được bao bọc bởi hệ thống vườn treo và công viên nội khu. Emerald Garden chú trọng vào không gian sống xanh và chăm sóc sức khỏe với khu vực Yoga ngoài trời, phòng Gym chuyên nghiệp và hồ bơi khoáng mặn nội khu, mang lại sự riêng tư tuyệt đối cho cư dân."
                 }
             };
 
@@ -70,8 +73,8 @@ public class ToaNhaSeeder
                         var apartmentNum = $"{f}{a:D2}";
                         var canHo = new CanHo(
                             tangId: tang.Id,
-                            maCanHo: $"{toaNha.MaToaNha}.{apartmentNum}",
-                            tenCanHo: $"Phòng {apartmentNum}",
+                            maCanHo: $"{toaNha.MaToaNha}-{apartmentNum}",
+                            tenCanHo: $"Phòng {bData.Block}{apartmentNum}",
                             dienTich: Math.Round(faker.Random.Decimal(45, 120), 1),
                             soPhongNgu: faker.Random.Int(1, 3),
                             soPhongTam: faker.Random.Int(1, 2),

@@ -8,7 +8,7 @@ public class RefreshTokenCommandValidator : AbstractValidator<RefreshTokenComman
     public RefreshTokenCommandValidator()
     {
         RuleFor(x => x.RefreshToken)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+            .NotEmpty().WithMessage(AuthErrors.RefreshTokenNotEmpty.Description);
     }
 }
 

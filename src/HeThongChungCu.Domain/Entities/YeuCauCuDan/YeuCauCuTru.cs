@@ -5,19 +5,8 @@ using HeThongChungCu.Domain.Exceptions;
 
 namespace HeThongChungCu.Domain.Entities;
 
-public class YeuCauCuTru : AggregateRoot
+public class YeuCauCuTru : YeuCau
 {
-    public int CanHoId { get; private set; }
-
-    public LoaiYeuCau LoaiYeuCauId { get; private set; } = null!;
-
-    public TrangThaiYeuCau TrangThaiId { get; private set; } = null!;
-    public string? LyDo { get; private set; }
-    public string? NoiDung { get; private set; }
-
-    public int? NguoiXuLyId { get; private set; }
-    public DateTimeOffset? NgayXuLy { get; private set; }
-
     // Proposed changes to User Info (used for 'Them' or 'Sua')
     public int? YeuCauQuanHeCuTruId { get; private set; }
     public string? YeuCauTen { get; private set; }
@@ -27,8 +16,6 @@ public class YeuCauCuTru : AggregateRoot
     public string? YeuCauSoDienThoai { get; private set; }
     public string? YeuCauCCCD { get; private set; }
     public string? YeuCauDiaChi { get; private set; }
-
-    // Proposed changes to Relation Info
     public int? YeuCauLoaiQuanHeId { get; private set; }
 
     private readonly List<YeuCauTaiLieuCuTru> _yeuCauTaiLieuCuTrus = [];
@@ -37,11 +24,8 @@ public class YeuCauCuTru : AggregateRoot
     private YeuCauCuTru() { } // EF Core
 
     private YeuCauCuTru(int canHoId, LoaiYeuCau loaiYeuCau, string? noiDung = null, TrangThaiYeuCau? initialStatus = null)
+        : base(canHoId, loaiYeuCau, noiDung, initialStatus)
     {
-        CanHoId = canHoId;
-        LoaiYeuCauId = loaiYeuCau;
-        NoiDung = noiDung;
-        TrangThaiId = initialStatus ?? TrangThaiYeuCau.Pending;
     }
 
     public static YeuCauCuTru CreateAddMemberRequest(
@@ -151,29 +135,6 @@ public class YeuCauCuTru : AggregateRoot
         return request;
     }
 
-    public void Approve(int adminId, DateTimeOffset processedAt)
-    {
-        if (TrangThaiId != TrangThaiYeuCau.Pending)
-            throw new BusinessException("Chỉ có thể duyệt yêu cầu đang ở trạng thái chờ duyệt.");
-
-        TrangThaiId = TrangThaiYeuCau.Approved;
-        NguoiXuLyId = adminId;
-        NgayXuLy = processedAt;
-    }
-
-    public void Reject(int adminId, string lyDo, DateTimeOffset processedAt)
-    {
-        if (TrangThaiId != TrangThaiYeuCau.Pending)
-            throw new BusinessException("Chỉ có thể từ chối yêu cầu đang ở trạng thái chờ duyệt.");
-
-        if (string.IsNullOrWhiteSpace(lyDo))
-            throw new BusinessException("Cần cung cấp lý do từ chối.");
-
-        TrangThaiId = TrangThaiYeuCau.Rejected;
-        LyDo = lyDo;
-        NguoiXuLyId = adminId;
-        NgayXuLy = processedAt;
-    }
 
     public void Update(
         string? firstName,
@@ -202,6 +163,13 @@ public class YeuCauCuTru : AggregateRoot
 
         if (documents != null)
         {
+            foreach (var doc in _yeuCauTaiLieuCuTrus)
+            {
+                foreach (var file in doc.Files)
+                {
+                    file.MarkAsUnused();
+                }
+            }
             _yeuCauTaiLieuCuTrus.Clear();
             foreach (var doc in documents)
             {
@@ -210,21 +178,15 @@ public class YeuCauCuTru : AggregateRoot
         }
     }
 
-    public void Submit()
+    public override void Submit()
     {
-        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Withdrawn)
-            throw new BusinessException("Chỉ có thể gửi yêu cầu đang ở trạng thái đã lưu hoặc đã thu hồi.");
-
-        TrangThaiId = TrangThaiYeuCau.Pending;
+        base.Submit();
         AddDomainEvent(new YeuCauCuTruCreatedEvent(this));
     }
 
-    public void Withdraw()
+    public override void Withdraw()
     {
-        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Pending)
-            throw new BusinessException("Chỉ có thể thu hồi yêu cầu đang ở trạng thái đã lưu hoặc đang chờ duyệt.");
-
-        TrangThaiId = TrangThaiYeuCau.Withdrawn;
+        base.Withdraw();
     }
 
     public void Invalidate(string? lyDo)

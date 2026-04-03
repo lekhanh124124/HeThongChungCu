@@ -1,4 +1,7 @@
 using HeThongChungCu.Application.Features.CanHo.DTOs;
+using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Interfaces;
 
 namespace HeThongChungCu.Application.Features.CanHo.Commands.CreateCanHo;
 
@@ -6,13 +9,16 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
 {
     private readonly ICanHoCommandRepository _canHoRepository;
     private readonly IToaNhaCommandRepository _toaNhaRepository;
+    private readonly ICanHoDomainService _canHoDomainService;
 
     public CreateCanHoCommandHandler(
         ICanHoCommandRepository canHoRepository,
-        IToaNhaCommandRepository toaNhaRepository)
+        IToaNhaCommandRepository toaNhaRepository,
+        ICanHoDomainService canHoDomainService)
     {
         _canHoRepository = canHoRepository;
         _toaNhaRepository = toaNhaRepository;
+        _canHoDomainService = canHoDomainService;
     }
     public async Task<Result<CanHoDetailResponse>> Handle(CreateCanHoCommand request, CancellationToken cancellationToken)
     {
@@ -24,12 +30,11 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
         if (tang == null)
             return Result.Failure<CanHoDetailResponse>(TangErrors.NotFound);
 
-        if (tang.LoaiTangId == LoaiTang.TangHam)
-            return Result.Failure<CanHoDetailResponse>(CanHoErrors.CanHoInBasement);
-
         var maExists = await _canHoRepository.MaCanHoExistsAsync(request.MaCanHo, cancellationToken);
-        if (maExists)
-            return Result.Failure<CanHoDetailResponse>(CanHoErrors.MaCanHoAlreadyExists);
+        
+        var canCreateResult = _canHoDomainService.CanCreateCanHo(tang, request.MaCanHo, maExists);
+        if (canCreateResult.IsFailure)
+            return Result.Failure<CanHoDetailResponse>(canCreateResult.Errors);
 
         var loaiCanHo = LoaiCanHo.FromValue(request.LoaiCanHoId);
         var tinhTrangCanHo = TrangThaiCanHo.DangTrong;

@@ -72,7 +72,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
                 tn.TenToaNha,
                 COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10))) AS TenNguoiGui,
                 COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10))) AS TenNguoiXuLy
-            FROM YeuCauPhuongTien y
+            FROM YeuCau y
             LEFT JOIN CanHo ch ON y.CanHoId = ch.Id
             LEFT JOIN Tang tg ON ch.TangId = tg.Id
             LEFT JOIN ToaNha tn ON tg.ToaNhaId = tn.Id
@@ -80,7 +80,8 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             LEFT JOIN TaiKhoan tk1 ON nd1.Id = tk1.NguoiDungId
             LEFT JOIN NguoiDung nd2 ON y.NguoiXuLyId = nd2.Id
             LEFT JOIN TaiKhoan tk2 ON nd2.Id = tk2.NguoiDungId
-            {(string.IsNullOrEmpty(sqlWhere) ? "" : sqlWhere)}
+            WHERE y.LoaiYeuCauCuDan = 'PhuongTien'
+            {(string.IsNullOrEmpty(sqlWhere) ? "" : " AND " + sqlWhere.Replace("WHERE", ""))}
             {sqlOrderBy}
             {sqlPagination}
             """;
@@ -143,7 +144,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
                 ch.TenCanHo, tg.TenTang, tn.TenToaNha,
                 COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10))) AS TenNguoiGui,
                 COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10))) AS TenNguoiXuLy
-            FROM YeuCauPhuongTien y
+            FROM YeuCau y
             LEFT JOIN CanHo ch ON y.CanHoId = ch.Id
             LEFT JOIN Tang tg ON ch.TangId = tg.Id
             LEFT JOIN ToaNha tn ON tg.ToaNhaId = tn.Id
@@ -151,7 +152,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             LEFT JOIN TaiKhoan tk1 ON nd1.Id = tk1.NguoiDungId
             LEFT JOIN NguoiDung nd2 ON y.NguoiXuLyId = nd2.Id
             LEFT JOIN TaiKhoan tk2 ON nd2.Id = tk2.NguoiDungId
-            WHERE y.Id = @Id AND y.IsDeleted = 0;
+            WHERE y.Id = @Id AND y.IsDeleted = 0 AND y.LoaiYeuCauCuDan = 'PhuongTien';
 
             -- 2. Images
             SELECT 
@@ -233,7 +234,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
                 tn.TenToaNha,
                 COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10))) AS TenNguoiGui,
                 COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10))) AS TenNguoiXuLy
-            FROM YeuCauPhuongTien y
+            FROM YeuCau y
             LEFT JOIN CanHo ch ON y.CanHoId = ch.Id
             LEFT JOIN Tang tg ON ch.TangId = tg.Id
             LEFT JOIN ToaNha tn ON tg.ToaNhaId = tn.Id
@@ -241,7 +242,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             LEFT JOIN TaiKhoan tk1 ON nd1.Id = tk1.NguoiDungId
             LEFT JOIN NguoiDung nd2 ON y.NguoiXuLyId = nd2.Id
             LEFT JOIN TaiKhoan tk2 ON nd2.Id = tk2.NguoiDungId
-            WHERE y.Id = @Id AND y.IsDeleted = 0
+            WHERE y.Id = @Id AND y.IsDeleted = 0 AND y.LoaiYeuCauCuDan = 'PhuongTien'
             """;
 
         var transaction = _dbContext.GetDbTransaction();

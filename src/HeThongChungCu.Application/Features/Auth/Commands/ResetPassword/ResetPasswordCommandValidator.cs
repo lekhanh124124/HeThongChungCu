@@ -8,14 +8,14 @@ public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordComm
     public ResetPasswordCommandValidator()
     {
         RuleFor(x => x.Username)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+            .NotEmpty().WithMessage(AuthErrors.UsernameNotEmpty.Description);
 
         RuleFor(x => x.ResetCode)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+            .NotEmpty().WithMessage(AuthErrors.ResetCodeNotEmpty.Description);
 
         RuleFor(x => x.NewPassword)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
-            .MinimumLength(6).WithMessage(ValidationErrors.MinLength(6).Description)
+            .NotEmpty().WithMessage(AuthErrors.NewPasswordNotEmpty.Description)
+            .MinimumLength(6).WithMessage(AuthErrors.PasswordMinLength(6).Description)
             .Matches(@"[A-Z]").WithMessage(AuthErrors.PasswordRequiresUpper.Description)
             .Matches(@"[a-z]").WithMessage(AuthErrors.PasswordRequiresLower.Description)
             .Matches(@"[0-9]").WithMessage(AuthErrors.PasswordRequiresDigit.Description)

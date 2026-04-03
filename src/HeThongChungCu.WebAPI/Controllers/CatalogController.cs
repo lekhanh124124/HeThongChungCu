@@ -1,6 +1,5 @@
 using HeThongChungCu.Application.Features.Catalog.DTOs;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayCauTrucChungCu;
-using HeThongChungCu.Application.Features.Catalog.Queries.LayDichVuForSelector;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.WebAPI.Common.Models;
@@ -82,17 +81,6 @@ public class CatalogController : ApiControllerBase
         return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
 
-    /// <remarks>
-    /// - **Hoàn cảnh sử dụng**: Hiển thị danh sách dịch vụ (Điện, Nước, Phí quản lý, v.v.) để gán cho căn hộ hoặc tạo hóa đơn.
-    /// - **Hệ thống xử lý**: Truy xuất danh sách dịch vụ đang hoạt động trong hệ thống.
-    /// - **Yêu cầu dữ liệu**: Không có.
-    /// </remarks>
-    [HttpPost("dich-vu-for-selector")]
-    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetDichVuForSelector(CancellationToken cancellationToken)
-    {
-        return HandleResult(await _sender.Send(new LayDichVuForSelectorQuery(), cancellationToken));
-    }
 
     /// <remarks>
     /// - **Hoàn cảnh sử dụng**: Cung cấp tùy chọn loại phương tiện (Xe máy, Ô tô, Xe đạp) khi đăng ký gửi xe.

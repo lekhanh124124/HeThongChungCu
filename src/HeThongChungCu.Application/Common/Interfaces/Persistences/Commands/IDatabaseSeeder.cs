@@ -1,3 +1,5 @@
+using HeThongChungCu.Application.Features.Seeder.DTOs;
+
 namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 
 public interface IDatabaseSeeder
@@ -6,5 +8,8 @@ public interface IDatabaseSeeder
         int soLuongChuHo,
         int soLuongCuTru,
         int soLuongPhuongTien,
-        int soLuongTaiKhoanKhach);
+        int soLuongTaiKhoanKhach,
+        int soLuongNhanVien,
+        YeuCauCounts? soLuongYeuCauCuTru = null,
+        YeuCauCounts? soLuongYeuCauPhuongTien = null);
 }

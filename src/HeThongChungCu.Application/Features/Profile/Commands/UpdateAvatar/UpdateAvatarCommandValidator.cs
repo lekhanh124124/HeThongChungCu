@@ -24,7 +24,7 @@ public class UpdateAvatarCommandValidator : AbstractValidator<UpdateAvatarComman
                 FileCategory.Avatar.AllowedExtensions).Description);
 
         RuleFor(x => x.ContentType)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
+            .NotEmpty().WithMessage(FileErrors.ContentTypeNotEmpty.Description)
             .Must(x => AllowedContentTypes.Contains(x))
             .WithMessage(FileErrors.InvalidContentType(AllowedContentTypes).Description);
 

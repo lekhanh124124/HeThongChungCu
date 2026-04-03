@@ -7,8 +7,8 @@ public class BaoMatThePhuongTienCommandValidator : AbstractValidator<BaoMatThePh
 {
     public BaoMatThePhuongTienCommandValidator()
     {
-        RuleFor(x => x.TheIds)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+        RuleForEach(x => x.TheIds)
+            .GreaterThan(0).WithMessage(PhuongTienErrors.TheIdRange.Description);
     }
 }
 

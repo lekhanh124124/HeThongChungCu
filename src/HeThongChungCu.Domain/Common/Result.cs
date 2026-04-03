@@ -29,7 +29,7 @@ public class Result
     public static Result Success() => new(true);
     public static Result Success(IEnumerable<string> warnings) => new(true, warnings: warnings.ToArray());
 
-    public static Result Failure(Error error) => new(false, new[] { error });
+    public static Result Failure(Error error) => new(false, [error]);
     public static Result Failure(IEnumerable<Error> errors) => new(false, errors.ToArray());
 
     public static Result<TValue> Success<TValue>(TValue value) => new(value, true);

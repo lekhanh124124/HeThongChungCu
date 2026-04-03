@@ -44,6 +44,11 @@ public class PhuongTien : AggregateRoot
 
         if (hinhAnhs != null)
         {
+            foreach (var hinhAnh in _hinhAnhPhuongTiens)
+            {
+                hinhAnh.MarkAsUnused();
+            }
+            _hinhAnhPhuongTiens.Clear();
             foreach (var hinhAnh in hinhAnhs)
             {
                 hinhAnh.MarkAsUsed();
@@ -55,16 +60,8 @@ public class PhuongTien : AggregateRoot
     /// <summary>
     /// Kích hoạt phương tiện dựa trên hạn mức cứng.
     /// </summary>
-    public void KichHoat(LoaiCanHo loaiCanHo, int currentCountForType)
+    public void Activate()
     {
-        if (TrangThaiPhuongTienId == TrangThaiPhuongTien.Active)
-            return;
-
-        var quota = PhuongTienPolicy.GetQuota(loaiCanHo, LoaiPhuongTienId);
-        
-        if (PhuongTienPolicy.IsOverQuota(currentCountForType, quota))
-            throw new BusinessException($"Căn hộ loại {loaiCanHo.Name} đã đạt hạn mức tối đa {quota} xe cho loại {LoaiPhuongTienId.Name}");
-
         TrangThaiPhuongTienId = TrangThaiPhuongTien.Active;
     }
 
@@ -74,7 +71,7 @@ public class PhuongTien : AggregateRoot
             return;
 
         TrangThaiPhuongTienId = TrangThaiPhuongTien.Inactive;
-        
+
         // Lock tất cả thẻ
         foreach (var the in _thePhuongTiens.Where(x => x.IsInUse))
         {
@@ -88,7 +85,7 @@ public class PhuongTien : AggregateRoot
             return;
 
         TrangThaiPhuongTienId = TrangThaiPhuongTien.Blocked;
-        
+
         // Lock tất cả thẻ
         foreach (var the in _thePhuongTiens.Where(x => x.IsInUse))
         {

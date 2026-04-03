@@ -8,11 +8,11 @@ public class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCo
     public ChangePasswordCommandValidator()
     {
         RuleFor(x => x.OldPassword)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+            .NotEmpty().WithMessage(AuthErrors.CurrentPasswordNotEmpty.Description);
 
         RuleFor(x => x.NewPassword)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
-            .MinimumLength(6).WithMessage(ValidationErrors.MinLength(6).Description)
+            .NotEmpty().WithMessage(AuthErrors.NewPasswordNotEmpty.Description)
+            .MinimumLength(6).WithMessage(AuthErrors.PasswordMinLength(6).Description)
             .NotEqual(x => x.OldPassword).WithMessage(AuthErrors.PasswordNotChanged.Description);
 
 

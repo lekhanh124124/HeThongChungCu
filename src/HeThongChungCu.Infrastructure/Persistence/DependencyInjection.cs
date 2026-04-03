@@ -68,23 +68,14 @@ public static class DependencyInjection
         services.AddScoped<IYeuCauPhuongTienCommandRepository, YeuCauPhuongTienCommandRepository>();
         services.AddScoped<IYeuCauPhuongTienQueryRepository, YeuCauPhuongTienQueryRepository>();
 
-        services.AddScoped<IDichVuCommandRepository, DichVuCommandRepository>();
-        // services.AddScoped<IDichVuQueryRepository, DichVuQueryRepository>();
-
         services.AddScoped<ITepTaiLieuRepository, TepTaiLieuRepository>();
         // services.AddScoped<ITepTaiLieuQueryRepository, TepTaiLieuQueryRepository>();
-
-        services.AddScoped<IBangGiaCommandRepository, BangGiaCommandRepository>();
-        // services.AddScoped<IBangGiaQueryRepository, IBangGiaQueryRepository>();
-
-        services.AddScoped<IChiSoTieuThuCommandRepository, ChiSoTieuThuCommandRepository>();
-        // services.AddScoped<IChiSoTieuThuQueryRepository, ChiSoTieuThuQueryRepository>();
-
-        services.AddScoped<IDangKyDichVuCommandRepository, DangKyDichVuCommandRepository>();
-        // services.AddScoped<IDangKyDichVuQueryRepository, IDangKyDichVuQueryRepository>();
         
         services.AddScoped<IThongBaoCommandRepository, ThongBaoCommandRepository>();
         services.AddScoped<IThongBaoQueryRepository, ThongBaoQueryRepository>();
+        
+        services.AddScoped<INhanVienCommandRepository, NhanVienCommandRepository>();
+        services.AddScoped<INhanVienQueryRepository, NhanVienQueryRepository>();
         
         return services;
     }

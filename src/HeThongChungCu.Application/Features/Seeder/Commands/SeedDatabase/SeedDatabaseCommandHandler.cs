@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Logging;
+using HeThongChungCu.Application.Common.Models;
+using HeThongChungCu.Application.Features.Seeder.DTOs;
 
 namespace HeThongChungCu.Application.Features.Seeder.Commands.SeedDatabase;
 
@@ -23,7 +25,10 @@ public class SeedDatabaseCommandHandler : ICommandHandler<SeedDatabaseCommand, s
                 request.SoLuongChuHo,
                 request.SoLuongCuTru,
                 request.SoLuongPhuongTien,
-                request.SoLuongTaiKhoanKhach);
+                request.SoLuongTaiKhoanKhach,
+                request.SoLuongNhanVien,
+                request.SoLuongYeuCauCuTru ?? new YeuCauCounts(),
+                request.SoLuongYeuCauPhuongTien ?? new YeuCauCounts());
 
             _logger.LogInformation("Database Seeding Completed Successfully.");
             return "Database seeding completed successfully.";

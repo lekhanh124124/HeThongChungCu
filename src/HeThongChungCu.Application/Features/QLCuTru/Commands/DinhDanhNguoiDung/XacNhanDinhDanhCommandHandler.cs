@@ -4,6 +4,7 @@ using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Interfaces;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.DinhDanhNguoiDung;
 
@@ -13,6 +14,7 @@ public class XacNhanDinhDanhCommandHandler : ICommandHandler<XacNhanDinhDanhComm
     private readonly INguoiDungCommandRepository _userRepository;
     private readonly IHasherService _hasherService;
     private readonly ITokenService _tokenService;
+    private readonly IIdentityDomainService _identityService;
     private readonly IUnitOfWork _unitOfWork;
 
     public XacNhanDinhDanhCommandHandler(
@@ -20,12 +22,14 @@ public class XacNhanDinhDanhCommandHandler : ICommandHandler<XacNhanDinhDanhComm
         INguoiDungCommandRepository userRepository,
         IHasherService hasherService,
         ITokenService tokenService,
+        IIdentityDomainService identityService,
         IUnitOfWork unitOfWork)
     {
         _accountRepository = accountRepository;
         _userRepository = userRepository;
         _hasherService = hasherService;
         _tokenService = tokenService;
+        _identityService = identityService;
         _unitOfWork = unitOfWork;
     }
 
@@ -46,33 +50,10 @@ public class XacNhanDinhDanhCommandHandler : ICommandHandler<XacNhanDinhDanhComm
             return Result.Failure<UserInfoResponse>(AuthErrors.InvalidToken);
         }
 
-        var tokenEntity = account.Tokens.FirstOrDefault(t => t.TokenHash == tokenHash && t.TokenType == TokenType.UserCode);
-        if (tokenEntity == null || !tokenEntity.IsActive)
-        {
-            return Result.Failure<UserInfoResponse>(AuthErrors.InvalidToken);
-        }
-
-        // 3. Link account to user if not already linked
-        if (account.NguoiDungId != null && account.NguoiDungId != userId.Value)
-        {
-            return Result.Failure<UserInfoResponse>(new Error("Auth.AccountAlreadyLinked", "Tài khoản đã được liên kết với một người dùng khác."));
-        }
-
-        if (account.NguoiDungId == null)
-        {
-            account.LinkToUser(userId.Value);
-        }
-
-        // 4. Promote role if Guest
-        var roles = account.PhanQuyens.Select(pq => pq.RoleId).ToList();
-        if (roles.Contains(Role.Guest) && !roles.Contains(Role.Resident))
-        {
-            account.RemoveRole(Role.Guest);
-            account.AddRole(Role.Resident);
-        }
-
-        // 5. Revoke token
-        account.RevokeToken(tokenHash, DateTimeOffset.UtcNow, ReasonRevoked.UserAction);
+        // 3. Verify token, link account and promote role via Domain Service
+        var verifyResult = _identityService.VerifyAndLinkAccount(account, tokenHash, userId.Value, DateTimeOffset.UtcNow);
+        if (verifyResult.IsFailure)
+            return Result.Failure<UserInfoResponse>(verifyResult.Errors[0]);
 
         _accountRepository.Update(account);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

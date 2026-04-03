@@ -8,6 +8,6 @@ public class KetThucCuTruCommandValidator : AbstractValidator<KetThucCuTruComman
     public KetThucCuTruCommandValidator()
     {
         RuleFor(x => x.QuanHeCuTruId)
-            .GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
+            .GreaterThan(0).WithMessage(YeuCauCuTruErrors.QuanHeIdRange.Description);
     }
 }

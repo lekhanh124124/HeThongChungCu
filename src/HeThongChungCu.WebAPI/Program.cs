@@ -1,12 +1,13 @@
 using HealthChecks.UI.Client;
 using HeThongChungCu.Application;
 using HeThongChungCu.Infrastructure;
-using HeThongChungCu.Infrastructure.Persistence;
 using HeThongChungCu.Infrastructure.Notifications;
+using HeThongChungCu.Infrastructure.Persistence;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
 using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace HeThongChungCu.WebAPI
 {
@@ -84,6 +85,8 @@ namespace HeThongChungCu.WebAPI
             app.UseSwaggerUI(c =>
             {
                 c.InjectJavascript("/swagger-custom.js");
+                c.DocExpansion(DocExpansion.None);        // tránh rối UI
+                //c.DefaultModelsExpandDepth(-1);           // ẩn schema nếu API lớn
             });
 
             app.UseStaticFiles();

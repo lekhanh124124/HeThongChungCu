@@ -9,10 +9,10 @@ public class ThietLapCuTruCommandValidator : AbstractValidator<ThietLapCuTruComm
     public ThietLapCuTruCommandValidator()
     {
         RuleFor(x => x.CanHoId)
-            .GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
+            .GreaterThan(0).WithMessage(CanHoErrors.IdRange.Description);
 
         RuleFor(x => x.UserId)
-            .GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
+            .GreaterThan(0).WithMessage(UserErrors.UserIdRange.Description);
 
         RuleFor(x => x.LoaiQuanHeCuTruId)
             .Must(id => LoaiQuanHeCuTru.GetAll().Any(l => l.Value == id))

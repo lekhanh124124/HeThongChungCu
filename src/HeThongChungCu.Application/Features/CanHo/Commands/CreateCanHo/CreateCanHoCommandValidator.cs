@@ -9,24 +9,24 @@ public class CreateCanHoCommandValidator : AbstractValidator<CreateCanHoCommand>
     public CreateCanHoCommandValidator()
     {
         RuleFor(x => x.MaCanHo)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
-            .MaximumLength(20).WithMessage(ValidationErrors.MaxLength(20).Description);
+            .NotEmpty().WithMessage(CanHoErrors.MaCanHoNotEmpty.Description)
+            .MaximumLength(20).WithMessage(CanHoErrors.MaCanHoMaxLength.Description);
 
         RuleFor(x => x.TenCanHo)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
-            .MaximumLength(100).WithMessage(ValidationErrors.MaxLength(100).Description);
+            .NotEmpty().WithMessage(CanHoErrors.TenCanHoNotEmpty.Description)
+            .MaximumLength(100).WithMessage(CanHoErrors.TenCanHoMaxLength.Description);
 
         RuleFor(x => x.DienTich)
-            .GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
+            .GreaterThan(0).WithMessage(CanHoErrors.DienTichRange.Description);
 
         RuleFor(x => x.TangId)
-            .GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
+            .GreaterThan(0).WithMessage(CanHoErrors.TangRange.Description);
 
         RuleFor(x => x.SoPhongNgu)
-            .GreaterThanOrEqualTo(0).WithMessage(ValidationErrors.Range(0, int.MaxValue).Description);
+            .GreaterThanOrEqualTo(0).WithMessage(CanHoErrors.SoPhongNguRange.Description);
 
         RuleFor(x => x.SoPhongTam)
-            .GreaterThanOrEqualTo(0).WithMessage(ValidationErrors.Range(0, int.MaxValue).Description);
+            .GreaterThanOrEqualTo(0).WithMessage(CanHoErrors.SoPhongTamRange.Description);
 
         RuleFor(x => x.LoaiCanHoId)
             .Must(id => LoaiCanHo.GetAll().Any(g => g.Value == id))

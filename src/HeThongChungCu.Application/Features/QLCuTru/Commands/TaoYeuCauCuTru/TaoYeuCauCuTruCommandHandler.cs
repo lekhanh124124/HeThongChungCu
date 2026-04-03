@@ -5,6 +5,7 @@ using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Interfaces;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.TaoYeuCauCuTru;
 
@@ -15,6 +16,7 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
     private readonly IQuanHeCuTruCommandRepository _quanHeRepository;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IResidencyService _residencyService;
     private readonly IUnitOfWork _unitOfWork;
 
     public TaoYeuCauCuTruCommandHandler(
@@ -23,6 +25,7 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         IQuanHeCuTruCommandRepository quanHeRepository,
         ITepTaiLieuRepository tepTaiLieuRepository,
         ICurrentUserService currentUserService,
+        IResidencyService residencyService,
         IUnitOfWork unitOfWork)
     {
         _yeuCauRepository = yeuCauRepository;
@@ -30,6 +33,7 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         _quanHeRepository = quanHeRepository;
         _tepTaiLieuRepository = tepTaiLieuRepository;
         _currentUserService = currentUserService;
+        _residencyService = residencyService;
         _unitOfWork = unitOfWork;
     }
 
@@ -40,17 +44,15 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
             return Result.Failure<YeuCauCuTruResponse>(UserErrors.NotFound);
 
         var loaiYeuCau = LoaiYeuCau.FromValue(request.LoaiYeuCauId, null);
-        // Fetch the relation of the current user for this apartment to validate ChuHo
+        // Validate permissions via Domain Service
         var requesterRelation = await _quanHeRepository.GetByUserAndCanHoAsync(userId.Value, request.CanHoId, cancellationToken);
-        if (requesterRelation == null)
-            return Result.Failure<YeuCauCuTruResponse>(CanHoErrors.NotFoundById(request.CanHoId));
-
-        if (requesterRelation.LoaiQuanHeCuTruId != LoaiQuanHeCuTru.ChuHo)
-            return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.Forbidden);
+        var permissionResult = _residencyService.CheckChuHoPermission(requesterRelation);
+        if (permissionResult.IsFailure)
+            return Result.Failure<YeuCauCuTruResponse>(permissionResult.Errors[0]);
 
 
         // Fetch all TepTaiLieus at once
-        var allFileIds = request.TaiLieuCuTrus?.SelectMany(d => d.FileIds).Distinct().ToList() ?? new List<int>();
+        var allFileIds = request.TaiLieuCuTrus?.SelectMany(d => d.FileIds).Distinct().ToList() ?? [];
         var tepTaiLieus = await _tepTaiLieuRepository.GetByIdsAsync(allFileIds, cancellationToken);
         var tepTaiLieuDict = tepTaiLieus.ToDictionary(f => f.Id);
 

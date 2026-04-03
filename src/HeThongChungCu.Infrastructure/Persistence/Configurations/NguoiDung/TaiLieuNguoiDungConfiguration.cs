@@ -19,7 +19,7 @@ public class TaiLieuNguoiDungConfiguration : IEntityTypeConfiguration<TaiLieuNgu
         builder.Property(x => x.LoaiGiayToId)
             .HasConversion(
                 v => v.Value,
-                v => HeThongChungCu.Domain.Enums.LoaiGiayTo.FromValue(v, null)!)
+                v => LoaiGiayTo.FromValue(v, null)!)
             .IsRequired();
 
         builder.HasOne(x => x.NguoiDung)

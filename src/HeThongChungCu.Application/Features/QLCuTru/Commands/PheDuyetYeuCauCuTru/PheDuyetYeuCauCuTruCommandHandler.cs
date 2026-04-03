@@ -5,6 +5,7 @@ using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Interfaces;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.PheDuyetYeuCauCuTru;
 
@@ -15,6 +16,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
     private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IResidencyService _residencyService;
     private readonly IUnitOfWork _unitOfWork;
 
     public PheDuyetYeuCauCuTruCommandHandler(
@@ -23,6 +25,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         IQuanHeCuTruCommandRepository quanHeCuTruRepository,
         ICurrentUserService currentUserService,
         IDateTimeProvider dateTimeProvider,
+        IResidencyService residencyService,
         IUnitOfWork unitOfWork)
     {
         _yeuCauRepository = yeuCauRepository;
@@ -30,6 +33,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         _quanHeCuTruRepository = quanHeCuTruRepository;
         _currentUserService = currentUserService;
         _dateTimeProvider = dateTimeProvider;
+        _residencyService = residencyService;
         _unitOfWork = unitOfWork;
     }
 
@@ -49,58 +53,28 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         // Logic Phê duyệt
         if (yeuCau.LoaiYeuCauId == LoaiYeuCau.Them)
         {
-            // Check if CCCD already exists
-            if (!string.IsNullOrEmpty(yeuCau.YeuCauCCCD))
-            {
-                var cccdExists = await _userRepository.AnyAsync(u => u.CCCD == yeuCau.YeuCauCCCD, cancellationToken);
-                if (cccdExists)
-                {
-                    return Result.Failure<YeuCauCuTruResponse>(UserErrors.IdCardAlreadyExists);
-                }
-            }
+            // Gather data for uniqueness check
+            var cccdExists = !string.IsNullOrEmpty(yeuCau.YeuCauCCCD) && await _userRepository.AnyAsync(u => u.CCCD == yeuCau.YeuCauCCCD, cancellationToken);
+            var phoneExists = !string.IsNullOrEmpty(yeuCau.YeuCauSoDienThoai) && await _userRepository.AnyAsync(u => u.SoDienThoai == yeuCau.YeuCauSoDienThoai, cancellationToken);
 
-            // Check if SoDienThoai already exists
-            if (!string.IsNullOrEmpty(yeuCau.YeuCauSoDienThoai))
-            {
-                var phoneExists = await _userRepository.AnyAsync(u => u.SoDienThoai == yeuCau.YeuCauSoDienThoai, cancellationToken);
-                if (phoneExists)
-                {
-                    return Result.Failure<YeuCauCuTruResponse>(UserErrors.PhoneNumberAlreadyExists);
-                }
-            }
+            var uniquenessResult = _residencyService.CheckUniqueness(cccdExists, phoneExists);
+            if (uniquenessResult.IsFailure)
+                return Result.Failure<YeuCauCuTruResponse>(uniquenessResult.Errors[0]);
 
-            // 1. Create User
-            var newUser = new NguoiDung(
-                yeuCau.YeuCauTen!,
-                yeuCau.YeuCauHo!,
-                yeuCau.YeuCauNgaySinh ?? DateTime.MinValue,
-                GioiTinh.FromValue(yeuCau.YeuCauGioiTinhId ?? 1, null)!,
-                yeuCau.YeuCauDiaChi,
-                cccd: yeuCau.YeuCauCCCD,
-                soDienThoai: yeuCau.YeuCauSoDienThoai);
-
-
-            // 2. Add Documents if any
-            foreach (var docReq in yeuCau.YeuCauTaiLieuCuTrus)
-            {
-                var newDoc = new TaiLieuNguoiDung(
-                    null,
-                    docReq.LoaiGiayToId,
-                    docReq.SoGiayTo,
-                    docReq.NgayPhatHanh,
-                    docReq.Files);
-                newUser.AddDocument(newDoc);
-            }
-
+            // 1. Create User via Domain Service
+            var newUser = _residencyService.CreateUserFromRequest(yeuCau);
             await _userRepository.AddAsync(newUser, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // 3. Create Residency Relation
+            // 2. Create Residency Relation via Domain Service
             var loaiQuanHe = LoaiQuanHeCuTru.FromValue(yeuCau.YeuCauLoaiQuanHeId!.Value, null);
             var existingRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(yeuCau.CanHoId, cancellationToken);
-            var quanHe = new QuanHeCuTru(yeuCau.CanHoId, newUser.Id, loaiQuanHe!, now.DateTime, existingRelations);
+            
+            var relationResult = _residencyService.CreateRelation(yeuCau.CanHoId, newUser.Id, loaiQuanHe!, now.DateTime, existingRelations);
+            if (relationResult.IsFailure)
+                return Result.Failure<YeuCauCuTruResponse>(relationResult.Errors[0]);
 
-            await _quanHeCuTruRepository.AddAsync(quanHe, cancellationToken);
+            await _quanHeCuTruRepository.AddAsync(relationResult.Value, cancellationToken);
         }
         else if (yeuCau.LoaiYeuCauId == LoaiYeuCau.Sua)
         {
@@ -118,61 +92,8 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
                 _quanHeCuTruRepository.Update(relation);
             }
 
-            // --- Document Reconciliation Logic ---
-            var currentDocs = user.TaiLieu.ToList();
-            var proposedDocs = yeuCau.YeuCauTaiLieuCuTrus;
-
-            // 1. Remove documents not in the request
-            var proposedOriginalIds = proposedDocs.Where(d => d.TaiLieuCuTruId.HasValue)
-                                                .Select(d => d.TaiLieuCuTruId!.Value)
-                                                .ToList();
-
-            foreach (var doc in currentDocs)
-            {
-                if (!proposedOriginalIds.Contains(doc.Id))
-                {
-                    user.RemoveDocument(doc.Id);
-                }
-            }
-
-            // 2. Update existing or Add new
-            foreach (var propDoc in proposedDocs)
-            {
-                if (propDoc.TaiLieuCuTruId.HasValue)
-                {
-                    // Update existing
-                    var existingDoc = user.TaiLieu.FirstOrDefault(d => d.Id == propDoc.TaiLieuCuTruId.Value);
-                    if (existingDoc != null)
-                    {
-                        existingDoc.UpdateInfo(propDoc.LoaiGiayToId, propDoc.SoGiayTo, propDoc.NgayPhatHanh);
-                        existingDoc.SyncFiles(propDoc.Files);
-                    }
-                }
-                else
-                {
-                    // Add new
-                    var newDoc = new TaiLieuNguoiDung(
-                        user.Id,
-                        propDoc.LoaiGiayToId,
-                        propDoc.SoGiayTo,
-                        propDoc.NgayPhatHanh,
-                        propDoc.Files);
-                    user.AddDocument(newDoc);
-                }
-            }
-
-            // Sync personal info if provided
-            if (!string.IsNullOrEmpty(yeuCau.YeuCauTen) || !string.IsNullOrEmpty(yeuCau.YeuCauHo) || yeuCau.YeuCauNgaySinh.HasValue)
-            {
-                user.UpdateProfile(
-                    yeuCau.YeuCauTen ?? user.Ten,
-                    yeuCau.YeuCauHo ?? user.Ho,
-                    yeuCau.YeuCauNgaySinh ?? user.NgaySinh,
-                    yeuCau.YeuCauGioiTinhId.HasValue ? GioiTinh.FromValue(yeuCau.YeuCauGioiTinhId.Value, null)! : user.GioiTinhId,
-                    yeuCau.YeuCauDiaChi ?? user.DiaChi,
-                    yeuCau.YeuCauCCCD ?? user.CCCD,
-                    yeuCau.YeuCauSoDienThoai ?? user.SoDienThoai);
-            }
+            // --- Delegate to Domain Service for Update & Reconciliation ---
+            _residencyService.UpdateUserFromRequest(user, yeuCau);
             _userRepository.Update(user);
         }
         else if (yeuCau.LoaiYeuCauId == LoaiYeuCau.Xoa)

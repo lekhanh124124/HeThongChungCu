@@ -13,7 +13,7 @@ public class QuanHeCuTruSeeder
         logger.LogInformation("Seeding ChuHo ({ChuHoCount}) and CuTru ({CuTruCount})...", soLuongChuHo, soLuongCuTru);
 
         var canHos = await context.CanHos.ToListAsync();
-        if (!canHos.Any()) return;
+        if (canHos.Count == 0) return;
 
         var faker = new Faker("vi");
 
@@ -21,7 +21,7 @@ public class QuanHeCuTruSeeder
         for (int i = 0; i < soLuongChuHo; i++)
         {
             var canHo = faker.PickRandom(canHos);
-            
+
             // Terminate existing active ChuHo if any
             var existingRelations = await context.QuanHeCuTrus
                 .Where(r => r.CanHoId == canHo.Id)
@@ -44,11 +44,11 @@ public class QuanHeCuTruSeeder
             var firstName = faker.Name.FirstName();
             var lastName = faker.Name.LastName();
             var email = UserSeeder.GenerateEmailFromName(firstName, lastName);
-            
+
             (NguoiDung user, TaiKhoan account) = await UserSeeder.CreateUserWithAccountAsync(
                 context, firstName, lastName, email, Role.Resident, null!);
 
-            var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.ChuHo, DateTime.Now.AddDays(-faker.Random.Number(10, 100)), existingRelations);
+            var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.ChuHo, DateTime.Now.AddDays(-faker.Random.Number(10, 100)));
             context.QuanHeCuTrus.Add(qh);
             await context.SaveChangesAsync();
         }
@@ -61,19 +61,19 @@ public class QuanHeCuTruSeeder
             .Distinct()
             .ToListAsync();
 
-        if (activeChuHoApartmentIds.Any())
+        if (activeChuHoApartmentIds.Count != 0)
         {
             var otherRoles = new[] { LoaiQuanHeCuTru.NguoiThue, LoaiQuanHeCuTru.NguoiOCung, LoaiQuanHeCuTru.Khac };
             var residentHasher = new HeThongChungCu.Infrastructure.Authentication.HasherService();
-            
+
             for (int i = 0; i < soLuongCuTru; i++)
             {
                 var canHoId = faker.PickRandom(activeChuHoApartmentIds);
                 var firstName = faker.Name.FirstName();
                 var lastName = faker.Name.LastName();
-                
+
                 var user = await UserSeeder.CreateUserOnlyAsync(context, firstName, lastName, null!);
-                
+
                 // Residents MUST have User, Account is optional (50% chance)
                 if (faker.Random.Bool(0.5f))
                 {
@@ -88,7 +88,7 @@ public class QuanHeCuTruSeeder
                     .Where(r => r.CanHoId == canHoId)
                     .ToListAsync();
 
-                var qh = new QuanHeCuTru(canHoId, user.Id, faker.PickRandom(otherRoles), DateTime.Now.AddDays(-faker.Random.Number(1, 10)), existingRelations);
+                var qh = new QuanHeCuTru(canHoId, user.Id, faker.PickRandom(otherRoles), DateTime.Now.AddDays(-faker.Random.Number(1, 10)));
                 context.QuanHeCuTrus.Add(qh);
                 await context.SaveChangesAsync();
             }

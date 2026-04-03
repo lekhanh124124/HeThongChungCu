@@ -1,4 +1,6 @@
 using HeThongChungCu.Application.Common.Behaviors;
+using HeThongChungCu.Domain.DomainServices;
+using HeThongChungCu.Domain.Interfaces;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +22,13 @@ public static class DependencyInjection
         });
 
         services.AddValidatorsFromAssembly(assembly);
+
+        // Domain Services
+        services.AddScoped<IBillingService, BillingService>();
+        services.AddScoped<IVehicleRegistryService, VehicleRegistryService>();
+        services.AddScoped<ICanHoDomainService, CanHoDomainService>();
+        services.AddScoped<IResidencyService, ResidencyService>();
+        services.AddScoped<IIdentityDomainService, IdentityDomainService>();
 
         return services;
     }

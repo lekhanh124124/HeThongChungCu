@@ -1,8 +1,9 @@
 using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace HeThongChungCu.Infrastructure.Persistence.Configurations.DichVu;
+namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
 public class DangKyDichVuConfiguration : IEntityTypeConfiguration<DangKyDichVu>
 {
@@ -15,20 +16,18 @@ public class DangKyDichVuConfiguration : IEntityTypeConfiguration<DangKyDichVu>
         builder.Property(x => x.NgayBatDau)
             .IsRequired();
 
-        builder.Property(x => x.SoLuong)
-            .IsRequired()
-            .HasDefaultValue(1);
-
-        builder.Property(x => x.IsActive)
-            .IsRequired()
-            .HasDefaultValue(true);
+        builder.Property(x => x.TrangThaiDangKyId)
+            .HasConversion(
+                v => v.Value,
+                v => TrangThaiDangKy.FromValue(v, null)!)
+            .IsRequired();
 
         builder.HasOne<CanHo>()
             .WithMany()
             .HasForeignKey(x => x.CanHoId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne<Domain.Entities.DichVu>()
+        builder.HasOne<DichVu>()
             .WithMany()
             .HasForeignKey(x => x.DichVuId)
             .OnDelete(DeleteBehavior.Restrict);

@@ -8,10 +8,10 @@ public class LoginCommandValidator : AbstractValidator<LoginCommand>
     public LoginCommandValidator()
     {
         RuleFor(x => x.Username)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+            .NotEmpty().WithMessage(AuthErrors.UsernameNotEmpty.Description);
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+            .NotEmpty().WithMessage(AuthErrors.PasswordNotEmpty.Description);
     }
 }
 

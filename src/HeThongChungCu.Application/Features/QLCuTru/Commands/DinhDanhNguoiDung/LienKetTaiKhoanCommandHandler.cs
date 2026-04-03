@@ -4,6 +4,7 @@ using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Interfaces;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.DinhDanhNguoiDung;
 
@@ -11,15 +12,18 @@ public class LienKetTaiKhoanCommandHandler : ICommandHandler<LienKetTaiKhoanComm
 {
     private readonly ITaiKhoanCommandRepository _accountRepository;
     private readonly INguoiDungCommandRepository _userRepository;
+    private readonly IIdentityDomainService _identityService;
     private readonly IUnitOfWork _unitOfWork;
 
     public LienKetTaiKhoanCommandHandler(
         ITaiKhoanCommandRepository accountRepository,
         INguoiDungCommandRepository userRepository,
+        IIdentityDomainService identityService,
         IUnitOfWork unitOfWork)
     {
         _accountRepository = accountRepository;
         _userRepository = userRepository;
+        _identityService = identityService;
         _unitOfWork = unitOfWork;
     }
 
@@ -32,31 +36,13 @@ public class LienKetTaiKhoanCommandHandler : ICommandHandler<LienKetTaiKhoanComm
             return Result.Failure<UserInfoResponse>(AuthErrors.AccountNotFound);
         }
 
-        // 2. Link account to user if not already linked
-        if (account.NguoiDungId != null && account.NguoiDungId != request.UserId)
-        {
-            return Result.Failure<UserInfoResponse>(new Error("Auth.AccountAlreadyLinked", "Tài khoản đã được liên kết với một người dùng khác."));
-        }
+        // 2. Link account and promote role via Domain Service
+        var linkResult = _identityService.LinkAccountToResident(account, request.UserId);
+        if (linkResult.IsFailure)
+            return Result.Failure<UserInfoResponse>(linkResult.Errors[0]);
 
-        if (account.NguoiDungId == null)
-        {
-            account.LinkToUser(request.UserId);
-        }
-
-        // 3. Promote role if Guest
-        var roles = account.PhanQuyens.Select(pq => pq.RoleId).ToList();
-        if (roles.Contains(Role.Guest) && !roles.Contains(Role.Resident))
-        {
-            account.RemoveRole(Role.Guest);
-            account.AddRole(Role.Resident);
-        }
-
-        // 4. Revoke any pending identification tokens for this account
-        var pendingTokens = account.Tokens.Where(t => t.TokenType == TokenType.UserCode && t.IsActive).ToList();
-        foreach (var token in pendingTokens)
-        {
-            account.RevokeToken(token.TokenHash, DateTimeOffset.UtcNow, ReasonRevoked.AdminAction);
-        }
+        // 3. Revoke any pending identification tokens
+        _identityService.RevokeIdentificationTokens(account, ReasonRevoked.AdminAction);
 
         _accountRepository.Update(account);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

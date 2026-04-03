@@ -40,7 +40,7 @@ public class UserSeeder
         var originalEmail = email.ToLower();
         var currentEmail = originalEmail;
         int counter = 1;
-        
+
         while (!_usedEmails.Add(currentEmail))
         {
             var parts = originalEmail.Split('@');
@@ -77,9 +77,9 @@ public class UserSeeder
 
             var testData = new[]
             {
-                (Email: "admin@gmail.com", Role: Role.Admin, FirstName: "Quản trị", LastName: "Hệ thống"),
-                (Email: "phognguen0@gmail.com", Role: Role.Manager, FirstName: "Ban", LastName: "Quản lý"),
-                (Email: "nhanvien@gmail.com", Role: Role.Staff, FirstName: "Trần", LastName: "Nhân Viên")
+                (Username: "admin", Email: "admin@gmail.com", Role: Role.Admin, FirstName: "Quản trị", LastName: "Hệ thống"),
+                (Username: "banquanly_test", Email: "phognguen0@gmail.com", Role: Role.Manager, FirstName: "Ban", LastName: "Quản lý"),
+                (Username: "nhanvien_test", Email: "nhanvien@gmail.com", Role: Role.Staff, FirstName: "Trần", LastName: "Nhân Viên")
             };
 
             foreach (var data in testData)
@@ -97,7 +97,7 @@ public class UserSeeder
                 await context.SaveChangesAsync();
 
                 var email = EnsureUniqueEmail(data.Email);
-                var account = new TaiKhoan(user.Id, email, email, hashedPassword);
+                var account = new TaiKhoan(user.Id, data.Username, email, hashedPassword);
                 account.AddRole(data.Role);
                 await context.TaiKhoan.AddAsync(account);
             }

@@ -20,21 +20,8 @@ public class QuanHeCuTru : AggregateRoot
         int canHoId,
         int nguoiDungId,
         LoaiQuanHeCuTru loaiQuanHeCuTruId,
-        DateTime ngayBatDau,
-        IEnumerable<QuanHeCuTru> existingRelations)
+        DateTime ngayBatDau)
     {
-        if (existingRelations.Any(x =>
-                x.NguoiDungId == nguoiDungId &&
-                x.CanHoId == canHoId &&
-                x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
-            throw new BusinessException("Cư dân này đã đang cư trú tại căn hộ này.");
-
-        if (loaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo &&
-            existingRelations.Any(x =>
-                x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo &&
-                x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
-            throw new BusinessException("Căn hộ đã có chủ hộ.");
-
         CanHoId = canHoId;
         NguoiDungId = nguoiDungId;
         LoaiQuanHeCuTruId = loaiQuanHeCuTruId;

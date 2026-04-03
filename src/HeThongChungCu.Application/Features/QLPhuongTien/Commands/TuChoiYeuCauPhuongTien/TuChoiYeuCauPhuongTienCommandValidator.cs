@@ -8,7 +8,7 @@ public class TuChoiYeuCauPhuongTienCommandValidator : AbstractValidator<TuChoiYe
     public TuChoiYeuCauPhuongTienCommandValidator()
     {
         RuleFor(x => x.YeuCauPhuongTienId)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+            .NotEmpty().WithMessage(YeuCauPhuongTienErrors.YeuCauPhuongTienIdRange.Description);
 
         RuleFor(x => x.LyDo)
             .NotEmpty().WithMessage(YeuCauPhuongTienErrors.LyDoNotEmpty.Description);

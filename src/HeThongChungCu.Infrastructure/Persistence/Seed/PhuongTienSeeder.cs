@@ -8,15 +8,15 @@ namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class PhuongTienSeeder
 {
-    private static readonly HashSet<string> _usedBienSos = new();
-    private static readonly HashSet<string> _usedMaThes = new();
+    private static readonly HashSet<string> _usedBienSos = [];
+    private static readonly HashSet<string> _usedMaThes = [];
 
     public static async Task SeedAsync(AppDbContext context, ILogger logger, int soLuongPhuongTien)
     {
         logger.LogInformation("Seeding {Count} PhuongTiens with logic-based cards...", soLuongPhuongTien);
 
         var canHoIds = await context.CanHos.Select(c => c.Id).ToListAsync();
-        if (!canHoIds.Any()) return;
+        if (canHoIds.Count == 0) return;
 
         var faker = new Faker("vi");
         var loaiPhuongTiens = LoaiPhuongTien.GetAll().ToArray();
@@ -24,10 +24,10 @@ public class PhuongTienSeeder
 
         var vehicleModels = new Dictionary<LoaiPhuongTien, string[]>
         {
-            { LoaiPhuongTien.Oto, new[] { "Toyota Camry", "Honda CR-V", "Mazda 3", "Hyundai SantaFe", "Mercedes E200", "VinFast Lux A" } },
-            { LoaiPhuongTien.XeMay, new[] { "Honda SH", "Honda Vision", "Yamaha Exciter", "Vespa Primavera", "Air Blade" } },
-            { LoaiPhuongTien.XeDap, new[] { "Giant Escape", "Thống Nhất", "Trek Marlin" } },
-            { LoaiPhuongTien.XeDien, new[] { "VinFast Klara", "Pega", "VinFast Vento" } }
+            { LoaiPhuongTien.Oto, ["Toyota Camry", "Honda CR-V", "Mazda 3", "Hyundai SantaFe", "Mercedes E200", "VinFast Lux A"] },
+            { LoaiPhuongTien.XeMay, ["Honda SH", "Honda Vision", "Yamaha Exciter", "Vespa Primavera", "Air Blade"] },
+            { LoaiPhuongTien.XeDap, ["Giant Escape", "Thống Nhất", "Trek Marlin"] },
+            { LoaiPhuongTien.XeDien, ["VinFast Klara", "Pega", "VinFast Vento"] }
         };
 
         for (int i = 0; i < soLuongPhuongTien; i++)
@@ -35,7 +35,7 @@ public class PhuongTienSeeder
             var loaiId = faker.PickRandom(loaiPhuongTiens);
             var model = faker.PickRandom(vehicleModels[loaiId]);
             var status = faker.PickRandom(trangThais);
-            
+
             var pt = new PhuongTien(
                 canHoId: faker.PickRandom(canHoIds),
                 tenPhuongTien: $"{model} {GenerateBienSo(faker)}",
@@ -57,7 +57,7 @@ public class PhuongTienSeeder
             {
                 // Inactive vehicles might still have old cards
                 pt.AddThe(GenerateUniqueMaThe(faker), DateTime.Now.AddMonths(-2));
-                
+
                 pt.Huy(DateTime.Now);
             }
             else if (status == TrangThaiPhuongTien.Blocked)

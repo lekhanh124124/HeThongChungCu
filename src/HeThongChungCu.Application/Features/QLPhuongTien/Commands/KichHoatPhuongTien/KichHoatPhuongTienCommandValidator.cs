@@ -8,9 +8,9 @@ public sealed class KichHoatPhuongTienCommandValidator : AbstractValidator<KichH
     public KichHoatPhuongTienCommandValidator()
     {
         RuleFor(x => x.PhuongTienIds)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
-            
+            .NotEmpty().WithMessage(PhuongTienErrors.PhuongTienIdsNotEmpty.Description);
+
         RuleForEach(x => x.PhuongTienIds)
-            .GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
+            .GreaterThan(0).WithMessage(PhuongTienErrors.PhuongTienIdRange.Description);
     }
 }

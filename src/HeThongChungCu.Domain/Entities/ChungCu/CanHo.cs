@@ -48,20 +48,8 @@ public class CanHo : AggregateRoot
         decimal dienTich, 
         int soPhongNgu, 
         int soPhongTam, 
-        LoaiCanHo loaiCanHoId,
-        bool hasActiveResidents)
+        LoaiCanHo loaiCanHoId)
     {
-        if (hasActiveResidents)
-        {
-            if (DienTich != dienTich ||
-                SoPhongNgu != soPhongNgu ||
-                SoPhongTam != soPhongTam ||
-                LoaiCanHoId != loaiCanHoId)
-            {
-                throw new BusinessException("Không được thay đổi cấu trúc căn hộ khi đang có cư dân cư trú.");
-            }
-        }
-
         ValidateStructure(dienTich, soPhongNgu, soPhongTam);
 
         MaCanHo = maCanHo;
@@ -91,12 +79,8 @@ public class CanHo : AggregateRoot
         TinhTrangCanHoId = nextStatus;
     }
 
-    public void Delete(bool hasActiveResidents)
+    public void Delete()
     {
-        if (hasActiveResidents)
-        {
-            throw new BusinessException("Không được xóa căn hộ khi đang có cư dân cư trú.");
-        }
     }
 
     private void ValidateStructure(decimal dienTich, int soPhongNgu, int soPhongTam)

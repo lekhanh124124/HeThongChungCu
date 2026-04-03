@@ -9,12 +9,11 @@ public class TaoYeuCauCuTruCommandValidator : AbstractValidator<TaoYeuCauCuTruCo
     public TaoYeuCauCuTruCommandValidator()
     {
         RuleFor(x => x.CanHoId)
-            .NotEmpty()
-            .WithMessage(ValidationErrors.NotEmpty.Description);
+            .NotEmpty().WithMessage(YeuCauCuTruErrors.CanHoIdRange.Description)
+            .GreaterThan(0).WithMessage(YeuCauCuTruErrors.CanHoIdRange.Description);
 
         RuleFor(x => x.LoaiYeuCauId)
-            .NotEmpty()
-            .WithMessage(ValidationErrors.NotEmpty.Description)
+            .NotEmpty().WithMessage(YeuCauCuTruErrors.LoaiYeuCauNotEmpty.Description)
             .Must(id => LoaiYeuCau.GetAll().Any(g => g.Value == id))
             .WithMessage(YeuCauCuTruErrors.InvalidType(LoaiYeuCau.GetAll().Select(l => $"{l.Value} ({l.Name})")).Description);
 
@@ -22,65 +21,51 @@ public class TaoYeuCauCuTruCommandValidator : AbstractValidator<TaoYeuCauCuTruCo
         When(x => x.LoaiYeuCauId == LoaiYeuCau.Them.Value, () => // AddMember
         {
             RuleFor(x => x.FirstName)
-                .NotEmpty()
-                .WithMessage(ValidationErrors.NotEmpty.Description)
-                .MaximumLength(50)
-                .WithMessage(ValidationErrors.MaxLength(50).Description);
+                .NotEmpty().WithMessage(UserErrors.FirstNameNotEmpty.Description)
+                .MaximumLength(50).WithMessage(UserErrors.FirstNameMaxLength.Description);
             RuleFor(x => x.LastName)
-                .NotEmpty()
-                .WithMessage(ValidationErrors.NotEmpty.Description)
-                .MaximumLength(50)
-                .WithMessage(ValidationErrors.MaxLength(50).Description);
+                .NotEmpty().WithMessage(UserErrors.LastNameNotEmpty.Description)
+                .MaximumLength(50).WithMessage(UserErrors.LastNameMaxLength.Description);
             RuleFor(x => x.PhoneNumber)
-                .MaximumLength(20)
-                .WithMessage(ValidationErrors.MaxLength(20).Description);
+                .MaximumLength(20).WithMessage(UserErrors.PhoneNumberMaxLength.Description);
             RuleFor(x => x.Dob)
-                .NotEmpty()
-                .WithMessage(ValidationErrors.NotEmpty.Description);
+                .NotEmpty().WithMessage(UserErrors.DobNotEmpty.Description);
             RuleFor(x => x.GioiTinhId)
-                .NotEmpty()
-                .WithMessage(ValidationErrors.NotEmpty.Description);
+                .NotEmpty().WithMessage(UserErrors.GenderNotEmpty.Description);
             RuleFor(x => x.CCCD)
-                .MaximumLength(50)
-                .WithMessage(ValidationErrors.MaxLength(50).Description);
+                .MaximumLength(50).WithMessage(UserErrors.CCCDMaxLength.Description);
             RuleFor(x => x.DiaChi)
-                .MaximumLength(200)
-                .WithMessage(ValidationErrors.MaxLength(200).Description);
+                .MaximumLength(200).WithMessage(UserErrors.DiaChiMaxLength.Description);
             RuleFor(x => x.LoaiQuanHeId)
-                .NotEmpty()
-                .WithMessage(ValidationErrors.NotEmpty.Description);
+                .NotEmpty().WithMessage(YeuCauCuTruErrors.QuanHeIdRange.Description);
         });
 
         When(x => x.LoaiYeuCauId != LoaiYeuCau.Them.Value, () => // Update/Remove/ChangeHead
         {
             RuleFor(x => x.TargetQuanHeCuTruId)
-                .NotEmpty()
-                .WithMessage(ValidationErrors.NotEmpty.Description);
+                .NotEmpty().WithMessage(YeuCauCuTruErrors.QuanHeIdRange.Description)
+                .GreaterThan(0).WithMessage(YeuCauCuTruErrors.QuanHeIdRange.Description);
         });
 
         When(x => x.LoaiYeuCauId == LoaiYeuCau.Sua.Value, () => // UpdateRelationship
         {
             RuleFor(x => x.LoaiQuanHeId)
-                .NotEmpty()
-                .WithMessage(ValidationErrors.NotEmpty.Description);
+                .NotEmpty().WithMessage(YeuCauCuTruErrors.QuanHeIdRange.Description)
+                .GreaterThan(0).WithMessage(YeuCauCuTruErrors.QuanHeIdRange.Description);
         });
 
         RuleForEach(x => x.TaiLieuCuTrus).ChildRules(attachment =>
         {
             attachment.RuleFor(a => a.LoaiGiayToId)
-                .NotEmpty()
-                .WithMessage(ValidationErrors.NotEmpty.Description);
+                .NotEmpty().WithMessage(YeuCauCuTruErrors.GiayToIdRange.Description)
+                .GreaterThan(0).WithMessage(YeuCauCuTruErrors.GiayToIdRange.Description);
             attachment.RuleFor(a => a.SoGiayTo)
-                .NotEmpty()
-                .WithMessage(ValidationErrors.NotEmpty.Description)
-                .MaximumLength(100)
-                .WithMessage(ValidationErrors.MaxLength(100).Description);
+                .NotEmpty().WithMessage(YeuCauCuTruErrors.SoGiayToNotEmpty.Description)
+                .MaximumLength(100).WithMessage(YeuCauCuTruErrors.SoGiayToMaxLength.Description);
             attachment.RuleFor(a => a.FileIds)
-                .NotEmpty()
-                .WithMessage(ValidationErrors.NotEmpty.Description);
+                .NotEmpty().WithMessage(YeuCauCuTruErrors.FileIdsNotEmpty.Description);
             attachment.RuleForEach(a => a.FileIds)
-                .GreaterThan(0)
-                .WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
+                .GreaterThan(0).WithMessage(YeuCauCuTruErrors.FileIdRange.Description);
         });
     }
 }

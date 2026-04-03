@@ -1,5 +1,4 @@
 using HeThongChungCu.Domain.Entities;
-using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,31 +8,7 @@ public class YeuCauCuTruConfiguration : IEntityTypeConfiguration<YeuCauCuTru>
 {
     public void Configure(EntityTypeBuilder<YeuCauCuTru> builder)
     {
-        builder.ToTable("YeuCauCuTru");
-
-        builder.HasKey(e => e.Id);
-
-        builder.Property(e => e.NoiDung).HasMaxLength(1000);
-        builder.Property(e => e.LyDo).HasMaxLength(500);
-
-        builder.Property(x => x.LoaiYeuCauId)
-            .HasConversion(
-                v => v.Value,
-                v => LoaiYeuCau.FromValue(v, null)!)
-            .IsRequired();
-
-        builder.Property(x => x.TrangThaiId)
-            .HasConversion(
-                v => v.Value,
-                v => TrangThaiYeuCau.FromValue(v, null)!)
-            .IsRequired();
-
-
-        builder.HasOne<CanHo>()
-            .WithMany()
-            .HasForeignKey(x => x.CanHoId)
-            .OnDelete(DeleteBehavior.Restrict);
-
+        // TPH: Inherits table from YeuCau
 
         builder.HasMany(x => x.YeuCauTaiLieuCuTrus)
             .WithOne(x => x.YeuCauCuTru)
@@ -44,9 +19,6 @@ public class YeuCauCuTruConfiguration : IEntityTypeConfiguration<YeuCauCuTru>
             .HasField("_yeuCauTaiLieuCuTrus")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.Property(e => e.LyDo)
-            .HasMaxLength(500);
-
         builder.Property(e => e.YeuCauHo)
             .HasMaxLength(50);
 
@@ -55,8 +27,11 @@ public class YeuCauCuTruConfiguration : IEntityTypeConfiguration<YeuCauCuTru>
 
         builder.Property(e => e.YeuCauSoDienThoai)
             .HasMaxLength(15);
-        builder.Property(x => x.YeuCauNgaySinh);
-        builder.Property(x => x.YeuCauGioiTinhId);
-        builder.Property(x => x.YeuCauLoaiQuanHeId);
+
+        builder.Property(e => e.YeuCauCCCD)
+            .HasMaxLength(20);
+
+        builder.Property(e => e.YeuCauDiaChi)
+            .HasMaxLength(500);
     }
 }

@@ -28,13 +28,11 @@ public static class FileErrors
         "File.EmptyTargetContainer",
         "Mục đích tải lên (Target Container/Category) không được để trống.");
 
-    public static readonly Error EmptyFileName = new(
-        "File.EmptyFileName",
-        "Tên tệp tin không được để trống.");
+    public static readonly Error EmptyFileName = Error.NotEmpty("Tên tệp tin");
 
-    public static readonly Error EmptyContent = new(
-        "File.EmptyContent",
-        "Nội dung tệp tin không được để trống.");
+    public static readonly Error EmptyContent = Error.NotEmpty("Nội dung tệp tin");
+
+    public static readonly Error ContentTypeNotEmpty = Error.NotEmpty("Loại nội dung");
 
     public static readonly Error InvalidSize = new(
         "File.InvalidSize",

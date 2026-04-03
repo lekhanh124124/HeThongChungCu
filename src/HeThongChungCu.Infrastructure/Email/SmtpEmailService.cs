@@ -185,6 +185,75 @@ internal sealed class SmtpEmailService : IEmailService
         await SendAsync(to, subject, body, cancellationToken);
     }
 
+    public async Task SendStaffWelcomeEmailAsync(
+        string to,
+        string fullName,
+        string userName,
+        string password,
+        CancellationToken cancellationToken = default)
+    {
+        var subject = "Chào mừng bạn gia nhập đội ngũ quản lý chung cư";
+        var body = $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='utf-8'>
+            </head>
+            <body style='font-family: ""Helvetica Neue"", Helvetica, Arial, sans-serif; background-color: #f4f5f7; margin: 0; padding: 0;'>
+                <table width='100%' cellpadding='0' cellspacing='0' style='background-color: #f4f5f7; padding: 40px 20px;'>
+                    <tr>
+                        <td align='center'>
+                            <table width='100%' cellpadding='0' cellspacing='0' style='max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05);'>
+                                <tr>
+                                    <td style='padding: 30px; text-align: center; background-color: #10b981;'>
+                                        <h1 style='color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;'>Chào Mừng Nhân Viên Mới</h1>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 40px 30px; color: #334155; font-size: 16px; line-height: 1.6;'>
+                                        <p style='margin-top: 0;'>Xin chào <strong>{fullName}</strong>,</p>
+                                        <p>Chào mừng bạn đã trở thành một thành viên trong đội ngũ quản lý vận hành chung cư của chúng tôi. Tài khoản hệ thống của bạn đã được khởi tạo thành công.</p>
+                                        
+                                        <div style='background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 20px; margin: 25px 0;'>
+                                            <p style='margin-top: 0; font-weight: 600; color: #64748b;'>Thông tin đăng nhập của bạn:</p>
+                                            <table width='100%'>
+                                                <tr>
+                                                    <td width='40%' style='color: #64748b;'>Tên đăng nhập:</td>
+                                                    <td style='font-weight: 600;'>{userName}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td style='color: #64748b;'>Mật khẩu tạm thời:</td>
+                                                    <td style='font-weight: 600; color: #10b981;'>{password}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        
+                                        <p>Vui lòng đăng nhập vào hệ thống và <strong>thay đổi mật khẩu ngay lập tức</strong> để đảm bảo an toàn cho tài khoản của bạn.</p>
+                                        
+                                        <div style='text-align: center; margin: 35px 0;'>
+                                            <a href='http://localhost:5000/login' style='display: inline-block; padding: 14px 28px; font-size: 16px; font-weight: bold; color: #ffffff; background-color: #10b981; border-radius: 6px; text-decoration: none;'>
+                                                Đăng nhập hệ thống
+                                            </a>
+                                        </div>
+                                        
+                                        <p style='margin-bottom: 0;'>Trân trọng,<br><strong>Ban quản lý chung cư</strong></p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style='padding: 20px; text-align: center; font-size: 13px; color: #94a3b8; background-color: #f8fafc; border-top: 1px solid #e2e8f0;'>
+                                        <p style='margin: 0;'>Đây là email tự động, vui lòng không trả lời email này.</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>";
+
+        await SendAsync(to, subject, body, cancellationToken);
+    }
+
     public async Task SendAssessmentReadyEmailAsync(
         string to,
         string userName,

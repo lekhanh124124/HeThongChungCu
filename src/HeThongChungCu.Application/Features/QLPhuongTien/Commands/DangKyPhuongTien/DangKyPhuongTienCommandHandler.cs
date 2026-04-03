@@ -1,5 +1,10 @@
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 using HeThongChungCu.Application.Features.UploadMedia.DTOs;
+using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Interfaces;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.DangKyPhuongTien;
 
@@ -9,6 +14,7 @@ internal sealed class DangKyPhuongTienCommandHandler : ICommandHandler<DangKyPhu
     private readonly ICanHoCommandRepository _canHoCommandRepository;
     private readonly IToaNhaCommandRepository _toaNhaCommandRepository;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly IVehicleRegistryService _vehicleRegistryService;
     private readonly IUnitOfWork _unitOfWork;
 
     public DangKyPhuongTienCommandHandler(
@@ -16,12 +22,14 @@ internal sealed class DangKyPhuongTienCommandHandler : ICommandHandler<DangKyPhu
         ICanHoCommandRepository canHoCommandRepository,
         IToaNhaCommandRepository toaNhaCommandRepository,
         ITepTaiLieuRepository tepTaiLieuRepository,
+        IVehicleRegistryService vehicleRegistryService,
         IUnitOfWork unitOfWork)
     {
         _phuongTienCommandRepository = phuongTienCommandRepository;
         _canHoCommandRepository = canHoCommandRepository;
         _toaNhaCommandRepository = toaNhaCommandRepository;
         _tepTaiLieuRepository = tepTaiLieuRepository;
+        _vehicleRegistryService = vehicleRegistryService;
         _unitOfWork = unitOfWork;
     }
 
@@ -39,18 +47,21 @@ internal sealed class DangKyPhuongTienCommandHandler : ICommandHandler<DangKyPhu
         if (tang == null)
             return Result.Failure<PhuongTienResponse>(CanHoErrors.NotFoundById(request.CanHoId));
 
-        var bienSoExists = await _phuongTienCommandRepository.BienSoExistsAsync(request.BienSo, cancellationToken);
-        if (bienSoExists)
-            return Result.Failure<PhuongTienResponse>(PhuongTienErrors.BienSoExists);
-
-        // Kiểm tra hạn mức ngay khi đăng ký (Cảnh báo sớm)
         var loaiPhuongTien = LoaiPhuongTien.FromValue(request.LoaiPhuongTienId)!;
+        
+        // Gather data for Domain Service
         var existingVehicles = await _phuongTienCommandRepository.GetPhuongTiensByCanHoIdAsync(request.CanHoId, cancellationToken);
-        var currentCount = existingVehicles.Count(x => x.LoaiPhuongTienId == loaiPhuongTien && x.TrangThaiPhuongTienId == TrangThaiPhuongTien.Active);
-        var quota = PhuongTienPolicy.GetQuota(canHo.LoaiCanHoId, loaiPhuongTien);
+        var isPlateDuplicate = await _phuongTienCommandRepository.BienSoExistsAsync(request.BienSo, cancellationToken);
 
-        if (PhuongTienPolicy.IsOverQuota(currentCount, quota))
-            return Result.Failure<PhuongTienResponse>(new Error("PhuongTien.QuotaExceeded", $"Căn hộ đã đạt hạn mức tối đa {quota} xe cho loại {loaiPhuongTien.Name}."));
+        // Delegate to Domain Service
+        var validationResult = _vehicleRegistryService.CanRegisterOrUpdateVehicle(
+            canHo,
+            loaiPhuongTien,
+            existingVehicles.Where(v => v.TrangThaiPhuongTienId == TrangThaiPhuongTien.Active),
+            isPlateDuplicate);
+
+        if (validationResult.IsFailure)
+            return Result.Failure<PhuongTienResponse>(validationResult.Errors[0]);
 
         IEnumerable<TepTaiLieu>? hinhAnhs = null;
         if (request.HinhAnhIds != null && request.HinhAnhIds.Any())

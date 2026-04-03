@@ -8,13 +8,10 @@ public sealed class TaoThePhuongTienCommandValidator : AbstractValidator<TaoTheP
     public TaoThePhuongTienCommandValidator()
     {
         RuleFor(x => x.PhuongTienId)
-            .GreaterThan(0)
-            .WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
+            .GreaterThan(0).WithMessage(PhuongTienErrors.PhuongTienIdRange.Description);
 
         RuleFor(x => x.MaThe)
-            .NotEmpty()
-            .WithMessage(ValidationErrors.NotEmpty.Description)
-            .MaximumLength(50)
-            .WithMessage(ValidationErrors.MaxLength(50).Description);
+            .NotEmpty().WithMessage(PhuongTienErrors.MaTheNotEmpty.Description)
+            .MaximumLength(50).WithMessage(PhuongTienErrors.MaTheMaxLength.Description);
     }
 }

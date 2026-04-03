@@ -8,10 +8,10 @@ public class TuChoiYeuCauCuTruCommandValidator : AbstractValidator<TuChoiYeuCauC
     public TuChoiYeuCauCuTruCommandValidator()
     {
         RuleFor(x => x.YeuCauCuTruId)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+            .NotEmpty().WithMessage(YeuCauCuTruErrors.YeuCauCuTruIdRange.Description);
 
         RuleFor(x => x.LyDo)
             .NotEmpty().WithMessage(YeuCauCuTruErrors.LyDoNotEmpty.Description)
-            .MaximumLength(500).WithMessage(ValidationErrors.MaxLength(500).Description);
+            .MaximumLength(500).WithMessage(YeuCauCuTruErrors.LyDoMaxLength.Description);
     }
 }

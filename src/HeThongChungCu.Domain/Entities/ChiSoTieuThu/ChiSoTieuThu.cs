@@ -7,9 +7,9 @@ public class ChiSoTieuThu : AggregateRoot
 {
     public int CanHoId { get; private set; }
     public int DichVuId { get; private set; }
-    public double ChiSoCu { get; private set; }
-    public double ChiSoMoi { get; private set; }
-    public double SoLuong => ChiSoMoi - ChiSoCu;
+    public decimal ChiSoCu { get; private set; }
+    public decimal ChiSoMoi { get; private set; }
+    public decimal SoLuong => ChiSoMoi - ChiSoCu;
     public int Thang { get; private set; }
     public int Nam { get; private set; }
     public DateTime NgayChot { get; private set; }
@@ -17,10 +17,10 @@ public class ChiSoTieuThu : AggregateRoot
 
     private ChiSoTieuThu() { } // EF Core
 
-    public ChiSoTieuThu(int canHoId, int dichVuId, double chiSoCu, double chiSoMoi, int thang, int nam, DateTime ngayChot)
+    public ChiSoTieuThu(int canHoId, int dichVuId, decimal chiSoCu, decimal chiSoMoi, int thang, int nam, DateTime ngayChot)
     {
         if (chiSoMoi < chiSoCu)
-            throw new BusinessException("Chỉ số mới không được nhỏ hơn chỉ số cũ.");
+            throw new BusinessException("Chỉ số mới không thể nhỏ hơn chỉ số cũ.");
 
         CanHoId = canHoId;
         DichVuId = dichVuId;
@@ -32,13 +32,13 @@ public class ChiSoTieuThu : AggregateRoot
         IsLock = false;
     }
 
-    public void Update(double chiSoCu, double chiSoMoi, int thang, int nam, DateTime ngayChot)
+    public void Update(decimal chiSoCu, decimal chiSoMoi, int thang, int nam, DateTime ngayChot)
     {
         if (IsLock)
             throw new BusinessException("Chỉ số tiêu thụ đã bị khóa, không thể cập nhật.");
         
         if (chiSoMoi < chiSoCu)
-            throw new BusinessException("Chỉ số mới không được nhỏ hơn chỉ số cũ.");
+            throw new BusinessException("Chỉ số mới không thể nhỏ hơn chỉ số cũ.");
 
         ChiSoCu = chiSoCu;
         ChiSoMoi = chiSoMoi;

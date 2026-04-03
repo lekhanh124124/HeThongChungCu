@@ -1,5 +1,8 @@
 using HeThongChungCu.Application.Features.CanHo.DTOs;
 using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Interfaces;
+
 namespace HeThongChungCu.Application.Features.CanHo.Commands.DeleteCanHo;
 
 public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IReadOnlyList<CanHoDetailResponse>>
@@ -8,17 +11,20 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
     private readonly IUnitOfWork _unitOfWork;
     private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
     private readonly IToaNhaCommandRepository _toaNhaRepository;
+    private readonly IResidencyService _residencyService;
 
     public DeleteCanHoCommandHandler(
         ICanHoCommandRepository canHoRepository,
         IUnitOfWork unitOfWork,
         IQuanHeCuTruCommandRepository quanHeCuTruRepository,
-        IToaNhaCommandRepository toaNhaRepository)
+        IToaNhaCommandRepository toaNhaRepository,
+        IResidencyService residencyService)
     {
         _canHoRepository = canHoRepository;
         _unitOfWork = unitOfWork;
         _quanHeCuTruRepository = quanHeCuTruRepository;
         _toaNhaRepository = toaNhaRepository;
+        _residencyService = residencyService;
     }
 
     public async Task<Result<IReadOnlyList<CanHoDetailResponse>>> Handle(DeleteCanHoCommand request, CancellationToken cancellationToken)
@@ -54,9 +60,12 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
         foreach (var canHo in canHos)
         {
             var relations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
-            bool hasActiveResidents = relations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
+            
+            var residencyCheck = _residencyService.CheckCanUpdateOrDeleteCanHo(canHo, relations);
+            if (residencyCheck.IsFailure)
+                return Result.Failure<IReadOnlyList<CanHoDetailResponse>>(residencyCheck.Errors);
 
-            canHo.Delete(hasActiveResidents);
+            canHo.Delete();
             _canHoRepository.Remove(canHo);
         }
 

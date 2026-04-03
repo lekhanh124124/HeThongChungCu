@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
 
 namespace HeThongChungCu.Domain.Entities;
@@ -10,7 +11,7 @@ public class DangKyDichVu : AggregateRoot
     public DateTime NgayBatDau { get; private set; }
     public DateTime? NgayKetThuc { get; private set; }
     public int SoLuong { get; private set; }
-    public bool IsActive { get; private set; }
+    public TrangThaiDangKy TrangThaiDangKyId { get; private set; } = null!;
 
     private DangKyDichVu() { }
 
@@ -20,7 +21,7 @@ public class DangKyDichVu : AggregateRoot
         DichVuId = dichVuId;
         NgayBatDau = ngayBatDau;
         SoLuong = soLuong;
-        IsActive = true;
+        TrangThaiDangKyId = TrangThaiDangKy.ChoDuyet;
     }
 
     public void UpdateSoLuong(int soLuong)
@@ -35,8 +36,11 @@ public class DangKyDichVu : AggregateRoot
             throw new BusinessException("Ngày kết thúc không được nhỏ hơn ngày bắt đầu.");
         
         NgayKetThuc = ngayKetThuc;
-        IsActive = false;
+        TrangThaiDangKyId = TrangThaiDangKy.DaHuy;
     }
 
-    public void UpdateStatus(bool isActive) => IsActive = isActive;
+    public void UpdateStatus(TrangThaiDangKy nextStatus)
+    {
+        TrangThaiDangKyId = nextStatus;
+    }
 }

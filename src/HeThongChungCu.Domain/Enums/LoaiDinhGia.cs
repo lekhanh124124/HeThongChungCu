@@ -9,6 +9,7 @@ public class LoaiDinhGia : BaseEnum<LoaiDinhGia, int>
     public static readonly LoaiDinhGia TheoSoLuong = new(3, "Theo số lượng");
     public static readonly LoaiDinhGia TheoPhanTram = new(4, "Theo phần trăm");
     public static readonly LoaiDinhGia TheoChiSo = new(5, "Theo chỉ số");
+    public static readonly LoaiDinhGia TheoDienTich = new(6, "Theo diện tích");
     private LoaiDinhGia(int value, string name) : base(value, name)
     {
     }

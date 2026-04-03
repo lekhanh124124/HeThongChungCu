@@ -8,23 +8,23 @@ public class CapNhatYeuCauPhuongTienCommandValidator : AbstractValidator<CapNhat
     public CapNhatYeuCauPhuongTienCommandValidator()
     {
         RuleFor(x => x.Id)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
+            .NotEmpty().WithMessage(YeuCauPhuongTienErrors.YeuCauPhuongTienIdRange.Description);
 
         When(x => !x.IsWithdraw, () =>
         {
             RuleFor(x => x.YeuCauTenPhuongTien)
-                .MaximumLength(100).WithMessage(ValidationErrors.MaxLength(100).Description);
+                .MaximumLength(100).WithMessage(PhuongTienErrors.TenXeMaxLength.Description);
 
             RuleFor(x => x.YeuCauBienSo)
-                .MaximumLength(20).WithMessage(ValidationErrors.MaxLength(20).Description);
+                .MaximumLength(20).WithMessage(PhuongTienErrors.BienSoMaxLength.Description);
 
             RuleFor(x => x.YeuCauMauXe)
-                .MaximumLength(50).WithMessage(ValidationErrors.MaxLength(50).Description);
+                .MaximumLength(50).WithMessage(PhuongTienErrors.MauXeMaxLength.Description);
 
             When(x => x.FileIds != null, () =>
             {
                 RuleForEach(x => x.FileIds)
-                    .GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
+                    .GreaterThan(0).WithMessage(YeuCauPhuongTienErrors.FileIdRange.Description);
             });
         });
     }

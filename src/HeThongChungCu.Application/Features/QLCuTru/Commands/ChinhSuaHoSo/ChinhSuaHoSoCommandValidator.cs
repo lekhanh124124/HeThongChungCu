@@ -7,16 +7,16 @@ public class ChinhSuaHoSoCommandValidator : AbstractValidator<ChinhSuaHoSoComman
 {
     public ChinhSuaHoSoCommandValidator()
     {
-        RuleFor(x => x.QuanHeCuTruId).GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
+        RuleFor(x => x.QuanHeCuTruId).GreaterThan(0).WithMessage(YeuCauCuTruErrors.QuanHeIdRange.Description);
         RuleFor(x => x.FirstName)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
-            .MaximumLength(100).WithMessage(ValidationErrors.MaxLength(100).Description);
+            .NotEmpty().WithMessage(UserErrors.FirstNameNotEmpty.Description)
+            .MaximumLength(100).WithMessage(UserErrors.FirstNameMaxLength.Description);
         RuleFor(x => x.LastName)
-            .NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description)
-            .MaximumLength(100).WithMessage(ValidationErrors.MaxLength(100).Description);
-        RuleFor(x => x.Dob).NotEmpty().WithMessage(ValidationErrors.NotEmpty.Description);
-        RuleFor(x => x.GioiTinhId).InclusiveBetween(1, 2).WithMessage(ValidationErrors.Range(1, 2).Description);
-        RuleFor(x => x.DiaChi).MaximumLength(500).WithMessage(ValidationErrors.MaxLength(500).Description);
-        RuleFor(x => x.LoaiQuanHeCuTruId).GreaterThan(0).WithMessage(ValidationErrors.Range(1, int.MaxValue).Description);
+            .NotEmpty().WithMessage(UserErrors.LastNameNotEmpty.Description)
+            .MaximumLength(100).WithMessage(UserErrors.LastNameMaxLength.Description);
+        RuleFor(x => x.Dob).NotEmpty().WithMessage(UserErrors.DobNotEmpty.Description);
+        RuleFor(x => x.GioiTinhId).InclusiveBetween(1, 2).WithMessage(UserErrors.GenderRange.Description);
+        RuleFor(x => x.DiaChi).MaximumLength(500).WithMessage(UserErrors.DiaChiMaxLength.Description);
+        RuleFor(x => x.LoaiQuanHeCuTruId).GreaterThan(0).WithMessage(YeuCauCuTruErrors.QuanHeIdRange.Description);
     }
 }
