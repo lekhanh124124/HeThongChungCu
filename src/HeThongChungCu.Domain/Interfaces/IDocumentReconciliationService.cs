@@ -13,4 +13,11 @@ public interface IDocumentReconciliationService
         NguoiDung user,
         IEnumerable<DocumentSyncItem> proposedDocs,
         IEnumerable<TepTaiLieu> fetchedFiles);
+
+    /// <summary>
+    /// Đồng bộ hóa bộ sưu tập hình ảnh của phương tiện.
+    /// </summary>
+    void ReconcilePhuongTienImages(
+        PhuongTien phuongTien,
+        IEnumerable<TepTaiLieu> hinhAnhs);
 }

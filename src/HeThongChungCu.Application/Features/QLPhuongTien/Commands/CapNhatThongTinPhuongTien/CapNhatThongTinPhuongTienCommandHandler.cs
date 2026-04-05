@@ -1,5 +1,6 @@
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 using HeThongChungCu.Application.Features.UploadMedia.DTOs;
+using HeThongChungCu.Domain.Interfaces;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatThongTinPhuongTien;
 
@@ -9,6 +10,7 @@ internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<
     private readonly IToaNhaCommandRepository _toaNhaCommandRepository;
     private readonly IPhuongTienCommandRepository _phuongTienCommandRepository;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly IDocumentReconciliationService _documentReconciliationService;
     private readonly IUnitOfWork _unitOfWork;
 
     public CapNhatThongTinPhuongTienCommandHandler(
@@ -16,12 +18,14 @@ internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<
         IToaNhaCommandRepository toaNhaCommandRepository,
         IPhuongTienCommandRepository phuongTienCommandRepository,
         ITepTaiLieuRepository tepTaiLieuRepository,
+        IDocumentReconciliationService documentReconciliationService,
         IUnitOfWork unitOfWork)
     {
         _phuongTienCommandRepository = phuongTienCommandRepository;
         _toaNhaCommandRepository = toaNhaCommandRepository;
         _canHoRepository = canHoRepository;
         _tepTaiLieuRepository = tepTaiLieuRepository;
+        _documentReconciliationService = documentReconciliationService;
         _unitOfWork = unitOfWork;
     }
 
@@ -51,18 +55,20 @@ internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<
         if (tang == null)
             return Result.Failure<PhuongTienResponse>(CanHoErrors.NotFoundById(phuongTien.CanHoId));
 
-        IEnumerable<TepTaiLieu>? hinhAnhs = null;
-        if (request.HinhAnhIds != null && request.HinhAnhIds.Count != 0)
-        {
-            hinhAnhs = await _tepTaiLieuRepository.GetByIdsAsync(request.HinhAnhIds, cancellationToken);
-        }
-
         phuongTien.CapNhat(
             request.TenPhuongTien,
             LoaiPhuongTien.FromValue(request.LoaiPhuongTienId)!,
             request.BienSo,
-            request.MauXe,
-            hinhAnhs?.Select(f => f is TepPhuongTien tp ? tp : new TepPhuongTien(f.FileName, f.FileUrl, f.Size, f.ContentType)).ToList());
+            request.MauXe);
+
+        if (request.HinhAnhIds != null)
+        {
+            var hinhAnhs = request.HinhAnhIds.Count != 0
+                ? await _tepTaiLieuRepository.GetByIdsAsync(request.HinhAnhIds, cancellationToken)
+                : new List<TepTaiLieu>();
+
+            _documentReconciliationService.ReconcilePhuongTienImages(phuongTien, hinhAnhs);
+        }
 
         _phuongTienCommandRepository.Update(phuongTien);
 

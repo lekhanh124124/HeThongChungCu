@@ -2,6 +2,7 @@ using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
+using HeThongChungCu.Application.Features.UploadMedia.DTOs;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
@@ -20,6 +21,7 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IVehicleRegistryService _vehicleRegistryService;
+    private readonly IDocumentReconciliationService _documentReconciliationService;
     private readonly IUnitOfWork _unitOfWork;
 
     public PheDuyetYeuCauPhuongTienCommandHandler(
@@ -31,6 +33,7 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
         ICurrentUserService currentUserService,
         IDateTimeProvider dateTimeProvider,
         IVehicleRegistryService vehicleRegistryService,
+        IDocumentReconciliationService documentReconciliationService,
         IUnitOfWork unitOfWork)
     {
         _yeuCauRepository = yeuCauRepository;
@@ -41,6 +44,7 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
         _currentUserService = currentUserService;
         _dateTimeProvider = dateTimeProvider;
         _vehicleRegistryService = vehicleRegistryService;
+        _documentReconciliationService = documentReconciliationService;
         _unitOfWork = unitOfWork;
     }
 
@@ -122,8 +126,9 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
                 yeuCau.YeuCauTenPhuongTien,
                 yeuCau.YeuCauLoaiPhuongTienId,
                 yeuCau.YeuCauBienSo,
-                yeuCau.YeuCauMauXe,
-                yeuCau.YeuCauHinhAnhPhuongTiens.Select(f => new TepPhuongTien(f.FileName, f.FileUrl, f.Size, f.ContentType)).ToList());
+                yeuCau.YeuCauMauXe);
+
+            _documentReconciliationService.ReconcilePhuongTienImages(phuongTien, yeuCau.YeuCauHinhAnhPhuongTiens);
 
             _phuongTienRepository.Update(phuongTien);
         }

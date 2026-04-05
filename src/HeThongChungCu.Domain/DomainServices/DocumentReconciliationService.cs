@@ -36,13 +36,13 @@ public class DocumentReconciliationService : IDocumentReconciliationService
         foreach (var propDoc in proposedList)
         {
             var loaiGiayTo = LoaiGiayTo.FromValue(propDoc.LoaiGiayToId)!;
-            
+
             // Map file Ids to file entities, casting to the correct sub-type or creating a new one if it's missing the discriminator
             var files = propDoc.FileIds
-                .Where(id => tepTaiLieuDict.ContainsKey(id))
+                .Where(tepTaiLieuDict.ContainsKey)
                 .Select(id => tepTaiLieuDict[id])
-                .Select(f => f is TepTaiLieuNguoiDung tp 
-                    ? tp 
+                .Select(f => f is TepTaiLieuNguoiDung tp
+                    ? tp
                     : new TepTaiLieuNguoiDung(f.FileName, f.FileUrl, f.Size, f.ContentType))
                 .ToList();
 
@@ -52,7 +52,7 @@ public class DocumentReconciliationService : IDocumentReconciliationService
                 var existingDoc = user.TaiLieu.FirstOrDefault(d => d.Id == propDoc.Id.Value);
                 if (existingDoc != null)
                 {
-                    existingDoc.UpdateInfo(loaiGiayTo, propDoc.SoGiayTo, propDoc.NgayPhatHanh?.DateTime); 
+                    existingDoc.UpdateInfo(loaiGiayTo, propDoc.SoGiayTo, propDoc.NgayPhatHanh?.DateTime);
                     existingDoc.SyncFiles(files);
                 }
             }
@@ -66,6 +66,36 @@ public class DocumentReconciliationService : IDocumentReconciliationService
                     propDoc.NgayPhatHanh?.DateTime,
                     files);
                 user.AddDocument(newDoc);
+            }
+        }
+    }
+
+    public void ReconcilePhuongTienImages(PhuongTien phuongTien, IEnumerable<TepTaiLieu> hinhAnhs)
+    {
+        var fetchedList = hinhAnhs.ToList();
+        var currentList = phuongTien.HinhAnhPhuongTiens.ToList();
+
+        // 1. Remove files not in the fetched list
+        var fetchedIds = fetchedList.Select(f => f.Id).ToHashSet();
+        foreach (var current in currentList)
+        {
+            if (!fetchedIds.Contains(current.Id))
+            {
+                phuongTien.RemoveHinhAnh(current.Id);
+            }
+        }
+
+        // 2. Add files not in the current list
+        var currentIds = currentList.Select(f => f.Id).ToHashSet();
+        foreach (var fetched in fetchedList)
+        {
+            if (!currentIds.Contains(fetched.Id))
+            {
+                var newFile = fetched is TepPhuongTien tp
+                    ? tp
+                    : new TepPhuongTien(fetched.FileName, fetched.FileUrl, fetched.Size, fetched.ContentType, phuongTien.Id);
+
+                phuongTien.AddHinhAnh(newFile);
             }
         }
     }

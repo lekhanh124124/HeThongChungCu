@@ -59,9 +59,9 @@ public class TaoYeuCauCuTruCommandValidator : AbstractValidator<TaoYeuCauCuTruCo
             attachment.RuleFor(a => a.LoaiGiayToId)
                 .NotEmpty().WithMessage(YeuCauCuTruErrors.GiayToIdRange.Description)
                 .GreaterThan(0).WithMessage(YeuCauCuTruErrors.GiayToIdRange.Description);
-            attachment.RuleFor(a => a.SoGiayTo)
-                .NotEmpty().WithMessage(YeuCauCuTruErrors.SoGiayToNotEmpty.Description)
-                .MaximumLength(100).WithMessage(YeuCauCuTruErrors.SoGiayToMaxLength.Description);
+            //attachment.RuleFor(a => a.SoGiayTo)
+            //    .NotEmpty().WithMessage(YeuCauCuTruErrors.SoGiayToNotEmpty.Description)
+            //    .MaximumLength(100).WithMessage(YeuCauCuTruErrors.SoGiayToMaxLength.Description);
             attachment.RuleFor(a => a.FileIds)
                 .NotEmpty().WithMessage(YeuCauCuTruErrors.FileIdsNotEmpty.Description);
             attachment.RuleForEach(a => a.FileIds)

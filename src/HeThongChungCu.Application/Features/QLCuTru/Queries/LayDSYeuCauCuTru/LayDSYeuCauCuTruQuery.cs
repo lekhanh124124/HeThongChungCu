@@ -9,6 +9,7 @@ public record LayDSYeuCauCuTruQuery(
     int? CanHoId,
     int? LoaiYeuCauId,
     int? TrangThaiId,
+    string? Keyword,
     string? SortCol,
     bool? IsAsc,
     int? PageNumber,

@@ -129,7 +129,7 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
         };
         var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
 
-        var sql = """
+        var sql = $"""
             SELECT
                 p.Id,
                 c.Id AS CanHoId,

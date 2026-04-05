@@ -63,7 +63,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         {
             // Gather data for uniqueness check
             var cccdExists = !string.IsNullOrEmpty(yeuCau.YeuCauCCCD) && await _userRepository.AnyAsync(u => u.CCCD == yeuCau.YeuCauCCCD, cancellationToken);
-            var phoneExists = !string.IsNullOrEmpty(yeuCau.YeuCauSoDienThoai) && await _userRepository.AnyAsync(u => u.SoDienThoai == yeuCau.YeuCauSoDienThoai, cancellationToken);
+            var phoneExists = !string.IsNullOrEmpty(yeuCau.YeuCauSoDienThoai) && await _userRepository.AnyAsync(u => u.SoDienThoai.Value == yeuCau.YeuCauSoDienThoai, cancellationToken);
 
             var uniquenessResult = _residencyService.CheckUniqueness(cccdExists, phoneExists);
             if (uniquenessResult.IsFailure)

@@ -7,7 +7,7 @@ public class TaoMaDinhDanhCommandValidator : AbstractValidator<TaoMaDinhDanhComm
 {
     public TaoMaDinhDanhCommandValidator()
     {
-        RuleFor(x => x.UserId).GreaterThan(0).WithMessage(UserErrors.UserIdRange.Description);
+        RuleFor(x => x.QuanHeCuTruId).GreaterThan(0);
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage(AuthErrors.EmailNotEmpty.Description)
             .EmailAddress().WithMessage(AuthErrors.EmailInvalid.Description);

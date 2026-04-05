@@ -23,6 +23,6 @@ public class PhanQuyenConfiguration : IEntityTypeConfiguration<PhanQuyen>
         builder.HasOne(pq => pq.TaiKhoan)
             .WithMany(a => a.PhanQuyens)
             .HasForeignKey(pq => pq.TaiKhoanId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

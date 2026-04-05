@@ -15,6 +15,7 @@ public class LayDSYeuCauPhuongTienQuerySpecification : BaseSpecification
         int? canHoId,
         int? loaiYeuCauId,
         int? trangThaiId,
+        string? keyword,
         string? sortCol,
         bool? isAsc,
         int? pageNumber,
@@ -34,6 +35,13 @@ public class LayDSYeuCauPhuongTienQuerySpecification : BaseSpecification
         
         if (trangThaiId != null)
             AddFilter("TrangThaiId", FilterOperator.Equal, trangThaiId);
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            AddKeyword("TenNguoiGui", FilterOperator.Contains, keyword);
+            AddKeyword("TenNguoiXuLy", FilterOperator.Contains, keyword);
+            AddKeyword("YeuCauBienSo", FilterOperator.Contains, keyword);
+        }
             
         AddFilter("IsDeleted", FilterOperator.Equal, false);
     }

@@ -4,6 +4,7 @@ using HeThongChungCu.WebAPI.Common.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
+using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 
 namespace HeThongChungCu.WebAPI;
@@ -21,6 +22,7 @@ public static class DependencyInjection
         services.AddApplicationInsightsTelemetry();
 
         services.AddHttpContextAccessor();
+        services.AddAuthorization();
 
         services.Configure<JwtBearerOptions>(
             JwtBearerDefaults.AuthenticationScheme,
@@ -46,18 +48,20 @@ public static class DependencyInjection
                     if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null ||
                         endpoint?.Metadata?.GetMetadata<IAuthorizeData>() == null)
                     {
-                        context.HandleResponse();
                         return;
                     }
 
                     context.HandleResponse();
-
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+                    var error = context.AuthenticateFailure is SecurityTokenExpiredException
+                        ? AuthErrors.TokenExpired
+                        : AuthErrors.Unauthorized;
 
                     await context.Response.WriteAsJsonAsync(new ApiResponse<object>
                     {
                         IsOk = false,
-                        Errors = [AuthErrors.Unauthorized]
+                        Errors = [error]
                     });
                 },
 

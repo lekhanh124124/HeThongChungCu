@@ -4,6 +4,7 @@ using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.NhanVien.DTOs;
 using HeThongChungCu.Application.Features.NhanVien.Queries.GetNhanVienById;
 using HeThongChungCu.Application.Features.NhanVien.Queries.GetNhanVienList;
+using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Infrastructure.Persistence.Helpers;
 using HeThongChungCu.Infrastructure.Persistence.ReadModels;
@@ -36,7 +37,12 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
         var joins = new[]
         {
-            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", Type: JoinType.Inner)
+            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", Type: JoinType.Inner),
+            new JoinDefinition("TaiKhoan", "a", "u.Id = a.NguoiDungId AND a.IsActive = 1"),
+            new JoinDefinition("TepTaiLieu", "atl", "a.AnhDaiDienId = atl.Id"),
+            new JoinDefinition("PhanQuyen", "pq", "a.Id = pq.TaiKhoanId", AddSoftDelete: false),
+            new JoinDefinition("TaiLieu", "t", "t.NguoiDungId = u.Id", Discriminator: ("LoaiTaiLieu", "TaiLieuNguoiDung")),
+            new JoinDefinition("TepTaiLieu", "f", "f.TaiLieuId = t.Id", Discriminator: ("LoaiTepTaiLieu", "TepTaiLieuNguoiDung"))
         };
         var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
 
@@ -44,24 +50,113 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
             SELECT 
                 nv.Id,
                 nv.NguoiDungId,
+                u.Ten AS FirstName,
+                u.Ho AS LastName,
                 u.Ho + ' ' + u.Ten AS HoTen,
+                a.Email,
                 u.SoDienThoai,
+                u.CCCD,
+                u.DiaChi,
+                u.NgaySinh AS Dob,
+                u.GioiTinhId,
+                atl.FileUrl AS AnhDaiDienUrl,
+                pq.RoleId,
                 nv.LoaiNhanVienId,
                 nv.TrangThaiNhanVienId,
                 nv.MaNhanVien,
                 nv.NgayVaoLam,
                 nv.NgayNghiLam,
-                nv.GhiChu
+                nv.GhiChu,
+                t.Id AS DocId, t.LoaiGiayToId, t.SoGiayTo, t.NgayPhatHanh,
+                f.Id AS FileId, f.FileUrl, f.FileName, f.ContentType
             FROM NhanVien nv
             {sqlJoins}
             {sqlWhere}
             """;
 
-        var result = await connection.QueryFirstOrDefaultAsync<NhanVienReadModel>(sql, parameters);
+        var rows = await connection.QueryAsync<dynamic>(sql, parameters);
+        
+        NhanVienResponse? response = null;
+        var docLookup = new Dictionary<int, TaiLieuResponse>();
+        var roleIds = new HashSet<int>();
 
-        if (result == null) return null;
+        var gioiTinhMap = GioiTinh.ToDictionary();
+        var roleMap = Role.ToDictionary();
 
-        return MapToResponse(result);
+        foreach (var row in rows)
+        {
+            if (response == null)
+            {
+                response = new NhanVienResponse
+                {
+                    Id = row.Id,
+                    NguoiDungId = row.NguoiDungId,
+                    FirstName = row.FirstName,
+                    LastName = row.LastName,
+                    HoTen = row.HoTen,
+                    Email = row.Email ?? string.Empty,
+                    SoDienThoai = row.SoDienThoai,
+                    CCCD = row.CCCD,
+                    DiaChi = row.DiaChi,
+                    Dob = row.Dob,
+                    GioiTinhId = row.GioiTinhId,
+                    GioiTinhName = gioiTinhMap.GetValueOrDefault((int)row.GioiTinhId, string.Empty),
+                    AnhDaiDienUrl = row.AnhDaiDienUrl ?? string.Empty,
+                    LoaiNhanVienId = row.LoaiNhanVienId,
+                    TenLoaiNhanVien = LoaiNhanVien.FromValue((int)row.LoaiNhanVienId)?.Name ?? string.Empty,
+                    TrangThaiNhanVienId = row.TrangThaiNhanVienId,
+                    TenTrangThaiNhanVien = TrangThaiNhanVien.FromValue((int)row.TrangThaiNhanVienId)?.Name ?? string.Empty,
+                    MaNhanVien = row.MaNhanVien,
+                    NgayVaoLam = row.NgayVaoLam,
+                    NgayNghiLam = row.NgayNghiLam,
+                    GhiChu = row.GhiChu,
+                    Roles = [],
+                    TaiLieuNguoiDungs = []
+                };
+            }
+
+            if (row.RoleId != null)
+            {
+                int rId = (int)row.RoleId;
+                if (!roleIds.Contains(rId))
+                {
+                    roleIds.Add(rId);
+                    response.Roles.Add(roleMap.GetValueOrDefault(rId, string.Empty));
+                }
+            }
+
+            if (row.DocId != null)
+            {
+                if (!docLookup.TryGetValue((int)row.DocId, out var doc))
+                {
+                    doc = new TaiLieuResponse
+                    {
+                        Id = row.DocId,
+                        LoaiGiayToId = (int)row.LoaiGiayToId,
+                        TenLoaiGiayTo = LoaiGiayTo.FromValue((int)row.LoaiGiayToId)?.Name ?? string.Empty,
+                        SoGiayTo = row.SoGiayTo,
+                        NgayPhatHanh = row.NgayPhatHanh,
+                        Files = []
+                    };
+                    docLookup.Add(doc.Id, doc);
+                    response.TaiLieuNguoiDungs.Add(doc);
+                }
+
+                if (row.FileId != null)
+                {
+                    if (!doc.Files.Any(f => f.Id == (int)row.FileId))
+                    {
+                        doc.Files.Add(new TepTaiLieuResponse(
+                            (int)row.FileId,
+                            (string)row.FileUrl,
+                            (string)row.FileName,
+                            (string)row.ContentType));
+                    }
+                }
+            }
+        }
+
+        return response;
     }
 
     public async Task<PagedResult<NhanVienResponse>> GetListAsync(GetNhanVienListSpecification spec, CancellationToken cancellationToken = default)

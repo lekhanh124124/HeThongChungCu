@@ -39,7 +39,10 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             { "IsDeleted", "y.IsDeleted" },
             { "CreatedAt", "y.CreatedAt" },
             { "ToaNhaId", "tg.ToaNhaId" },
-            { "TangId", "ch.TangId" }
+            { "TangId", "ch.TangId" },
+            { "TenNguoiGui", "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))" },
+            { "TenNguoiXuLy", "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))" },
+            { "YeuCauBienSo", "y.YeuCauBienSo" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(

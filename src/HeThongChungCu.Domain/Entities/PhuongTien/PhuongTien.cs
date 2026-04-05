@@ -44,9 +44,9 @@ public class PhuongTien : AggregateRoot
 
         if (hinhAnhs != null)
         {
-            foreach (var hinhAnh in _hinhAnhPhuongTiens)
+            foreach (var old in _hinhAnhPhuongTiens)
             {
-                hinhAnh.MarkAsUnused();
+                old.MarkAsUnused();
             }
             _hinhAnhPhuongTiens.Clear();
             foreach (var hinhAnh in hinhAnhs)
@@ -97,29 +97,30 @@ public class PhuongTien : AggregateRoot
         string tenPhuongTien,
         LoaiPhuongTien loaiPhuongTienId,
         string bienSo,
-        string mauXe,
-        IEnumerable<TepPhuongTien>? hinhAnhs = null)
+        string mauXe)
     {
+        if (TrangThaiPhuongTienId != TrangThaiPhuongTien.Active)
+            throw new BusinessException("Chỉ phương tiện đang hoạt động mới được cập nhật.");
+
         TenPhuongTien = tenPhuongTien;
         LoaiPhuongTienId = loaiPhuongTienId;
         BienSo = bienSo;
         MauXe = mauXe;
+    }
 
-        if (hinhAnhs != null)
+    public void AddHinhAnh(TepPhuongTien hinhAnh)
+    {
+        hinhAnh.MarkAsUsed();
+        _hinhAnhPhuongTiens.Add(hinhAnh);
+    }
+
+    public void RemoveHinhAnh(int hinhAnhId)
+    {
+        var hinhAnh = _hinhAnhPhuongTiens.FirstOrDefault(x => x.Id == hinhAnhId);
+        if (hinhAnh != null)
         {
-            // Clear old ones
-            foreach (var old in _hinhAnhPhuongTiens)
-            {
-                old.MarkAsUnused();
-            }
-            _hinhAnhPhuongTiens.Clear();
-
-            // Add new ones
-            foreach (var hinhAnh in hinhAnhs)
-            {
-                hinhAnh.MarkAsUsed();
-                _hinhAnhPhuongTiens.Add(hinhAnh);
-            }
+            hinhAnh.MarkAsUnused();
+            _hinhAnhPhuongTiens.Remove(hinhAnh);
         }
     }
 

@@ -31,7 +31,7 @@ public class TaiKhoanCommandRepository : ITaiKhoanCommandRepository
     {
         return await _dbContext.TaiKhoan
             .Include(a => a.PhanQuyens)
-            .FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Email.Value == email, cancellationToken);
     }
 
     public async Task<TaiKhoan?> GetByTenDangNhapAsync(string tenDangNhap, CancellationToken cancellationToken = default)

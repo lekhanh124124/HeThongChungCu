@@ -5,6 +5,7 @@ using HeThongChungCu.Application.Features.ToaNha.Commands.UpdateToaNha;
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
 using HeThongChungCu.Application.Features.ToaNha.Queries.GetListToaNha;
 using HeThongChungCu.Application.Features.ToaNha.Queries.GetToaNhaById;
+using HeThongChungCu.Application.Features.ToaNha.Queries.GoiYMaToaNha;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -22,6 +23,20 @@ public class ToaNhaController : ApiControllerBase
     public ToaNhaController(ISender sender)
     {
         _sender = sender;
+    }
+
+    /// <summary>
+    /// Gợi ý mã tòa nhà mới
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Khi quản trị viên đang tạo mới tòa nhà và muốn hệ thống gợi ý một mã tòa nhà theo quy tắc increment.
+    /// - **Hệ thống xử lý**: Đếm số lượng tòa nhà hiện có và cộng thêm 1.
+    /// </remarks>
+    [HttpPost("goi-y-ma-toa-nha")]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GoiYMaToaNha([FromBody] GoiYMaToaNhaQuery query, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(query, cancellationToken));
     }
 
     /// <summary>

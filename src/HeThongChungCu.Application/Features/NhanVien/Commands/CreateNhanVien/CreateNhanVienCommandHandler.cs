@@ -46,7 +46,7 @@ public class CreateNhanVienCommandHandler : ICommandHandler<CreateNhanVienComman
     public async Task<Result<NhanVienResponse>> Handle(CreateNhanVienCommand request, CancellationToken cancellationToken)
     {
         // 1. Check account existence
-        var emailExists = await _taiKhoanRepository.AnyAsync(a => a.Email == request.Email || a.TenDangNhap == request.Email, cancellationToken);
+        var emailExists = await _taiKhoanRepository.AnyAsync(a => a.Email.Value == request.Email || a.TenDangNhap == request.Email, cancellationToken);
         if (emailExists)
             return Result.Failure<NhanVienResponse>(UserErrors.EmailAlreadyExists);
 
@@ -60,7 +60,7 @@ public class CreateNhanVienCommandHandler : ICommandHandler<CreateNhanVienComman
 
         if (!string.IsNullOrEmpty(request.SoDienThoai))
         {
-            var phoneExists = await _nguoiDungRepository.AnyAsync(u => u.SoDienThoai == request.SoDienThoai, cancellationToken);
+            var phoneExists = await _nguoiDungRepository.AnyAsync(u => u.SoDienThoai.Value == request.SoDienThoai, cancellationToken);
             if (phoneExists)
                 return Result.Failure<NhanVienResponse>(UserErrors.PhoneNumberAlreadyExists);
         }

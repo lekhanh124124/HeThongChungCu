@@ -38,7 +38,7 @@ public class TaoHoSoCommandHandler : ICommandHandler<TaoHoSoCommand, UserInfoRes
 
         if (!string.IsNullOrEmpty(request.PhoneNumber))
         {
-            var phoneExists = await _userRepository.AnyAsync(u => u.SoDienThoai == request.PhoneNumber, cancellationToken);
+            var phoneExists = await _userRepository.AnyAsync(u => u.SoDienThoai.Value == request.PhoneNumber, cancellationToken);
             if (phoneExists)
             {
                 return Result.Failure<UserInfoResponse>(UserErrors.PhoneNumberAlreadyExists);

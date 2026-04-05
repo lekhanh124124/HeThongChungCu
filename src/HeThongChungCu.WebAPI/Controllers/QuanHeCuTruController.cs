@@ -11,11 +11,14 @@ using HeThongChungCu.Application.Features.QLCuTru.Queries.LayDSCuDanTrongChungCu
 using HeThongChungCu.Application.Features.QLCuTru.Commands.TaoHoSo;
 using HeThongChungCu.Application.Features.QLCuTru.Commands.TaoMaDinhDanh;
 using HeThongChungCu.Application.Features.QLCuTru.Queries.TimHoSoTheoCCCD;
-using HeThongChungCu.Application.Features.QLCuTru.Commands.DinhDanhNguoiDung;
+using HeThongChungCu.Application.Features.QLCuTru.Commands.LienKetTaiKhoan;
+using HeThongChungCu.Application.Features.QLCuTru.Commands.XacNhanDinhDanh;
 using HeThongChungCu.Application.Features.QLCuTru.Commands.CapNhatYeuCauCuTru;
 using HeThongChungCu.Application.Features.QLCuTru.Commands.ChinhSuaHoSo;
 using HeThongChungCu.Application.Features.QLCuTru.Commands.XoaYeuCauCuTru;
 using HeThongChungCu.WebAPI.Common.Models;
+using HeThongChungCu.WebAPI.Common.Templates;
+
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -310,7 +313,7 @@ public class QuanHeCuTruController : ApiControllerBase
     /// - **Hoàn cảnh sử dụng**: BQL chuẩn bị quy trình bàn giao tài khoản ứng dụng cho cư dân một cách an toàn.
     /// - **Hệ thống xử lý**: Sinh mã định danh (Token) liên kết với UserId và có thời hạn xác thực ngắn hạn.
     /// - **Yêu cầu dữ liệu**: 
-    ///     - **Bắt buộc**: `UserId`.
+    ///     - **Bắt buộc**: `QuanHeCuTruId`.
     /// </remarks>
     [HttpPost("tao-ma-dinh-danh")]
     [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
@@ -321,14 +324,28 @@ public class QuanHeCuTruController : ApiControllerBase
     }
 
     /// <summary>
+    /// Trang giao diện xác nhận định danh (dành cho Cư dân - truy cập từ link email)
+    /// </summary>
+    [AllowAnonymous]
+    [HttpGet("xac-nhan-dinh-danh")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public IActionResult XacNhanDinhDanhView([FromQuery] string token)
+    {
+        var postUrl = "/api/quan-he-cu-tru/xac-nhan-dinh-danh";
+        return Content(IdentityHtmlTemplates.GetIdentificationProcessingPage(token, postUrl), "text/html");
+    }
+
+    /// <summary>
     /// Xác nhận định danh (dành cho Cư dân - qua link email)
     /// </summary>
+
     /// <remarks>
     /// - **Hoàn cảnh sử dụng**: Cư dân xác thực link từ Email để chính thức kết nối hồ sơ cư dân với tài khoản đăng nhập.
     /// - **Hệ thống xử lý**: Giải mã/Xác thực Token, thiết lập liên kết quan hệ và cập nhật quyền truy cập cho tài khoản.
     /// - **Yêu cầu dữ liệu**: 
     ///     - **Bắt buộc**: `Token`.
     /// </remarks>
+    [AllowAnonymous]
     [HttpPost("xac-nhan-dinh-danh")]
     [ProducesResponseType(typeof(ApiResponse<UserInfoResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

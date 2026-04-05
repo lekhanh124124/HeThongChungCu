@@ -5,6 +5,7 @@ using HeThongChungCu.Application.Features.CanHo.Commands.UpdateCanHo;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
 using HeThongChungCu.Application.Features.CanHo.Queries.GetListCanHo;
 using HeThongChungCu.Application.Features.CanHo.Queries.GetCanHoById;
+using HeThongChungCu.Application.Features.CanHo.Queries.GoiYMaCanHo;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -22,6 +23,20 @@ public class CanHoController : ApiControllerBase
     public CanHoController(ISender sender)
     {
         _sender = sender;
+    }
+
+    /// <summary>
+    /// Gợi ý mã căn hộ mới
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Khi quản trị viên đang tạo mới căn hộ và muốn hệ thống gợi ý một mã căn hộ theo quy tắc increment cho tầng đó.
+    /// - **Hệ thống xử lý**: Tìm tầng và tòa nhà, xác định số phòng cao nhất hiện có trên tầng để gợi ý mã (Ví dụ: SKR-101).
+    /// </remarks>
+    [HttpPost("goi-y-ma-can-ho")]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GoiYMaCanHo([FromBody] GoiYMaCanHoQuery query, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(query, cancellationToken));
     }
 
     /// <summary>

@@ -7,7 +7,7 @@ using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.Interfaces;
 using HeThongChungCu.Domain.ValueObjects;
 
-namespace HeThongChungCu.Application.Features.QLCuTru.Commands.DinhDanhNguoiDung;
+namespace HeThongChungCu.Application.Features.QLCuTru.Commands.XacNhanDinhDanh;
 
 public class XacNhanDinhDanhCommandHandler : ICommandHandler<XacNhanDinhDanhCommand, UserInfoResponse>
 {
@@ -36,30 +36,48 @@ public class XacNhanDinhDanhCommandHandler : ICommandHandler<XacNhanDinhDanhComm
 
     public async Task<Result<UserInfoResponse>> Handle(XacNhanDinhDanhCommand request, CancellationToken cancellationToken)
     {
-        // 1. Get UserId from token via service
+        // 1. Extract IDs from token
+        var accountId = _tokenService.GetAccountIdFromToken(request.Token);
         var userId = _tokenService.GetUserIdFromToken(request.Token);
-        if (userId == null)
+
+        if (accountId == null || userId == null)
         {
             return Result.Failure<UserInfoResponse>(AuthErrors.InvalidToken);
         }
 
-        // 2. Find account by token hash
-        var tokenHash = _hasherService.HashToken(request.Token);
-        var account = await _accountRepository.GetByTokenAsync(tokenHash, TokenType.UserCode, cancellationToken);
+        // 2. Find account by Id (include tokens)
+        var account = await _accountRepository.GetWithTokensAsync(accountId.Value, cancellationToken);
         if (account is null)
         {
+            return Result.Failure<UserInfoResponse>(AuthErrors.AccountNotFound);
+        }
+
+        // 3. Verify token exists and is active inside account using jti
+        var jti = _tokenService.GetJwtIdFromToken(request.Token);
+        var tokenEntity = account.Tokens.FirstOrDefault(t => t.TokenHash == jti && t.TokenType == TokenType.UserCode);
+        if (tokenEntity == null || !tokenEntity.IsActive)
+        {
             return Result.Failure<UserInfoResponse>(AuthErrors.InvalidToken);
         }
 
-        // 3. Verify token, link account and promote role via Domain Service
-        var verifyResult = _identityService.VerifyAndLinkAccount(account, tokenHash, userId.Value, DateTimeOffset.UtcNow);
-        if (verifyResult.IsFailure)
-            return Result.Failure<UserInfoResponse>(verifyResult.Errors[0]);
+        // 4. Validate business rules
+        var isResidentAlreadyLinked = await _accountRepository.AnyAsync(a => a.NguoiDungId == userId.Value && a.Id != account.Id, cancellationToken);
+        var canLinkResult = _identityService.CanLinkAccountToResident(account, userId.Value, isResidentAlreadyLinked);
+        if (canLinkResult.IsFailure)
+        {
+            return Result.Failure<UserInfoResponse>(canLinkResult.Errors[0]);
+        }
+
+        // 5. Perform link and promote role
+        _identityService.LinkAccountToResident(account, userId.Value);
+
+        // 6. Revoke current token
+        account.RevokeToken(jti!, DateTimeOffset.UtcNow, ReasonRevoked.UserAction);
 
         _accountRepository.Update(account);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // 6. Return User Info
+        // 7. Return User Info
         var user = await _userRepository.GetByIdWithDocumentsAsync(userId.Value, cancellationToken);
         if (user is null)
         {

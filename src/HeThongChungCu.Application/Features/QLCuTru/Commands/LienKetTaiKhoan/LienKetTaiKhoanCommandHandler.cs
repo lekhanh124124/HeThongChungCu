@@ -7,7 +7,7 @@ using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.Interfaces;
 using HeThongChungCu.Domain.ValueObjects;
 
-namespace HeThongChungCu.Application.Features.QLCuTru.Commands.DinhDanhNguoiDung;
+namespace HeThongChungCu.Application.Features.QLCuTru.Commands.LienKetTaiKhoan;
 
 public class LienKetTaiKhoanCommandHandler : ICommandHandler<LienKetTaiKhoanCommand, UserInfoResponse>
 {
@@ -38,9 +38,13 @@ public class LienKetTaiKhoanCommandHandler : ICommandHandler<LienKetTaiKhoanComm
         }
 
         // 2. Link account and promote role via Domain Service
-        var linkResult = _identityService.LinkAccountToResident(account, request.UserId);
-        if (linkResult.IsFailure)
-            return Result.Failure<UserInfoResponse>(linkResult.Errors[0]);
+        var isResidentAlreadyLinked = await _accountRepository.AnyAsync(a => a.NguoiDungId == request.UserId && a.Id != account.Id, cancellationToken);
+        
+        var canLinkResult = _identityService.CanLinkAccountToResident(account, request.UserId, isResidentAlreadyLinked);
+        if (canLinkResult.IsFailure)
+            return Result.Failure<UserInfoResponse>(canLinkResult.Errors[0]);
+
+        _identityService.LinkAccountToResident(account, request.UserId);
 
         // 3. Revoke any pending identification tokens
         _identityService.RevokeIdentificationTokens(account, ReasonRevoked.AdminAction);

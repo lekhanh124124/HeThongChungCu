@@ -34,7 +34,7 @@ public class RegisterCommandHandler : ICommandHandler<RegisterCommand, AuthRespo
 
     public async Task<Result<AuthResponse>> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
-        var userExists = await _accountRepository.AnyAsync(a => a.Email == request.Email || a.TenDangNhap == request.Email, cancellationToken);
+        var userExists = await _accountRepository.AnyAsync(a => a.Email.Value == request.Email || a.TenDangNhap == request.Email, cancellationToken);
         if (userExists)
         {
             return Result.Failure<AuthResponse>(UserErrors.EmailAlreadyExists);

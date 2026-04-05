@@ -1,5 +1,7 @@
 using System.Linq.Expressions;
 using HeThongChungCu.Application.Common.Interfaces.Services;
+using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -61,5 +63,98 @@ public class CodeGeneratorService : ICodeGeneratorService
         }
 
         return new string(result);
+    }
+
+    public async Task<string> GenerateMaToaNhaAsync(CancellationToken cancellationToken = default)
+    {
+        // Suggest TN{Max+1:D2}
+        var codes = await _context.Set<ToaNha>()
+            .Select(t => t.MaToaNha)
+            .ToListAsync(cancellationToken);
+
+        var maxNumber = codes
+            .Select(c => {
+                if (c.StartsWith("TN") && int.TryParse(c.Substring(2), out var n))
+                    return n;
+                return 0;
+            })
+            .DefaultIfEmpty(0)
+            .Max();
+
+        return $"TN{(maxNumber + 1):D2}";
+    }
+
+    public async Task<string> GenerateMaTangAsync(int toaNhaId, int loaiTangValue, CancellationToken cancellationToken = default)
+    {
+        var toaNha = await _context.Set<ToaNha>()
+            .Include(t => t.Tangs)
+            .FirstOrDefaultAsync(t => t.Id == toaNhaId, cancellationToken);
+
+        if (toaNha == null) return string.Empty;
+
+        var loaiTang = LoaiTang.FromValue(loaiTangValue);
+        if (loaiTang == null) return string.Empty;
+
+        var prefix = loaiTang == LoaiTang.TangHam ? "B" : "F";
+        
+        var maxNumber = toaNha.Tangs
+            .Where(t => t.LoaiTangId == loaiTang)
+            .Select(t => {
+                var firstPart = t.MaTang.Split('-')[0]; // F1 or B1
+                if (firstPart.Length > 1 && int.TryParse(firstPart.Substring(1), out var n))
+                    return (int?)n;
+                return (int?)0;
+            })
+            .DefaultIfEmpty(0)
+            .Max() ?? 0;
+
+        return $"{prefix}{maxNumber + 1}-{toaNha.MaToaNha}";
+    }
+
+    public async Task<string> GenerateMaCanHoAsync(int tangId, CancellationToken cancellationToken = default)
+    {
+        var toaNha = await _context.Set<ToaNha>()
+            .Include(t => t.Tangs)
+            .FirstOrDefaultAsync(t => t.Tangs.Any(tang => tang.Id == tangId), cancellationToken);
+
+        if (toaNha == null) return string.Empty;
+
+        var tang = toaNha.Tangs.First(t => t.Id == tangId);
+        
+        // Extract floor number from name (e.g., "Tầng 1" -> 1)
+        int floorNum = 0;
+        if (tang.TenTang.Contains(" "))
+        {
+            var parts = tang.TenTang.Split(' ');
+            var lastPart = parts[^1];
+            if (lastPart.StartsWith("B")) lastPart = lastPart.Substring(1);
+            int.TryParse(lastPart, out floorNum);
+        }
+
+        // Get codes for this floor and process in-memory
+        var codes = await _context.Set<CanHo>()
+            .Where(c => c.TangId == tangId)
+            .Select(c => c.MaCanHo)
+            .ToListAsync(cancellationToken);
+
+        var maxRoomNum = codes
+            .Select(maCanHo => {
+                var parts = maCanHo.Split('-'); // SKR-101
+                if (parts.Length > 1)
+                {
+                    var roomPart = parts[1]; // 101
+                    var floorStr = floorNum.ToString();
+                    if (roomPart.StartsWith(floorStr) && roomPart.Length > floorStr.Length)
+                    {
+                        if (int.TryParse(roomPart.Substring(floorStr.Length), out var r))
+                            return r;
+                    }
+                }
+                return 0;
+            })
+            .DefaultIfEmpty(0)
+            .Max();
+
+        return $"{toaNha.MaToaNha}-{floorNum}{(maxRoomNum + 1):D2}";
     }
 }

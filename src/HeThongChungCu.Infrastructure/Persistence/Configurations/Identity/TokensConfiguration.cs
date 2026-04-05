@@ -36,6 +36,6 @@ public class TokensConfiguration : IEntityTypeConfiguration<Tokens>
         builder.HasOne(rt => rt.TaiKhoan)
             .WithMany(a => a.Tokens)
             .HasForeignKey(rt => rt.TaiKhoanId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

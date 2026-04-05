@@ -18,4 +18,19 @@ public interface ICodeGeneratorService
     /// Generates a secure random password with standard complexity.
     /// </summary>
     string GenerateRandomPassword(int length = 8);
+
+    /// <summary>
+    /// Generates the next building code (e.g., TN01).
+    /// </summary>
+    Task<string> GenerateMaToaNhaAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Generates the next floor code (e.g., F1-SKR, B1-SKR).
+    /// </summary>
+    Task<string> GenerateMaTangAsync(int toaNhaId, int loaiTangId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Generates the next apartment code (e.g., SKR-101).
+    /// </summary>
+    Task<string> GenerateMaCanHoAsync(int tangId, CancellationToken cancellationToken = default);
 }

@@ -58,7 +58,7 @@ public class UpdateNhanVienCommandHandler : ICommandHandler<UpdateNhanVienComman
 
         if (!string.IsNullOrEmpty(request.SoDienThoai) && request.SoDienThoai != nguoiDung.SoDienThoai)
         {
-            var exists = await _nguoiDungRepository.AnyAsync(u => u.SoDienThoai == request.SoDienThoai, cancellationToken);
+            var exists = await _nguoiDungRepository.AnyAsync(u => u.SoDienThoai.Value == request.SoDienThoai, cancellationToken);
             if (exists)
                 return Result.Failure<NhanVienResponse>(UserErrors.PhoneNumberAlreadyExists);
         }

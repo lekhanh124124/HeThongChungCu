@@ -26,7 +26,11 @@ public static class AuthErrors
 
     public static readonly Error AccountAlreadyLinked = new(
         "Auth.AccountAlreadyLinked",
-        "Tài khoản đã được liên kết với một người dùng khác.");
+        "Tài khoản này đã được liên kết với một người dùng khác.");
+
+    public static readonly Error ResidentAlreadyLinked = new(
+        "Auth.ResidentAlreadyLinked",
+        "Thông tin định danh này đã được liên kết với một tài khoản khác.");
 
     public static readonly Error AccountLocked = new(
          "Auth.AccountLocked",
@@ -35,6 +39,10 @@ public static class AuthErrors
     public static readonly Error Unauthorized = new(
         "Auth.Unauthorized",
         "Bạn chưa đăng nhập.");
+
+    public static readonly Error TokenExpired = new(
+        "Auth.TokenExpired",
+        "Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.");
 
     public static readonly Error Forbidden = Error.Forbidden("truy cập tài nguyên này");
     

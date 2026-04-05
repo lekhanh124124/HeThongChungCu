@@ -5,6 +5,7 @@ using HeThongChungCu.Application.Features.Tang.Commands.UpdateTang;
 using HeThongChungCu.Application.Features.Tang.DTOs;
 using HeThongChungCu.Application.Features.Tang.Queries.GetListTang;
 using HeThongChungCu.Application.Features.Tang.Queries.GetTangById;
+using HeThongChungCu.Application.Features.Tang.Queries.GoiYMaTang;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -22,6 +23,20 @@ public class TangController : ApiControllerBase
     public TangController(ISender sender)
     {
         _sender = sender;
+    }
+
+    /// <summary>
+    /// Gợi ý mã tầng mới
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Khi quản trị viên đang tạo mới tầng và muốn hệ thống gợi ý một mã tầng theo quy tắc increment cho tòa nhà đó.
+    /// - **Hệ thống xử lý**: Tìm tòa nhà và lấy số lượng tầng theo loại (hầm/nổi) để gợi ý mã (F... hoặc B...).
+    /// </remarks>
+    [HttpPost("goi-y-ma-tang")]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GoiYMaTang([FromBody] GoiYMaTangQuery query, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(query, cancellationToken));
     }
 
     /// <summary>

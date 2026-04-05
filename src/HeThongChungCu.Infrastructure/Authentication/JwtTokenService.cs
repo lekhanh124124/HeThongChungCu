@@ -73,4 +73,31 @@ public class JwtTokenService : ITokenService
 
         return null;
     }
+
+    public int? GetAccountIdFromToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        if (!tokenHandler.CanReadToken(token)) return null;
+
+        var jwtToken = tokenHandler.ReadJwtToken(token);
+        var accountIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
+
+        if (accountIdClaim != null && int.TryParse(accountIdClaim.Value, out int accountId))
+        {
+            return accountId;
+        }
+
+        return null;
+    }
+
+    public string? GetJwtIdFromToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        if (!tokenHandler.CanReadToken(token)) return null;
+
+        var jwtToken = tokenHandler.ReadJwtToken(token);
+        var jtiClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti);
+
+        return jtiClaim?.Value;
+    }
 }

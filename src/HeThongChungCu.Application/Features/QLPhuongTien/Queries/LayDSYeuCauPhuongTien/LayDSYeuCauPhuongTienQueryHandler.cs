@@ -22,6 +22,7 @@ public class LayDSYeuCauPhuongTienQueryHandler : IQueryHandler<LayDSYeuCauPhuong
             request.CanHoId,
             request.LoaiYeuCauId,
             request.TrangThaiId,
+            request.Keyword,
             request.SortCol,
             request.IsAsc,
             request.PageNumber,
