@@ -3,25 +3,20 @@ using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Domain.Entities;
 
-public class TaiLieuNguoiDung : BaseEntity
+public class TaiLieuNguoiDung : TaiLieu
 {
     public int? NguoiDungId { get; private set; }
     public NguoiDung? NguoiDung { get; private set; }
-    public LoaiGiayTo LoaiGiayToId { get; private set; } = null!;
-    public string SoGiayTo { get; private set; } = null!;
-    public DateTime? NgayPhatHanh { get; private set; }
     
-    private readonly List<TepTaiLieu> _files = [];
-    public IReadOnlyCollection<TepTaiLieu> Files => _files.AsReadOnly();
+    private readonly List<TepTaiLieuNguoiDung> _files = [];
+    public IReadOnlyCollection<TepTaiLieuNguoiDung> Files => _files.AsReadOnly();
 
     private TaiLieuNguoiDung() { } // EF Core
 
-    public TaiLieuNguoiDung(int? nguoiDungId, LoaiGiayTo loaiGiayTo, string soGiayTo, DateTime? ngayPhatHanh, IEnumerable<TepTaiLieu>? files = null)
+    public TaiLieuNguoiDung(int? nguoiDungId, LoaiGiayTo loaiGiayTo, string soGiayTo, DateTimeOffset? ngayPhatHanh, IEnumerable<TepTaiLieuNguoiDung>? files = null)
+        : base(loaiGiayTo, soGiayTo, ngayPhatHanh)
     {
         NguoiDungId = nguoiDungId;
-        LoaiGiayToId = loaiGiayTo;
-        SoGiayTo = soGiayTo;
-        NgayPhatHanh = ngayPhatHanh;
         if (files != null)
         {
             foreach (var file in files)
@@ -37,15 +32,19 @@ public class TaiLieuNguoiDung : BaseEntity
         NguoiDungId = nguoiDungId;
     }
 
-    public void UpdateInfo(LoaiGiayTo loaiGiayTo, string soGiayTo, DateTime? ngayPhatHanh)
+    public void UpdateInfo(LoaiGiayTo loaiGiayTo, string soGiayTo, DateTimeOffset? ngayPhatHanh)
     {
         LoaiGiayToId = loaiGiayTo;
         SoGiayTo = soGiayTo;
         NgayPhatHanh = ngayPhatHanh;
     }
 
-    public void SyncFiles(IEnumerable<TepTaiLieu>? files)
+    public void SyncFiles(IEnumerable<TepTaiLieuNguoiDung>? files)
     {
+        foreach (var file in _files)
+        {
+            file.MarkAsUnused();
+        }
         _files.Clear();
         if (files != null)
         {

@@ -49,6 +49,14 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var joins = new[]
+        {
+            new JoinDefinition("CanHo", "c", "c.Id = p.CanHoId"),
+            new JoinDefinition("Tang", "t", "t.Id = c.TangId"),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId")
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
@@ -66,9 +74,7 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
                 p.MauXe,
                 p.TrangThaiPhuongTienId
             FROM PhuongTien p
-            LEFT JOIN CanHo c ON c.Id = p.CanHoId AND c.IsDeleted = 0
-            LEFT JOIN Tang t ON t.Id = c.TangId AND t.IsDeleted = 0
-            LEFT JOIN ToaNha tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
+            {sqlJoins}
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination};
@@ -115,6 +121,14 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
+        var joins = new[]
+        {
+            new JoinDefinition("CanHo", "c", "c.Id = p.CanHoId"),
+            new JoinDefinition("Tang", "t", "t.Id = c.TangId"),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId")
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+
         var sql = """
             SELECT
                 p.Id,
@@ -128,9 +142,7 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
                 p.MauXe,
                 p.TrangThaiPhuongTienId
             FROM PhuongTien p
-            LEFT JOIN CanHo c ON c.Id = p.CanHoId AND c.IsDeleted = 0
-            LEFT JOIN Tang t ON t.Id = c.TangId AND t.IsDeleted = 0
-            LEFT JOIN ToaNha tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
+            {sqlJoins}
             WHERE p.Id = @Id AND p.IsDeleted = 0;
 
             SELECT
@@ -149,8 +161,7 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
                 t.FileUrl,
                 t.ContentType
             FROM TepTaiLieu t
-            INNER JOIN TepHinhAnhPhuongTien j ON j.HinhAnhPhuongTiensId = t.Id
-            WHERE j.PhuongTienId = @Id;
+            WHERE t.PhuongTienId = @Id AND t.LoaiTepTaiLieu = 'TepPhuongTien' AND t.IsDeleted = 0;
             """;
 
         using var multi = await connection.QueryMultipleAsync(sql, new { Id = id });

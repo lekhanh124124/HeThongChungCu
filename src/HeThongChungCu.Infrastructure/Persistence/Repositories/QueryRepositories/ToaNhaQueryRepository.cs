@@ -100,15 +100,20 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var joins = new[]
+        {
+            new JoinDefinition("Tang", "t", "t.ToaNhaId = tn.Id"),
+            new JoinDefinition("CanHo", "c", "c.TangId = t.Id")
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
 
         var sql = $"""
             SELECT tn.Id, tn.MaToaNha, tn.TenToaNha, tn.DiaChi, tn.MoTa, tn.TrangThaiToaNhaId,
                    (SELECT COUNT(*) FROM CanHo c JOIN Tang t ON c.TangId = t.Id WHERE t.ToaNhaId = tn.Id AND c.IsDeleted = 0 AND t.IsDeleted = 0) AS SoCanHo,
                    t.Id AS TangUid, t.MaTang, t.TenTang, t.LoaiTangId,
-                   c.Id AS CanHoId, c.MaCanHo, c.DienTich, c.SoPhongNgu, c.SoPhongTam, c.LoaiCanHoId, c.TinhTrangCanHoId
+                   c.Id AS CanHoId, c.MaCanHo, c.TenCanHo, c.DienTich, c.SoPhongNgu, c.SoPhongTam, c.LoaiCanHoId, c.TinhTrangCanHoId
             FROM ToaNha tn
-            LEFT JOIN Tang t ON t.ToaNhaId = tn.Id AND t.IsDeleted = 0
-            LEFT JOIN CanHo c ON c.TangId = t.Id AND c.IsDeleted = 0
+            {sqlJoins}
             {sqlWhere};
             """;
 
@@ -163,7 +168,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
                     {
                         Id = (int)row.CanHoId,
                         MaCanHo = (string)row.MaCanHo,
-                        TenCanHo = (string)row.MaCanHo,
+                        TenCanHo = (string)row.TenCanHo,
                         TangId = tangId,
                         TenTang = tang.TenTang,
                         DienTich = (decimal)row.DienTich,
@@ -203,6 +208,12 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var joins = new[]
+        {
+            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", Type: JoinType.Inner)
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
@@ -216,7 +227,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
                 t.ToaNhaId,
                 tn.TenToaNha
             FROM Tang t
-            INNER JOIN ToaNha tn ON tn.Id = t.ToaNhaId
+            {sqlJoins}
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination};
@@ -268,13 +279,18 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var joins = new[]
+        {
+            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", Type: JoinType.Inner),
+            new JoinDefinition("CanHo", "c", "c.TangId = t.Id")
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
 
         var sql = $"""
             SELECT t.Id, t.MaTang, t.TenTang, t.LoaiTangId, t.ToaNhaId, tn.TenToaNha,
-                   c.Id AS CanHoId, t.TenTang AS TenTangColumn, c.MaCanHo, c.DienTich, c.SoPhongNgu, c.SoPhongTam, c.LoaiCanHoId, c.TinhTrangCanHoId
+                   c.Id AS CanHoId, t.TenTang AS TenTangColumn, c.MaCanHo, c.TenCanHo, c.DienTich, c.SoPhongNgu, c.SoPhongTam, c.LoaiCanHoId, c.TinhTrangCanHoId
             FROM Tang t
-            INNER JOIN ToaNha tn ON tn.Id = t.ToaNhaId
-            LEFT JOIN CanHo c ON c.TangId = t.Id AND c.IsDeleted = 0
+            {sqlJoins}
             {sqlWhere};
             """;
 
@@ -306,7 +322,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
                 TangId = firstRow.Id,
                 TenTang = r.TenTangColumn ?? firstRow.TenTang,
                 MaCanHo = r.MaCanHo ?? string.Empty,
-                TenCanHo = r.MaCanHo ?? string.Empty,
+                TenCanHo = r.TenCanHo ?? string.Empty,
                 DienTich = r.DienTich ?? 0,
                 SoPhongNgu = r.SoPhongNgu ?? 0,
                 SoPhongTam = r.SoPhongTam ?? 0,
@@ -345,6 +361,12 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var joins = new[]
+        {
+            new JoinDefinition("Tang", "f", "f.ToaNhaId = t.Id"),
+            new JoinDefinition("CanHo", "c", "c.TangId = f.Id")
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
 
         var sql = $"""
             SELECT 
@@ -352,8 +374,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
                 f.Id AS TangId, f.MaTang, f.TenTang,
                 c.Id AS CanHoId, c.MaCanHo, c.TenCanHo, c.TinhTrangCanHoId AS CanHoTrangThaiId
             FROM ToaNha t
-            LEFT JOIN Tang f ON f.ToaNhaId = t.Id AND f.IsDeleted = 0
-            LEFT JOIN CanHo c ON c.TangId = f.Id AND c.IsDeleted = 0
+            {sqlJoins}
             {sqlWhere}
             ORDER BY t.TenToaNha, f.Id, c.MaCanHo
             """;

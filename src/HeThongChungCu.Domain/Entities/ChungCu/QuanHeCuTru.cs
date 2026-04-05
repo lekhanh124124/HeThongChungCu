@@ -2,6 +2,7 @@ using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
 using HeThongChungCu.Domain.Events;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -10,8 +11,7 @@ public class QuanHeCuTru : AggregateRoot
     public int CanHoId { get; private set; }
     public int NguoiDungId { get; private set; }
     public LoaiQuanHeCuTru LoaiQuanHeCuTruId { get; private set; } = null!;
-    public DateTime NgayBatDau { get; private set; }
-    public DateTime? NgayKetThuc { get; private set; }
+    public ThoiGianHieuLuc ThoiGian { get; private set; } = null!;
     public TrangThaiCuTru TrangThaiCuTruId { get; private set; } = null!;
 
     private QuanHeCuTru() { } // EF Core
@@ -20,12 +20,12 @@ public class QuanHeCuTru : AggregateRoot
         int canHoId,
         int nguoiDungId,
         LoaiQuanHeCuTru loaiQuanHeCuTruId,
-        DateTime ngayBatDau)
+        DateTimeOffset ngayBatDau)
     {
         CanHoId = canHoId;
         NguoiDungId = nguoiDungId;
         LoaiQuanHeCuTruId = loaiQuanHeCuTruId;
-        NgayBatDau = ngayBatDau;
+        ThoiGian = new ThoiGianHieuLuc(ngayBatDau);
         TrangThaiCuTruId = TrangThaiCuTru.DangCuTru;
     }
 
@@ -37,12 +37,12 @@ public class QuanHeCuTru : AggregateRoot
         LoaiQuanHeCuTruId = loaiQuanHeCuTruId;
     }
 
-    public void KetThucCuTru(DateTime ngayKetThuc)
+    public void KetThucCuTru(DateTimeOffset ngayKetThuc)
     {
         if (TrangThaiCuTruId == TrangThaiCuTru.DaKetThuc)
             throw new BusinessException($"Quan hệ cư trú này đã kết thúc.");
 
-        NgayKetThuc = ngayKetThuc;
+        ThoiGian = new ThoiGianHieuLuc(ThoiGian.NgayBatDau, ngayKetThuc);
         TrangThaiCuTruId = TrangThaiCuTru.DaKetThuc;
 
         AddDomainEvent(new KetThucCuTruEvent(CanHoId, LoaiQuanHeCuTruId));

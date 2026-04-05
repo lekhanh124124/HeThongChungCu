@@ -4,6 +4,8 @@ using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Interfaces;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.ChinhSuaHoSo;
 
@@ -12,17 +14,20 @@ public class ChinhSuaHoSoCommandHandler : ICommandHandler<ChinhSuaHoSoCommand, U
     private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
     private readonly INguoiDungCommandRepository _userRepository;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly IDocumentReconciliationService _documentReconciliationService;
     private readonly IUnitOfWork _unitOfWork;
 
     public ChinhSuaHoSoCommandHandler(
         IQuanHeCuTruCommandRepository quanHeCuTruRepository,
         INguoiDungCommandRepository userRepository,
         ITepTaiLieuRepository tepTaiLieuRepository,
+        IDocumentReconciliationService documentReconciliationService,
         IUnitOfWork unitOfWork)
     {
         _quanHeCuTruRepository = quanHeCuTruRepository;
         _userRepository = userRepository;
         _tepTaiLieuRepository = tepTaiLieuRepository;
+        _documentReconciliationService = documentReconciliationService;
         _unitOfWork = unitOfWork;
     }
 
@@ -49,59 +54,21 @@ public class ChinhSuaHoSoCommandHandler : ICommandHandler<ChinhSuaHoSoCommand, U
         // 2. Update relationship info
         relation.ThayDoiLoaiQuanHe(LoaiQuanHeCuTru.FromValue(request.LoaiQuanHeCuTruId)!);
 
-        // 3. Document Reconciliation Logic (similar to PheDuyetYeuCauCuTru)
+        // 3. Document Reconciliation Logic via Domain Service
         if (request.TaiLieuCuTrus != null)
         {
-            var currentDocs = user.TaiLieu.ToList();
-            var proposedDocs = request.TaiLieuCuTrus;
-
-            // 1. Remove documents not in the request
-            var proposedOriginalIds = proposedDocs.Where(d => d.TaiLieuCuTruId.HasValue)
-                                                .Select(d => d.TaiLieuCuTruId!.Value)
-                                                .ToList();
-
-            foreach (var doc in currentDocs)
-            {
-                if (!proposedOriginalIds.Contains(doc.Id))
-                {
-                    user.RemoveDocument(doc.Id);
-                }
-            }
-
-            // 2. Update existing or Add new
-            var allFileIds = proposedDocs.SelectMany(d => d.FileIds).Distinct().ToList();
+            var allFileIds = request.TaiLieuCuTrus.SelectMany(d => d.FileIds).Distinct().ToList();
             var tepTaiLieus = await _tepTaiLieuRepository.GetByIdsAsync(allFileIds, cancellationToken);
-            var tepTaiLieuDict = tepTaiLieus.ToDictionary(f => f.Id);
 
-            foreach (var propDoc in proposedDocs)
-            {
-                var files = propDoc.FileIds
-                    .Where(id => tepTaiLieuDict.ContainsKey(id))
-                    .Select(id => tepTaiLieuDict[id])
-                    .ToList();
+            var proposedDocs = request.TaiLieuCuTrus.Select(d => new DocumentSyncItem(
+                d.TaiLieuCuTruId,
+                d.LoaiGiayToId,
+                d.SoGiayTo,
+                d.NgayPhatHanh.HasValue ? new DateTimeOffset(d.NgayPhatHanh.Value, TimeSpan.Zero) : null,
+                d.FileIds
+            ));
 
-                if (propDoc.TaiLieuCuTruId.HasValue)
-                {
-                    // Update existing
-                    var existingDoc = user.TaiLieu.FirstOrDefault(d => d.Id == propDoc.TaiLieuCuTruId.Value);
-                    if (existingDoc != null)
-                    {
-                        existingDoc.UpdateInfo(LoaiGiayTo.FromValue(propDoc.LoaiGiayToId)!, propDoc.SoGiayTo, propDoc.NgayPhatHanh);
-                        existingDoc.SyncFiles(files);
-                    }
-                }
-                else
-                {
-                    // Add new
-                    var newDoc = new TaiLieuNguoiDung(
-                        user.Id,
-                        LoaiGiayTo.FromValue(propDoc.LoaiGiayToId)!,
-                        propDoc.SoGiayTo,
-                        propDoc.NgayPhatHanh,
-                        files);
-                    user.AddDocument(newDoc);
-                }
-            }
+            _documentReconciliationService.ReconcileNguoiDungDocuments(user, proposedDocs, tepTaiLieus);
         }
 
         _userRepository.Update(user);
@@ -116,7 +83,7 @@ public class ChinhSuaHoSoCommandHandler : ICommandHandler<ChinhSuaHoSoCommand, U
             Dob = user.NgaySinh,
             GioiTinhId = user.GioiTinhId.Value,
             GioiTinhName = user.GioiTinhId.Name,
-            DiaChi = user.DiaChi,
+            DiaChi = user.DiaChi.FullAddress,
             IdCard = user.CCCD,
             PhoneNumber = user.SoDienThoai ?? string.Empty,
             LoaiQuanHeCuTruId = relation.LoaiQuanHeCuTruId.Value,

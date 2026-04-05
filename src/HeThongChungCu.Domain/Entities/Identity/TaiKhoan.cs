@@ -1,13 +1,14 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Domain.Entities;
 
 public class TaiKhoan : AggregateRoot
 {
     public string TenDangNhap { get; private set; } = string.Empty;
-    public string Email { get; private set; } = string.Empty;
+    public Email Email { get; private set; } = null!;
     public string MatKhauHash { get; private set; } = string.Empty;
     public int? AnhDaiDienId { get; private set; }
     public virtual TepTaiLieu? AnhDaiDien { get; private set; }
@@ -27,12 +28,12 @@ public class TaiKhoan : AggregateRoot
     {
         NguoiDungId = nguoiDungId;
         TenDangNhap = tenDangNhap;
-        Email = email;
+        Email = new Email(email);
         MatKhauHash = matKhauHash;
         IsActive = true;
     }
 
-    public void UpdateEmail(string email) => Email = email;
+    public void UpdateEmail(string email) => Email = new Email(email);
 
 
     public void LinkToUser(int nguoiDungId)

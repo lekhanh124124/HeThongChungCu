@@ -5,6 +5,7 @@ using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.CapNhatYeuCauCuTru;
 
@@ -56,14 +57,11 @@ public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuT
 
                 requestDocuments = request.TaiLieuCuTrus.Select(a =>
                 {
-                    var files = new List<TepTaiLieu>();
-                    foreach (var fileId in a.FileIds)
-                    {
-                        if (tepTaiLieuDict.TryGetValue(fileId, out var file))
-                        {
-                            files.Add(file);
-                        }
-                    }
+                    var files = a.FileIds
+                        .Where(id => tepTaiLieuDict.ContainsKey(id))
+                        .Select(id => tepTaiLieuDict[id])
+                        .Select(f => new TepYeuCauTaiLieuCuTru(f.FileName, f.FileUrl, f.Size, f.ContentType))
+                        .ToList();
 
                     return new YeuCauTaiLieuCuTru(
                         LoaiGiayTo.FromValue(a.LoaiGiayToId, null)!,
@@ -113,7 +111,7 @@ public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuT
             YeuCauGioiTinhId = yeuCau.YeuCauGioiTinhId,
             YeuCauSoDienThoai = yeuCau.YeuCauSoDienThoai,
             YeuCauCCCD = yeuCau.YeuCauCCCD,
-            YeuCauDiaChi = yeuCau.YeuCauDiaChi,
+            YeuCauDiaChi = yeuCau.YeuCauDiaChi.FullAddress,
             YeuCauLoaiQuanHeId = yeuCau.YeuCauLoaiQuanHeId,
             TargetQuanHeCuTruId = yeuCau.YeuCauQuanHeCuTruId,
             NgayXuLy = yeuCau.NgayXuLy,

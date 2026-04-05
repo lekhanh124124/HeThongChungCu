@@ -13,8 +13,15 @@ public class DangKyDichVuConfiguration : IEntityTypeConfiguration<DangKyDichVu>
 
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.NgayBatDau)
-            .IsRequired();
+        builder.OwnsOne(x => x.ThoiGian, thoiGian =>
+        {
+            thoiGian.Property(v => v.NgayBatDau)
+                .HasColumnName("NgayBatDau")
+                .IsRequired();
+
+            thoiGian.Property(v => v.NgayKetThuc)
+                .HasColumnName("NgayKetThuc");
+        });
 
         builder.Property(x => x.TrangThaiDangKyId)
             .HasConversion(

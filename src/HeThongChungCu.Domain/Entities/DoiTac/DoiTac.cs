@@ -1,6 +1,7 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -11,11 +12,11 @@ public class DoiTac : AggregateRoot
     public string? NguoiDaiDien { get; private set; }
     public string? SoGiayPhepKD { get; private set; }
     public string? MaSoThue { get; private set; }
-    public string? DiaChi { get; private set; }
-    public string? SoDienThoai { get; private set; }
-    public string? Email { get; private set; }
-    public DateTime? NgayKyHopDong { get; private set; }
-    public DateTime? NgayHetHan { get; private set; }
+    public DiaChi DiaChi { get; private set; } = null!;
+    public SoDienThoai? SoDienThoai { get; private set; }
+    public Email? Email { get; private set; }
+    public DateTimeOffset? NgayKyHopDong { get; private set; }
+    public DateTimeOffset? NgayHetHan { get; private set; }
     public TrangThaiHopDong TrangThaiHopDongId { get; private set; } = null!;
 
     private DoiTac() { } // EF Core
@@ -29,8 +30,8 @@ public class DoiTac : AggregateRoot
         string? diaChi = null,
         string? soDienThoai = null,
         string? email = null,
-        DateTime? ngayKyHopDong = null,
-        DateTime? ngayHetHan = null)
+        DateTimeOffset? ngayKyHopDong = null,
+        DateTimeOffset? ngayHetHan = null)
     {
         if (string.IsNullOrWhiteSpace(tenDoiTac))
             throw new BusinessException("Tên đối tác không được để trống.");
@@ -40,9 +41,9 @@ public class DoiTac : AggregateRoot
         NguoiDaiDien = nguoiDaiDien;
         SoGiayPhepKD = soGiayPhepKD;
         MaSoThue = maSoThue;
-        DiaChi = diaChi;
-        SoDienThoai = soDienThoai;
-        Email = email;
+        DiaChi = new DiaChi(diaChi);
+        SoDienThoai = new SoDienThoai(soDienThoai);
+        Email = new Email(email);
         NgayKyHopDong = ngayKyHopDong;
         NgayHetHan = ngayHetHan;
         TrangThaiHopDongId = TrangThaiHopDong.ChuaKy;
@@ -57,8 +58,8 @@ public class DoiTac : AggregateRoot
         string? diaChi,
         string? soDienThoai,
         string? email,
-        DateTime? ngayKyHopDong,
-        DateTime? ngayHetHan)
+        DateTimeOffset? ngayKyHopDong,
+        DateTimeOffset? ngayHetHan)
     {
         if (string.IsNullOrWhiteSpace(tenDoiTac))
             throw new BusinessException("Tên đối tác không được để trống.");
@@ -68,9 +69,9 @@ public class DoiTac : AggregateRoot
         NguoiDaiDien = nguoiDaiDien;
         SoGiayPhepKD = soGiayPhepKD;
         MaSoThue = maSoThue;
-        DiaChi = diaChi;
-        SoDienThoai = soDienThoai;
-        Email = email;
+        DiaChi = new DiaChi(diaChi);
+        SoDienThoai = new SoDienThoai(soDienThoai);
+        Email = new Email(email);
         NgayKyHopDong = ngayKyHopDong;
         NgayHetHan = ngayHetHan;
     }

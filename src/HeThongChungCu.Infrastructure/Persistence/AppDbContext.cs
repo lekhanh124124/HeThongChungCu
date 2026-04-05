@@ -89,7 +89,7 @@ public class AppDbContext : DbContext, IUnitOfWork
         }
     }
 
-    private void ApplySoftDeleteFilter<T>(ModelBuilder builder) where T : AuditableEntity
+    private static void ApplySoftDeleteFilter<T>(ModelBuilder builder) where T : AuditableEntity
     {
         builder.Entity<T>().HasQueryFilter(e => !e.IsDeleted);
     }

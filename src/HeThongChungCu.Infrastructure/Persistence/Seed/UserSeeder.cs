@@ -8,63 +8,162 @@ namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class UserSeeder
 {
+    private static readonly object _lock = new();
     private static readonly HasherService _passwordHasher = new();
-    private static readonly HashSet<string> _usedEmails = new();
+    private static readonly HashSet<string> _usedEmails = new(StringComparer.OrdinalIgnoreCase);
     private static readonly HashSet<string> _usedPhoneNumbers = new();
     private static readonly HashSet<string> _usedIdCards = new();
+    private static readonly HashSet<string> _usedUsernames = new(StringComparer.OrdinalIgnoreCase);
 
-    private static string GetUniqueIdCard()
+    public static async Task InitializeAsync(AppDbContext context)
+    {
+        lock (_lock)
+        {
+            _usedEmails.Clear();
+            _usedPhoneNumbers.Clear();
+            _usedIdCards.Clear();
+            _usedUsernames.Clear();
+        }
+
+        var existingEmails = await context.TaiKhoan.AsNoTracking().IgnoreQueryFilters().Select(a => a.Email).ToListAsync();
+        var existingUsernames = await context.TaiKhoan.AsNoTracking().IgnoreQueryFilters().Select(a => a.TenDangNhap).ToListAsync();
+        var existingPhones = await context.NguoiDung.AsNoTracking().IgnoreQueryFilters().Select(u => u.SoDienThoai).ToListAsync();
+        var existingIdCards = await context.NguoiDung.AsNoTracking().IgnoreQueryFilters().Select(u => u.CCCD).ToListAsync();
+
+        lock (_lock)
+        {
+            foreach (var email in existingEmails) if (email != null && !string.IsNullOrEmpty(email.Value)) _usedEmails.Add(email.Value.ToLower());
+            foreach (var username in existingUsernames) if (!string.IsNullOrEmpty(username)) _usedUsernames.Add(username.ToLower());
+            foreach (var phone in existingPhones) if (!string.IsNullOrEmpty(phone)) _usedPhoneNumbers.Add(phone);
+            foreach (var idCard in existingIdCards) if (!string.IsNullOrEmpty(idCard)) _usedIdCards.Add(idCard);
+        }
+    }
+
+    public static void RegisterSpecialValues()
+    {
+        lock (_lock)
+        {
+            // Admin & Test Accounts
+            _usedEmails.Add("admin@gmail.com");
+            _usedEmails.Add("phognguen0@gmail.com");
+            _usedEmails.Add("nhanvien@gmail.com");
+            _usedUsernames.Add("admin");
+            _usedUsernames.Add("banquanly_test");
+            _usedUsernames.Add("nhanvien_test");
+
+            // Special Users (Giang Kiet, Hong Phat)
+            _usedEmails.Add("giangkiet2k4@gmail.com");
+            _usedUsernames.Add("giangkiet2k4");
+            _usedIdCards.Add("001004123456");
+            _usedPhoneNumbers.Add("0912345678");
+
+            _usedEmails.Add("hongphat@gmail.com");
+            _usedUsernames.Add("hongphat");
+            _usedIdCards.Add("001004987654");
+            _usedPhoneNumbers.Add("0987654321");
+        }
+    }
+
+    public static string GetUniqueIdCard(string? pattern = "0010########")
     {
         var faker = new Bogus.Faker();
         string idCard;
-        do
+        lock (_lock)
         {
-            idCard = faker.Random.Replace("0010########");
-        } while (!_usedIdCards.Add(idCard));
+            do
+            {
+                idCard = faker.Random.Replace(pattern ?? "0010########");
+            } while (!_usedIdCards.Add(idCard));
+        }
         return idCard;
     }
 
-    private static string GetUniquePhoneNumber()
+    public static string GetUniquePhoneNumber(string? pattern = "09########")
     {
         var faker = new Bogus.Faker();
         string phone;
-        do
+        lock (_lock)
         {
-            phone = faker.Phone.PhoneNumber("09########");
-        } while (!_usedPhoneNumbers.Add(phone));
+            do
+            {
+                phone = faker.Phone.PhoneNumber(pattern ?? "09########");
+            } while (!_usedPhoneNumbers.Add(phone));
+        }
         return phone;
     }
 
-    private static string EnsureUniqueEmail(string email)
+    public static string EnsureUniqueEmail(string email)
     {
         var originalEmail = email.ToLower();
         var currentEmail = originalEmail;
         int counter = 1;
 
-        while (!_usedEmails.Add(currentEmail))
+        lock (_lock)
         {
-            var parts = originalEmail.Split('@');
-            currentEmail = $"{parts[0]}{counter}@{parts[1]}";
-            counter++;
+            while (!_usedEmails.Add(currentEmail))
+            {
+                var parts = originalEmail.Split('@');
+                currentEmail = $"{parts[0]}{counter}@{parts[1]}";
+                counter++;
+            }
         }
         return currentEmail;
     }
 
+    public static string EnsureUniqueUsername(string username)
+    {
+        var originalUsername = username.ToLower();
+        var currentUsername = originalUsername;
+        int counter = 1;
+
+        lock (_lock)
+        {
+            while (!_usedUsernames.Add(currentUsername))
+            {
+                currentUsername = $"{originalUsername}{counter}";
+                counter++;
+            }
+        }
+        return currentUsername;
+    }
+
     public static string RegisterEmail(string email)
     {
-        _usedEmails.Add(email.ToLower());
+        if (string.IsNullOrEmpty(email)) return email;
+        lock (_lock)
+        {
+            _usedEmails.Add(email.ToLower());
+        }
         return email;
+    }
+
+    public static string RegisterUsername(string username)
+    {
+        if (string.IsNullOrEmpty(username)) return username;
+        lock (_lock)
+        {
+            _usedUsernames.Add(username.ToLower());
+        }
+        return username;
     }
 
     public static string RegisterPhoneNumber(string phone)
     {
-        _usedPhoneNumbers.Add(phone);
+        if (string.IsNullOrEmpty(phone)) return phone;
+        lock (_lock)
+        {
+            _usedPhoneNumbers.Add(phone);
+        }
         return phone;
     }
 
     public static string RegisterIdCard(string idCard)
     {
-        _usedIdCards.Add(idCard);
+        if (string.IsNullOrEmpty(idCard)) return idCard;
+        lock (_lock)
+        {
+            _usedIdCards.Add(idCard);
+        }
         return idCard;
     }
 
@@ -73,7 +172,6 @@ public class UserSeeder
         if (!await context.TaiKhoan.AnyAsync(a => a.TenDangNhap == "admin@gmail.com"))
         {
             logger.LogInformation("Seeding Admin and Test Accounts...");
-            var hashedPassword = _passwordHasher.HashPassword("123456");
 
             var testData = new[]
             {
@@ -84,24 +182,19 @@ public class UserSeeder
 
             foreach (var data in testData)
             {
-                var user = new NguoiDung(
-                    data.FirstName,
-                    data.LastName,
-                    new DateTime(1985, 5, 20),
-                    GioiTinh.Nam,
-                    "TP. Hồ Chí Minh",
-                    GetUniqueIdCard(),
-                    GetUniquePhoneNumber());
+                var email = RegisterEmail(data.Email);
+                var username = RegisterUsername(data.Username);
 
-                await context.NguoiDung.AddAsync(user);
-                await context.SaveChangesAsync();
-
-                var email = EnsureUniqueEmail(data.Email);
-                var account = new TaiKhoan(user.Id, data.Username, email, hashedPassword);
-                account.AddRole(data.Role);
-                await context.TaiKhoan.AddAsync(account);
+                await CreateUserWithAccountAsync(
+                    context: context,
+                    firstName: data.FirstName,
+                    lastName: data.LastName,
+                    email: email,
+                    role: data.Role,
+                    phoneNumber: GetUniquePhoneNumber(),
+                    address: "TP. Hồ Chí Minh",
+                    username: username);
             }
-            await context.SaveChangesAsync();
         }
     }
 
@@ -118,6 +211,7 @@ public class UserSeeder
             account.AddRole(Role.Guest);
             await context.TaiKhoan.AddAsync(account);
         }
+
         await context.SaveChangesAsync();
     }
 
@@ -128,22 +222,15 @@ public class UserSeeder
         string email,
         Role role,
         string phoneNumber,
-        string address = "Hồ Chí Minh")
+        string address = "Hồ Chí Minh",
+        string? username = null)
     {
-        var user = new NguoiDung(
-            firstName,
-            lastName,
-            new DateTime(1990, 1, 1),
-            GioiTinh.Nam,
-            address,
-            GetUniqueIdCard(),
-            phoneNumber ?? GetUniquePhoneNumber());
+        var user = await CreateUserOnlyAsync(context, firstName, lastName, phoneNumber, address);
 
-        await context.NguoiDung.AddAsync(user);
-        await context.SaveChangesAsync();
-
-        var account = new TaiKhoan(user.Id, email, email, _passwordHasher.HashPassword("123456"));
+        var finalUsername = string.IsNullOrEmpty(username) ? email : username;
+        var account = new TaiKhoan(user.Id, finalUsername, email, _passwordHasher.HashPassword("123456"));
         account.AddRole(role);
+
         await context.TaiKhoan.AddAsync(account);
         await context.SaveChangesAsync();
 
@@ -163,10 +250,12 @@ public class UserSeeder
             new DateTime(1995, 1, 1),
             GioiTinh.Nam,
             address,
-            GetUniqueIdCard(),
-            phoneNumber ?? GetUniquePhoneNumber());
+            RegisterIdCard(GetUniqueIdCard()),
+            phoneNumber ?? RegisterPhoneNumber(GetUniquePhoneNumber()));
 
         await context.NguoiDung.AddAsync(user);
+
+        // We MUST save changes here to get user.Id
         await context.SaveChangesAsync();
         return user;
     }

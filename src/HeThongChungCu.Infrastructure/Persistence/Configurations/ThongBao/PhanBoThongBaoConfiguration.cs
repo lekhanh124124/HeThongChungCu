@@ -24,7 +24,7 @@ public class PhanBoThongBaoConfiguration : IEntityTypeConfiguration<PhanBoThongB
         builder.HasOne<NguoiDung>()
             .WithMany()
             .HasForeignKey(x => x.NguoiDungId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasIndex(x => x.NguoiDungId);
         builder.HasIndex(x => new { x.NguoiDungId, x.IsRead });

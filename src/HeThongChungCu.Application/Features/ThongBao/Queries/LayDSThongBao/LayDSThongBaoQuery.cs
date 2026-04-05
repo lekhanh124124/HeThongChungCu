@@ -1,14 +1,16 @@
+using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Common.Models;
 using MediatR;
 
 namespace HeThongChungCu.Application.Features.ThongBao.Queries.LayDSThongBao;
 
-public class LayDSThongBaoQuery : IRequest<Result<PagedResult<ThongBaoResponse>>>
-{
-    public int? PageNumber { get; set; } = 1;
-    public int? PageSize { get; set; } = 10;
-    public bool? OnlyUnread { get; set; }
-}
+public record LayDSThongBaoQuery(
+    string? Keyword = null,
+    string? SortCol = null,
+    bool? IsAsc = false,
+    int? PageNumber = 1,
+    int? PageSize = 10,
+    bool? OnlyUnread = null) : IQuery<PagedResult<ThongBaoResponse>>;
 
 public class ThongBaoResponse
 {

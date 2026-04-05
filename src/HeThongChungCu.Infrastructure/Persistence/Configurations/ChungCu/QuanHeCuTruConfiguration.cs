@@ -24,10 +24,15 @@ public class QuanHeCuTruConfiguration : IEntityTypeConfiguration<HeThongChungCu.
             )
             .IsRequired();
 
-        builder.Property(q => q.NgayBatDau)
-            .IsRequired();
+        builder.OwnsOne(x => x.ThoiGian, thoiGian =>
+        {
+            thoiGian.Property(v => v.NgayBatDau)
+                .HasColumnName("NgayBatDau")
+                .IsRequired();
 
-        builder.Property(q => q.NgayKetThuc);
+            thoiGian.Property(v => v.NgayKetThuc)
+                .HasColumnName("NgayKetThuc");
+        });
 
         builder.Property(q => q.TrangThaiCuTruId)
             .HasConversion(
@@ -39,12 +44,12 @@ public class QuanHeCuTruConfiguration : IEntityTypeConfiguration<HeThongChungCu.
         builder.HasOne<CanHo>()
             .WithMany()
             .HasForeignKey(q => q.CanHoId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasOne<NguoiDung>()
             .WithMany()
             .HasForeignKey(q => q.NguoiDungId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         // Filtered index to prevent duplicate ACTIVE residency for the same person in the same apartment
         // Assuming TrangThaiCuTru.DangCuTru.Value is 1

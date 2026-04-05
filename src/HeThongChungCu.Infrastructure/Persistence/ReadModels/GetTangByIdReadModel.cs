@@ -14,6 +14,7 @@ internal class GetTangByIdReadModel
     public int? CanHoId { get; set; }
     public string? TenTangColumn { get; set; } // Avoid conflict with parent TenTang
     public string? MaCanHo { get; set; }
+    public string? TenCanHo { get; set; }
     public decimal? DienTich { get; set; }
     public int? SoPhongNgu { get; set; }
     public int? SoPhongTam { get; set; }

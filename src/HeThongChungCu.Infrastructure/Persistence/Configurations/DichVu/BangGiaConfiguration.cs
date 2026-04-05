@@ -17,8 +17,23 @@ public class BangGiaConfiguration : IEntityTypeConfiguration<BangGia>
             .HasMaxLength(100)
             .IsRequired();
 
-        builder.Property(x => x.DonGia)
-            .HasColumnType("decimal(18,2)");
+        builder.OwnsOne(x => x.ThoiGian, thoiGian =>
+        {
+            thoiGian.Property(v => v.NgayBatDau)
+                .HasColumnName("NgayApDung")
+                .IsRequired();
+
+            thoiGian.Property(v => v.NgayKetThuc)
+                .HasColumnName("NgayKetThuc");
+        });
+
+        builder.OwnsOne(x => x.DonGia, giaTien =>
+        {
+            giaTien.Property(p => p.SoTien)
+                .HasColumnName("DonGia")
+                .HasPrecision(18, 2);
+            giaTien.Ignore(p => p.LoaiTien);
+        });
 
         builder.Property(x => x.LoaiDinhGiaId)
             .HasConversion(
@@ -29,7 +44,7 @@ public class BangGiaConfiguration : IEntityTypeConfiguration<BangGia>
         builder.HasMany(x => x.BangGiaLuyTiens)
             .WithOne()
             .HasForeignKey(x => x.BangGiaId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         builder.Navigation(x => x.BangGiaLuyTiens)
             .HasField("_bangGiaLuyTiens")

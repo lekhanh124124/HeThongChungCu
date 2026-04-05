@@ -4,6 +4,7 @@ using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.TaoHoSo;
 
@@ -67,14 +68,11 @@ public class TaoHoSoCommandHandler : ICommandHandler<TaoHoSoCommand, UserInfoRes
                 var loaiGiayTo = LoaiGiayTo.FromValue(docReq.LoaiGiayToId, null);
                 if (loaiGiayTo is null) continue;
 
-                var files = new List<TepTaiLieu>();
-                foreach (var fileId in docReq.FileIds)
-                {
-                    if (tepTaiLieuDict.TryGetValue(fileId, out var file))
-                    {
-                        files.Add(file);
-                    }
-                }
+                var files = docReq.FileIds
+                    .Where(id => tepTaiLieuDict.ContainsKey(id))
+                    .Select(id => tepTaiLieuDict[id])
+                    .Select(f => f is TepTaiLieuNguoiDung tp ? tp : new TepTaiLieuNguoiDung(f.FileName, f.FileUrl, f.Size, f.ContentType))
+                    .ToList();
 
                 var document = new TaiLieuNguoiDung(
                     user.Id,
@@ -97,7 +95,7 @@ public class TaoHoSoCommandHandler : ICommandHandler<TaoHoSoCommand, UserInfoRes
             Dob = user.NgaySinh,
             GioiTinhId = user.GioiTinhId.Value,
             GioiTinhName = user.GioiTinhId.Name,
-            DiaChi = user.DiaChi,
+            DiaChi = user.DiaChi.FullAddress,
             IdCard = user.CCCD,
             PhoneNumber = user.SoDienThoai,
             TaiLieuCuTrus = user.TaiLieu.Select(d => new TaiLieuResponse

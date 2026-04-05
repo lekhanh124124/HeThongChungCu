@@ -22,9 +22,21 @@ public class CanHoConfiguration : IEntityTypeConfiguration<CanHo>
         builder.HasIndex(c => c.MaCanHo).IsUnique();
 
 
-        builder.Property(c => c.DienTich)
-            .HasColumnType("decimal(18,2)")
-            .IsRequired();
+        builder.OwnsOne(c => c.ThongSo, thongSo =>
+        {
+            thongSo.Property(t => t.DienTich)
+                .HasColumnName("DienTich")
+                .HasPrecision(18, 2)
+                .IsRequired();
+
+            thongSo.Property(t => t.SoPhongNgu)
+                .HasColumnName("SoPhongNgu")
+                .IsRequired();
+
+            thongSo.Property(t => t.SoPhongTam)
+                .HasColumnName("SoPhongTam")
+                .IsRequired();
+        });
 
         builder.Property(c => c.TangId)
             .IsRequired();
@@ -33,12 +45,6 @@ public class CanHoConfiguration : IEntityTypeConfiguration<CanHo>
             .WithMany()
             .HasForeignKey(c => c.TangId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.Property(c => c.SoPhongNgu)
-            .IsRequired();
-
-        builder.Property(c => c.SoPhongTam)
-            .IsRequired();
 
         builder.Property(c => c.LoaiCanHoId)
             .HasConversion(

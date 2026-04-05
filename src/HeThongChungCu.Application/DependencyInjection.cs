@@ -29,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<ICanHoDomainService, CanHoDomainService>();
         services.AddScoped<IResidencyService, ResidencyService>();
         services.AddScoped<IIdentityDomainService, IdentityDomainService>();
+        services.AddScoped<IDocumentReconciliationService, DocumentReconciliationService>();
 
         return services;
     }

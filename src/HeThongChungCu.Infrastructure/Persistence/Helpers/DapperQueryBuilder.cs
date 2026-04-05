@@ -4,23 +4,59 @@ using HeThongChungCu.Application.Common.Models;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Helpers;
 
+public enum JoinType
+{
+    Inner,
+    Left,
+    Right
+}
+
+public record JoinDefinition(
+    string Table, 
+    string Alias, 
+    string OnCondition, 
+    JoinType Type = JoinType.Left, 
+    bool AddSoftDelete = true,
+    (string Column, string Value)? Discriminator = null);
+
 public static class DapperQueryBuilder
 {
     public static (string SqlWhere, DynamicParameters Parameters) BuildWhere(
         IQuerySpecification spec, 
-        Dictionary<string, string> propertyToColumnMap)
+        Dictionary<string, string> propertyToColumnMap,
+        bool addSoftDeleteFilter = true,
+        (string Column, string Value)? discriminator = null)
     {
         var parameters = new DynamicParameters();
         var andClauses = new List<string>();
 
-        // Process standard filters (JOIN with AND)
+        // 0. Automatically add Discriminator filter if provided
+        if (discriminator.HasValue)
+        {
+            var paramName = "p_disc";
+            parameters.Add(paramName, discriminator.Value.Value);
+            andClauses.Add($"{discriminator.Value.Column} = @{paramName}");
+        }
+
+        // 1. Process standard filters (JOIN with AND)
         foreach (var filter in spec.Filters)
         {
             var clause = BuildFilterClause(filter, parameters, propertyToColumnMap);
             andClauses.Add(clause);
         }
 
-        // Process keyword filters (JOIN with OR)
+        // 2. Automatically add Soft Delete Filter (IsDeleted = 0) if mapped and NOT provided in Spec
+        if (addSoftDeleteFilter && propertyToColumnMap.TryGetValue("IsDeleted", out var isDeletedColumn))
+        {
+            // Check if Spec already has an explicit Filter for IsDeleted
+            var hasDirectFilter = spec.Filters.Any(f => f.PropertyName.Equals("IsDeleted", StringComparison.OrdinalIgnoreCase));
+            if (!hasDirectFilter)
+            {
+                andClauses.Add($"{isDeletedColumn} = 0");
+            }
+        }
+
+        // 3. Process keyword filters (JOIN with OR)
         var orClauses = new List<string>();
         foreach (var keyword in spec.Keywords)
         {
@@ -146,5 +182,37 @@ public static class DapperQueryBuilder
         parameters.Add("PageSize", pageSize);
 
         return "OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+    }
+
+    public static string BuildJoin(IEnumerable<JoinDefinition> joins)
+    {
+        var joinClauses = new List<string>();
+
+        foreach (var join in joins)
+        {
+            var joinType = join.Type switch
+            {
+                JoinType.Inner => "INNER JOIN",
+                JoinType.Right => "RIGHT JOIN",
+                _ => "LEFT JOIN"
+            };
+
+            var onClauses = new List<string> { join.OnCondition };
+
+            if (join.AddSoftDelete)
+            {
+                onClauses.Add($"{join.Alias}.IsDeleted = 0");
+            }
+
+            if (join.Discriminator.HasValue)
+            {
+                onClauses.Add($"{join.Alias}.{join.Discriminator.Value.Column} = '{join.Discriminator.Value.Value}'");
+            }
+
+            var onSection = string.Join(" AND ", onClauses);
+            joinClauses.Add($"{joinType} {join.Table} {join.Alias} ON {onSection}");
+        }
+
+        return string.Join("\n", joinClauses);
     }
 }

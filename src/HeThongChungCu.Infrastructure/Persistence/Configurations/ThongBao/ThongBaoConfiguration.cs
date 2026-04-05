@@ -34,6 +34,6 @@ public class ThongBaoConfiguration : IEntityTypeConfiguration<HeThongChungCu.Dom
         builder.HasMany(x => x.PhanBoThongBaos)
             .WithOne()
             .HasForeignKey(x => x.ThongBaoId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

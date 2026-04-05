@@ -15,21 +15,15 @@ public class ToaNhaCommandRepository : IToaNhaCommandRepository
     public async Task<ToaNha?> GetToaNhaByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<ToaNha>()
-            .Include(t => t.Tangs.Where(tang => !tang.IsDeleted))
-            .FirstOrDefaultAsync(t => 
-                t.Id == id &&
-                !t.IsDeleted, 
-                cancellationToken);
+            .Include(t => t.Tangs)
+            .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
     public async Task<ToaNha?> GetToaNhaByTangIdAsync(int tangId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<ToaNha>()
-            .Include(t => t.Tangs.Where(tang => !tang.IsDeleted))
-            .FirstOrDefaultAsync(t => 
-                t.Tangs.Any(tang => tang.Id == tangId && !tang.IsDeleted) &&
-                !t.IsDeleted, 
-                cancellationToken);
+            .Include(t => t.Tangs)
+            .FirstOrDefaultAsync(t => t.Tangs.Any(tang => tang.Id == tangId), cancellationToken);
     }
 
     public async Task<bool> MaToaNhaExistsAsync(string maToaNha, CancellationToken cancellationToken = default)
@@ -40,9 +34,7 @@ public class ToaNhaCommandRepository : IToaNhaCommandRepository
     public async Task<IReadOnlyList<ToaNha>> GetToaNhaByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<ToaNha>()
-            .Where(t => 
-                ids.Contains(t.Id) &&
-                !t.IsDeleted)
+            .Where(t => ids.Contains(t.Id))
             .ToListAsync(cancellationToken);
     }
 
@@ -50,7 +42,7 @@ public class ToaNhaCommandRepository : IToaNhaCommandRepository
     {
         return await _dbContext.Set<Tang>()
             .Include(t => t.ToaNha)
-            .Where(t => ids.Contains(t.Id) && !t.IsDeleted)
+            .Where(t => ids.Contains(t.Id))
             .ToListAsync(cancellationToken);
     }
 

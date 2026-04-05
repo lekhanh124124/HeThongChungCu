@@ -75,7 +75,7 @@ internal sealed class DangKyPhuongTienCommandHandler : ICommandHandler<DangKyPhu
             LoaiPhuongTien.FromValue(request.LoaiPhuongTienId)!,
             request.BienSo,
             request.MauXe,
-            hinhAnhs);
+            hinhAnhs?.Select(f => new TepPhuongTien(f.FileName, f.FileUrl, f.Size, f.ContentType)).ToList());
 
         var phuongTien = await _phuongTienCommandRepository.AddAsync(phuongTienEntity, cancellationToken);
 
@@ -100,8 +100,8 @@ internal sealed class DangKyPhuongTienCommandHandler : ICommandHandler<DangKyPhu
                 Id = x.Id,
                 PhuongTienId = x.PhuongTienId,
                 MaThe = x.MaThe,
-                NgayBatDau = x.NgayBatDau,
-                NgayKetThuc = x.NgayKetThuc,
+                NgayBatDau = x.ThoiGian.NgayBatDau,
+                NgayKetThuc = x.ThoiGian.NgayKetThuc,
                 TrangThaiThePhuongTienId = x.TrangThaiId.Value,
                 TenTrangThaiThePhuongTien = x.TrangThaiId.Name
              }).ToList(),

@@ -2,7 +2,10 @@ using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Interfaces;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.KetThucCuTru;
 
@@ -12,6 +15,8 @@ public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, C
     private readonly INguoiDungCommandRepository _userRepository;
     private readonly ICanHoCommandRepository _canHoRepository;
     private readonly IToaNhaCommandRepository _toaNhaRepository;
+    private readonly IResidencyService _residencyService;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
 
     public KetThucCuTruCommandHandler(
@@ -19,12 +24,16 @@ public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, C
         INguoiDungCommandRepository userRepository,
         ICanHoCommandRepository canHoRepository,
         IToaNhaCommandRepository toaNhaRepository,
+        IResidencyService residencyService,
+        IUnitOfWork unitOfWork,
         IDateTimeProvider dateTimeProvider)
     {
         _quanHeCuTruRepository = quanHeCuTruRepository;
         _userRepository = userRepository;
         _canHoRepository = canHoRepository;
         _toaNhaRepository = toaNhaRepository;
+        _residencyService = residencyService;
+        _unitOfWork = unitOfWork;
         _dateTimeProvider = dateTimeProvider;
     }
 
@@ -40,6 +49,20 @@ public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, C
 
         var user = await _userRepository.GetByIdAsync(quanHe.NguoiDungId, cancellationToken);
         var canHo = await _canHoRepository.GetByIdAsync(quanHe.CanHoId, cancellationToken);
+
+        if (canHo != null)
+        {
+            var activeRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
+            
+            // Use Domain Service Orchestration
+            _residencyService.EndResidency(canHo, quanHe, activeRelations, now);
+            
+            _quanHeCuTruRepository.Update(quanHe);
+            _canHoRepository.Update(canHo);
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
         var toaNha = canHo != null ? await _toaNhaRepository.GetToaNhaByTangIdAsync(canHo.TangId, cancellationToken) : null;
         var tang = toaNha?.Tangs.FirstOrDefault(t => t.Id == canHo?.TangId);
 
@@ -54,8 +77,8 @@ public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, C
             PhoneNumber = user?.SoDienThoai,
             LoaiQuanHeCuTruId = quanHe.LoaiQuanHeCuTruId.Value,
             TenLoaiQuanHeCuTru = quanHe.LoaiQuanHeCuTruId.Name,
-            NgayBatDau = quanHe.NgayBatDau,
-            NgayKetThuc = quanHe.NgayKetThuc,
+            NgayBatDau = quanHe.ThoiGian.NgayBatDau,
+            NgayKetThuc = quanHe.ThoiGian.NgayKetThuc,
             TrangThaiCuTruId = quanHe.TrangThaiCuTruId.Value,
             TenTrangThaiCuTru = quanHe.TrangThaiCuTruId.Name
         });

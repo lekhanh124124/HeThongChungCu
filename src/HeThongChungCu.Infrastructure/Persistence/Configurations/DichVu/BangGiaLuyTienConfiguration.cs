@@ -12,8 +12,13 @@ public class BangGiaLuyTienConfiguration : IEntityTypeConfiguration<BangGiaLuyTi
 
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.DonGia)
-            .HasPrecision(18, 2);
+        builder.OwnsOne(x => x.DonGia, giaTien =>
+        {
+            giaTien.Property(p => p.SoTien)
+                .HasColumnName("DonGia")
+                .HasPrecision(18, 2);
+            giaTien.Ignore(p => p.LoaiTien);
+        });
 
         builder.Property(x => x.TuMuc)
             .HasPrecision(18, 4);

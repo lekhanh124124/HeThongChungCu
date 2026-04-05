@@ -8,8 +8,27 @@ namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
 public class PhuongTienSeeder
 {
-    private static readonly HashSet<string> _usedBienSos = [];
-    private static readonly HashSet<string> _usedMaThes = [];
+    private static readonly object _lock = new();
+    private static readonly HashSet<string> _usedBienSos = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly HashSet<string> _usedMaThes = new(StringComparer.OrdinalIgnoreCase);
+
+    public static async Task InitializeAsync(AppDbContext context)
+    {
+        lock (_lock)
+        {
+            _usedBienSos.Clear();
+            _usedMaThes.Clear();
+        }
+
+        var existingBienSos = await context.PhuongTiens.IgnoreQueryFilters().Select(pt => pt.BienSo).ToListAsync();
+        var existingMaThes = await context.ThePhuongTiens.IgnoreQueryFilters().Select(t => t.MaThe).ToListAsync();
+
+        lock (_lock)
+        {
+            foreach (var bs in existingBienSos) if (!string.IsNullOrEmpty(bs)) _usedBienSos.Add(bs);
+            foreach (var mt in existingMaThes) if (!string.IsNullOrEmpty(mt)) _usedMaThes.Add(mt);
+        }
+    }
 
     public static async Task SeedAsync(AppDbContext context, ILogger logger, int soLuongPhuongTien)
     {
@@ -46,62 +65,72 @@ public class PhuongTienSeeder
             );
 
             await context.PhuongTiens.AddAsync(pt);
-            await context.SaveChangesAsync();
 
             // Status-based card logic
             if (status == TrangThaiPhuongTien.Active)
             {
-                pt.AddThe(GenerateUniqueMaThe(faker), DateTime.Now.AddMonths(-1));
+                pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.UtcNow.AddMonths(-1));
             }
             else if (status == TrangThaiPhuongTien.Inactive)
             {
                 // Inactive vehicles might still have old cards
-                pt.AddThe(GenerateUniqueMaThe(faker), DateTime.Now.AddMonths(-2));
-
-                pt.Huy(DateTime.Now);
+                pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.UtcNow.AddMonths(-2));
+                pt.Huy(DateTimeOffset.UtcNow);
             }
             else if (status == TrangThaiPhuongTien.Blocked)
             {
-                pt.AddThe(GenerateUniqueMaThe(faker), DateTime.Now.AddMonths(-3));
-
-                pt.Khoa(DateTime.Now);
+                pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.UtcNow.AddMonths(-3));
+                pt.Khoa(DateTimeOffset.UtcNow);
             }
-
-            await context.SaveChangesAsync();
         }
 
+        await context.SaveChangesAsync();
         logger.LogInformation("Finished seeding PhuongTiens.");
     }
 
     private static string GenerateBienSo(Faker faker)
     {
         string bienSo;
-        do
+        lock (_lock)
         {
-            bienSo = $"{faker.Random.Int(29, 31)}{faker.Random.String2(1, "ABCDEFGHJK")}-{faker.Random.Int(100, 999)}.{faker.Random.Int(10, 99)}";
-        } while (!_usedBienSos.Add(bienSo));
+            do
+            {
+                bienSo = $"{faker.Random.Int(29, 31)}{faker.Random.String2(1, "ABCDEFGHJK")}-{faker.Random.Int(100, 999)}.{faker.Random.Int(10, 99)}";
+            } while (!_usedBienSos.Add(bienSo));
+        }
         return bienSo;
     }
 
     public static string RegisterBienSo(string bienSo)
     {
-        _usedBienSos.Add(bienSo);
+        if (string.IsNullOrEmpty(bienSo)) return bienSo;
+        lock (_lock)
+        {
+            _usedBienSos.Add(bienSo);
+        }
         return bienSo;
     }
 
     public static string RegisterMaThe(string maThe)
     {
-        _usedMaThes.Add(maThe);
+        if (string.IsNullOrEmpty(maThe)) return maThe;
+        lock (_lock)
+        {
+            _usedMaThes.Add(maThe);
+        }
         return maThe;
     }
 
     private static string GenerateUniqueMaThe(Faker faker, string prefix = "CARD-")
     {
         string maThe;
-        do
+        lock (_lock)
         {
-            maThe = faker.Random.Replace($"{prefix}##########");
-        } while (!_usedMaThes.Add(maThe));
+            do
+            {
+                maThe = faker.Random.Replace($"{prefix}##########");
+            } while (!_usedMaThes.Add(maThe));
+        }
         return maThe;
     }
 }

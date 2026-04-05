@@ -1,6 +1,7 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -9,9 +10,7 @@ public class CanHo : AggregateRoot
     public string MaCanHo { get; private set; } = null!;
     public string TenCanHo { get; private set; } = null!;
 
-    public decimal DienTich { get; private set; }
-    public int SoPhongNgu { get; private set; }
-    public int SoPhongTam { get; private set; }
+    public ThongSoCanHo ThongSo { get; private set; } = null!;
 
     public LoaiCanHo LoaiCanHoId { get; private set; } = null!;
     public TrangThaiCanHo TinhTrangCanHoId { get; private set; } = null!;
@@ -30,14 +29,10 @@ public class CanHo : AggregateRoot
         LoaiCanHo loaiCanHoId, 
         TrangThaiCanHo tinhTrangCanHoId)
     {
-        ValidateStructure(dienTich, soPhongNgu, soPhongTam);
-
         TangId = tangId;
         MaCanHo = maCanHo;
         TenCanHo = tenCanHo;
-        DienTich = dienTich;
-        SoPhongNgu = soPhongNgu;
-        SoPhongTam = soPhongTam;
+        ThongSo = new ThongSoCanHo(dienTich, soPhongNgu, soPhongTam);
         LoaiCanHoId = loaiCanHoId;
         TinhTrangCanHoId = tinhTrangCanHoId;
     }
@@ -50,13 +45,9 @@ public class CanHo : AggregateRoot
         int soPhongTam, 
         LoaiCanHo loaiCanHoId)
     {
-        ValidateStructure(dienTich, soPhongNgu, soPhongTam);
-
         MaCanHo = maCanHo;
         TenCanHo = tenCanHo;
-        DienTich = dienTich;
-        SoPhongNgu = soPhongNgu;
-        SoPhongTam = soPhongTam;
+        ThongSo = new ThongSoCanHo(dienTich, soPhongNgu, soPhongTam);
         LoaiCanHoId = loaiCanHoId;
     }
 
@@ -64,35 +55,30 @@ public class CanHo : AggregateRoot
     {
         if (TinhTrangCanHoId == nextStatus) return;
 
-        // Rule: ChuaBanGiao -> DangTrong -> CoCuDan
+        // Rule: ChuaBanGiao -> CoCuDan (phải qua DangTrong trước)
         if (TinhTrangCanHoId == TrangThaiCanHo.ChuaBanGiao && nextStatus == TrangThaiCanHo.CoCuDan)
         {
             throw new BusinessException("Không được chuyển trực tiếp từ 'Chưa bàn giao' sang 'Có cư dân'. Phải qua trạng thái 'Đang trống'.");
         }
 
-        // Rule: CoCuDan -> DangTrong -> ChuaBanGiao
-        if (TinhTrangCanHoId == TrangThaiCanHo.CoCuDan && nextStatus == TrangThaiCanHo.DangTrong)
-        {
-            throw new BusinessException("Không được chuyển trực tiếp từ 'Có cư dân' sang 'Đang trống'. Phải qua trạng thái 'Chưa bàn giao'.");
-        }
-
         TinhTrangCanHoId = nextStatus;
+    }
+
+    public void MarkAsOccupied()
+    {
+        if (TinhTrangCanHoId == TrangThaiCanHo.ChuaBanGiao)
+        {
+            UpdateStatus(TrangThaiCanHo.DangTrong);
+        }
+        UpdateStatus(TrangThaiCanHo.CoCuDan);
+    }
+
+    public void MarkAsVacant()
+    {
+        UpdateStatus(TrangThaiCanHo.DangTrong);
     }
 
     public void Delete()
     {
     }
-
-    private void ValidateStructure(decimal dienTich, int soPhongNgu, int soPhongTam)
-    {
-        if (dienTich <= 0)
-            throw new BusinessException("Diện tích căn hộ phải lớn hơn 0.");
-
-        if (soPhongNgu < 0)
-            throw new BusinessException("Số phòng ngủ không được âm.");
-
-        if (soPhongTam < 0)
-            throw new BusinessException("Số phòng tắm không được âm.");
-    }
-
 }

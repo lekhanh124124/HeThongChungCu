@@ -79,7 +79,7 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
                 request.YeuCauBienSo!,
                 request.YeuCauMauXe!,
                 request.NoiDung,
-                tepTaiLieus,
+                tepTaiLieus.Select(f => f is TepYeuCauPhuongTien tp ? tp : new TepYeuCauPhuongTien(f.FileName, f.FileUrl, f.Size, f.ContentType)).ToList(),
                 initialStatus);
         }
         else // Sua hoặc Xoa
@@ -102,7 +102,7 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
                     request.YeuCauBienSo ?? phuongTien.BienSo,
                     request.YeuCauMauXe ?? phuongTien.MauXe,
                     request.NoiDung,
-                    tepTaiLieus,
+                    tepTaiLieus.Select(f => f is TepYeuCauPhuongTien tp ? tp : new TepYeuCauPhuongTien(f.FileName, f.FileUrl, f.Size, f.ContentType)).ToList(),
                     initialStatus);
             }
             else // Xoa

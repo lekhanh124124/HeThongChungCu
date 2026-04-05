@@ -5,5 +5,5 @@ namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 
 public interface IThongBaoQueryRepository
 {
-    Task<PagedResult<ThongBaoResponse>> GetDSThongBaoAsync(int userId, int pageNumber, int pageSize, bool? onlyUnread, CancellationToken cancellationToken = default);
+    Task<PagedResult<ThongBaoResponse>> GetDSThongBaoAsync(LayDSThongBaoSpecification spec, CancellationToken cancellationToken = default);
 }

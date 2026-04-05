@@ -34,6 +34,11 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var joins = new[]
+        {
+            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", Type: JoinType.Inner)
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
 
         var sql = $"""
             SELECT 
@@ -48,7 +53,7 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
                 nv.NgayNghiLam,
                 nv.GhiChu
             FROM NhanVien nv
-            INNER JOIN NguoiDung u ON u.Id = nv.NguoiDungId
+            {sqlJoins}
             {sqlWhere}
             """;
 
@@ -76,7 +81,13 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "nv.Id");
+        var joins = new[]
+        {
+            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", Type: JoinType.Inner)
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sql = $"""
@@ -93,7 +104,7 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
                 nv.NgayNghiLam,
                 nv.GhiChu
             FROM NhanVien nv
-            INNER JOIN NguoiDung u ON u.Id = nv.NguoiDungId
+            {sqlJoins}
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination}

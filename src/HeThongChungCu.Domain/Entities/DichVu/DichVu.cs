@@ -83,7 +83,7 @@ public class DichVu : AggregateRoot
         }
 
         // Close last active price list if needed (optional logic, usually you want them to be sequential)
-        var lastActive = _bangGias.OrderByDescending(bg => bg.NgayApDung).FirstOrDefault(bg => bg.IsActive);
+        var lastActive = _bangGias.OrderByDescending(bg => bg.ThoiGian.NgayBatDau).FirstOrDefault(bg => bg.IsActive);
 
         var newBangGia = new BangGia(Id, tenBangGia, ngayApDung, loaiDinhGiaId, donGia);
         _bangGias.Add(newBangGia);
@@ -92,8 +92,8 @@ public class DichVu : AggregateRoot
     public BangGia? GetCurrentPrice(DateTime atDate)
     {
         return _bangGias
-            .Where(bg => bg.IsActive && bg.NgayApDung <= atDate && (bg.NgayKetThuc == null || bg.NgayKetThuc >= atDate))
-            .OrderByDescending(bg => bg.NgayApDung)
+            .Where(bg => bg.IsActive && bg.ThoiGian.IsActive(atDate))
+            .OrderByDescending(bg => bg.ThoiGian.NgayBatDau)
             .FirstOrDefault();
     }
 }

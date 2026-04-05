@@ -14,7 +14,7 @@ public class YeuCauCuTruSeeder
         ILogger logger,
         YeuCauCounts? counts)
     {
-        if (counts == null || await context.YeuCauCuTrus.AnyAsync()) return;
+        if (counts == null) return;
 
         logger.LogInformation("Seeding YeuCauCuTru...");
 
@@ -63,10 +63,10 @@ public class YeuCauCuTruSeeder
                     LoaiQuanHeCuTru.NguoiOCung.Value,
                     faker.Name.FirstName(),
                     faker.Name.LastName(),
-                    faker.Date.Past(30, DateTime.Now.AddYears(-20)),
+                    faker.Date.Past(30, DateTime.UtcNow.AddYears(-20)),
                     faker.PickRandom(new[] { 1, 2 }), // GioiTinh
-                    faker.Phone.PhoneNumber("09########"),
-                    faker.Random.Replace("0010########"),
+                    UserSeeder.GetUniquePhoneNumber(),
+                    UserSeeder.GetUniqueIdCard(),
                     faker.Address.FullAddress(),
                     faker.Lorem.Sentence(),
                     null,

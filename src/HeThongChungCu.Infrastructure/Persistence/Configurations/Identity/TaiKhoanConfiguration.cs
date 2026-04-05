@@ -17,9 +17,14 @@ public class TaiKhoanConfiguration : IEntityTypeConfiguration<TaiKhoan>
             .IsRequired()
             .HasMaxLength(50);
 
-        builder.Property(a => a.Email)
-            .IsRequired()
-            .HasMaxLength(256);
+        builder.OwnsOne(a => a.Email, email =>
+        {
+            email.Property(e => e.Value)
+                .HasColumnName("Email")
+                .IsRequired()
+                .HasMaxLength(256);
+            email.HasIndex(e => e.Value).IsUnique();
+        });
 
         builder.Property(a => a.MatKhauHash)
             .IsRequired();
@@ -34,7 +39,6 @@ public class TaiKhoanConfiguration : IEntityTypeConfiguration<TaiKhoan>
             .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasIndex(a => a.TenDangNhap).IsUnique();
-        builder.HasIndex(a => a.Email).IsUnique();
 
         builder.HasOne<NguoiDung>()
             .WithOne()

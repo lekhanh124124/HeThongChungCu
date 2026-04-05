@@ -16,9 +16,14 @@ public class HoaDonDoiTacConfiguration : IEntityTypeConfiguration<HoaDonDoiTac>
         builder.Property(x => x.Thang).IsRequired();
         builder.Property(x => x.Nam).IsRequired();
 
-        builder.Property(x => x.SoTien)
-            .HasColumnType("decimal(18,2)")
-            .IsRequired();
+        builder.OwnsOne(x => x.SoTien, giaTien =>
+        {
+            giaTien.Property(p => p.SoTien)
+                .HasColumnName("SoTien")
+                .HasPrecision(18, 2)
+                .IsRequired();
+            giaTien.Ignore(p => p.LoaiTien);
+        });
 
         builder.Property(x => x.NgayGhiNhan)
             .IsRequired();

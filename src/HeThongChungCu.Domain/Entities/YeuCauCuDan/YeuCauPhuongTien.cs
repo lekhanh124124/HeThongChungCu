@@ -14,8 +14,8 @@ public class YeuCauPhuongTien : YeuCau
     public string YeuCauBienSo { get; private set; } = string.Empty;
     public string YeuCauMauXe { get; private set; } = string.Empty;
 
-    private readonly List<TepTaiLieu> _yeuCauHinhAnhPhuongTiens = [];
-    public IReadOnlyCollection<TepTaiLieu> YeuCauHinhAnhPhuongTiens => _yeuCauHinhAnhPhuongTiens.AsReadOnly();
+    private readonly List<TepYeuCauPhuongTien> _yeuCauHinhAnhPhuongTiens = [];
+    public IReadOnlyCollection<TepYeuCauPhuongTien> YeuCauHinhAnhPhuongTiens => _yeuCauHinhAnhPhuongTiens.AsReadOnly();
 
     private YeuCauPhuongTien() { } // EF Core
 
@@ -45,7 +45,7 @@ public class YeuCauPhuongTien : YeuCau
         string bienSo,
         string mauXe,
         string? noiDung,
-        IEnumerable<TepTaiLieu>? images,
+        IEnumerable<TepYeuCauPhuongTien>? images,
         TrangThaiYeuCau trangThaiId)
     {
         var request = new YeuCauPhuongTien(canHoId, LoaiYeuCau.Them, trangThaiId, loaiPhuongTien, tenPhuongTien, bienSo, mauXe, noiDung);
@@ -75,7 +75,7 @@ public class YeuCauPhuongTien : YeuCau
         string bienSo,
         string mauXe,
         string? noiDung,
-        IEnumerable<TepTaiLieu>? images,
+        IEnumerable<TepYeuCauPhuongTien>? images,
         TrangThaiYeuCau trangThaiId)
     {
         var request = new YeuCauPhuongTien(canHoId, LoaiYeuCau.Sua, trangThaiId, loaiPhuongTien, tenPhuongTien, bienSo, mauXe, noiDung, phuongTienId);
@@ -124,7 +124,7 @@ public class YeuCauPhuongTien : YeuCau
         string? bienSo,
         string? mauXe,
         string? noiDung,
-        IEnumerable<TepTaiLieu>? images)
+        IEnumerable<TepYeuCauPhuongTien>? images)
     {
         if (TrangThaiId != TrangThaiYeuCau.Saved)
             throw new BusinessException("Chỉ có thể chỉnh sửa yêu cầu đang ở trạng thái đã lưu.");

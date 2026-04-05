@@ -11,8 +11,8 @@ public class CuDanResponse
     public string? PhoneNumber { get; set; }
     public int LoaiQuanHeCuTruId { get; set; }
     public string TenLoaiQuanHeCuTru { get; set; } = string.Empty;
-    public DateTime NgayBatDau { get; set; }
-    public DateTime? NgayKetThuc { get; set; }
+    public DateTimeOffset NgayBatDau { get; set; }
+    public DateTimeOffset? NgayKetThuc { get; set; }
     public int TrangThaiCuTruId { get; init; }
     public string TenTrangThaiCuTru { get; set; } = string.Empty;
 }

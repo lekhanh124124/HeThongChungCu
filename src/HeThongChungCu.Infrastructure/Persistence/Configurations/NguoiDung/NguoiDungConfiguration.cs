@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 
+using HeThongChungCu.Domain.ValueObjects;
+
 namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
 public class NguoiDungConfiguration : IEntityTypeConfiguration<NguoiDung>
@@ -12,6 +14,11 @@ public class NguoiDungConfiguration : IEntityTypeConfiguration<NguoiDung>
         builder.ToTable("NguoiDung");
 
         builder.HasKey(u => u.Id);
+
+        builder.OwnsOne(u => u.DiaChi, da =>
+        {
+            da.Property(p => p.FullAddress).HasColumnName("DiaChi");
+        });
 
         builder.Property(u => u.Ten)
             .IsRequired()
@@ -32,9 +39,15 @@ public class NguoiDungConfiguration : IEntityTypeConfiguration<NguoiDung>
             .IsRequired();
 
 
-        builder.HasIndex(u => u.SoDienThoai)
-            .IsUnique()
-            .HasFilter("[SoDienThoai] IS NOT NULL");
+        builder.OwnsOne(u => u.SoDienThoai, sd =>
+        {
+            sd.Property(p => p.Value)
+                .HasColumnName("SoDienThoai")
+                .HasMaxLength(20);
+            sd.HasIndex(p => p.Value)
+                .IsUnique()
+                .HasFilter("[SoDienThoai] IS NOT NULL");
+        });
 
         builder.HasIndex(u => u.CCCD)
             .IsUnique()
@@ -43,7 +56,7 @@ public class NguoiDungConfiguration : IEntityTypeConfiguration<NguoiDung>
         builder.HasMany(u => u.TaiLieu)
             .WithOne()
             .HasForeignKey(d => d.NguoiDungId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         builder.Navigation(u => u.TaiLieu)
             .HasField("_documents")

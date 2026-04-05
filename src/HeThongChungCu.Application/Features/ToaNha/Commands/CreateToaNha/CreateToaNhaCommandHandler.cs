@@ -1,4 +1,8 @@
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
+using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Application.Features.ToaNha.Commands.CreateToaNha;
 
@@ -34,7 +38,7 @@ public class CreateToaNhaCommandHandler : ICommandHandler<CreateToaNhaCommand, T
             Id = toaNha.Id,
             MaToaNha = toaNha.MaToaNha,
             TenToaNha = toaNha.TenToaNha,
-            DiaChi = toaNha.DiaChi,
+            DiaChi = toaNha.DiaChi.FullAddress,
             MoTa = toaNha.MoTa,
             TrangThaiToaNhaId = toaNha.TrangThaiToaNhaId.Value,
             TenTrangThaiToaNha = trangThaiToaNha.Name

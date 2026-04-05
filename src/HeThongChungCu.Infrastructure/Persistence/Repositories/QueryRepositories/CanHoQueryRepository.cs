@@ -44,6 +44,12 @@ public class CanHoQueryRepository : ICanHoQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var joins = new[]
+        {
+            new JoinDefinition("Tang", "t", "t.Id = c.TangId")
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, nameof(CanHo.Id));
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
@@ -61,7 +67,7 @@ public class CanHoQueryRepository : ICanHoQueryRepository
                 c.LoaiCanHoId,
                 c.TinhTrangCanHoId
             FROM CanHo c
-            INNER JOIN Tang t ON t.Id = c.TangId
+            {sqlJoins}
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination}
@@ -115,6 +121,11 @@ public class CanHoQueryRepository : ICanHoQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var joins = new[]
+        {
+            new JoinDefinition("Tang", "t", "t.Id = c.TangId")
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
 
         var sql = $"""
             SELECT 
@@ -129,7 +140,7 @@ public class CanHoQueryRepository : ICanHoQueryRepository
                 c.LoaiCanHoId, 
                 c.TinhTrangCanHoId
             FROM CanHo c
-            INNER JOIN Tang t ON t.Id = c.TangId
+            {sqlJoins}
             {sqlWhere};
             """;
 

@@ -17,10 +17,7 @@ public class QuanHeCuTruCommandRepository : IQuanHeCuTruCommandRepository
     public async Task<QuanHeCuTru?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<QuanHeCuTru>()
-            .FirstOrDefaultAsync(q =>
-                q.Id == id &&
-                !q.IsDeleted,
-                cancellationToken);
+            .FirstOrDefaultAsync(q => q.Id == id, cancellationToken);
     }
 
     public async Task<QuanHeCuTru?> GetCuTruByCanHoIdAsync(int canHoId, CancellationToken cancellationToken = default)
@@ -28,7 +25,6 @@ public class QuanHeCuTruCommandRepository : IQuanHeCuTruCommandRepository
         return await _dbContext.Set<QuanHeCuTru>()
             .FirstOrDefaultAsync(q =>
                 q.CanHoId == canHoId &&
-                !q.IsDeleted &&
                 q.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru,
                 cancellationToken);
     }
@@ -51,9 +47,7 @@ public class QuanHeCuTruCommandRepository : IQuanHeCuTruCommandRepository
     public async Task<IEnumerable<QuanHeCuTru>> GetByCanHoIdAsync(int canHoId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<QuanHeCuTru>()
-            .Where(q =>
-                q.CanHoId == canHoId &&
-                !q.IsDeleted)
+            .Where(q => q.CanHoId == canHoId)
             .ToListAsync(cancellationToken);
     }
 
@@ -63,7 +57,6 @@ public class QuanHeCuTruCommandRepository : IQuanHeCuTruCommandRepository
             .FirstOrDefaultAsync(q =>
                 q.NguoiDungId == nguoiDungId &&
                 q.CanHoId == canHoId &&
-                !q.IsDeleted &&
                 q.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru,
                 cancellationToken);
     }

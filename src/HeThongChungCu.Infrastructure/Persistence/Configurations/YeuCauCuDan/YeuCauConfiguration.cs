@@ -14,8 +14,8 @@ public class YeuCauConfiguration : IEntityTypeConfiguration<YeuCau>
         builder.HasKey(e => e.Id);
 
         builder.HasDiscriminator<string>("LoaiYeuCauCuDan")
-            .HasValue<YeuCauCuTru>("CuTru")
-            .HasValue<YeuCauPhuongTien>("PhuongTien");
+            .HasValue<YeuCauCuTru>("YeuCauCuTru")
+            .HasValue<YeuCauPhuongTien>("YeuCauPhuongTien");
 
         builder.Property(e => e.NoiDung).HasMaxLength(1000);
         builder.Property(e => e.LyDo).HasMaxLength(500);

@@ -16,8 +16,7 @@ public class CanHoCommandRepository : ICanHoCommandRepository
     {
         return await _dbContext.Set<CanHo>()
             .FirstOrDefaultAsync(c =>
-                c.Id == id &&
-                !c.IsDeleted,
+                c.Id == id,
                 cancellationToken);
     }
 
@@ -25,8 +24,7 @@ public class CanHoCommandRepository : ICanHoCommandRepository
     {
         return await _dbContext.Set<CanHo>()
             .AnyAsync(c =>
-                c.Id == id &&
-                !c.IsDeleted,
+                c.Id == id,
                 cancellationToken);
     }
 
@@ -38,9 +36,7 @@ public class CanHoCommandRepository : ICanHoCommandRepository
     public async Task<IReadOnlyList<CanHo>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Set<CanHo>()
-            .Where(c =>
-                ids.Contains(c.Id) &&
-                !c.IsDeleted)
+            .Where(c => ids.Contains(c.Id))
             .ToListAsync(cancellationToken);
     }
 

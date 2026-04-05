@@ -31,14 +31,19 @@ public class NguoiDungQueryRepository : INguoiDungQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var joins = new[]
+        {
+            new JoinDefinition("TaiKhoan", "a", "u.Id = a.NguoiDungId AND a.IsActive = 1", AddSoftDelete: false),
+            new JoinDefinition("TepTaiLieu", "atl", "a.AnhDaiDienId = atl.Id"),
+            new JoinDefinition("PhanQuyen", "pq", "a.Id = pq.TaiKhoanId", AddSoftDelete: false)
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
 
         var sql = $"""
             SELECT u.Id, a.TenDangNhap as Username, a.Email, u.Ten as FirstName, u.Ho as LastName, u.SoDienThoai as PhoneNumber, u.NgaySinh as Dob, u.DiaChi, u.GioiTinhId, atl.FileUrl as AnhDaiDienUrl,
                    STRING_AGG(pq.RoleId, ',') as RoleIds
             FROM NguoiDung u
-            LEFT JOIN TaiKhoan a ON u.Id = a.NguoiDungId
-            LEFT JOIN TepTaiLieu atl ON a.AnhDaiDienId = atl.Id AND atl.IsDeleted = 0
-            LEFT JOIN PhanQuyen pq ON a.Id = pq.TaiKhoanId
+            {sqlJoins}
             {sqlWhere}
             GROUP BY u.Id, a.TenDangNhap, a.Email, u.Ten, u.Ho, u.SoDienThoai, u.NgaySinh, u.DiaChi, u.GioiTinhId, atl.FileUrl
             """;

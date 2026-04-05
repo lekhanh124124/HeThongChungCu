@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Application.Features.ToaNha.Commands.DeleteToaNha;
 
@@ -29,7 +30,7 @@ public class DeleteToaNhaCommandHandler : ICommandHandler<DeleteToaNhaCommand, I
             Id = t.Id,
             MaToaNha = t.MaToaNha,
             TenToaNha = t.TenToaNha,
-            DiaChi = t.DiaChi,
+            DiaChi = t.DiaChi.FullAddress,
             MoTa = t.MoTa,
             TrangThaiToaNhaId = t.TrangThaiToaNhaId.Value,
             TenTrangThaiToaNha = t.TrangThaiToaNhaId.Name

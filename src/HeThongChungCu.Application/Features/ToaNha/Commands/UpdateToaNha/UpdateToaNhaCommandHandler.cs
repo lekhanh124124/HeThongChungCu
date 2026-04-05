@@ -1,5 +1,6 @@
 using HeThongChungCu.Application.Features.Tang.DTOs;
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Application.Features.ToaNha.Commands.UpdateToaNha;
 
@@ -43,7 +44,7 @@ public class UpdateToaNhaCommandHandler : ICommandHandler<UpdateToaNhaCommand, T
             Id = toaNha.Id,
             MaToaNha = toaNha.MaToaNha,
             TenToaNha = toaNha.TenToaNha,
-            DiaChi = toaNha.DiaChi,
+            DiaChi = toaNha.DiaChi.FullAddress,
             MoTa = toaNha.MoTa,
             TrangThaiToaNhaId = toaNha.TrangThaiToaNhaId.Value,
             TenTrangThaiToaNha = toaNha.TrangThaiToaNhaId.Name

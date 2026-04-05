@@ -59,11 +59,11 @@ public class CapNhatYeuCauPhuongTienCommandHandler : ICommandHandler<CapNhatYeuC
         else
         {
             // Fetch TepTaiLieus if provided
-            List<TepTaiLieu>? images = null;
+            List<TepYeuCauPhuongTien>? images = null;
             if (request.FileIds != null)
             {
                 var tepTaiLieus = await _tepTaiLieuRepository.GetByIdsAsync(request.FileIds, cancellationToken);
-                images = tepTaiLieus.ToList();
+                images = tepTaiLieus.Select(f => f is TepYeuCauPhuongTien tp ? tp : new TepYeuCauPhuongTien(f.FileName, f.FileUrl, f.Size, f.ContentType)).ToList();
             }
 
             var loaiPhuongTien = request.LoaiPhuongTienId.HasValue 

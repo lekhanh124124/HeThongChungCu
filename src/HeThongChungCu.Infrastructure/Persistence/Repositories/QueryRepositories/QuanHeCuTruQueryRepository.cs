@@ -51,6 +51,15 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var joins = new[]
+        {
+            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId"),
+            new JoinDefinition("CanHo", "c", "c.Id = q.CanHoId"),
+            new JoinDefinition("Tang", "t", "t.Id = c.TangId"),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId")
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "NgayBatDau");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
@@ -69,10 +78,7 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
                 q.NgayKetThuc,
                 q.TrangThaiCuTruId
             FROM QuanHeCuTru q
-            LEFT JOIN NguoiDung u ON u.Id = q.NguoiDungId AND u.IsDeleted = 0
-            LEFT JOIN CanHo c ON c.Id = q.CanHoId AND c.IsDeleted = 0
-            LEFT JOIN Tang t ON t.Id = c.TangId AND t.IsDeleted = 0
-            LEFT JOIN ToaNha tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
+            {sqlJoins}
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination}
@@ -130,6 +136,13 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var joins = new[]
+        {
+            new JoinDefinition("CanHo", "c", "c.Id = q.CanHoId"),
+            new JoinDefinition("Tang", "t", "t.Id = c.TangId"),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId")
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
 
         var sql = $"""
             SELECT
@@ -149,9 +162,7 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
                     AND qr.TrangThaiCuTruId = 1
                     AND qr.IsDeleted = 0) AS TongCuDan
             FROM QuanHeCuTru q
-            LEFT JOIN CanHo   c ON c.Id = q.CanHoId AND c.IsDeleted = 0
-            LEFT JOIN Tang    t ON t.Id = c.TangId AND t.IsDeleted = 0
-            LEFT JOIN ToaNha  tn ON tn.Id = t.ToaNhaId AND tn.IsDeleted = 0
+            {sqlJoins}
             {sqlWhere}
             """;
 
@@ -195,6 +206,15 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var joins = new[]
+        {
+            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", Type: JoinType.Inner),
+            new JoinDefinition("TaiKhoan", "a", "u.Id = a.NguoiDungId AND a.IsActive = 1", AddSoftDelete: false),
+            new JoinDefinition("TepTaiLieu", "atl", "a.AnhDaiDienId = atl.Id"),
+            new JoinDefinition("TaiLieu", "t", "t.NguoiDungId = u.Id AND t.LoaiTaiLieu = 'TaiLieuNguoiDung'"),
+            new JoinDefinition("TepTaiLieu", "f", "f.TaiLieuId = t.Id AND f.LoaiTepTaiLieu = 'TepTaiLieuNguoiDung'")
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
 
         var sql = $"""
             SELECT
@@ -218,12 +238,7 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
                 -- File fields
                 f.Id AS FileId, f.FileUrl, f.FileName, f.ContentType
             FROM QuanHeCuTru q
-            INNER JOIN NguoiDung u ON u.Id = q.NguoiDungId
-            LEFT JOIN TaiKhoan a ON u.Id = a.NguoiDungId
-            LEFT JOIN TepTaiLieu atl ON a.AnhDaiDienId = atl.Id AND atl.IsDeleted = 0
-            LEFT JOIN TaiLieuNguoiDung t ON t.NguoiDungId = u.Id
-            LEFT JOIN TepTaiLieuNguoiDung tj ON tj.TaiLieuNguoiDungId = t.Id
-            LEFT JOIN TepTaiLieu f ON f.Id = tj.FilesId AND f.IsDeleted = 0
+            {sqlJoins}
             {sqlWhere}
             """;
 
@@ -312,6 +327,13 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var joins = new[]
+        {
+            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", Type: JoinType.Inner),
+            new JoinDefinition("TaiKhoan", "a", "u.Id = a.NguoiDungId AND a.IsActive = 1", AddSoftDelete: false),
+            new JoinDefinition("TepTaiLieu", "atl", "a.AnhDaiDienId = atl.Id")
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
 
         var sql = $"""
             SELECT
@@ -323,9 +345,7 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
                 u.Ho as LastName,
                 atl.FileUrl as AnhDaiDienUrl
             FROM QuanHeCuTru q
-            INNER JOIN NguoiDung u ON u.Id = q.NguoiDungId AND u.IsDeleted = 0
-            LEFT JOIN TaiKhoan a ON u.Id = a.NguoiDungId
-            LEFT JOIN TepTaiLieu atl ON a.AnhDaiDienId = atl.Id AND atl.IsDeleted = 0
+            {sqlJoins}
             {sqlWhere}
             """;
 

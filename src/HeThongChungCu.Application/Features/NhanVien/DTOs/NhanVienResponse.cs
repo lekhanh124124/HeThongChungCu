@@ -11,7 +11,7 @@ public class NhanVienResponse
     public int TrangThaiNhanVienId { get; set; }
     public string TenTrangThaiNhanVien { get; set; } = null!;
     public string MaNhanVien { get; set; } = null!;
-    public DateTime NgayVaoLam { get; set; }
-    public DateTime? NgayNghiLam { get; set; }
+    public DateTimeOffset NgayVaoLam { get; set; }
+    public DateTimeOffset? NgayNghiLam { get; set; }
     public string? GhiChu { get; set; }
 }

@@ -27,22 +27,24 @@ internal sealed class PhuongTienCommandRepository : IPhuongTienCommandRepository
     public async Task<PhuongTien?> GetPhuongTienByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _context.PhuongTiens
-            .Include(x => x.ThePhuongTiens.Where(x => !x.IsDeleted))
-            .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
+            .Include(x => x.ThePhuongTiens)
+            .Include(x => x.HinhAnhPhuongTiens)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
     public async Task<List<PhuongTien>> GetPhuongTiensByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
         return await _context.PhuongTiens
             .Include(x => x.ThePhuongTiens)
-            .Where(x => ids.Contains(x.Id) && !x.IsDeleted)
+            .Include(x => x.HinhAnhPhuongTiens)
+            .Where(x => ids.Contains(x.Id))
             .ToListAsync(cancellationToken);
     }
 
     public async Task<List<PhuongTien>> GetPhuongTiensByCanHoIdAsync(int canHoId, CancellationToken cancellationToken = default)
     {
         return await _context.PhuongTiens
-            .Where(x => x.CanHoId == canHoId && !x.IsDeleted)
+            .Where(x => x.CanHoId == canHoId)
             .ToListAsync(cancellationToken);
     }
 
@@ -50,20 +52,20 @@ internal sealed class PhuongTienCommandRepository : IPhuongTienCommandRepository
     {
         return await _context.PhuongTiens
             .Include(x => x.ThePhuongTiens)
-            .Where(x => x.ThePhuongTiens.Any(t => theIds.Contains(t.Id)) && !x.IsDeleted)
+            .Where(x => x.ThePhuongTiens.Any(t => theIds.Contains(t.Id)))
             .ToListAsync(cancellationToken);
     }
 
     public async Task<bool> BienSoExistsAsync(string bienSo, CancellationToken cancellationToken = default)
     {
         return await _context.PhuongTiens
-            .AnyAsync(x => x.BienSo == bienSo && !x.IsDeleted, cancellationToken);
+            .AnyAsync(x => x.BienSo == bienSo, cancellationToken);
     }
 
     public async Task<bool> MaTheExistsAsync(string maThe, CancellationToken cancellationToken = default)
     {
         return await _context.ThePhuongTiens
-            .AnyAsync(x => x.MaThe == maThe && !x.IsDeleted, cancellationToken);
+            .AnyAsync(x => x.MaThe == maThe, cancellationToken);
     }
 
     public async Task<int> GetMaxThePhuongTienIdAsync(CancellationToken cancellationToken = default)

@@ -24,7 +24,7 @@ public record YeuCauCuTruResponse
 
     public string? YeuCauTen { get; init; }
     public string? YeuCauHo { get; init; }
-    public DateTime? YeuCauNgaySinh { get; init; }
+    public DateTimeOffset? YeuCauNgaySinh { get; init; }
     public int? YeuCauGioiTinhId { get; init; }
     public string? YeuCauGioiTinhTen { get; init; }
     public string? YeuCauSoDienThoai { get; init; }

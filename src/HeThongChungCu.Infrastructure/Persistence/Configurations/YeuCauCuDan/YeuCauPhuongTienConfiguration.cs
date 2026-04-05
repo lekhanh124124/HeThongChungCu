@@ -21,7 +21,8 @@ public class YeuCauPhuongTienConfiguration : IEntityTypeConfiguration<YeuCauPhuo
                 v => LoaiPhuongTien.FromValue(v, null)!);
 
         builder.HasMany(x => x.YeuCauHinhAnhPhuongTiens)
-            .WithMany()
-            .UsingEntity(j => j.ToTable("TepYeuCauHinhAnhPhuongTien"));
+            .WithOne(x => x.YeuCauPhuongTien)
+            .HasForeignKey(x => x.YeuCauPhuongTienId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

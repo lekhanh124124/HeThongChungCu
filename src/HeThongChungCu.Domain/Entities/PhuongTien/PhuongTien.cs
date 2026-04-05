@@ -18,8 +18,8 @@ public class PhuongTien : AggregateRoot
     private readonly List<ThePhuongTien> _thePhuongTiens = new();
     public IReadOnlyCollection<ThePhuongTien> ThePhuongTiens => _thePhuongTiens.AsReadOnly();
 
-    private readonly List<TepTaiLieu> _hinhAnhPhuongTiens = new();
-    public IReadOnlyCollection<TepTaiLieu> HinhAnhPhuongTiens => _hinhAnhPhuongTiens.AsReadOnly();
+    private readonly List<TepPhuongTien> _hinhAnhPhuongTiens = new();
+    public IReadOnlyCollection<TepPhuongTien> HinhAnhPhuongTiens => _hinhAnhPhuongTiens.AsReadOnly();
 
     private PhuongTien() { }
 
@@ -29,7 +29,7 @@ public class PhuongTien : AggregateRoot
         LoaiPhuongTien loaiPhuongTienId,
         string bienSo,
         string mauXe,
-        IEnumerable<TepTaiLieu>? hinhAnhs = null)
+        IEnumerable<TepPhuongTien>? hinhAnhs = null)
     {
         if (string.IsNullOrWhiteSpace(bienSo))
             throw new BusinessException("Biển số không được để trống.");
@@ -65,7 +65,7 @@ public class PhuongTien : AggregateRoot
         TrangThaiPhuongTienId = TrangThaiPhuongTien.Active;
     }
 
-    public void Huy(DateTime now)
+    public void Huy(DateTimeOffset now)
     {
         if (TrangThaiPhuongTienId == TrangThaiPhuongTien.Inactive)
             return;
@@ -79,7 +79,7 @@ public class PhuongTien : AggregateRoot
         }
     }
 
-    public void Khoa(DateTime now)
+    public void Khoa(DateTimeOffset now)
     {
         if (TrangThaiPhuongTienId == TrangThaiPhuongTien.Blocked)
             return;
@@ -98,7 +98,7 @@ public class PhuongTien : AggregateRoot
         LoaiPhuongTien loaiPhuongTienId,
         string bienSo,
         string mauXe,
-        IEnumerable<TepTaiLieu>? hinhAnhs = null)
+        IEnumerable<TepPhuongTien>? hinhAnhs = null)
     {
         TenPhuongTien = tenPhuongTien;
         LoaiPhuongTienId = loaiPhuongTienId;
@@ -123,7 +123,7 @@ public class PhuongTien : AggregateRoot
         }
     }
 
-    public ThePhuongTien AddThe(string maThe, DateTime ngayBatDau)
+    public ThePhuongTien AddThe(string maThe, DateTimeOffset ngayBatDau)
     {
         if (TrangThaiPhuongTienId != TrangThaiPhuongTien.Active)
             throw new BusinessException("Chỉ phương tiện đang hoạt động mới được cấp thẻ.");
@@ -138,7 +138,7 @@ public class PhuongTien : AggregateRoot
         return the;
     }
 
-    public void KhoaThe(int theId, DateTime now)
+    public void KhoaThe(int theId, DateTimeOffset now)
     {
         var the = _thePhuongTiens.FirstOrDefault(x => x.Id == theId);
         if (the == null)
@@ -147,7 +147,7 @@ public class PhuongTien : AggregateRoot
         the.KhoaThe(now);
     }
 
-    public void BaoMatThe(int theId, DateTime now)
+    public void BaoMatThe(int theId, DateTimeOffset now)
     {
         var the = _thePhuongTiens.FirstOrDefault(x => x.Id == theId);
         if (the == null)

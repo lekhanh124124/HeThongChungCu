@@ -22,12 +22,16 @@ public class LayDSThongBaoQueryHandler : IRequestHandler<LayDSThongBaoQuery, Res
         if (userId == null)
             return Result.Failure<PagedResult<ThongBaoResponse>>(Domain.Errors.UserErrors.NotFound);
 
-        var result = await _thongBaoRepository.GetDSThongBaoAsync(
+        var spec = new LayDSThongBaoSpecification(
             userId.Value,
-            request.PageNumber ?? 1,
-            request.PageSize ?? 10,
             request.OnlyUnread,
-            cancellationToken);
+            request.Keyword,
+            request.SortCol,
+            request.IsAsc,
+            request.PageNumber,
+            request.PageSize);
+
+        var result = await _thongBaoRepository.GetDSThongBaoAsync(spec, cancellationToken);
 
         return result;
     }

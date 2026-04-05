@@ -11,7 +11,7 @@ internal sealed class DSCuDanTrongChungCuReadModel
     public string HoTen { get; init; } = string.Empty;
     public string? PhoneNumber { get; init; }
     public int LoaiQuanHeCuTruId { get; init; }
-    public DateTime NgayBatDau { get; init; }
-    public DateTime? NgayKetThuc { get; init; }
+    public DateTimeOffset NgayBatDau { get; init; }
+    public DateTimeOffset? NgayKetThuc { get; init; }
     public int TrangThaiCuTruId { get; init; }
 }

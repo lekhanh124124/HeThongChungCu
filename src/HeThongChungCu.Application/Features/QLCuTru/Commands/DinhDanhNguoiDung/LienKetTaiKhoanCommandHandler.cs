@@ -5,6 +5,7 @@ using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.Interfaces;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.DinhDanhNguoiDung;
 
@@ -62,7 +63,7 @@ public class LienKetTaiKhoanCommandHandler : ICommandHandler<LienKetTaiKhoanComm
             Dob = user.NgaySinh,
             GioiTinhId = user.GioiTinhId.Value,
             GioiTinhName = user.GioiTinhId.Name,
-            DiaChi = user.DiaChi,
+            DiaChi = user.DiaChi.FullAddress,
             IdCard = user.CCCD,
             PhoneNumber = user.SoDienThoai ?? string.Empty,
             TaiLieuCuTrus = user.TaiLieu.Select(d => new TaiLieuResponse

@@ -8,29 +8,18 @@ public class TaiLieuNguoiDungConfiguration : IEntityTypeConfiguration<TaiLieuNgu
 {
     public void Configure(EntityTypeBuilder<TaiLieuNguoiDung> builder)
     {
-        builder.ToTable("TaiLieuNguoiDung");
-
-        builder.HasKey(x => x.Id);
-
-        builder.Property(x => x.SoGiayTo)
-            .IsRequired()
-            .HasMaxLength(50);
-
-        builder.Property(x => x.LoaiGiayToId)
-            .HasConversion(
-                v => v.Value,
-                v => LoaiGiayTo.FromValue(v, null)!)
-            .IsRequired();
+        builder.HasBaseType<TaiLieu>();
 
         builder.HasOne(x => x.NguoiDung)
             .WithMany(u => u.TaiLieu)
             .HasForeignKey(x => x.NguoiDungId)
-            .OnDelete(DeleteBehavior.Cascade)
+            .OnDelete(DeleteBehavior.NoAction)
             .IsRequired(false);
 
         builder.HasMany(x => x.Files)
-            .WithMany()
-            .UsingEntity(j => j.ToTable("TepTaiLieuNguoiDung"));
+            .WithOne(f => f.TaiLieuNguoiDung)
+            .HasForeignKey(f => f.TaiLieuNguoiDungId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Navigation(x => x.Files)
             .HasField("_files")

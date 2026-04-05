@@ -4,13 +4,13 @@ namespace HeThongChungCu.Domain.Entities;
 
 public class TepTaiLieu : AuditableEntity
 {
-    public string FileName { get; private set; } = null!;
-    public string FileUrl { get; private set; } = null!;
-    public long Size { get; private set; }
-    public string ContentType { get; private set; } = null!;
-    public bool IsUsed { get; private set; }
+    public string FileName { get; protected set; } = null!;
+    public string FileUrl { get; protected set; } = null!;
+    public long Size { get; protected set; }
+    public string ContentType { get; protected set; } = null!;
+    public bool IsUsed { get; protected set; }
 
-    private TepTaiLieu() { } // EF Core
+    protected TepTaiLieu() { } // EF Core
 
     public TepTaiLieu(string fileName, string fileUrl, long size, string contentType)
     {

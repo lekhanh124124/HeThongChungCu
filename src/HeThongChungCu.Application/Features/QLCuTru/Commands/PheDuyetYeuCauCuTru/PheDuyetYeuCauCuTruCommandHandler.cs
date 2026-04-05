@@ -6,6 +6,7 @@ using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.Interfaces;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.PheDuyetYeuCauCuTru;
 
@@ -16,6 +17,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
     private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly ICanHoCommandRepository _canHoRepository;
     private readonly IResidencyService _residencyService;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -25,6 +27,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         IQuanHeCuTruCommandRepository quanHeCuTruRepository,
         ICurrentUserService currentUserService,
         IDateTimeProvider dateTimeProvider,
+        ICanHoCommandRepository canHoRepository,
         IResidencyService residencyService,
         IUnitOfWork unitOfWork)
     {
@@ -33,6 +36,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         _quanHeCuTruRepository = quanHeCuTruRepository;
         _currentUserService = currentUserService;
         _dateTimeProvider = dateTimeProvider;
+        _canHoRepository = canHoRepository;
         _residencyService = residencyService;
         _unitOfWork = unitOfWork;
     }
@@ -46,6 +50,10 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         var yeuCau = await _yeuCauRepository.GetByIdAsync(request.YeuCauCuTruId, cancellationToken);
         if (yeuCau == null)
             return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.NotFound);
+
+        var canHo = await _canHoRepository.GetByIdAsync(yeuCau.CanHoId, cancellationToken);
+        if (canHo == null)
+            return Result.Failure<YeuCauCuTruResponse>(CanHoErrors.NotFound);
 
         var now = _dateTimeProvider.UtcNow;
         yeuCau.Approve(adminId.Value, now);
@@ -75,6 +83,10 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
                 return Result.Failure<YeuCauCuTruResponse>(relationResult.Errors[0]);
 
             await _quanHeCuTruRepository.AddAsync(relationResult.Value, cancellationToken);
+
+            // 3. Update Apartment Status via Domain Service
+            _residencyService.StartResidency(canHo, relationResult.Value, existingRelations.Append(relationResult.Value));
+            _canHoRepository.Update(canHo);
         }
         else if (yeuCau.LoaiYeuCauId == LoaiYeuCau.Sua)
         {
@@ -101,8 +113,12 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
             var relation = await _quanHeCuTruRepository.GetByIdAsync(yeuCau.YeuCauQuanHeCuTruId!.Value, cancellationToken);
             if (relation != null)
             {
-                relation.KetThucCuTru(now.DateTime);
+                // Update Apartment Status via Domain Service
+                var activeRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(yeuCau.CanHoId, cancellationToken);
+                _residencyService.EndResidency(canHo, relation, activeRelations, now.DateTime);
+
                 _quanHeCuTruRepository.Update(relation);
+                _canHoRepository.Update(canHo);
             }
         }
 
@@ -142,7 +158,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
                 Files = d.Files.Select(f => new TepTaiLieuResponse(f.Id, f.FileUrl, f.FileName, f.ContentType)).ToList()
             }).ToList(),
             YeuCauCCCD = yeuCau.YeuCauCCCD,
-            YeuCauDiaChi = yeuCau.YeuCauDiaChi
+            YeuCauDiaChi = yeuCau.YeuCauDiaChi.FullAddress
         });
     }
 }

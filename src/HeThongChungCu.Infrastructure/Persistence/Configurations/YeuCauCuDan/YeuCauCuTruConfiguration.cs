@@ -1,6 +1,7 @@
 using HeThongChungCu.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
@@ -13,7 +14,7 @@ public class YeuCauCuTruConfiguration : IEntityTypeConfiguration<YeuCauCuTru>
         builder.HasMany(x => x.YeuCauTaiLieuCuTrus)
             .WithOne(x => x.YeuCauCuTru)
             .HasForeignKey(x => x.YeuCauCuTruId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         builder.Navigation(x => x.YeuCauTaiLieuCuTrus)
             .HasField("_yeuCauTaiLieuCuTrus")
@@ -25,13 +26,21 @@ public class YeuCauCuTruConfiguration : IEntityTypeConfiguration<YeuCauCuTru>
         builder.Property(e => e.YeuCauTen)
             .HasMaxLength(50);
 
-        builder.Property(e => e.YeuCauSoDienThoai)
-            .HasMaxLength(15);
+        builder.OwnsOne(e => e.YeuCauSoDienThoai, sd =>
+        {
+            sd.Property(p => p.Value)
+                .HasColumnName("YeuCauSoDienThoai")
+                .HasMaxLength(15);
+        });
 
         builder.Property(e => e.YeuCauCCCD)
             .HasMaxLength(20);
 
-        builder.Property(e => e.YeuCauDiaChi)
-            .HasMaxLength(500);
+        builder.OwnsOne(e => e.YeuCauDiaChi, da =>
+        {
+            da.Property(p => p.FullAddress)
+                .HasColumnName("YeuCauDiaChi")
+                .HasMaxLength(500);
+        });
     }
 }

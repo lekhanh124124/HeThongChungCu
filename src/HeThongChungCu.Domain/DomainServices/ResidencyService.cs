@@ -4,11 +4,19 @@ using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.Exceptions;
 using HeThongChungCu.Domain.Interfaces;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Domain.DomainServices;
 
 public class ResidencyService : IResidencyService
 {
+    private readonly IDocumentReconciliationService _documentReconciliationService;
+
+    public ResidencyService(IDocumentReconciliationService documentReconciliationService)
+    {
+        _documentReconciliationService = documentReconciliationService;
+    }
+
     public Result CheckUniqueness(bool cccdExists, bool phoneExists)
     {
         if (cccdExists)
@@ -24,15 +32,16 @@ public class ResidencyService : IResidencyService
         return Result.Success();
     }
 
-    public Result CheckChuHoPermission(QuanHeCuTru? requesterRelation)
+    public Result CheckHeadPermission(QuanHeCuTru? requesterRelation)
     {
         if (requesterRelation == null)
         {
             return Result.Failure(CanHoErrors.NotFound);
         }
 
-        if (requesterRelation.TrangThaiCuTruId != TrangThaiCuTru.DangCuTru || 
-            requesterRelation.LoaiQuanHeCuTruId != LoaiQuanHeCuTru.ChuHo)
+        if (requesterRelation.TrangThaiCuTruId != TrangThaiCuTru.DangCuTru ||
+            (requesterRelation.LoaiQuanHeCuTruId != LoaiQuanHeCuTru.ChuHo &&
+             requesterRelation.LoaiQuanHeCuTruId != LoaiQuanHeCuTru.NguoiThue))
         {
             return Result.Failure(YeuCauCuTruErrors.Forbidden);
         }
@@ -46,9 +55,9 @@ public class ResidencyService : IResidencyService
         var newUser = new NguoiDung(
             request.YeuCauTen!,
             request.YeuCauHo!,
-            request.YeuCauNgaySinh ?? DateTime.MinValue,
+            request.YeuCauNgaySinh ?? DateTimeOffset.MinValue,
             GioiTinh.FromValue(request.YeuCauGioiTinhId ?? 1, null)!,
-            request.YeuCauDiaChi,
+            request.YeuCauDiaChi.FullAddress,
             cccd: request.YeuCauCCCD,
             soDienThoai: request.YeuCauSoDienThoai);
 
@@ -60,7 +69,7 @@ public class ResidencyService : IResidencyService
                 docReq.LoaiGiayToId,
                 docReq.SoGiayTo,
                 docReq.NgayPhatHanh,
-                docReq.Files);
+                docReq.Files.Select(f => new TepTaiLieuNguoiDung(f.FileName, f.FileUrl, f.Size, f.ContentType)));
             newUser.AddDocument(newDoc);
         }
 
@@ -75,53 +84,22 @@ public class ResidencyService : IResidencyService
             request.YeuCauHo ?? user.Ho,
             request.YeuCauNgaySinh ?? user.NgaySinh,
             request.YeuCauGioiTinhId.HasValue ? GioiTinh.FromValue(request.YeuCauGioiTinhId.Value, null)! : user.GioiTinhId,
-            request.YeuCauDiaChi ?? user.DiaChi,
+            request.YeuCauDiaChi?.FullAddress ?? user.DiaChi.FullAddress,
             request.YeuCauCCCD ?? user.CCCD,
             request.YeuCauSoDienThoai ?? user.SoDienThoai);
 
-        // 2. Đồng bộ hóa tài liệu (Document Reconciliation)
-        var currentDocs = user.TaiLieu.ToList();
-        var proposedDocs = request.YeuCauTaiLieuCuTrus;
+        // 2. Đồng bộ hóa tài liệu (Document Reconciliation) via Domain Service
+        var proposedDocs = request.YeuCauTaiLieuCuTrus.Select(d => new DocumentSyncItem(
+            d.TaiLieuCuTruId,
+            d.LoaiGiayToId.Value,
+            d.SoGiayTo,
+            d.NgayPhatHanh,
+            d.Files.Select(f => f.Id).ToList()
+        ));
 
-        // 2.1. Xóa tài liệu không có trong yêu cầu
-        var proposedOriginalIds = proposedDocs
-            .Where(d => d.TaiLieuCuTruId.HasValue)
-            .Select(d => d.TaiLieuCuTruId!.Value)
-            .ToList();
+        var fetchedFiles = request.YeuCauTaiLieuCuTrus.SelectMany(d => d.Files);
 
-        foreach (var doc in currentDocs)
-        {
-            if (!proposedOriginalIds.Contains(doc.Id))
-            {
-                user.RemoveDocument(doc.Id);
-            }
-        }
-
-        // 2.2. Cập nhật tài liệu cũ hoặc thêm tài liệu mới
-        foreach (var propDoc in proposedDocs)
-        {
-            if (propDoc.TaiLieuCuTruId.HasValue)
-            {
-                // Cập nhật tài liệu hiện có
-                var existingDoc = user.TaiLieu.FirstOrDefault(d => d.Id == propDoc.TaiLieuCuTruId.Value);
-                if (existingDoc != null)
-                {
-                    existingDoc.UpdateInfo(propDoc.LoaiGiayToId, propDoc.SoGiayTo, propDoc.NgayPhatHanh);
-                    existingDoc.SyncFiles(propDoc.Files);
-                }
-            }
-            else
-            {
-                // Thêm tài liệu mới
-                var newDoc = new TaiLieuNguoiDung(
-                    user.Id,
-                    propDoc.LoaiGiayToId,
-                    propDoc.SoGiayTo,
-                    propDoc.NgayPhatHanh,
-                    propDoc.Files);
-                user.AddDocument(newDoc);
-            }
-        }
+        _documentReconciliationService.ReconcileNguoiDungDocuments(user, proposedDocs, fetchedFiles);
     }
 
     public Result CheckCanUpdateOrDeleteCanHo(CanHo canHo, IEnumerable<QuanHeCuTru> currentResidents)
@@ -138,7 +116,7 @@ public class ResidencyService : IResidencyService
         int canHoId,
         int userId,
         LoaiQuanHeCuTru loaiQuanHe,
-        DateTime startDate,
+        DateTimeOffset startDate,
         IEnumerable<QuanHeCuTru> existingRelations)
     {
         // 1. Kiểm tra cư dân đã đang cư trú tại căn hộ chưa
@@ -147,29 +125,24 @@ public class ResidencyService : IResidencyService
                 x.CanHoId == canHoId &&
                 x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
         {
-            return Result.Failure<QuanHeCuTru>(new Error("Residency.AlreadyResident", "Cư dân này đã đang cư trú tại căn hộ này."));
+            return Result.Failure<QuanHeCuTru>(QuanHeCuTruErrors.UserAlreadyResident);
         }
 
-        // 2. Kiểm tra chủ hộ duy nhất
-        if (loaiQuanHe == LoaiQuanHeCuTru.ChuHo &&
-            existingRelations.Any(x =>
-                x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo &&
-                x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
+        // 2. Kiểm tra chủ hộ hoặc người thuê đại diện duy nhất
+        bool isHeadRole = loaiQuanHe == LoaiQuanHeCuTru.ChuHo || loaiQuanHe == LoaiQuanHeCuTru.NguoiThue;
+        bool hasActiveHead = existingRelations.Any(x =>
+            (x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo || x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue) &&
+            x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
+
+        if (isHeadRole && hasActiveHead)
         {
-            return Result.Failure<QuanHeCuTru>(new Error("Residency.OwnerAlreadyExists", "Căn hộ đã có chủ hộ."));
+            return Result.Failure<QuanHeCuTru>(QuanHeCuTruErrors.HouseholderAlreadyExists);
         }
 
-        // 3. Đảm bảo căn hộ phải có chủ hộ trước khi thêm các thành viên khác
-        if (loaiQuanHe != LoaiQuanHeCuTru.ChuHo)
+        // 3. Đảm bảo căn hộ phải có chủ hộ hoặc người thuê đại diện trước khi thêm các thành viên khác
+        if (!isHeadRole && !hasActiveHead)
         {
-            var hasActiveHouseholder = existingRelations.Any(x =>
-                x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo &&
-                x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
-
-            if (!hasActiveHouseholder)
-            {
-                return Result.Failure<QuanHeCuTru>(new Error("Residency.HouseholderNotFound", "Căn hộ chưa có chủ hộ. Cần thiết lập chủ hộ trước."));
-            }
+            return Result.Failure<QuanHeCuTru>(QuanHeCuTruErrors.HouseholderNotFound);
         }
 
         try
@@ -179,7 +152,31 @@ public class ResidencyService : IResidencyService
         }
         catch (BusinessException ex)
         {
-            return Result.Failure<QuanHeCuTru>(new Error("Residency.InvalidRelation", ex.Message));
+            return Result.Failure<QuanHeCuTru>(new Error("QuanHeCuTru.InvalidRelation", ex.Message));
         }
+    }
+
+    public void UpdateApartmentStatus(CanHo canHo, IEnumerable<QuanHeCuTru> activeRelations)
+    {
+        if (activeRelations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
+        {
+            canHo.MarkAsOccupied();
+        }
+        else
+        {
+            canHo.MarkAsVacant();
+        }
+    }
+
+    public void StartResidency(CanHo canHo, QuanHeCuTru relation, IEnumerable<QuanHeCuTru> allRelations)
+    {
+        // relation is assumed to be already created/added to the collection
+        UpdateApartmentStatus(canHo, allRelations);
+    }
+
+    public void EndResidency(CanHo canHo, QuanHeCuTru relation, IEnumerable<QuanHeCuTru> allRelations, DateTimeOffset endDate)
+    {
+        relation.KetThucCuTru(endDate);
+        UpdateApartmentStatus(canHo, allRelations);
     }
 }

@@ -16,7 +16,7 @@ public class TokensConfiguration : IEntityTypeConfiguration<Tokens>
         builder.Property(rt => rt.TokenHash)
             .IsRequired()
             .HasMaxLength(150);
- 
+
         builder.HasIndex(rt => rt.TokenHash).IsUnique();
 
         builder.Property(rt => rt.ReasonRevoked)
@@ -36,6 +36,6 @@ public class TokensConfiguration : IEntityTypeConfiguration<Tokens>
         builder.HasOne(rt => rt.TaiKhoan)
             .WithMany(a => a.Tokens)
             .HasForeignKey(rt => rt.TaiKhoanId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

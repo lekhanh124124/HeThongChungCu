@@ -3,19 +3,15 @@ using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Domain.Entities;
 
-public class YeuCauTaiLieuCuTru : BaseEntity
+public class YeuCauTaiLieuCuTru : TaiLieu
 {
     public int YeuCauCuTruId { get; private set; }
     public YeuCauCuTru YeuCauCuTru { get; private set; } = null!;
 
-    public LoaiGiayTo LoaiGiayToId { get; private set; } = null!;
-    public string SoGiayTo { get; private set; } = null!;
-    public DateTime? NgayPhatHanh { get; private set; }
-
     public int? TaiLieuCuTruId { get; private set; }
 
-    private readonly List<TepTaiLieu> _files = [];
-    public IReadOnlyCollection<TepTaiLieu> Files => _files.AsReadOnly();
+    private readonly List<TepYeuCauTaiLieuCuTru> _files = [];
+    public IReadOnlyCollection<TepYeuCauTaiLieuCuTru> Files => _files.AsReadOnly();
 
     private YeuCauTaiLieuCuTru() { } // EF Core
 
@@ -23,12 +19,10 @@ public class YeuCauTaiLieuCuTru : BaseEntity
         LoaiGiayTo loaiGiayTo,
         string soGiayTo,
         DateTime? ngayPhatHanh,
-        IEnumerable<TepTaiLieu>? files = null,
+        IEnumerable<TepYeuCauTaiLieuCuTru>? files = null,
         int? taiLieuCuTruId = null)
+        : base(loaiGiayTo, soGiayTo, ngayPhatHanh)
     {
-        LoaiGiayToId = loaiGiayTo;
-        SoGiayTo = soGiayTo;
-        NgayPhatHanh = ngayPhatHanh;
         TaiLieuCuTruId = taiLieuCuTruId;
         if (files != null)
         {

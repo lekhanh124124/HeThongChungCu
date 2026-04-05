@@ -1,6 +1,7 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -8,8 +9,7 @@ public class ThePhuongTien : AuditableEntity
 {
     public int PhuongTienId { get; private set; }
     public string MaThe { get; private set; } = string.Empty;
-    public DateTime NgayBatDau { get; private set; }
-    public DateTime? NgayKetThuc { get; private set; }
+    public ThoiGianHieuLuc ThoiGian { get; private set; } = null!;
     
     public TrangThaiThePhuongTien TrangThaiId { get; private set; } = default!;
 
@@ -17,38 +17,32 @@ public class ThePhuongTien : AuditableEntity
 
     private ThePhuongTien() { }
 
-    internal ThePhuongTien(int phuongTienId, string maThe, DateTime ngayBatDau)
+    internal ThePhuongTien(int phuongTienId, string maThe, DateTimeOffset ngayBatDau)
     {
         if (string.IsNullOrWhiteSpace(maThe))
             throw new BusinessException("Mã thẻ không được để trống.");
 
         PhuongTienId = phuongTienId;
         MaThe = maThe;
-        NgayBatDau = ngayBatDau;
+        ThoiGian = new ThoiGianHieuLuc(ngayBatDau);
         TrangThaiId = TrangThaiThePhuongTien.Active;
     }
 
-    public void KhoaThe(DateTime ngayKetThuc)
+    public void KhoaThe(DateTimeOffset ngayKetThuc)
     {
         if (TrangThaiId == TrangThaiThePhuongTien.Locked || TrangThaiId == TrangThaiThePhuongTien.Lost)
             return;
 
-        if (ngayKetThuc < NgayBatDau)
-            throw new BusinessException("Ngày kết thúc không hợp lệ.");
-
-        NgayKetThuc = ngayKetThuc;
+        ThoiGian = new ThoiGianHieuLuc(ThoiGian.NgayBatDau, ngayKetThuc);
         TrangThaiId = TrangThaiThePhuongTien.Locked;
     }
 
-    public void BaoMat(DateTime now)
+    public void BaoMat(DateTimeOffset now)
     {
         if (TrangThaiId == TrangThaiThePhuongTien.Lost)
             return;
 
-        if (now < NgayBatDau)
-            throw new BusinessException("Ngày báo mất không hợp lệ.");
-
-        NgayKetThuc = now;
+        ThoiGian = new ThoiGianHieuLuc(ThoiGian.NgayBatDau, now);
         TrangThaiId = TrangThaiThePhuongTien.Lost;
     }
 }

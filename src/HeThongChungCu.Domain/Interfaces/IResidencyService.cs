@@ -12,9 +12,9 @@ public interface IResidencyService
     Result CheckUniqueness(bool cccdExists, bool phoneExists);
 
     /// <summary>
-    /// Kiểm tra xem người dùng có quyền (Chủ hộ) để thực hiện yêu cầu cho căn hộ này không.
+    /// Kiểm tra xem người dùng có quyền (Chủ hộ hoặc Người thuê đại diện) để thực hiện yêu cầu cho căn hộ này không.
     /// </summary>
-    Result CheckChuHoPermission(QuanHeCuTru? requesterRelation);
+    Result CheckHeadPermission(QuanHeCuTru? requesterRelation);
 
     /// <summary>
     /// Tạo người dùng mới từ yêu cầu cư trú.
@@ -39,6 +39,21 @@ public interface IResidencyService
         int canHoId,
         int userId,
         LoaiQuanHeCuTru loaiQuanHe,
-        DateTime startDate,
+        DateTimeOffset startDate,
         IEnumerable<QuanHeCuTru> existingRelations);
+
+    /// <summary>
+    /// Cập nhật trạng thái căn hộ dựa trên số lượng cư dân hiện tại đang cư trú.
+    /// </summary>
+    void UpdateApartmentStatus(CanHo canHo, IEnumerable<QuanHeCuTru> activeRelations);
+
+    /// <summary>
+    /// Bắt đầu cư trú: Cập nhật trạng thái căn hộ khi có cư dân mới.
+    /// </summary>
+    void StartResidency(CanHo canHo, QuanHeCuTru relation, IEnumerable<QuanHeCuTru> allRelations);
+
+    /// <summary>
+    /// Kết thúc cư trú: Kết thúc quan hệ và cập nhật lại trạng thái căn hộ nếu cần.
+    /// </summary>
+    void EndResidency(CanHo canHo, QuanHeCuTru relation, IEnumerable<QuanHeCuTru> allRelations, DateTimeOffset endDate);
 }

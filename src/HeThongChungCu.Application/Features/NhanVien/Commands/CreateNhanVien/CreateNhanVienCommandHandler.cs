@@ -108,7 +108,7 @@ public class CreateNhanVienCommandHandler : ICommandHandler<CreateNhanVienComman
                     loaiGiayTo,
                     docReq.SoGiayTo,
                     docReq.NgayPhatHanh,
-                    files);
+                    files.Select(f => f is TepTaiLieuNguoiDung tp ? tp : new TepTaiLieuNguoiDung(f.FileName, f.FileUrl, f.Size, f.ContentType)).ToList());
 
                 nguoiDung.AddDocument(document);
             }

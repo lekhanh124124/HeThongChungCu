@@ -42,7 +42,22 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             { "TangId", "ch.TangId" }
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(
+            spec, 
+            columnMapping, 
+            discriminator: ("y.LoaiYeuCauCuDan", "YeuCauPhuongTien"));
+
+        var joins = new[]
+        {
+            new JoinDefinition("CanHo", "ch", "y.CanHoId = ch.Id"),
+            new JoinDefinition("Tang", "tg", "ch.TangId = tg.Id"),
+            new JoinDefinition("ToaNha", "tn", "tg.ToaNhaId = tn.Id"),
+            new JoinDefinition("NguoiDung", "nd1", "y.CreatedBy = nd1.Id"),
+            new JoinDefinition("TaiKhoan", "tk1", "nd1.Id = tk1.NguoiDungId AND tk1.IsActive = 1", AddSoftDelete: false),
+            new JoinDefinition("NguoiDung", "nd2", "y.NguoiXuLyId = nd2.Id"),
+            new JoinDefinition("TaiKhoan", "tk2", "nd2.Id = tk2.NguoiDungId AND tk2.IsActive = 1", AddSoftDelete: false)
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
 
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "CreatedAt");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
@@ -73,15 +88,8 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
                 COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10))) AS TenNguoiGui,
                 COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10))) AS TenNguoiXuLy
             FROM YeuCau y
-            LEFT JOIN CanHo ch ON y.CanHoId = ch.Id
-            LEFT JOIN Tang tg ON ch.TangId = tg.Id
-            LEFT JOIN ToaNha tn ON tg.ToaNhaId = tn.Id
-            LEFT JOIN NguoiDung nd1 ON y.CreatedBy = nd1.Id
-            LEFT JOIN TaiKhoan tk1 ON nd1.Id = tk1.NguoiDungId
-            LEFT JOIN NguoiDung nd2 ON y.NguoiXuLyId = nd2.Id
-            LEFT JOIN TaiKhoan tk2 ON nd2.Id = tk2.NguoiDungId
-            WHERE y.LoaiYeuCauCuDan = 'PhuongTien'
-            {(string.IsNullOrEmpty(sqlWhere) ? "" : " AND " + sqlWhere.Replace("WHERE", ""))}
+            {sqlJoins}
+            {sqlWhere}
             {sqlOrderBy}
             {sqlPagination}
             """;
@@ -135,6 +143,18 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
+        var joins = new[]
+        {
+            new JoinDefinition("CanHo", "ch", "y.CanHoId = ch.Id"),
+            new JoinDefinition("Tang", "tg", "ch.TangId = tg.Id"),
+            new JoinDefinition("ToaNha", "tn", "tg.ToaNhaId = tn.Id"),
+            new JoinDefinition("NguoiDung", "nd1", "y.CreatedBy = nd1.Id"),
+            new JoinDefinition("TaiKhoan", "tk1", "nd1.Id = tk1.NguoiDungId AND tk1.IsActive = 1", AddSoftDelete: false),
+            new JoinDefinition("NguoiDung", "nd2", "y.NguoiXuLyId = nd2.Id"),
+            new JoinDefinition("TaiKhoan", "tk2", "nd2.Id = tk2.NguoiDungId AND tk2.IsActive = 1", AddSoftDelete: false)
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+
         var sql = $"""
             -- 1. Main Info
             SELECT
@@ -145,21 +165,14 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
                 COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10))) AS TenNguoiGui,
                 COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10))) AS TenNguoiXuLy
             FROM YeuCau y
-            LEFT JOIN CanHo ch ON y.CanHoId = ch.Id
-            LEFT JOIN Tang tg ON ch.TangId = tg.Id
-            LEFT JOIN ToaNha tn ON tg.ToaNhaId = tn.Id
-            LEFT JOIN NguoiDung nd1 ON y.CreatedBy = nd1.Id
-            LEFT JOIN TaiKhoan tk1 ON nd1.Id = tk1.NguoiDungId
-            LEFT JOIN NguoiDung nd2 ON y.NguoiXuLyId = nd2.Id
-            LEFT JOIN TaiKhoan tk2 ON nd2.Id = tk2.NguoiDungId
-            WHERE y.Id = @Id AND y.IsDeleted = 0 AND y.LoaiYeuCauCuDan = 'PhuongTien';
+            {sqlJoins}
+            WHERE y.Id = @Id AND y.LoaiYeuCauCuDan = 'YeuCauPhuongTien';
 
             -- 2. Images
             SELECT 
                 ttl.Id, ttl.FileUrl, ttl.FileName, ttl.ContentType
             FROM TepTaiLieu ttl
-            JOIN TepYeuCauHinhAnhPhuongTien j ON ttl.Id = j.YeuCauHinhAnhPhuongTiensId
-            WHERE j.YeuCauPhuongTienId = @Id;
+            WHERE ttl.YeuCauId = @Id AND ttl.LoaiTepTaiLieu = 'TepYeuCauPhuongTien' AND ttl.IsDeleted = 0;
             """;
 
         var transaction = _dbContext.GetDbTransaction();
@@ -210,6 +223,18 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
+        var joins = new[]
+        {
+            new JoinDefinition("CanHo", "ch", "y.CanHoId = ch.Id"),
+            new JoinDefinition("Tang", "tg", "ch.TangId = tg.Id"),
+            new JoinDefinition("ToaNha", "tn", "tg.ToaNhaId = tn.Id"),
+            new JoinDefinition("NguoiDung", "nd1", "y.CreatedBy = nd1.Id"),
+            new JoinDefinition("TaiKhoan", "tk1", "nd1.Id = tk1.NguoiDungId AND tk1.IsActive = 1", AddSoftDelete: false),
+            new JoinDefinition("NguoiDung", "nd2", "y.NguoiXuLyId = nd2.Id"),
+            new JoinDefinition("TaiKhoan", "tk2", "nd2.Id = tk2.NguoiDungId AND tk2.IsActive = 1", AddSoftDelete: false)
+        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+
         var sql = $"""
             SELECT
                 y.Id,
@@ -235,14 +260,8 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
                 COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10))) AS TenNguoiGui,
                 COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10))) AS TenNguoiXuLy
             FROM YeuCau y
-            LEFT JOIN CanHo ch ON y.CanHoId = ch.Id
-            LEFT JOIN Tang tg ON ch.TangId = tg.Id
-            LEFT JOIN ToaNha tn ON tg.ToaNhaId = tn.Id
-            LEFT JOIN NguoiDung nd1 ON y.CreatedBy = nd1.Id
-            LEFT JOIN TaiKhoan tk1 ON nd1.Id = tk1.NguoiDungId
-            LEFT JOIN NguoiDung nd2 ON y.NguoiXuLyId = nd2.Id
-            LEFT JOIN TaiKhoan tk2 ON nd2.Id = tk2.NguoiDungId
-            WHERE y.Id = @Id AND y.IsDeleted = 0 AND y.LoaiYeuCauCuDan = 'PhuongTien'
+            {sqlJoins}
+            WHERE y.Id = @Id AND y.IsDeleted = 0 AND y.LoaiYeuCauCuDan = 'YeuCauPhuongTien'
             """;
 
         var transaction = _dbContext.GetDbTransaction();

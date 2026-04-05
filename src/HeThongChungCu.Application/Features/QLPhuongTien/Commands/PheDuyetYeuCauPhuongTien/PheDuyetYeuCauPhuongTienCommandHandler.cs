@@ -86,7 +86,7 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
                 yeuCau.YeuCauLoaiPhuongTienId,
                 yeuCau.YeuCauBienSo,
                 yeuCau.YeuCauMauXe,
-                yeuCau.YeuCauHinhAnhPhuongTiens);
+                yeuCau.YeuCauHinhAnhPhuongTiens.Select(f => new TepPhuongTien(f.FileName, f.FileUrl, f.Size, f.ContentType)).ToList());
 
             await _phuongTienRepository.AddAsync(phuongTien, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -123,7 +123,7 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
                 yeuCau.YeuCauLoaiPhuongTienId,
                 yeuCau.YeuCauBienSo,
                 yeuCau.YeuCauMauXe,
-                yeuCau.YeuCauHinhAnhPhuongTiens);
+                yeuCau.YeuCauHinhAnhPhuongTiens.Select(f => new TepPhuongTien(f.FileName, f.FileUrl, f.Size, f.ContentType)).ToList());
 
             _phuongTienRepository.Update(phuongTien);
         }

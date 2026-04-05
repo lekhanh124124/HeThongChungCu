@@ -3,6 +3,7 @@ using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.ThongBao.Queries.LayDSThongBao;
 using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Infrastructure.Persistence.Helpers;
 using HeThongChungCu.Infrastructure.Persistence;
 using System.Data;
 
@@ -17,20 +18,33 @@ public class ThongBaoQueryRepository : IThongBaoQueryRepository
         _dbContext = dbContext;
     }
 
-    public async Task<PagedResult<ThongBaoResponse>> GetDSThongBaoAsync(int userId, int pageNumber, int pageSize, bool? onlyUnread, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<ThongBaoResponse>> GetDSThongBaoAsync(LayDSThongBaoSpecification spec, CancellationToken cancellationToken = default)
     {
         var connection = _dbContext.GetDbConnection();
 
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
-        var sqlWhere = " WHERE pb.NguoiDungId = @UserId ";
-        if (onlyUnread == true)
+        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            sqlWhere += " AND pb.IsRead = 0 ";
-        }
+            { "Id", "pb.Id" },
+            { "UserId", "pb.NguoiDungId" },
+            { "IsRead", "pb.IsRead" },
+            { "TieuDe", "t.TieuDe" },
+            { "NoiDung", "t.NoiDung" },
+            { "CreatedAt", "t.CreatedAt" },
+            { "IsDeleted", "pb.IsDeleted" }
+        };
 
-        var offset = (pageNumber - 1) * pageSize;
+        var joins = new[]
+        {
+            new JoinDefinition("ThongBao", "t", "pb.ThongBaoId = t.Id", Type: JoinType.Inner)
+        };
+
+        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "t.CreatedAt DESC");
+        var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sql = $"""
             SELECT 
@@ -46,13 +60,12 @@ public class ThongBaoQueryRepository : IThongBaoQueryRepository
                 t.CreatedAt,
                 pb.ReadAt
             FROM PhanBoThongBao pb
-            JOIN ThongBao t ON pb.ThongBaoId = t.Id
+            {sqlJoins}
             {sqlWhere}
-            ORDER BY t.CreatedAt DESC
-            OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
+            {sqlOrderBy}
+            {sqlPagination}
             """;
 
-        var parameters = new { UserId = userId, Offset = offset, PageSize = pageSize };
         var rows = (await connection.QueryAsync<dynamic>(sql, parameters)).ToList();
         
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
@@ -78,8 +91,8 @@ public class ThongBaoQueryRepository : IThongBaoQueryRepository
             Items = items,
             PagingInfo = new PagingInfo
             {
-                PageNumber = pageNumber,
-                PageSize = pageSize,
+                PageNumber = spec.PageNumber ?? 1,
+                PageSize = spec.PageSize ?? 10,
                 TotalItems = totalCount
             }
         };

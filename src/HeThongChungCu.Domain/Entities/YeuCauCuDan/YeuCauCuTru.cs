@@ -2,6 +2,7 @@ using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Events;
 using HeThongChungCu.Domain.Exceptions;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -11,11 +12,11 @@ public class YeuCauCuTru : YeuCau
     public int? YeuCauQuanHeCuTruId { get; private set; }
     public string? YeuCauTen { get; private set; }
     public string? YeuCauHo { get; private set; }
-    public DateTime? YeuCauNgaySinh { get; private set; }
+    public DateTimeOffset? YeuCauNgaySinh { get; private set; }
     public int? YeuCauGioiTinhId { get; private set; }
-    public string? YeuCauSoDienThoai { get; private set; }
+    public SoDienThoai? YeuCauSoDienThoai { get; private set; }
     public string? YeuCauCCCD { get; private set; }
-    public string? YeuCauDiaChi { get; private set; }
+    public DiaChi YeuCauDiaChi { get; private set; } = null!;
     public int? YeuCauLoaiQuanHeId { get; private set; }
 
     private readonly List<YeuCauTaiLieuCuTru> _yeuCauTaiLieuCuTrus = [];
@@ -34,7 +35,7 @@ public class YeuCauCuTru : YeuCau
         int loaiQuanHeYeuCauId,
         string? tenYeuCau,
         string? hoYeuCau,
-        DateTime? ngaySinhYeuCau,
+        DateTimeOffset? ngaySinhYeuCau,
         int? gioiTinhYeuCauId,
         string? soDienThoaiYeuCau,
         string? cccdYeuCau,
@@ -51,9 +52,9 @@ public class YeuCauCuTru : YeuCau
             YeuCauHo = hoYeuCau,
             YeuCauNgaySinh = ngaySinhYeuCau,
             YeuCauGioiTinhId = gioiTinhYeuCauId,
-            YeuCauSoDienThoai = soDienThoaiYeuCau,
+            YeuCauSoDienThoai = new SoDienThoai(soDienThoaiYeuCau),
             YeuCauCCCD = cccdYeuCau,
-            YeuCauDiaChi = diaChiYeuCau
+            YeuCauDiaChi = new DiaChi(diaChiYeuCau)
         };
 
         if (documents != null)
@@ -78,7 +79,7 @@ public class YeuCauCuTru : YeuCau
         int? newLoaiQuanHeId,
         string? firstName,
         string? lastName,
-        DateTime? dob,
+        DateTimeOffset? dob,
         int? gioiTinhId,
         string? phoneNumber,
         string? cccd,
@@ -95,9 +96,9 @@ public class YeuCauCuTru : YeuCau
             YeuCauHo = lastName,
             YeuCauNgaySinh = dob,
             YeuCauGioiTinhId = gioiTinhId,
-            YeuCauSoDienThoai = phoneNumber,
+            YeuCauSoDienThoai = new SoDienThoai(phoneNumber),
             YeuCauCCCD = cccd,
-            YeuCauDiaChi = diaChi
+            YeuCauDiaChi = new DiaChi(diaChi)
         };
 
         if (documents != null)
@@ -124,7 +125,8 @@ public class YeuCauCuTru : YeuCau
     {
         var request = new YeuCauCuTru(canHoId, LoaiYeuCau.Xoa, noiDung, initialStatus)
         {
-            YeuCauQuanHeCuTruId = quanHeCuTruId
+            YeuCauQuanHeCuTruId = quanHeCuTruId,
+            YeuCauDiaChi = new DiaChi(null)
         };
 
         if (request.TrangThaiId == TrangThaiYeuCau.Pending)
@@ -139,7 +141,7 @@ public class YeuCauCuTru : YeuCau
     public void Update(
         string? firstName,
         string? lastName,
-        DateTime? dob,
+        DateTimeOffset? dob,
         int? gioiTinhId,
         string? phoneNumber,
         string? cccd,
@@ -155,9 +157,9 @@ public class YeuCauCuTru : YeuCau
         YeuCauHo = lastName;
         YeuCauNgaySinh = dob;
         YeuCauGioiTinhId = gioiTinhId;
-        YeuCauSoDienThoai = phoneNumber;
+        YeuCauSoDienThoai = new SoDienThoai(phoneNumber);
         YeuCauCCCD = cccd;
-        YeuCauDiaChi = diaChi;
+        YeuCauDiaChi = new DiaChi(diaChi);
         YeuCauLoaiQuanHeId = loaiQuanHeId;
         NoiDung = noiDung;
 

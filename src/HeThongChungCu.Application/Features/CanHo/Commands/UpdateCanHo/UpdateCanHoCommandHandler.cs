@@ -42,9 +42,9 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
 
         // 1. Kiểm tra logic cư trú (Có được phép sửa/xóa khi có người ở không)
         // Lưu ý: Chỉ chặn nếu có thay đổi cấu trúc quan trọng (Diện tích, số phòng, loại căn hộ)
-        bool isStructureChanged = request.DienTich != canHo.DienTich ||
-                                  request.SoPhongNgu != canHo.SoPhongNgu ||
-                                  request.SoPhongTam != canHo.SoPhongTam ||
+        bool isStructureChanged = request.DienTich != canHo.ThongSo.DienTich ||
+                                  request.SoPhongNgu != canHo.ThongSo.SoPhongNgu ||
+                                  request.SoPhongTam != canHo.ThongSo.SoPhongTam ||
                                   loaiCanHo != canHo.LoaiCanHoId;
 
         if (isStructureChanged)
@@ -85,11 +85,11 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
             Id = canHo.Id,
             MaCanHo = canHo.MaCanHo,
             TenCanHo = canHo.TenCanHo,
-            DienTich = canHo.DienTich,
+            DienTich = canHo.ThongSo.DienTich,
             TangId = canHo.TangId,
             TenTang = tang.TenTang,
-            SoPhongNgu = canHo.SoPhongNgu,
-            SoPhongTam = canHo.SoPhongTam,
+            SoPhongNgu = canHo.ThongSo.SoPhongNgu,
+            SoPhongTam = canHo.ThongSo.SoPhongTam,
             LoaiCanHoId = canHo.LoaiCanHoId.Value,
             TenLoaiCanHo = canHo.LoaiCanHoId.Name,
             TinhTrangCanHoId = canHo.TinhTrangCanHoId.Value,

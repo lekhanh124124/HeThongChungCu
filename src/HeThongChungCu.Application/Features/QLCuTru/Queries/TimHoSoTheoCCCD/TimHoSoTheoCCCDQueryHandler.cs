@@ -28,7 +28,7 @@ public class TimHoSoTheoCCCDQueryHandler : IQueryHandler<TimHoSoTheoCCCDQuery, U
             Dob = user.NgaySinh,
             GioiTinhId = user.GioiTinhId.Value,
             GioiTinhName = user.GioiTinhId.Name,
-            DiaChi = user.DiaChi,
+            DiaChi = user.DiaChi.FullAddress,
             IdCard = user.CCCD,
             TaiLieuCuTrus = user.TaiLieu.Select(d => new TaiLieuResponse
             {

@@ -60,7 +60,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
         // 2. Setup Residency via Domain Service
         var loaiQuanHe = LoaiQuanHeCuTru.FromValue(request.LoaiQuanHeCuTruId);
         var existingRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
-        var now = _dateTimeProvider.Now.DateTime;
+        var now = _dateTimeProvider.Now;
 
         var relationResult = _residencyService.CreateRelation(canHo.Id, user.Id, loaiQuanHe!, now, existingRelations);
         if (relationResult.IsFailure)
@@ -69,6 +69,10 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
         var quanHe = relationResult.Value;
 
         await _quanHeCuTruRepository.AddAsync(quanHe, cancellationToken);
+
+        // 3. Update Apartment Status via Domain Service
+        _residencyService.StartResidency(canHo, quanHe, existingRelations.Append(quanHe));
+        _canHoRepository.Update(canHo);
 
         // Update role if account exists
         var account = await _accountRepository.GetByNguoiDungIdAsync(user.Id, cancellationToken);
@@ -95,8 +99,8 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
             HoTen = $"{user.Ho} {user.Ten}",
             LoaiQuanHeCuTruId = quanHe.LoaiQuanHeCuTruId.Value,
             TenLoaiQuanHeCuTru = quanHe.LoaiQuanHeCuTruId.Name,
-            NgayBatDau = quanHe.NgayBatDau,
-            NgayKetThuc = quanHe.NgayKetThuc,
+            NgayBatDau = quanHe.ThoiGian.NgayBatDau,
+            NgayKetThuc = quanHe.ThoiGian.NgayKetThuc,
             TrangThaiCuTruId = quanHe.TrangThaiCuTruId.Value,
             TenTrangThaiCuTru = quanHe.TrangThaiCuTruId.Name
         });

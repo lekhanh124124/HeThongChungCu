@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using HeThongChungCu.Domain.ValueObjects;
+using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
@@ -21,9 +24,13 @@ public class ToaNhaConfiguration : IEntityTypeConfiguration<ToaNha>
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(t => t.DiaChi)
-            .IsRequired()
-            .HasMaxLength(255);
+        builder.OwnsOne(t => t.DiaChi, da =>
+        {
+            da.Property(p => p.FullAddress)
+                .HasColumnName("DiaChi")
+                .IsRequired()
+                .HasMaxLength(255);
+        });
 
         builder.Property(t => t.MoTa)
             .HasMaxLength(500);
@@ -38,6 +45,6 @@ public class ToaNhaConfiguration : IEntityTypeConfiguration<ToaNha>
         builder.HasMany(t => t.Tangs)
             .WithOne(t => t.ToaNha)
             .HasForeignKey(t => t.ToaNhaId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

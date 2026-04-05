@@ -18,7 +18,17 @@ public class ThePhuongTienConfiguration : IEntityTypeConfiguration<ThePhuongTien
             .HasMaxLength(50);
 
         builder.HasIndex(t => t.MaThe).IsUnique();
-        
+
+        builder.OwnsOne(x => x.ThoiGian, thoiGian =>
+        {
+            thoiGian.Property(v => v.NgayBatDau)
+                .HasColumnName("NgayBatDau")
+                .IsRequired();
+
+            thoiGian.Property(v => v.NgayKetThuc)
+                .HasColumnName("NgayKetThuc");
+        });
+
         builder.Property(x => x.TrangThaiId)
             .HasConversion(
                 v => v.Value,
@@ -28,6 +38,6 @@ public class ThePhuongTienConfiguration : IEntityTypeConfiguration<ThePhuongTien
         builder.HasOne<PhuongTien>()
             .WithMany(p => p.ThePhuongTiens)
             .HasForeignKey(t => t.PhuongTienId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

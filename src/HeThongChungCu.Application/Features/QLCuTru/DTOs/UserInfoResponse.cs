@@ -8,7 +8,7 @@ public class UserInfoResponse
     public string FullName => $"{FirstName} {LastName}";
     public int GioiTinhId { get; set; }
     public string GioiTinhName { get; set; } = string.Empty;
-    public DateTime Dob { get; set; }
+    public DateTimeOffset Dob { get; set; }
     public string? IdCard { get; set; }
     public string? PhoneNumber { get; set; }
     public string? DiaChi { get; set; }

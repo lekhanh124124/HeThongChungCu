@@ -13,6 +13,6 @@ internal sealed class GetLichSuCuTruReadModel
 
     public int QuanHeCuTruId { get; init; }
     public int LoaiQuanHeCuTruId { get; init; }
-    public DateTime NgayBatDau { get; init; }
-    public DateTime? NgayKetThuc { get; init; }
+    public DateTimeOffset NgayBatDau { get; init; }
+    public DateTimeOffset? NgayKetThuc { get; init; }
 }

@@ -14,7 +14,7 @@ public class YeuCauPhuongTienSeeder
         ILogger logger,
         YeuCauCounts? counts)
     {
-        if (counts == null || await context.YeuCauPhuongTiens.AnyAsync()) return;
+        if (counts == null) return;
 
         logger.LogInformation("Seeding YeuCauPhuongTien...");
 
@@ -110,11 +110,11 @@ public class YeuCauPhuongTienSeeder
 
             if (targetStatus == TrangThaiYeuCau.Approved && admin != null)
             {
-                request.Approve(admin.Id, DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 5)));
+                request.Approve(admin.Id, DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(1, 5)));
             }
             else if (targetStatus == TrangThaiYeuCau.Rejected && admin != null)
             {
-                request.Reject(admin.Id, "Biển số xe không rõ ràng hoặc đã tồn tại trong hệ thống.", DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 5)));
+                request.Reject(admin.Id, "Biển số xe không rõ ràng hoặc đã tồn tại trong hệ thống.", DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(1, 5)));
             }
 
             await context.YeuCauPhuongTiens.AddAsync(request);

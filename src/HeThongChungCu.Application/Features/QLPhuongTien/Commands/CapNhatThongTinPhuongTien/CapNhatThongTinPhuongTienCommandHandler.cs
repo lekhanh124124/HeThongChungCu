@@ -62,7 +62,7 @@ internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<
             LoaiPhuongTien.FromValue(request.LoaiPhuongTienId)!,
             request.BienSo,
             request.MauXe,
-            hinhAnhs);
+            hinhAnhs?.Select(f => f is TepPhuongTien tp ? tp : new TepPhuongTien(f.FileName, f.FileUrl, f.Size, f.ContentType)).ToList());
 
         _phuongTienCommandRepository.Update(phuongTien);
 
@@ -86,8 +86,8 @@ internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<
                 Id = x.Id,
                 PhuongTienId = x.PhuongTienId,
                 MaThe = x.MaThe,
-                NgayBatDau = x.NgayBatDau,
-                NgayKetThuc = x.NgayKetThuc,
+                NgayBatDau = x.ThoiGian.NgayBatDau,
+                NgayKetThuc = x.ThoiGian.NgayKetThuc,
                 TrangThaiThePhuongTienId = x.TrangThaiId.Value,
                 TenTrangThaiThePhuongTien = x.TrangThaiId.Name,
             }).ToList(),

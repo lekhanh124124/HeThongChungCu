@@ -33,7 +33,7 @@ public class NhanVienSeeder
             var email = UserSeeder.GenerateEmailFromName(firstName, lastName);
             var loaiNhanVien = faker.PickRandom(roles);
 
-            // Create User and Account with Role.Staff
+            // Create User and Account with Role.Staff (No immediate SaveChanges)
             (NguoiDung user, _) = await UserSeeder.CreateUserWithAccountAsync(
                 context, 
                 firstName, 
@@ -53,7 +53,7 @@ public class NhanVienSeeder
                 user.Id, 
                 loaiNhanVien, 
                 maNhanVien, 
-                DateTime.Now.AddMonths(-faker.Random.Number(1, 24)),
+                DateTimeOffset.UtcNow.AddMonths(-faker.Random.Number(1, 24)),
                 faker.Lorem.Sentence());
 
             await context.NhanViens.AddAsync(nhanVien);

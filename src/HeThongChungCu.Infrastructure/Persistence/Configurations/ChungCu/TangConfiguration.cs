@@ -31,7 +31,7 @@ public class TangConfiguration : IEntityTypeConfiguration<Tang>
         builder.HasOne(t => t.ToaNha)
             .WithMany(tn => tn.Tangs)
             .HasForeignKey(t => t.ToaNhaId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
     }
 }

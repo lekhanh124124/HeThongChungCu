@@ -9,25 +9,14 @@ public class YeuCauTaiLieuCuTruConfiguration : IEntityTypeConfiguration<YeuCauTa
 {
     public void Configure(EntityTypeBuilder<YeuCauTaiLieuCuTru> builder)
     {
-        builder.ToTable("YeuCauTaiLieuCuTru");
-
-        builder.HasKey(x => x.Id);
-
-        builder.Property(x => x.SoGiayTo)
-            .IsRequired()
-            .HasMaxLength(50);
-
-        builder.Property(x => x.LoaiGiayToId)
-            .HasConversion(
-                v => v.Value,
-                v => LoaiGiayTo.FromValue(v, null)!)
-            .IsRequired();
+        builder.HasBaseType<TaiLieu>();
 
         builder.Property(x => x.TaiLieuCuTruId);
 
         builder.HasMany(x => x.Files)
-            .WithMany()
-            .UsingEntity(j => j.ToTable("TepYeuCauTaiLieuCuTru"));
+            .WithOne(f => f.YeuCauTaiLieuCuTru)
+            .HasForeignKey(f => f.YeuCauTaiLieuCuTruId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Navigation(x => x.Files)
             .HasField("_files")

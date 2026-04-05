@@ -52,25 +52,36 @@ public class ToaNhaSeeder
                 );
 
                 await context.ToaNhas.AddAsync(toaNha);
-                await context.SaveChangesAsync();
 
-                // Each building has 2 basements
+                // 1. Each building has 2 basements
                 for (int i = 1; i <= 2; i++)
                 {
                     toaNha.AddTang($"B{i}-{toaNha.MaToaNha}", $"Tầng hầm B{i}", LoaiTang.TangHam);
                 }
 
-                // Each building has exactly 8 floors
+                // 2. Each building has exactly 8 floors
                 for (int f = 1; f <= 8; f++)
                 {
-                    var tang = toaNha.AddTang($"F{f}-{toaNha.MaToaNha}", $"Tầng {f}", LoaiTang.TangLau);
-                    await context.SaveChangesAsync();
+                    toaNha.AddTang($"F{f}-{toaNha.MaToaNha}", $"Tầng {f}", LoaiTang.TangLau);
+                }
+
+                // IMPORTANT: Save now to generate IDs for ToaNha and Tangs 
+                // so we can use them for CanHo.TangId
+                await context.SaveChangesAsync();
+
+                // 3. Create apartments for each floor
+                foreach (var tang in toaNha.Tangs)
+                {
+                    if (tang.LoaiTangId != LoaiTang.TangLau) continue;
+
+                    // Extract floor number from name (e.g., "Tầng 1" -> 1)
+                    int floorNum = int.Parse(tang.TenTang.Split(' ')[1]);
 
                     // Random 7-10 apartments per floor
                     int roomsCount = faker.Random.Int(7, 10);
                     for (int a = 1; a <= roomsCount; a++)
                     {
-                        var apartmentNum = $"{f}{a:D2}";
+                        var apartmentNum = $"{floorNum}{a:D2}";
                         var canHo = new CanHo(
                             tangId: tang.Id,
                             maCanHo: $"{toaNha.MaToaNha}-{apartmentNum}",
@@ -84,11 +95,10 @@ public class ToaNhaSeeder
                         await context.CanHos.AddAsync(canHo);
                     }
                 }
-
-                await context.SaveChangesAsync();
             }
 
-            logger.LogInformation("Finished seeding 3 hardcoded buildings with their floors and apartments.");
+            await context.SaveChangesAsync();
+            logger.LogInformation("Finished seeding 3 buildings with floors and apartments.");
         }
     }
 }

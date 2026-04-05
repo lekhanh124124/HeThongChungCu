@@ -9,13 +9,13 @@ public class NhanVien : AggregateRoot
     public LoaiNhanVien LoaiNhanVienId { get; private set; } = null!;
     public TrangThaiNhanVien TrangThaiNhanVienId { get; private set; } = null!;
     public string MaNhanVien { get; private set; } = string.Empty;
-    public DateTime NgayVaoLam { get; private set; }
-    public DateTime? NgayNghiLam { get; private set; }
+    public DateTimeOffset NgayVaoLam { get; private set; }
+    public DateTimeOffset? NgayNghiLam { get; private set; }
     public string? GhiChu { get; private set; }
 
     private NhanVien() { } // EF Core
 
-    public NhanVien(int nguoiDungId, LoaiNhanVien loaiNhanVien, string maNhanVien, DateTime ngayVaoLam, string? ghiChu = null)
+    public NhanVien(int nguoiDungId, LoaiNhanVien loaiNhanVien, string maNhanVien, DateTimeOffset ngayVaoLam, string? ghiChu = null)
     {
         NguoiDungId = nguoiDungId;
         LoaiNhanVienId = loaiNhanVien;
@@ -25,14 +25,14 @@ public class NhanVien : AggregateRoot
         GhiChu = ghiChu;
     }
 
-    public void UpdateProfile(LoaiNhanVien loaiNhanVien, DateTime ngayVaoLam, string? ghiChu = null)
+    public void UpdateProfile(LoaiNhanVien loaiNhanVien, DateTimeOffset ngayVaoLam, string? ghiChu = null)
     {
         LoaiNhanVienId = loaiNhanVien;
         NgayVaoLam = ngayVaoLam;
         GhiChu = ghiChu;
     }
 
-    public void CapNhatTrangThai(TrangThaiNhanVien trangThai, DateTime currentDate)
+    public void CapNhatTrangThai(TrangThaiNhanVien trangThai, DateTimeOffset currentDate)
     {
         TrangThaiNhanVienId = trangThai;
         if (trangThai == TrangThaiNhanVien.DaNghiViec)

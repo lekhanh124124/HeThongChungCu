@@ -40,8 +40,8 @@ internal sealed class TaoThePhuongTienCommandHandler : ICommandHandler<TaoThePhu
             Id = thePhuongTien.Id,
             PhuongTienId = thePhuongTien.PhuongTienId,
             MaThe = thePhuongTien.MaThe,
-            NgayBatDau = thePhuongTien.NgayBatDau,
-            NgayKetThuc = thePhuongTien.NgayKetThuc,
+            NgayBatDau = thePhuongTien.ThoiGian.NgayBatDau,
+            NgayKetThuc = thePhuongTien.ThoiGian.NgayKetThuc,
             TrangThaiThePhuongTienId = thePhuongTien.TrangThaiId.Value,
             TenTrangThaiThePhuongTien = thePhuongTien.TrangThaiId.Name,
         });

@@ -9,7 +9,7 @@ public class UserProfileDetailResponse
     public string LastName { get; set; } = string.Empty;
     public string? PhoneNumber { get; set; }
     public string DiaChi { get; set; } = string.Empty;
-    public DateTime Dob { get; set; }
+    public DateTimeOffset Dob { get; set; }
     public int GioiTinhId { get; set; }
     public string GioiTinhName { get; set; } = string.Empty;
     public List<string> Roles { get; set; } = [];

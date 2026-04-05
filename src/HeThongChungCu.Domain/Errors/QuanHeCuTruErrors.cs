@@ -6,9 +6,13 @@ public static class QuanHeCuTruErrors
 {
     public static readonly Error NotFound = Error.NotFound("Quan hệ cư trú");
 
+    public static readonly Error HouseholderAlreadyExists = new(
+        "QuanHeCuTru.HouseholderAlreadyExists",
+        "Căn hộ đã có chủ hộ hoặc người thuê đại diện.");
+
     public static Error NotFoundById(int id) => Error.NotFound("Quan hệ cư trú", id);
 
-    public static Error NotFoundByIds(IEnumerable<int> ids) => 
+    public static Error NotFoundByIds(IEnumerable<int> ids) =>
         Error.NotFound("Quan hệ cư trú", string.Join(", ", ids));
 
     public static readonly Error UserAlreadyResident = new(
@@ -25,6 +29,6 @@ public static class QuanHeCuTruErrors
 
     public static readonly Error HouseholderNotFound = new(
         "QuanHeCuTru.HouseholderNotFound",
-        "Căn hộ chưa có chủ hộ. Vui lòng thiết lập chủ hộ trước khi thêm thành viên khác.");
+        "Căn hộ chưa có chủ hộ hoặc người thuê đại diện. Vui lòng thiết lập trước khi thêm thành viên khác.");
 
 }
