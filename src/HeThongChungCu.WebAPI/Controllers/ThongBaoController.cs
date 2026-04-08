@@ -1,5 +1,6 @@
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.ThongBao.Commands.DanhDauDaDoc;
+using HeThongChungCu.Application.Features.ThongBao.DTOs;
 using HeThongChungCu.Application.Features.ThongBao.Queries.LayDSThongBao;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;

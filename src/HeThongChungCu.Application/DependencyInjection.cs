@@ -30,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IResidencyService, ResidencyService>();
         services.AddScoped<IIdentityDomainService, IdentityDomainService>();
         services.AddScoped<IDocumentReconciliationService, DocumentReconciliationService>();
+        services.AddScoped<IDichVuDomainService, DichVuDomainService>();
 
         return services;
     }

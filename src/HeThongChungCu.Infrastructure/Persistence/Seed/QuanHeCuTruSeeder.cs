@@ -12,6 +12,9 @@ public class QuanHeCuTruSeeder
     {
         logger.LogInformation("Seeding ChuHo ({ChuHoCount}) and CuTru ({CuTruCount})...", soLuongChuHo, soLuongCuTru);
 
+        var admin = await context.TaiKhoan.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Email.Value == "admin@gmail.com");
+        var adminId = admin?.Id ?? 0;
+
         var canHos = await context.CanHos.ToListAsync();
         if (canHos.Count == 0) return;
 
@@ -37,9 +40,10 @@ public class QuanHeCuTruSeeder
             var email = UserSeeder.GenerateEmailFromName(firstName, lastName);
 
             (NguoiDung user, _) = await UserSeeder.CreateUserWithAccountAsync(
-                context, firstName, lastName, email, Role.Resident, null!, "Hồ Chí Minh");
+                context, firstName, lastName, email, Role.Resident, null!, null, null, adminId == 0 ? null : adminId);
 
             var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.ChuHo, DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(10, 100)));
+            if (adminId != 0) qh.SetCreated(adminId, DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(10, 100)));
             context.QuanHeCuTrus.Add(qh);
             
             canHo.MarkAsOccupied();
@@ -58,15 +62,17 @@ public class QuanHeCuTruSeeder
             var email = UserSeeder.GenerateEmailFromName(firstName, lastName);
 
             (NguoiDung user, _) = await UserSeeder.CreateUserWithAccountAsync(
-                context, firstName, lastName, email, Role.Resident, null!, "Hồ Chí Minh");
+                context, firstName, lastName, email, Role.Resident, null!, null, null, adminId == 0 ? null : adminId);
 
             var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.NguoiThue, DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(5, 50)));
+            if (adminId != 0) qh.SetCreated(adminId, DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(5, 50)));
             context.QuanHeCuTrus.Add(qh);
             
             canHo.MarkAsOccupied();
             headApartmentIds.Add(canHo.Id);
         }
 
+        DatabaseSeeder.ClearAllDomainEvents(context);
         await context.SaveChangesAsync(); 
 
         // 3. Seed Others (NguoiOCung, Khac) for apartments that already have a head
@@ -88,24 +94,27 @@ public class QuanHeCuTruSeeder
                     if (faker.Random.Bool(0.5f))
                     {
                         var email = UserSeeder.GenerateEmailFromName(firstName, lastName);
-                        var userAndAccount = await UserSeeder.CreateUserWithAccountAsync(context, firstName, lastName, email, Role.Resident, null!, "Hồ Chí Minh");
+                        var userAndAccount = await UserSeeder.CreateUserWithAccountAsync(context, firstName, lastName, email, Role.Resident, null!, null, null, adminId == 0 ? null : adminId);
                         batchUsers.Add((userAndAccount.NguoiDung, canHoId));
                     }
                     else
                     {
-                        var user = await UserSeeder.CreateUserOnlyAsync(context, firstName, lastName, null!, "Hồ Chí Minh");
+                        var user = await UserSeeder.CreateUserOnlyAsync(context, firstName, lastName, null!, null, adminId == 0 ? null : adminId);
                         batchUsers.Add((user, canHoId));
                     }
                 }
-
+                
+                DatabaseSeeder.ClearAllDomainEvents(context);
                 await context.SaveChangesAsync();
 
                 foreach (var item in batchUsers)
                 {
                     var qh = new QuanHeCuTru(item.CanHoId, item.User.Id, faker.PickRandom(otherRoles), DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(1, 10)));
+                    if (adminId != 0) qh.SetCreated(adminId, DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(1, 10)));
                     context.QuanHeCuTrus.Add(qh);
                 }
-
+                
+                DatabaseSeeder.ClearAllDomainEvents(context);
                 await context.SaveChangesAsync();
             }
         }

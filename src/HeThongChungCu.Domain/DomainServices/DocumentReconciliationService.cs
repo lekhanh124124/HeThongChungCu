@@ -99,4 +99,40 @@ public class DocumentReconciliationService : IDocumentReconciliationService
             }
         }
     }
+
+    public void ReconcileDoiTacHopDongs(
+        DoiTac doiTac,
+        IEnumerable<HopDongSyncItem> proposedHopDongs,
+        IEnumerable<TepTaiLieu> fetchedFiles)
+    {
+        var proposedList = proposedHopDongs.ToList();
+        var currentHopDongs = doiTac.HopDongs.ToList();
+        var fileDict = fetchedFiles.ToDictionary(f => f.Id);
+
+        // 1. Only Add new contracts. Updates and Deletes are not allowed via reconciliation.
+        foreach (var prop in proposedList)
+        {
+            if (prop.Id.HasValue)
+            {
+                // Ignore existing contracts to prevent unauthorized updates.
+                continue;
+            }
+
+            // Map file Ids to file entities
+            var teps = (prop.TepFileIds ?? Enumerable.Empty<int>())
+                .Where(fileDict.ContainsKey)
+                .Select(id => fileDict[id])
+                .Select(f => f is TepHopDongDoiTac th
+                    ? th
+                    : new TepHopDongDoiTac(f.FileName, f.FileUrl, f.Size, f.ContentType))
+                .ToList();
+
+            var newHopDong = new HopDongDoiTac(doiTac.Id, prop.SoHopDong, prop.NgayKy, prop.NgayHetHan, prop.GiaTri, prop.DichVuId, prop.NoiDung);
+            newHopDong.SyncTepHopDongs(teps);
+            doiTac.AddHopDong(newHopDong);
+        }
+
+        // 3. Finalize all contracts statuses
+        doiTac.CheckActiveHopDongs();
+    }
 }

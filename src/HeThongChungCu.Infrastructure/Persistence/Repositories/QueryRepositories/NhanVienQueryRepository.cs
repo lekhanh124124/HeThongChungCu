@@ -1,10 +1,9 @@
 using Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Models;
-using HeThongChungCu.Application.Features.NhanVien.DTOs;
-using HeThongChungCu.Application.Features.NhanVien.Queries.GetNhanVienById;
-using HeThongChungCu.Application.Features.NhanVien.Queries.GetNhanVienList;
-using HeThongChungCu.Application.Features.QLCuTru.DTOs;
+using HeThongChungCu.Application.Features.QLNhanVien.DTOs;
+using HeThongChungCu.Application.Features.QLNhanVien.Queries.GetNhanVienById;
+using HeThongChungCu.Application.Features.QLNhanVien.Queries.GetNhanVienList;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Infrastructure.Persistence.Helpers;
 using HeThongChungCu.Infrastructure.Persistence.ReadModels;
@@ -22,7 +21,7 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
         _dbContext = dbContext;
     }
 
-    public async Task<NhanVienResponse?> GetByIdAsync(GetNhanVienByIdSpecification spec, CancellationToken cancellationToken = default)
+    public async Task<NhanVienDetailResponse?> GetByIdAsync(GetNhanVienByIdSpecification spec, CancellationToken cancellationToken = default)
     {
         var connection = _dbContext.GetDbConnection();
         if (connection.State != ConnectionState.Open)
@@ -75,9 +74,9 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
             """;
 
         var rows = await connection.QueryAsync<dynamic>(sql, parameters);
-        
-        NhanVienResponse? response = null;
-        var docLookup = new Dictionary<int, TaiLieuResponse>();
+
+        NhanVienDetailResponse? response = null;
+        var docLookup = new Dictionary<int, TaiLieuNhanVienResponse>();
         var roleIds = new HashSet<int>();
 
         var gioiTinhMap = GioiTinh.ToDictionary();
@@ -87,7 +86,7 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
         {
             if (response == null)
             {
-                response = new NhanVienResponse
+                response = new NhanVienDetailResponse
                 {
                     Id = row.Id,
                     NguoiDungId = row.NguoiDungId,
@@ -103,9 +102,9 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
                     GioiTinhName = gioiTinhMap.GetValueOrDefault((int)row.GioiTinhId, string.Empty),
                     AnhDaiDienUrl = row.AnhDaiDienUrl ?? string.Empty,
                     LoaiNhanVienId = row.LoaiNhanVienId,
-                    TenLoaiNhanVien = LoaiNhanVien.FromValue((int)row.LoaiNhanVienId)?.Name ?? string.Empty,
+                    LoaiNhanVienTen = LoaiNhanVien.FromValue((int)row.LoaiNhanVienId)?.Name ?? string.Empty,
                     TrangThaiNhanVienId = row.TrangThaiNhanVienId,
-                    TenTrangThaiNhanVien = TrangThaiNhanVien.FromValue((int)row.TrangThaiNhanVienId)?.Name ?? string.Empty,
+                    TrangThaiNhanVienTen = TrangThaiNhanVien.FromValue((int)row.TrangThaiNhanVienId)?.Name ?? string.Empty,
                     MaNhanVien = row.MaNhanVien,
                     NgayVaoLam = row.NgayVaoLam,
                     NgayNghiLam = row.NgayNghiLam,
@@ -129,7 +128,7 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
             {
                 if (!docLookup.TryGetValue((int)row.DocId, out var doc))
                 {
-                    doc = new TaiLieuResponse
+                    doc = new TaiLieuNhanVienResponse
                     {
                         Id = row.DocId,
                         LoaiGiayToId = (int)row.LoaiGiayToId,
@@ -146,7 +145,7 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
                 {
                     if (!doc.Files.Any(f => f.Id == (int)row.FileId))
                     {
-                        doc.Files.Add(new TepTaiLieuResponse(
+                        doc.Files.Add(new TepTaiLieuNhanVienResponse(
                             (int)row.FileId,
                             (string)row.FileUrl,
                             (string)row.FileName,
@@ -169,16 +168,22 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
         {
             { "Id", "nv.Id" },
             { "MaNhanVien", "nv.MaNhanVien" },
+            { "HoTen", "u.Ho + ' ' + u.Ten" },
+            { "Email", "a.Email" },
+            { "SoDienThoai", "u.SoDienThoai" },
             { "LoaiNhanVienId", "nv.LoaiNhanVienId" },
             { "TrangThaiNhanVienId", "nv.TrangThaiNhanVienId" },
-            { "IsDeleted", "nv.IsDeleted" },
-            { "Keyword", "nv.MaNhanVien + ' ' + u.Ho + ' ' + u.Ten + ' ' + u.SoDienThoai" }
+            { "NgayVaoLam", "nv.NgayVaoLam" },
+            { "NgayNghiLam", "nv.NgayNghiLam" },
+            { "IsDeleted", "nv.IsDeleted" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
         var joins = new[]
         {
-            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", Type: JoinType.Inner)
+            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", Type: JoinType.Inner),
+            new JoinDefinition("TaiKhoan", "a", "u.Id = a.NguoiDungId"),
+            new JoinDefinition("TepTaiLieu", "atl", "a.AnhDaiDienId = atl.Id")
         };
         var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
 
@@ -191,7 +196,9 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
                 nv.Id,
                 nv.NguoiDungId,
                 u.Ho + ' ' + u.Ten AS HoTen,
+                a.Email,
                 u.SoDienThoai,
+                atl.FileUrl AS AnhDaiDienUrl,
                 nv.LoaiNhanVienId,
                 nv.TrangThaiNhanVienId,
                 nv.MaNhanVien,
@@ -207,8 +214,24 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
 
         var rows = (await connection.QueryAsync<NhanVienReadModel>(sql, parameters)).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
+        var loaiNhanVienMap = LoaiNhanVien.ToDictionary();
+        var trangThaiNhanVienMap = TrangThaiNhanVien.ToDictionary();
 
-        var items = rows.Select(MapToResponse).ToList();
+        var items = rows.Select(x => new NhanVienResponse
+        {
+            Id = x.Id,
+            AnhDaiDienUrl = x.AnhDaiDienUrl ?? string.Empty,
+            MaNhanVien = x.MaNhanVien,
+            HoTen = x.HoTen,
+            Email = x.Email ?? string.Empty,
+            SoDienThoai = x.SoDienThoai,
+            LoaiNhanVienId = x.LoaiNhanVienId,
+            LoaiNhanVienTen = loaiNhanVienMap.GetValueOrDefault(x.LoaiNhanVienId, string.Empty),
+            TrangThaiNhanVienId = x.TrangThaiNhanVienId,
+            TrangThaiNhanVienTen = trangThaiNhanVienMap.GetValueOrDefault(x.TrangThaiNhanVienId, string.Empty),
+            NgayVaoLam = x.NgayVaoLam,
+            NgayNghiLam = x.NgayNghiLam
+        }).ToList();
 
         return new PagedResult<NhanVienResponse>
         {
@@ -219,25 +242,6 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
                 PageSize = spec.PageSize ?? items.Count,
                 TotalItems = totalCount
             }
-        };
-    }
-
-    private static NhanVienResponse MapToResponse(NhanVienReadModel model)
-    {
-        return new NhanVienResponse
-        {
-            Id = model.Id,
-            NguoiDungId = model.NguoiDungId,
-            HoTen = model.HoTen,
-            SoDienThoai = model.SoDienThoai,
-            LoaiNhanVienId = model.LoaiNhanVienId,
-            TenLoaiNhanVien = LoaiNhanVien.FromValue(model.LoaiNhanVienId)?.Name ?? string.Empty,
-            TrangThaiNhanVienId = model.TrangThaiNhanVienId,
-            TenTrangThaiNhanVien = TrangThaiNhanVien.FromValue(model.TrangThaiNhanVienId)?.Name ?? string.Empty,
-            MaNhanVien = model.MaNhanVien,
-            NgayVaoLam = model.NgayVaoLam,
-            NgayNghiLam = model.NgayNghiLam,
-            GhiChu = model.GhiChu
         };
     }
 }

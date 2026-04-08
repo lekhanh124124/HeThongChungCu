@@ -20,4 +20,12 @@ public interface IDocumentReconciliationService
     void ReconcilePhuongTienImages(
         PhuongTien phuongTien,
         IEnumerable<TepTaiLieu> hinhAnhs);
+
+    /// <summary>
+    /// Đồng bộ hóa danh sách hợp đồng của đối tác.
+    /// </summary>
+    void ReconcileDoiTacHopDongs(
+        DoiTac doiTac,
+        IEnumerable<HopDongSyncItem> proposedHopDongs,
+        IEnumerable<TepTaiLieu> fetchedFiles);
 }

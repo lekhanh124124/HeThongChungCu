@@ -50,7 +50,7 @@ public class CanHoQueryRepository : ICanHoQueryRepository
         };
         var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
 
-        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, nameof(CanHo.Id));
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sql = $"""

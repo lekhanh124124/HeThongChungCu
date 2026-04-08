@@ -7,19 +7,21 @@ namespace HeThongChungCu.Domain.Entities;
 
 public class HoaDonDoiTac : AggregateRoot
 {
-    public int DoiTacId { get; private set; }
+    public int HopDongDoiTacId { get; private set; }
     public int Thang { get; private set; }
     public int Nam { get; private set; }
     public GiaTien SoTien { get; private set; } = null!;
     public DateTimeOffset NgayGhiNhan { get; private set; }
-    public int? FileHoaDonId { get; private set; }
     public string? GhiChu { get; private set; }
     public TrangThaiThanhToanDoiTac TrangThaiThanhToanId { get; private set; } = null!;
+
+    public int? FileHoaDonId { get; private set; }
+    public virtual TepTaiLieu? FileHoaDon { get; private set; }
 
     private HoaDonDoiTac() { } // EF Core
 
     public HoaDonDoiTac(
-        int doiTacId,
+        int hopDongDoiTacId,
         int thang,
         int nam,
         decimal soTien,
@@ -29,7 +31,7 @@ public class HoaDonDoiTac : AggregateRoot
         if (thang < 1 || thang > 12)
             throw new BusinessException("Tháng không hợp lệ.");
 
-        DoiTacId = doiTacId;
+        HopDongDoiTacId = hopDongDoiTacId;
         Thang = thang;
         Nam = nam;
         SoTien = new GiaTien(soTien);

@@ -1,6 +1,7 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Models;
+using HeThongChungCu.Application.Features.ThongBao.DTOs;
 using MediatR;
 
 namespace HeThongChungCu.Application.Features.ThongBao.Queries.LayDSThongBao;

@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
-public class DichVuConfiguration : IEntityTypeConfiguration<DichVu>
+public class DichVuConfiguration : IEntityTypeConfiguration<HeThongChungCu.Domain.Entities.DichVu>
 {
-    public void Configure(EntityTypeBuilder<DichVu> builder)
+    public void Configure(EntityTypeBuilder<HeThongChungCu.Domain.Entities.DichVu> builder)
     {
         builder.ToTable("DichVu");
 
@@ -34,23 +34,33 @@ public class DichVuConfiguration : IEntityTypeConfiguration<DichVu>
                 v => LoaiDichVu.FromValue(v, null)!)
             .IsRequired();
 
+        builder.Property(x => x.TrangThaiId)
+            .HasConversion(
+                v => v.Value,
+                v => TrangThaiDichVu.FromValue(v, null)!)
+            .IsRequired();
+
         builder.HasOne(x => x.Icon)
             .WithMany()
             .HasForeignKey(x => x.IconId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        builder.HasOne<DoiTac>()
-            .WithMany()
-            .HasForeignKey(x => x.DoiTacId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         builder.HasMany(x => x.BangGias)
-            .WithOne()
+            .WithOne(x => x.DichVu)
             .HasForeignKey(x => x.DichVuId)
             .OnDelete(DeleteBehavior.NoAction);
 
         builder.Navigation(x => x.BangGias)
             .HasField("_bangGias")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasMany(x => x.KhungGios)
+            .WithOne(x => x.DichVu)
+            .HasForeignKey(x => x.DichVuId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(x => x.KhungGios)
+            .HasField("_khungGios")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

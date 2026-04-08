@@ -17,7 +17,8 @@ public class TepTaiLieuConfiguration : IEntityTypeConfiguration<TepTaiLieu>
             .HasValue<TepTaiLieuNguoiDung>(nameof(TepTaiLieuNguoiDung))
             .HasValue<TepYeuCauTaiLieuCuTru>(nameof(TepYeuCauTaiLieuCuTru))
             .HasValue<TepYeuCauPhuongTien>(nameof(TepYeuCauPhuongTien))
-            .HasValue<TepPhuongTien>(nameof(TepPhuongTien));
+            .HasValue<TepPhuongTien>(nameof(TepPhuongTien))
+            .HasValue<TepHopDongDoiTac>(nameof(TepHopDongDoiTac));
 
         builder.Property(x => x.FileName)
             .IsRequired()

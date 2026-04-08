@@ -42,9 +42,9 @@ public class YeuCauPhuongTienCreatedEventHandler : INotificationHandler<YeuCauPh
         // 1. Tìm người nhận thuộc BQL (Manager, Staff & Admin)
         var managerIds = await _taiKhoanRepository.GetNguoiDungIdsByRoleAsync(Role.Manager, cancellationToken);
         var staffIds = await _taiKhoanRepository.GetNguoiDungIdsByRoleAsync(Role.Staff, cancellationToken);
-        var adminIds = await _taiKhoanRepository.GetNguoiDungIdsByRoleAsync(Role.Admin, cancellationToken);
+        // var adminIds = await _taiKhoanRepository.GetNguoiDungIdsByRoleAsync(Role.Admin, cancellationToken);
 
-        var allRecipientIds = managerIds.Concat(staffIds).Concat(adminIds).Distinct().ToList();
+        var allRecipientIds = managerIds.Concat(staffIds).Distinct().ToList();
 
         if (allRecipientIds.Count == 0) return;
 

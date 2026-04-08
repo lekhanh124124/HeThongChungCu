@@ -32,6 +32,29 @@ public class NguoiDung : AggregateRoot
         SoDienThoai = soDienThoai;
     }
 
+    public static NguoiDung CreateNguoiDung(
+        string ten,
+        string ho,
+        DateTimeOffset ngaySinh,
+        GioiTinh gioiTinhId,
+        string? diaChi,
+        string? cccd = null,
+        SoDienThoai? soDienThoai = null,
+        IEnumerable<TaiLieuNguoiDung>? documents = null)
+    {
+        var nguoiDung = new NguoiDung(ten, ho, ngaySinh, gioiTinhId, diaChi, cccd, soDienThoai);
+        
+        if (documents != null)
+        {
+            foreach (var doc in documents)
+            {
+                nguoiDung.AddDocument(doc);
+            }
+        }
+
+        return nguoiDung;
+    }
+
     public void UpdateProfile(string ten, string ho, DateTimeOffset ngaySinh, GioiTinh gioiTinhId, string? diaChi, string? cccd = null, SoDienThoai? soDienThoai = null)
     {
         Ten = ten;

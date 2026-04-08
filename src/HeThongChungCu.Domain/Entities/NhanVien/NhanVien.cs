@@ -1,5 +1,6 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Events;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -23,6 +24,12 @@ public class NhanVien : AggregateRoot
         MaNhanVien = maNhanVien;
         NgayVaoLam = ngayVaoLam;
         GhiChu = ghiChu;
+    }
+
+    public static NhanVien CreateNhanVien(int nguoiDungId, LoaiNhanVien loaiNhanVien, string maNhanVien, DateTimeOffset ngayVaoLam, string? ghiChu = null)
+    {
+        var nhanVien = new NhanVien(nguoiDungId, loaiNhanVien, maNhanVien, ngayVaoLam, ghiChu);
+        return nhanVien;
     }
 
     public void UpdateProfile(LoaiNhanVien loaiNhanVien, DateTimeOffset ngayVaoLam, string? ghiChu = null)

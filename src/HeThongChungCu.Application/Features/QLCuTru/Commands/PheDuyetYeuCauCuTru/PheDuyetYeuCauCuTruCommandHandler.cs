@@ -63,7 +63,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         {
             // Gather data for uniqueness check
             var cccdExists = !string.IsNullOrEmpty(yeuCau.YeuCauCCCD) && await _userRepository.AnyAsync(u => u.CCCD == yeuCau.YeuCauCCCD, cancellationToken);
-            var phoneExists = !string.IsNullOrEmpty(yeuCau.YeuCauSoDienThoai) && await _userRepository.AnyAsync(u => u.SoDienThoai.Value == yeuCau.YeuCauSoDienThoai, cancellationToken);
+            var phoneExists = !string.IsNullOrEmpty(yeuCau.YeuCauSoDienThoai) && await _userRepository.AnyAsync(u => u.SoDienThoai!.Value == yeuCau.YeuCauSoDienThoai, cancellationToken);
 
             var uniquenessResult = _residencyService.CheckUniqueness(cccdExists, phoneExists);
             if (uniquenessResult.IsFailure)
@@ -77,7 +77,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
             // 2. Create Residency Relation via Domain Service
             var loaiQuanHe = LoaiQuanHeCuTru.FromValue(yeuCau.YeuCauLoaiQuanHeId!.Value, null);
             var existingRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(yeuCau.CanHoId, cancellationToken);
-            
+
             var relationResult = _residencyService.CreateRelation(yeuCau.CanHoId, newUser.Id, loaiQuanHe!, now.DateTime, existingRelations);
             if (relationResult.IsFailure)
                 return Result.Failure<YeuCauCuTruResponse>(relationResult.Errors[0]);

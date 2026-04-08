@@ -19,8 +19,7 @@ public class DoiTacConfiguration : IEntityTypeConfiguration<DoiTac>
             .IsRequired();
 
         builder.Property(x => x.TenCongTy)
-            .HasMaxLength(200)
-            .IsRequired();
+            .HasMaxLength(200);
 
         builder.Property(x => x.NguoiDaiDien)
             .HasMaxLength(100);
@@ -30,6 +29,9 @@ public class DoiTacConfiguration : IEntityTypeConfiguration<DoiTac>
 
         builder.Property(x => x.MaSoThue)
             .HasMaxLength(50);
+
+        builder.Property(x => x.GhiChu)
+            .HasMaxLength(1000);
 
         builder.OwnsOne(x => x.DiaChi, da =>
         {
@@ -52,13 +54,10 @@ public class DoiTacConfiguration : IEntityTypeConfiguration<DoiTac>
                 .HasMaxLength(100);
         });
 
-        builder.Property(x => x.TrangThaiHopDongId)
-            .HasConversion(
-                v => v.Value,
-                v => TrangThaiHopDong.FromValue(v, null)!)
-            .IsRequired();
 
-        builder.Property(x => x.NgayKyHopDong);
-        builder.Property(x => x.NgayHetHan);
+        builder.HasMany(x => x.HopDongs)
+            .WithOne(x => x.DoiTac)
+            .HasForeignKey(x => x.DoiTacId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

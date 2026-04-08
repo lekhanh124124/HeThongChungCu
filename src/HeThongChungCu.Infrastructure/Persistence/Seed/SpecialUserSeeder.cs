@@ -11,6 +11,48 @@ public class SpecialUserSeeder
 {
     private static readonly HasherService _passwordHasher = new();
 
+    public static async Task SeedAdminAndTestAccountsAsync(AppDbContext context, ILogger logger)
+    {
+        if (!await context.TaiKhoan.IgnoreQueryFilters().AnyAsync(a => a.Email.Value == "admin@gmail.com"))
+        {
+            logger.LogInformation("Seeding Admin and Test Accounts...");
+
+            var testData = new[]
+            {
+                (Username: "admin", Email: "admin@gmail.com", Role: Role.Admin, FirstName: "Quản trị", LastName: "Hệ thống"),
+                (Username: "banquanly_test", Email: "phognguen0@gmail.com", Role: Role.Manager, FirstName: "Ban", LastName: "Quản lý"),
+                (Username: "nhanvien_test", Email: "nhanvien@gmail.com", Role: Role.Staff, FirstName: "Trần", LastName: "Nhân Viên")
+            };
+
+            int? adminId = null;
+            foreach (var data in testData)
+            {
+                var email = UserSeeder.RegisterEmail(data.Email);
+                var username = UserSeeder.RegisterUsername(data.Username);
+
+                var result = await UserSeeder.CreateUserWithAccountAsync(
+                    context: context,
+                    firstName: data.FirstName,
+                    lastName: data.LastName,
+                    email: email,
+                    role: data.Role,
+                    phoneNumber: UserSeeder.GetUniquePhoneNumber(),
+                    address: "Đường Tôn Đức Thắng, Quận 1, TP. Hồ Chí Minh",
+                    username: username,
+                    createdBy: adminId);
+
+                if (data.Role == Role.Admin)
+                {
+                    adminId = result.TaiKhoan.Id;
+                    // Self-reference for the first admin to avoid 0
+                    result.NguoiDung.SetCreated(adminId.Value, DateTimeOffset.UtcNow);
+                    result.TaiKhoan.SetCreated(adminId.Value, DateTimeOffset.UtcNow);
+                    await context.SaveChangesAsync();
+                }
+            }
+        }
+    }
+
     public static async Task SeedGiangKietAsync(AppDbContext context, ILogger logger)
     {
         if (await context.TaiKhoan.IgnoreQueryFilters().AnyAsync(a => a.Email.Value == "giangkiet2k4@gmail.com"))
@@ -76,13 +118,19 @@ public class SpecialUserSeeder
 
         await context.NguoiDung.AddAsync(user);
 
-        // We MUST save changes here to get user.Id for the TaiKhoan link 
-        // if we are not using navigation properties
+        DatabaseSeeder.ClearAllDomainEvents(context);
         await context.SaveChangesAsync();
 
         var email = UserSeeder.RegisterEmail(emailInput);
         var account = new TaiKhoan(user.Id, UserSeeder.RegisterUsername(username), email, _passwordHasher.HashPassword("123456."));
         account.AddRole(Role.Resident);
+        
+        if (adminAccount != null)
+        {
+            user.SetCreated(adminAccount.Id, DateTimeOffset.UtcNow);
+            account.SetCreated(adminAccount.Id, DateTimeOffset.UtcNow);
+        }
+
         await context.TaiKhoan.AddAsync(account);
 
         // 2. Pick 4 apartments
@@ -113,6 +161,11 @@ public class SpecialUserSeeder
             var isTerminated = i == 3;
             var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.ChuHo, DateTimeOffset.UtcNow.AddMonths(-6));
 
+            if (adminAccount != null)
+            {
+                qh.SetCreated(adminAccount.Id, DateTimeOffset.UtcNow.AddMonths(-6));
+            }
+
             if (isTerminated)
             {
                 qh.KetThucCuTru(DateTimeOffset.UtcNow.AddMonths(-1));
@@ -133,9 +186,15 @@ public class SpecialUserSeeder
             {
                 var rFirstName = faker.Name.FirstName();
                 var rLastName = faker.Name.LastName();
-                var rUser = await UserSeeder.CreateUserOnlyAsync(context, rFirstName, rLastName, faker.Phone.PhoneNumber("09########"), "Hồ Chí Minh");
+                var rUser = await UserSeeder.CreateUserOnlyAsync(context, rFirstName, rLastName, faker.Phone.PhoneNumber("09########"), "Hồ Chí Minh", adminAccount?.Id);
 
                 var rqh = new QuanHeCuTru(canHo.Id, rUser.Id, faker.PickRandom(otherRoles), DateTimeOffset.UtcNow.AddMonths(-5));
+                
+                if (adminAccount != null)
+                {
+                    rqh.SetCreated(adminAccount.Id, DateTimeOffset.UtcNow.AddMonths(-5));
+                }
+
                 context.QuanHeCuTrus.Add(rqh);
             }
 
@@ -147,6 +206,12 @@ public class SpecialUserSeeder
                 var bienSo = PhuongTienSeeder.RegisterBienSo($"{faker.Random.Int(29, 31)}{faker.Random.String2(1, "ABCDEFGHJK")}-{faker.Random.Int(10000, 99999)}");
 
                 var pt = new PhuongTien(canHo.Id, model, loai, bienSo, model, null);
+                
+                if (adminAccount != null)
+                {
+                    pt.SetCreated(adminAccount.Id, DateTimeOffset.UtcNow.AddMonths(-4));
+                }
+
                 await context.PhuongTiens.AddAsync(pt);
 
                 // 2 cards per vehicle (Total 4 per apartment)
@@ -154,6 +219,11 @@ public class SpecialUserSeeder
                 {
                     var maThe = PhuongTienSeeder.RegisterMaThe(faker.Random.Replace("SP-##########"));
                     var the = pt.AddThe(maThe, DateTimeOffset.UtcNow.AddMonths(-4));
+
+                    if (adminAccount != null)
+                    {
+                        the.SetCreated(adminAccount.Id, DateTimeOffset.UtcNow.AddMonths(-4));
+                    }
 
                     if (c == 0)
                     {
@@ -164,13 +234,17 @@ public class SpecialUserSeeder
 
             // 5. Add 2 residency requests and 2 vehicle requests
             var req1Status = isTerminated ? TrangThaiYeuCau.Invalidated : TrangThaiYeuCau.Pending;
+            var dobReq1 = faker.Date.Past(20, DateTime.Now.AddYears(-18));
+            var genderIdReq1 = faker.PickRandom(new[] { 1, 2 });
             var req1 = YeuCauCuTru.CreateAddMemberRequest(
                 canHo.Id, null, LoaiQuanHeCuTru.NguoiOCung.Value,
                 faker.Name.FirstName(), faker.Name.LastName(),
-                faker.Date.Past(20, DateTime.Now.AddYears(-18)),
-                faker.PickRandom(new[] { 1, 2 }), UserSeeder.GetUniquePhoneNumber(),
-                UserSeeder.GetUniqueIdCard(), faker.Address.FullAddress(),
-                "Thêm thành viên vào cư trú cùng.", null, req1Status);
+                dobReq1,
+                genderIdReq1, UserSeeder.GetUniquePhoneNumber(),
+                UserSeeder.GetUniqueIdCard(genderIdReq1, dobReq1.Year), UserSeeder.GetRandomVietnamAddress(),
+                "Đăng ký tạm trú cho người thân ở quê lên phụ giúp việc gia đình.", null, req1Status);
+            
+            req1.SetCreated(account.Id, DateTimeOffset.UtcNow.AddMonths(-2));
 
             if (!isTerminated && adminAccount != null)
             {
@@ -179,14 +253,18 @@ public class SpecialUserSeeder
             await context.YeuCauCuTrus.AddAsync(req1);
 
             var req2 = YeuCauCuTru.CreateRemoveMemberRequest(
-                canHo.Id, user.Id, "Yêu cầu xóa thành viên do chuyển đi.",
+                canHo.Id, user.Id, "Yêu cầu xóa tên thành viên đã chuyển đi nơi khác sinh sống.",
                 isTerminated ? TrangThaiYeuCau.Invalidated : TrangThaiYeuCau.Pending);
+            
+            req2.SetCreated(account.Id, DateTimeOffset.UtcNow.AddMonths(-1));
             await context.YeuCauCuTrus.AddAsync(req2);
 
             var vreq1 = YeuCauPhuongTien.CreateAddRequest(
                 canHo.Id, LoaiPhuongTien.Oto, "Mercedes-Benz C200",
-                faker.Vehicle.Vin().Substring(0, 8).ToUpper(), "Sliver",
-                "Đăng ký xe mới cho gia đình.", null, req1Status);
+                faker.Vehicle.Vin().Substring(0, 8).ToUpper(), "Silver",
+                "Đấu giá được biển số xe mới, cần đăng ký chỗ đậu xe ô tô cố định.", null, req1Status);
+            
+            vreq1.SetCreated(account.Id, DateTimeOffset.UtcNow.AddMonths(-2));
 
             if (!isTerminated && adminAccount != null)
             {
@@ -197,7 +275,9 @@ public class SpecialUserSeeder
             var vreq2 = YeuCauPhuongTien.CreateUpdateRequest(
                 canHo.Id, faker.Random.Int(10, 1000), LoaiPhuongTien.XeMay,
                 "Honda Vision", faker.Vehicle.Vin().Substring(0, 8).ToUpper(), "Red",
-                "Cập nhật lại màu sắc xe.", null, req1Status);
+                "Cập nhật lại màu phối của xe sau khi dán decal bảo vệ.", null, req1Status);
+            
+            vreq2.SetCreated(account.Id, DateTimeOffset.UtcNow.AddMonths(-1));
 
             if (!isTerminated && adminAccount != null)
             {

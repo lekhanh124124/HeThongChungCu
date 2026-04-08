@@ -10,6 +10,8 @@ internal sealed class NhanVienReadModel
     public int LoaiNhanVienId { get; init; }
     public int TrangThaiNhanVienId { get; init; }
     public string MaNhanVien { get; init; } = string.Empty;
+    public string? Email { get; init; }
+    public string? AnhDaiDienUrl { get; init; }
     public DateTimeOffset NgayVaoLam { get; init; }
     public DateTimeOffset? NgayNghiLam { get; init; }
     public string? GhiChu { get; init; }

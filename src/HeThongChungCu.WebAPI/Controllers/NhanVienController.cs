@@ -1,10 +1,10 @@
 using HeThongChungCu.Application.Common.Models;
-using HeThongChungCu.Application.Features.NhanVien.Commands.CreateNhanVien;
-using HeThongChungCu.Application.Features.NhanVien.Commands.DeleteNhanVien;
-using HeThongChungCu.Application.Features.NhanVien.Commands.UpdateNhanVien;
-using HeThongChungCu.Application.Features.NhanVien.DTOs;
-using HeThongChungCu.Application.Features.NhanVien.Queries.GetNhanVienById;
-using HeThongChungCu.Application.Features.NhanVien.Queries.GetNhanVienList;
+using HeThongChungCu.Application.Features.QLNhanVien.Commands.CreateNhanVien;
+using HeThongChungCu.Application.Features.QLNhanVien.Commands.DeleteNhanVien;
+using HeThongChungCu.Application.Features.QLNhanVien.Commands.UpdateNhanVien;
+using HeThongChungCu.Application.Features.QLNhanVien.DTOs;
+using HeThongChungCu.Application.Features.QLNhanVien.Queries.GetNhanVienById;
+using HeThongChungCu.Application.Features.QLNhanVien.Queries.GetNhanVienList;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -37,10 +37,10 @@ public class NhanVienController : ApiControllerBase
     /// - **Yêu cầu dữ liệu**: 
     ///     - **Thông tin cá nhân**: `Ho`, `Ten`, `NgaySinh`, `GioiTinhId`, `CCCD`, `SoDienThoai`.
     ///     - **Tài khoản**: `Email`, `Password`.
-    ///     - **Nhân viên**: `LoaiNhanVienId`, `NgayVaoLam`.
+    ///     - **Nhân viên**: `LoaiNhanVienId`, `NgayVaoLam`, `AnhDaiDienId`.
     /// </remarks>
     [HttpPost]
-    [ProducesResponseType(typeof(ApiResponse<NhanVienResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<NhanVienDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateNhanVienCommand command, CancellationToken cancellationToken)
     {
@@ -61,7 +61,7 @@ public class NhanVienController : ApiControllerBase
     ///     - **Bắt buộc**: `Id`, `Ho`, `Ten`, `NgaySinh`, `GioiTinhId`, `LoaiNhanVienId`, `TrangThaiNhanVienId`, `NgayVaoLam`.
     /// </remarks>
     [HttpPut]
-    [ProducesResponseType(typeof(ApiResponse<NhanVienResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<NhanVienDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Update([FromBody] UpdateNhanVienCommand command, CancellationToken cancellationToken)
     {
@@ -109,7 +109,7 @@ public class NhanVienController : ApiControllerBase
     /// Lấy chi tiết nhân viên theo ID
     /// </summary>
     [HttpPost("get-by-id")]
-    [ProducesResponseType(typeof(ApiResponse<NhanVienResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<NhanVienDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetById([FromBody] GetNhanVienByIdQuery query, CancellationToken cancellationToken)
     {

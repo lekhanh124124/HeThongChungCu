@@ -7,7 +7,7 @@ public record SoDienThoai
 {
     public string Value { get; }
 
-    private static readonly Regex PhoneRegex = new(@"^(0[3|5|7|8|9])+([0-9]{8})$", RegexOptions.Compiled);
+    private static readonly Regex PhoneRegex = new(@"^((0[23456789]\d{8,9})|(1[89]00\d{4,6}))$", RegexOptions.Compiled);
 
     public SoDienThoai(string? value)
     {

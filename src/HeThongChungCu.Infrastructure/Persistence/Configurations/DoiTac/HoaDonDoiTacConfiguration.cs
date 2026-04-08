@@ -36,12 +36,12 @@ public class HoaDonDoiTacConfiguration : IEntityTypeConfiguration<HoaDonDoiTac>
                 v => TrangThaiThanhToanDoiTac.FromValue(v, null)!)
             .IsRequired();
 
-        builder.HasOne<DoiTac>()
+        builder.HasOne<HopDongDoiTac>()
             .WithMany()
-            .HasForeignKey(x => x.DoiTacId)
+            .HasForeignKey(x => x.HopDongDoiTacId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne<TepTaiLieu>()
+        builder.HasOne(x => x.FileHoaDon)
             .WithMany()
             .HasForeignKey(x => x.FileHoaDonId)
             .OnDelete(DeleteBehavior.SetNull);

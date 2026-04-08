@@ -10,13 +10,13 @@ public class BillingService : IBillingService
     public decimal CalculateAmount(BangGia priceList, decimal quantity)
     {
         // 1. Nếu là giá lũy tiến (Điện, Nước...)
-        if (priceList.LoaiDinhGiaId == LoaiDinhGia.LuyTien)
+        if (priceList is BangGiaLuyTien tieredPrice)
         {
-            if (priceList.BangGiaLuyTiens.Count == 0)
+            if (tieredPrice.ChiTietGias.Count == 0)
                 throw new BusinessException("Bảng giá lũy tiến chưa có các bậc giá.");
 
             decimal totalAmount = 0;
-            var sortedTiers = priceList.BangGiaLuyTiens.OrderBy(t => t.TuMuc).ToList();
+            var sortedTiers = tieredPrice.ChiTietGias.OrderBy(t => t.TuMuc).ToList();
 
             foreach (var tier in sortedTiers)
             {
@@ -32,7 +32,7 @@ public class BillingService : IBillingService
                     consumptionInTier = tier.DenMuc.Value - tier.TuMuc;
                 }
 
-                totalAmount += consumptionInTier * tier.DonGia;
+                totalAmount += consumptionInTier * tier.DonGia.SoTien;
 
                 if (tier.DenMuc == null || quantity <= tier.DenMuc) break;
             }
@@ -41,7 +41,12 @@ public class BillingService : IBillingService
         }
 
         // 2. Giá cố định
-        return Math.Round(quantity * priceList.DonGia, 0);
+        if (priceList is BangGiaCoDinh fixedPrice)
+        {
+            return Math.Round(quantity * fixedPrice.DonGia.SoTien, 0);
+        }
+
+        throw new BusinessException($"Loại bảng giá {priceList.LoaiDinhGiaId.Name} chưa được hỗ trợ tính toán tự động.");
     }
 
     public decimal CalculateParkingFee(IEnumerable<PhuongTien> activeVehicles, IEnumerable<DichVu> parkingServices, DateTime calculationDate)

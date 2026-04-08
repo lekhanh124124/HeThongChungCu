@@ -1,5 +1,6 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Events;
 using HeThongChungCu.Domain.Exceptions;
 using HeThongChungCu.Domain.ValueObjects;
 
@@ -33,8 +34,31 @@ public class TaiKhoan : AggregateRoot
         IsActive = true;
     }
 
-    public void UpdateEmail(string email) => Email = new Email(email);
+    public static TaiKhoan CreateNhanVienAccount(
+        int nguoiDungId,
+        string tenDangNhap,
+        string email,
+        string matKhauHash,
+        int? anhDaiDienId,
+        string fullName,
+        string plainPassword)
+    {
+        var taiKhoan = new TaiKhoan(nguoiDungId, tenDangNhap, email, matKhauHash)
+        {
+            AnhDaiDienId = anhDaiDienId
+        };
 
+        taiKhoan.AddDomainEvent(new NhanVienCreatedEvent(
+            email,
+            fullName,
+            email,
+            plainPassword));
+
+        taiKhoan.AddRole(Role.Staff);
+        return taiKhoan;
+    }
+
+    public void UpdateEmail(string email) => Email = new Email(email);
 
     public void LinkToUser(int nguoiDungId)
     {
@@ -51,6 +75,11 @@ public class TaiKhoan : AggregateRoot
     {
         AnhDaiDien = avatar;
         AnhDaiDienId = avatar?.Id;
+    }
+
+    public void UpdateAvatar(int? avatarId)
+    {
+        AnhDaiDienId = avatarId;
     }
 
     public void Deactivate() => IsActive = false;

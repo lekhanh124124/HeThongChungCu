@@ -41,4 +41,5 @@ public static class UserErrors
     public static readonly Error GenderNotEmpty = Error.NotEmpty("Giới tính");
     public static readonly Error GenderRange = Error.Range("Giới tính", 1, 2);
     public static readonly Error UserIdRange = Error.Range("Người dùng", 1, int.MaxValue);
+    public static readonly Error AccountNotFound = Error.NotFound("Tài khoản");
 }

@@ -12,7 +12,7 @@ public class PhuongTienSeeder
     private static readonly HashSet<string> _usedBienSos = new(StringComparer.OrdinalIgnoreCase);
     private static readonly HashSet<string> _usedMaThes = new(StringComparer.OrdinalIgnoreCase);
 
-    public static async Task InitializeAsync(AppDbContext context)
+    public static async Task ResetAndSyncAsync(AppDbContext context)
     {
         lock (_lock)
         {
@@ -37,7 +37,10 @@ public class PhuongTienSeeder
         var canHoIds = await context.CanHos.Select(c => c.Id).ToListAsync();
         if (canHoIds.Count == 0) return;
 
+        var admin = await context.TaiKhoan.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Email.Value == "admin@gmail.com");
+        var adminId = admin?.Id ?? 0;
         var faker = new Faker("vi");
+
         var loaiPhuongTiens = LoaiPhuongTien.GetAll().ToArray();
         var trangThais = TrangThaiPhuongTien.GetAll().ToArray();
 
@@ -64,26 +67,32 @@ public class PhuongTienSeeder
                 hinhAnhs: null
             );
 
+            if (adminId != 0) pt.SetCreated(adminId, DateTimeOffset.UtcNow);
+
             await context.PhuongTiens.AddAsync(pt);
 
             // Status-based card logic
             if (status == TrangThaiPhuongTien.Active)
             {
-                pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.UtcNow.AddMonths(-1));
+                var the = pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.UtcNow.AddMonths(-1));
+                if (adminId != 0) the.SetCreated(adminId, DateTimeOffset.UtcNow);
             }
             else if (status == TrangThaiPhuongTien.Inactive)
             {
                 // Inactive vehicles might still have old cards
-                pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.UtcNow.AddMonths(-2));
+                var the = pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.UtcNow.AddMonths(-2));
+                if (adminId != 0) the.SetCreated(adminId, DateTimeOffset.UtcNow);
                 pt.Huy(DateTimeOffset.UtcNow);
             }
             else if (status == TrangThaiPhuongTien.Blocked)
             {
-                pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.UtcNow.AddMonths(-3));
+                var the = pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.UtcNow.AddMonths(-3));
+                if (adminId != 0) the.SetCreated(adminId, DateTimeOffset.UtcNow);
                 pt.Khoa(DateTimeOffset.UtcNow);
             }
         }
 
+        DatabaseSeeder.ClearAllDomainEvents(context);
         await context.SaveChangesAsync();
         logger.LogInformation("Finished seeding PhuongTiens.");
     }
@@ -95,7 +104,8 @@ public class PhuongTienSeeder
         {
             do
             {
-                bienSo = $"{faker.Random.Int(29, 31)}{faker.Random.String2(1, "ABCDEFGHJK")}-{faker.Random.Int(100, 999)}.{faker.Random.Int(10, 99)}";
+                var provinceCode = faker.PickRandom(new[] { "29", "30", "31", "33", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "43", "60", "61", "72" });
+                bienSo = $"{provinceCode}{faker.Random.String2(1, "ABCDEFGHJK")}-{faker.Random.Int(100, 999)}.{faker.Random.Int(10, 99)}";
             } while (!_usedBienSos.Add(bienSo));
         }
         return bienSo;

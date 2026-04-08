@@ -15,9 +15,10 @@ public class DoiTac : AggregateRoot
     public DiaChi DiaChi { get; private set; } = null!;
     public SoDienThoai? SoDienThoai { get; private set; }
     public Email? Email { get; private set; }
-    public DateTimeOffset? NgayKyHopDong { get; private set; }
-    public DateTimeOffset? NgayHetHan { get; private set; }
-    public TrangThaiHopDong TrangThaiHopDongId { get; private set; } = null!;
+    public string? GhiChu { get; private set; }
+
+    private readonly List<HopDongDoiTac> _hopDongs = [];
+    public virtual IReadOnlyCollection<HopDongDoiTac> HopDongs => _hopDongs.AsReadOnly();
 
     private DoiTac() { } // EF Core
 
@@ -30,8 +31,7 @@ public class DoiTac : AggregateRoot
         string? diaChi = null,
         string? soDienThoai = null,
         string? email = null,
-        DateTimeOffset? ngayKyHopDong = null,
-        DateTimeOffset? ngayHetHan = null)
+        string? ghiChu = null)
     {
         if (string.IsNullOrWhiteSpace(tenDoiTac))
             throw new BusinessException("Tên đối tác không được để trống.");
@@ -44,9 +44,7 @@ public class DoiTac : AggregateRoot
         DiaChi = new DiaChi(diaChi);
         SoDienThoai = new SoDienThoai(soDienThoai);
         Email = new Email(email);
-        NgayKyHopDong = ngayKyHopDong;
-        NgayHetHan = ngayHetHan;
-        TrangThaiHopDongId = TrangThaiHopDong.ChuaKy;
+        GhiChu = ghiChu;
     }
 
     public void UpdateInfo(
@@ -58,8 +56,7 @@ public class DoiTac : AggregateRoot
         string? diaChi,
         string? soDienThoai,
         string? email,
-        DateTimeOffset? ngayKyHopDong,
-        DateTimeOffset? ngayHetHan)
+        string? ghiChu)
     {
         if (string.IsNullOrWhiteSpace(tenDoiTac))
             throw new BusinessException("Tên đối tác không được để trống.");
@@ -72,12 +69,47 @@ public class DoiTac : AggregateRoot
         DiaChi = new DiaChi(diaChi);
         SoDienThoai = new SoDienThoai(soDienThoai);
         Email = new Email(email);
-        NgayKyHopDong = ngayKyHopDong;
-        NgayHetHan = ngayHetHan;
+        GhiChu = ghiChu;
     }
 
-    public void UpdateStatus(TrangThaiHopDong nextStatus)
+    public HopDongDoiTac KyHopDongMoi(
+        string soHopDong,
+        DateTimeOffset ngayKy,
+        DateTimeOffset ngayHetHan,
+        decimal giaTri,
+        int dichVuId,
+        string? noiDung = null)
     {
-        TrangThaiHopDongId = nextStatus;
+        var hopDong = new HopDongDoiTac(Id, soHopDong, ngayKy, ngayHetHan, giaTri, dichVuId, noiDung);
+        _hopDongs.Add(hopDong);
+
+        return hopDong;
+    }
+
+    public void AddHopDong(HopDongDoiTac hopDong)
+    {
+        _hopDongs.Add(hopDong);
+    }
+
+    public void RemoveHopDong(int hopDongId)
+    {
+        var hd = _hopDongs.FirstOrDefault(h => h.Id == hopDongId);
+        if (hd != null)
+        {
+            _hopDongs.Remove(hd);
+        }
+    }
+
+    public void CheckActiveHopDongs()
+    {
+        foreach (var hopDong in _hopDongs)
+        {
+            hopDong.UpdateStatus();
+        }
+
+        if (!_hopDongs.Any(h => h.IsActive()))
+        {
+            AddDomainEvent(new HeThongChungCu.Domain.Events.DoiTacHopDongHetHanEvent(Id));
+        }
     }
 }

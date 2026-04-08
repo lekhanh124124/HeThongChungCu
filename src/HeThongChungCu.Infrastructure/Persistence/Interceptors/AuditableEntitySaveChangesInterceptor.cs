@@ -41,7 +41,9 @@ public class AuditableEntitySaveChangesInterceptor : SaveChangesInterceptor
         {
             if (entry.State == EntityState.Added)
             {
-                entry.Entity.SetCreated(userId, now);
+                var createdBy = entry.Entity.CreatedBy != 0 ? entry.Entity.CreatedBy : userId;
+                var createdAt = entry.Entity.CreatedAt != default ? entry.Entity.CreatedAt : now;
+                entry.Entity.SetCreated(createdBy, createdAt);
             }
             else if (entry.State == EntityState.Deleted)
             {

@@ -39,7 +39,7 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
         var loaiCanHo = LoaiCanHo.FromValue(request.LoaiCanHoId);
         var tinhTrangCanHo = TrangThaiCanHo.DangTrong;
 
-        var canHo = new Domain.Entities.CanHo(
+        var canHo = Domain.Entities.CanHo.Create(
             tang.Id,
             request.MaCanHo, 
             request.TenCanHo, 

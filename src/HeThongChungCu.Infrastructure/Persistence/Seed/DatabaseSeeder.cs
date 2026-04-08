@@ -17,6 +17,20 @@ public class DatabaseSeeder : IDatabaseSeeder
         _logger = logger;
     }
 
+    public static void ClearAllDomainEvents(AppDbContext context)
+    {
+        var entities = context.ChangeTracker
+            .Entries<HeThongChungCu.Domain.Common.AggregateRoot>()
+            .Where(e => e.Entity.DomainEvents.Any())
+            .Select(e => e.Entity)
+            .ToList();
+
+        foreach (var entity in entities)
+        {
+            entity.ClearDomainEvents();
+        }
+    }
+
     public async Task SeedDatabaseAsync(
         int soLuongChuHo,
         int soLuongCuTru,
@@ -61,47 +75,36 @@ public class DatabaseSeeder : IDatabaseSeeder
             _logger.LogInformation("Cleaning up existing database records...");
             await CleanupAsync();
 
-            // IMPORTANT: Clear the ChangeTracker to ensure no "Deleted" entities 
-            // are still being tracked by EF Core, which could cause conflicts during seeding.
             _context.ChangeTracker.Clear();
 
-            _logger.LogInformation("Initializing seeders and uniqueness trackers...");
-            await UserSeeder.InitializeAsync(_context);
-            await PhuongTienSeeder.InitializeAsync(_context);
+            _logger.LogInformation("Initializing seeders and synchronization...");
+            await UserSeeder.ResetAndSyncAsync(_context);
+            await PhuongTienSeeder.ResetAndSyncAsync(_context);
 
-            // Pre-register hardcoded special users to prevent random generator collisions
-            UserSeeder.RegisterSpecialValues();
-
-            // 1. Buildings, Floors, Apartments (Hardcoded)
+            // Seed Cứng (Fixed Seeds)
+            _logger.LogInformation("Seeding fixed data...");
             await ToaNhaSeeder.SeedAsync(_context, _logger);
+            await DichVuSeeder.SeedAsync(_context, _logger);
+            await SpecialUserSeeder.SeedAdminAndTestAccountsAsync(_context, _logger);
 
-            // 2. Admin and Test Accounts
-            await UserSeeder.SeedAdminAndTestAccountsAsync(_context, _logger);
+            // Lấy ID Admin sau khi đã seed ở trên
+            var admin = await _context.TaiKhoan.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Email.Value == "admin@gmail.com");
+            var adminId = admin?.Id ?? 0;
 
-            // 3. Staff Members
-            await NhanVienSeeder.SeedAsync(_context, _logger, soLuongNhanVien);
-
-            // 4. Residency: ChuHo and CuTru (Includes Users and Accounts)
-            await QuanHeCuTruSeeder.SeedAsync(_context, _logger, soLuongChuHo, soLuongCuTru);
-
-            // 5. Guest Accounts (Accounts only)
-            await UserSeeder.SeedGuestAccountsAsync(_context, _logger, soLuongTaiKhoanKhach);
-
-            // 6. Vehicles and Cards (Depends on Apartments)
-            await PhuongTienSeeder.SeedAsync(_context, _logger, soLuongPhuongTien);
-
-            // 7. Special User Accounts
             await SpecialUserSeeder.SeedGiangKietAsync(_context, _logger);
             await SpecialUserSeeder.SeedHongPhatAsync(_context, _logger);
 
-            // 8. Residency Requests
+            // Seed Ngẫu Nhiên (Random Seeds)
+            _logger.LogInformation("Seeding random/variable data...");
+            await NhanVienSeeder.SeedAsync(_context, _logger, soLuongNhanVien);
+            await QuanHeCuTruSeeder.SeedAsync(_context, _logger, soLuongChuHo, soLuongCuTru);
+            await UserSeeder.SeedGuestAccountsAsync(_context, _logger, soLuongTaiKhoanKhach, adminId);
+            await PhuongTienSeeder.SeedAsync(_context, _logger, soLuongPhuongTien);
             await YeuCauCuTruSeeder.SeedAsync(_context, _logger, soLuongYeuCauCuTru);
-
-            // 9. Vehicle Requests
             await YeuCauPhuongTienSeeder.SeedAsync(_context, _logger, soLuongYeuCauPhuongTien);
+            await DangKyDichVuSeeder.SeedAsync(_context, _logger);
 
-            // Final SaveChanges if anything was missed or to commit changes from seeders that don't save.
-            // Most of our optimized seeders now save at their own end.
+            ClearAllDomainEvents(_context);
             await _context.SaveChangesAsync();
 
             if (transaction != null)
@@ -131,54 +134,59 @@ public class DatabaseSeeder : IDatabaseSeeder
 
     private async Task CleanupAsync()
     {
-        _logger.LogInformation("Cleaning up existing database records...");
+        _logger.LogInformation("Performing dynamic cleanup of all database tables...");
 
-        // Order is critical due to foreign key constraints. 
-        // We delete children before parents.
-        var tables = new[]
-        {
-            "ThePhuongTien", 
-            "PhuongTien",
-            "YeuCau", // TPH for YeuCauCuTru, YeuCauPhuongTien
-            "QuanHeCuTru",
-            "TepTaiLieu",
-            "TaiLieu", // TPH for TaiLieuNguoiDung, YeuCauTaiLieuCuTru
-            "CanHo", 
-            "Tang", 
-            "ToaNha",
-            "PhanBoThongBao", 
-            "ThongBao",
-            "DangKyDichVu", 
-            "ChiSoTieuThu", 
-            "HoaDonDoiTac", 
-            "BangGia", 
-            "DichVu", 
-            "DoiTac",
-            "Token", // singular from TokensConfiguration
-            "TaiKhoan", 
-            "NhanVien", 
-            "PhanQuyen",
-            "NguoiDung"
-        };
+        var tableNames = _context.Model.GetEntityTypes()
+            .Select(t => t.GetSchema() == null ? $"[{t.GetTableName()}]" : $"[{t.GetSchema()}].[{t.GetTableName()}]")
+            .Distinct()
+            .ToList();
 
-        foreach (var table in tables)
+        try
         {
-            try
+            // 1. Disable all foreign key constraints
+            foreach (var table in tableNames)
             {
-                // Use a direct delete command. Truncate might fail due to FKs even if empty.
-                int deletedRows = await _context.Database.ExecuteSqlRawAsync($"DELETE FROM [{table}]");
-                if (deletedRows > 0)
+                await _context.Database.ExecuteSqlAsync($"ALTER TABLE {table} NOCHECK CONSTRAINT ALL");
+            }
+
+            // 2. Delete data from each table
+            foreach (var table in tableNames)
+            {
+                try
                 {
-                    _logger.LogInformation($"Cleared {deletedRows} rows from table {table}.");
+                    int deletedRows = await _context.Database.ExecuteSqlAsync($"DELETE FROM {table}");
+                    if (deletedRows > 0)
+                    {
+                        _logger.LogInformation($"Cleared {deletedRows} rows from table {table}.");
+
+                        // Reseed identity columns so IDs start from 1
+                        try
+                        {
+                            await _context.Database.ExecuteSqlAsync($"DBCC CHECKIDENT ('{table}', RESEED, 0)");
+                        }
+                        catch
+                        {
+                            // Table might not have an identity column
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning($"Could not clear table {table}: {ex.Message}");
                 }
             }
-            catch (Exception ex)
-            {
-                // Some tables might not exist or have complex circular refs handled by other deletes
-                _logger.LogWarning($"Table {table} cleanup note: {ex.Message}");
-            }
-        }
 
-        _logger.LogInformation("Cleanup completed.");
+            // 3. Re-enable all foreign key constraints
+            foreach (var table in tableNames)
+            {
+                await _context.Database.ExecuteSqlAsync($"ALTER TABLE {table} WITH CHECK CHECK CONSTRAINT ALL");
+            }
+
+            _logger.LogInformation("Database cleanup completed successfully.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred during the deep cleanup process.");
+        }
     }
 }

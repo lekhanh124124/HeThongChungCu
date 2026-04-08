@@ -2,6 +2,7 @@ using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
 using HeThongChungCu.Domain.ValueObjects;
+using HeThongChungCu.Domain.Events;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -21,12 +22,12 @@ public class CanHo : AggregateRoot
 
     public CanHo(
         int tangId,
-        string maCanHo, 
-        string tenCanHo, 
-        decimal dienTich, 
-        int soPhongNgu, 
-        int soPhongTam, 
-        LoaiCanHo loaiCanHoId, 
+        string maCanHo,
+        string tenCanHo,
+        decimal dienTich,
+        int soPhongNgu,
+        int soPhongTam,
+        LoaiCanHo loaiCanHoId,
         TrangThaiCanHo tinhTrangCanHoId)
     {
         TangId = tangId;
@@ -37,12 +38,36 @@ public class CanHo : AggregateRoot
         TinhTrangCanHoId = tinhTrangCanHoId;
     }
 
+    public static CanHo Create(
+        int tangId,
+        string maCanHo,
+        string tenCanHo,
+        decimal dienTich,
+        int soPhongNgu,
+        int soPhongTam,
+        LoaiCanHo loaiCanHoId,
+        TrangThaiCanHo tinhTrangCanHoId)
+    {
+        var canHo = new CanHo(
+            tangId,
+            maCanHo,
+            tenCanHo,
+            dienTich,
+            soPhongNgu,
+            soPhongTam,
+            loaiCanHoId,
+            tinhTrangCanHoId);
+
+        canHo.AddDomainEvent(new CanHoCreatedDomainEvent(canHo));
+        return canHo;
+    }
+
     public void UpdateInfo(
-        string tenCanHo, 
-        string maCanHo, 
-        decimal dienTich, 
-        int soPhongNgu, 
-        int soPhongTam, 
+        string tenCanHo,
+        string maCanHo,
+        decimal dienTich,
+        int soPhongNgu,
+        int soPhongTam,
         LoaiCanHo loaiCanHoId)
     {
         MaCanHo = maCanHo;

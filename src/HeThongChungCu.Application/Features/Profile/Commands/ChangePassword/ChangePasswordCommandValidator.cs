@@ -13,7 +13,10 @@ public class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCo
         RuleFor(x => x.NewPassword)
             .NotEmpty().WithMessage(AuthErrors.NewPasswordNotEmpty.Description)
             .MinimumLength(6).WithMessage(AuthErrors.PasswordMinLength(6).Description)
-            .NotEqual(x => x.OldPassword).WithMessage(AuthErrors.PasswordNotChanged.Description);
+            .Matches(@"[A-Z]").WithMessage(AuthErrors.PasswordRequiresUpper.Description)
+            .Matches(@"[a-z]").WithMessage(AuthErrors.PasswordRequiresLower.Description)
+            .Matches(@"[0-9]").WithMessage(AuthErrors.PasswordRequiresDigit.Description)
+            .Matches(@"[^a-zA-Z0-9]").WithMessage(AuthErrors.PasswordRequiresNonAlphanumeric.Description);
 
 
         RuleFor(x => x.ConfirmPassword)

@@ -15,11 +15,24 @@ public class DangKyDichVu : AggregateRoot
 
     private DangKyDichVu() { }
 
-    public DangKyDichVu(int canHoId, int dichVuId, DateTimeOffset ngayBatDau, int soLuong = 1)
+    public DangKyDichVu(int canHoId, int dichVuId, DateTimeOffset ngaySuDung, int soLuong = 1, KhungGioDichVu? khungGio = null)
     {
         CanHoId = canHoId;
         DichVuId = dichVuId;
-        ThoiGian = new ThoiGianHieuLuc(ngayBatDau);
+        
+        if (khungGio != null)
+        {
+            var batDau = ngaySuDung.Date.Add(khungGio.GioBatDau);
+            var ketThuc = ngaySuDung.Date.Add(khungGio.GioKetThuc);
+            ThoiGian = new ThoiGianHieuLuc(
+                new DateTimeOffset(batDau, ngaySuDung.Offset), 
+                new DateTimeOffset(ketThuc, ngaySuDung.Offset));
+        }
+        else
+        {
+            ThoiGian = new ThoiGianHieuLuc(ngaySuDung);
+        }
+
         SoLuong = soLuong;
         TrangThaiDangKyId = TrangThaiDangKy.ChoDuyet;
     }

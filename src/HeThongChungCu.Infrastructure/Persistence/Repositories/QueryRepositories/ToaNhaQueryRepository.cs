@@ -42,7 +42,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, nameof(ToaNha.Id));
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sql = $"""

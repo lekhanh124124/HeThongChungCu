@@ -1,6 +1,7 @@
 using Dapper;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Models;
+using HeThongChungCu.Application.Features.ThongBao.DTOs;
 using HeThongChungCu.Application.Features.ThongBao.Queries.LayDSThongBao;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Infrastructure.Persistence.Helpers;
@@ -33,7 +34,7 @@ public class ThongBaoQueryRepository : IThongBaoQueryRepository
             { "TieuDe", "t.TieuDe" },
             { "NoiDung", "t.NoiDung" },
             { "CreatedAt", "t.CreatedAt" },
-            { "IsDeleted", "pb.IsDeleted" }
+            { "IsDeleted", "t.IsDeleted" }
         };
 
         var joins = new[]
@@ -43,7 +44,7 @@ public class ThongBaoQueryRepository : IThongBaoQueryRepository
 
         var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "t.CreatedAt DESC");
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "CreatedAt");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sql = $"""
@@ -67,7 +68,7 @@ public class ThongBaoQueryRepository : IThongBaoQueryRepository
             """;
 
         var rows = (await connection.QueryAsync<dynamic>(sql, parameters)).ToList();
-        
+
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
         var loaiThongBaoMap = LoaiThongBao.ToDictionary();
 

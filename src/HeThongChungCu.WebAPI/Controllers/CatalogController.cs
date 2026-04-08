@@ -281,4 +281,44 @@ public class CatalogController : ApiControllerBase
 
         return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cung cấp danh sách các loại nhân viên (Kỹ thuật, Vệ sinh, Bảo vệ, Quản lý) cho form quản lý nhân viên.
+    /// - **Hệ thống xử lý**: Lấy danh sách các loại nhân viên từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("loai-nhan-vien-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetLoaiNhanVienForSelector()
+    {
+        var result = LoaiNhanVien.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cung cấp trạng thái của nhân viên (Đang làm việc, Tạm nghỉ, Đã nghỉ việc) cho form quản lý nhân viên.
+    /// - **Hệ thống xử lý**: Trả về danh sách trạng thái nhân viên từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("trang-thai-nhan-vien-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTrangThaiNhanVienForSelector()
+    {
+        var result = TrangThaiNhanVien.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
 }

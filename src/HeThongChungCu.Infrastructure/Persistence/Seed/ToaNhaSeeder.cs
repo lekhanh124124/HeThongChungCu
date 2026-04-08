@@ -15,7 +15,9 @@ public class ToaNhaSeeder
         {
             logger.LogInformation("Seeding ToaNhas, Tangs, and CanHos (Hardcoded)...");
 
-            var faker = new Faker("vi");
+            var admin = await context.TaiKhoan.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Email.Value == "admin@gmail.com");
+            var adminId = admin?.Id ?? 0;
+
             var buildings = new[]
             {
                 new {
@@ -51,22 +53,27 @@ public class ToaNhaSeeder
                     trangThaiToaNhaId: TrangThaiToaNha.DangHoatDong
                 );
 
+                if (adminId != 0) toaNha.SetCreated(adminId, DateTimeOffset.UtcNow);
+
                 await context.ToaNhas.AddAsync(toaNha);
 
                 // 1. Each building has 2 basements
                 for (int i = 1; i <= 2; i++)
                 {
-                    toaNha.AddTang($"B{i}-{toaNha.MaToaNha}", $"Tầng hầm B{i}", LoaiTang.TangHam);
+                    var tang = toaNha.AddTang($"B{i}-{toaNha.MaToaNha}", $"Tầng hầm B{i}", LoaiTang.TangHam);
+                    if (adminId != 0) tang.SetCreated(adminId, DateTimeOffset.UtcNow);
                 }
 
                 // 2. Each building has exactly 8 floors
                 for (int f = 1; f <= 8; f++)
                 {
-                    toaNha.AddTang($"F{f}-{toaNha.MaToaNha}", $"Tầng {f}", LoaiTang.TangLau);
+                    var tang = toaNha.AddTang($"F{f}-{toaNha.MaToaNha}", $"Tầng {f}", LoaiTang.TangLau);
+                    if (adminId != 0) tang.SetCreated(adminId, DateTimeOffset.UtcNow);
                 }
 
                 // IMPORTANT: Save now to generate IDs for ToaNha and Tangs 
                 // so we can use them for CanHo.TangId
+                DatabaseSeeder.ClearAllDomainEvents(context);
                 await context.SaveChangesAsync();
 
                 // 3. Create apartments for each floor
@@ -78,6 +85,7 @@ public class ToaNhaSeeder
                     int floorNum = int.Parse(tang.TenTang.Split(' ')[1]);
 
                     // Random 7-10 apartments per floor
+                    var faker = new Faker("vi");
                     int roomsCount = faker.Random.Int(7, 10);
                     for (int a = 1; a <= roomsCount; a++)
                     {
@@ -92,11 +100,15 @@ public class ToaNhaSeeder
                             loaiCanHoId: faker.PickRandom(LoaiCanHo.GetAll().ToArray()),
                             tinhTrangCanHoId: TrangThaiCanHo.DangTrong
                         );
+
+                        if (adminId != 0) canHo.SetCreated(adminId, DateTimeOffset.UtcNow);
+
                         await context.CanHos.AddAsync(canHo);
                     }
                 }
             }
 
+            DatabaseSeeder.ClearAllDomainEvents(context);
             await context.SaveChangesAsync();
             logger.LogInformation("Finished seeding 3 buildings with floors and apartments.");
         }

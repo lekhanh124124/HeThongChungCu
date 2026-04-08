@@ -70,13 +70,20 @@ public static class DependencyInjection
 
         services.AddScoped<ITepTaiLieuRepository, TepTaiLieuRepository>();
         // services.AddScoped<ITepTaiLieuQueryRepository, TepTaiLieuQueryRepository>();
-        
+
         services.AddScoped<IThongBaoCommandRepository, ThongBaoCommandRepository>();
         services.AddScoped<IThongBaoQueryRepository, ThongBaoQueryRepository>();
-        
+
         services.AddScoped<INhanVienCommandRepository, NhanVienCommandRepository>();
         services.AddScoped<INhanVienQueryRepository, NhanVienQueryRepository>();
-        
+
+        services.AddScoped<IDoiTacCommandRepository, DoiTacCommandRepository>();
+        services.AddScoped<IDoiTacQueryRepository, DoiTacQueryRepository>();
+
+        services.AddScoped<IDichVuCommandRepository, DichVuCommandRepository>();
+        services.AddScoped<IDichVuQueryRepository, DichVuQueryRepository>();
+        services.AddScoped<IDangKyDichVuCommandRepository, DangKyDichVuCommandRepository>();
+
         return services;
     }
 }
