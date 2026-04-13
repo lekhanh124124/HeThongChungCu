@@ -9,6 +9,5 @@ public class GetKhungGioDichVuByIdSpecification : BaseSpecification
         : base(null, null, null, null)
     {
         AddFilter("Id", FilterOperator.Equal, id);
-        AddFilter("IsDeleted", FilterOperator.Equal, false);
     }
 }

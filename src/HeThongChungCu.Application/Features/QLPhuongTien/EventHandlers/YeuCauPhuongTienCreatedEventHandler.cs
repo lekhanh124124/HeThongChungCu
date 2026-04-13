@@ -2,6 +2,7 @@ using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
+using HeThongChungCu.Application.Features.QLPhuongTien.Queries.GetYeuCauPhuongTienById;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Events;
@@ -49,7 +50,8 @@ public class YeuCauPhuongTienCreatedEventHandler : INotificationHandler<YeuCauPh
         if (allRecipientIds.Count == 0) return;
 
         // Lấy dữ liệu đầy đủ để đưa vào Metadata
-        var listResponse = await _yeuCauQueryRepository.GetListResponseByIdAsync(yeuCau.Id, cancellationToken);
+        var spec = new GetYeuCauPhuongTienByIdSpecification(yeuCau.Id);
+        var listResponse = await _yeuCauQueryRepository.GetListResponseByIdAsync(spec, cancellationToken);
         string? metadataJson = listResponse != null ? JsonSerializer.Serialize(listResponse) : null;
 
         // 2. Tạo thực thể ThongBao và Phân bổ

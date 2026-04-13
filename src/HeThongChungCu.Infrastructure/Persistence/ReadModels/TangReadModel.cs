@@ -1,6 +1,6 @@
-﻿namespace HeThongChungCu.Infrastructure.Persistence.ReadModels
+namespace HeThongChungCu.Infrastructure.Persistence.ReadModels
 {
-    internal sealed class GetListTangReadModel
+    internal record TangReadModel
     {
         public int TotalCount { get; init; }
         public int Id { get; init; }

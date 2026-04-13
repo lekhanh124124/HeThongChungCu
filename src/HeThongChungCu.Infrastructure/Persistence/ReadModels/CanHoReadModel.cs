@@ -1,6 +1,6 @@
-﻿namespace HeThongChungCu.Infrastructure.Persistence.ReadModels
+namespace HeThongChungCu.Infrastructure.Persistence.ReadModels
 {
-    internal sealed class GetListCanHoReadModel
+    internal record CanHoReadModel
     {
         public int TotalCount { get; init; }
 

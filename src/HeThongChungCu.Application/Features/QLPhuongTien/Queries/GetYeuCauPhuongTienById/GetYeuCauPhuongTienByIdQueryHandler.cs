@@ -16,7 +16,8 @@ public class GetYeuCauPhuongTienByIdQueryHandler : IQueryHandler<GetYeuCauPhuong
 
     public async Task<Result<YeuCauPhuongTienResponse>> Handle(GetYeuCauPhuongTienByIdQuery request, CancellationToken cancellationToken)
     {
-        var response = await _yeuCauRepository.GetByIdAsync(request.RequestId, cancellationToken);
+        var spec = new GetYeuCauPhuongTienByIdSpecification(request.RequestId);
+        var response = await _yeuCauRepository.GetByIdAsync(spec, cancellationToken);
 
         if (response == null)
             return Result.Failure<YeuCauPhuongTienResponse>(YeuCauPhuongTienErrors.NotFound);

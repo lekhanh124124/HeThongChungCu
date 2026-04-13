@@ -1,6 +1,6 @@
 namespace HeThongChungCu.Infrastructure.Persistence.ReadModels;
 
-internal sealed class LayDSCuTruByUserIdReadModel
+internal record CuTruReadModel
 {
     public int Id { get; init; }
     public int LoaiQuanHeCuTruId { get; init; }

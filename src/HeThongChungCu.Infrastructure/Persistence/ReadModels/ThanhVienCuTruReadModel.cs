@@ -1,6 +1,6 @@
 namespace HeThongChungCu.Infrastructure.Persistence.ReadModels;
 
-internal sealed class ThanhVienCuTruReadModel
+internal record ThanhVienCuTruReadModel
 {
     public int Id { get; init; }
     public int UserId { get; init; }

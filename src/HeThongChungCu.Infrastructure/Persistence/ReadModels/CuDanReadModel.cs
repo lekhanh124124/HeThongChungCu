@@ -1,6 +1,6 @@
 namespace HeThongChungCu.Infrastructure.Persistence.ReadModels;
 
-internal sealed class DSCuDanTrongChungCuReadModel
+internal record CuDanReadModel
 {
     public int TotalCount { get; init; }
     public string MaToaNha { get; init; } = string.Empty;

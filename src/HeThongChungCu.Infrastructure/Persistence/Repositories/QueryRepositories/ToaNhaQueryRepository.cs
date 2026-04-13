@@ -1,6 +1,3 @@
-using Dapper;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
-using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
 using HeThongChungCu.Application.Features.Catalog.DTOs;
 using HeThongChungCu.Application.Features.Catalog.Queries.LayCauTrucChungCu;
@@ -10,9 +7,6 @@ using HeThongChungCu.Application.Features.Tang.Queries.GetTangById;
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
 using HeThongChungCu.Application.Features.ToaNha.Queries.GetListToaNha;
 using HeThongChungCu.Application.Features.ToaNha.Queries.GetToaNhaById;
-using HeThongChungCu.Infrastructure.Persistence.Helpers;
-using HeThongChungCu.Infrastructure.Persistence.ReadModels;
-using System.Data;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.QueryRepositories;
 
@@ -38,10 +32,11 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             { "Id", "Id" },
             { "MaToaNha", "MaToaNha" },
             { "TenToaNha", "TenToaNha" },
-            { "IsDeleted", "IsDeleted" }
+            { "IsDeleted", "IsDeleted" },
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
@@ -54,9 +49,8 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             {sqlPagination};
             """;
 
-        var rows = (await connection.QueryAsync<GetListToaNhaReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
-
-        Console.WriteLine(sql);
+        var transaction = _dbContext.GetDbTransaction();
+        var rows = (await connection.QueryAsync<ToaNhaReadModel>(sql, parameters, transaction: transaction)).ToList();
 
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
@@ -91,95 +85,107 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
         var connection = _dbContext.GetDbConnection();
 
         if (connection.State != ConnectionState.Open)
-            await connection.OpenAsync();
+            await connection.OpenAsync(cancellationToken);
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "tn.Id" },
-            { "IsDeleted", "tn.IsDeleted" }
+            { "IsDeleted", "tn.IsDeleted" },
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var joins = new[]
-        {
-            new JoinDefinition("Tang", "t", "t.ToaNhaId = tn.Id"),
-            new JoinDefinition("CanHo", "c", "c.TangId = t.Id")
-        };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+
+        var sqlJoinsTang = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("Tang", "t", "t.ToaNhaId = tn.Id", JoinType.Inner)
+        ]);
+
+        var sqlJoinsCanHo = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("Tang", "t", "t.ToaNhaId = tn.Id", JoinType.Inner),
+            new JoinDefinition("CanHo", "c", "c.TangId = t.Id", JoinType.Inner)
+        ]);
 
         var sql = $"""
             SELECT tn.Id, tn.MaToaNha, tn.TenToaNha, tn.DiaChi, tn.MoTa, tn.TrangThaiToaNhaId,
-                   (SELECT COUNT(*) FROM CanHo c JOIN Tang t ON c.TangId = t.Id WHERE t.ToaNhaId = tn.Id AND c.IsDeleted = 0 AND t.IsDeleted = 0) AS SoCanHo,
-                   t.Id AS TangUid, t.MaTang, t.TenTang, t.LoaiTangId,
-                   c.Id AS CanHoId, c.MaCanHo, c.TenCanHo, c.DienTich, c.SoPhongNgu, c.SoPhongTam, c.LoaiCanHoId, c.TinhTrangCanHoId
+                   (SELECT COUNT(*) FROM CanHo c JOIN Tang t ON c.TangId = t.Id WHERE t.ToaNhaId = tn.Id AND c.IsDeleted = 0 AND t.IsDeleted = 0) AS SoCanHo
             FROM ToaNha tn
-            {sqlJoins}
+            {sqlWhere};
+
+            SELECT t.Id AS TangUid, t.MaTang, t.TenTang, t.LoaiTangId
+            FROM ToaNha tn
+            {sqlJoinsTang}
+            {sqlWhere};
+
+            SELECT c.Id AS CanHoId, c.MaCanHo, c.TenCanHo, c.DienTich, c.SoPhongNgu, c.SoPhongTam, c.LoaiCanHoId, c.TinhTrangCanHoId, t.Id AS TangUid
+            FROM ToaNha tn
+            {sqlJoinsCanHo}
             {sqlWhere};
             """;
 
-        var rows = (await connection.QueryAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
+        using var multi = await connection.QueryMultipleAsync(sql, parameters, transaction: _dbContext.GetDbTransaction());
+        var firstRow = await multi.ReadFirstOrDefaultAsync<ToaNhaDetailReadModel>();
 
-        if (!rows.Any())
+        if (firstRow == null)
             return null;
 
-        var firstRow = rows.First();
         var toaNha = new ToaNhaResponse
         {
-            Id = (int)firstRow.Id,
-            MaToaNha = (string)firstRow.MaToaNha,
-            TenToaNha = (string)firstRow.TenToaNha,
-            SoCanHo = (int)firstRow.SoCanHo,
-            DiaChi = (string)(firstRow.DiaChi ?? string.Empty),
-            MoTa = (string)firstRow.MoTa,
-            TrangThaiToaNhaId = (int)firstRow.TrangThaiToaNhaId,
-            TenTrangThaiToaNha = TrangThaiToaNha.ToDictionary().GetValueOrDefault((int)firstRow.TrangThaiToaNhaId, string.Empty)
+            Id = firstRow.Id,
+            MaToaNha = firstRow.MaToaNha,
+            TenToaNha = firstRow.TenToaNha,
+            SoCanHo = firstRow.SoCanHo,
+            DiaChi = firstRow.DiaChi,
+            MoTa = firstRow.MoTa,
+            TrangThaiToaNhaId = firstRow.TrangThaiToaNhaId,
+            TenTrangThaiToaNha = TrangThaiToaNha.ToDictionary().GetValueOrDefault(firstRow.TrangThaiToaNhaId, string.Empty)
         };
 
         var loaiTangMap = LoaiTang.ToDictionary();
         var loaiCanHoMap = LoaiCanHo.ToDictionary();
         var tinhTrangCanHoMap = TrangThaiCanHo.ToDictionary();
 
+        var tangRows = (await multi.ReadAsync<TangInToaNhaReadModel>()).ToList();
+        var canHoRows = (await multi.ReadAsync<CanHoInToaNhaReadModel>()).ToList();
+
         var tangMap = new Dictionary<int, TangResponse>();
 
-        foreach (var row in rows)
+        foreach (var r in tangRows)
         {
-            if (row.TangUid != null)
+            var tangId = r.TangUid;
+            var tang = new TangResponse
             {
-                int tangId = (int)row.TangUid;
-                if (!tangMap.TryGetValue(tangId, out var tang))
-                {
-                    tang = new TangResponse
-                    {
-                        Id = tangId,
-                        MaTang = (string)row.MaTang,
-                        TenTang = (string)row.TenTang,
-                        LoaiTangId = (int)row.LoaiTangId,
-                        TenLoaiTang = loaiTangMap.GetValueOrDefault((int)row.LoaiTangId, string.Empty),
-                        ToaNhaId = toaNha.Id,
-                        TenToaNha = toaNha.TenToaNha,
-                        CanHos = new List<CanHoDetailResponse>()
-                    };
-                    tangMap.Add(tangId, tang);
-                }
+                Id = tangId,
+                MaTang = r.MaTang,
+                TenTang = r.TenTang,
+                LoaiTangId = r.LoaiTangId,
+                TenLoaiTang = loaiTangMap.GetValueOrDefault(r.LoaiTangId, string.Empty),
+                ToaNhaId = toaNha.Id,
+                TenToaNha = toaNha.TenToaNha,
+                CanHos = new List<CanHoDetailResponse>()
+            };
+            tangMap.Add(tangId, tang);
+        }
 
-                if (row.CanHoId != null)
+        foreach (var r in canHoRows)
+        {
+            var tangId = r.TangUid;
+            if (tangMap.TryGetValue(tangId, out var tang))
+            {
+                ((List<CanHoDetailResponse>)tang.CanHos).Add(new CanHoDetailResponse
                 {
-                    ((List<CanHoDetailResponse>)tang.CanHos).Add(new CanHoDetailResponse
-                    {
-                        Id = (int)row.CanHoId,
-                        MaCanHo = (string)row.MaCanHo,
-                        TenCanHo = (string)row.TenCanHo,
-                        TangId = tangId,
-                        TenTang = tang.TenTang,
-                        DienTich = (decimal)row.DienTich,
-                        SoPhongNgu = (int)row.SoPhongNgu,
-                        SoPhongTam = (int)row.SoPhongTam,
-                        LoaiCanHoId = (int)row.LoaiCanHoId,
-                        TinhTrangCanHoId = (int)row.TinhTrangCanHoId,
-                        TenLoaiCanHo = loaiCanHoMap.GetValueOrDefault((int)row.LoaiCanHoId, string.Empty),
-                        TenTinhTrangCanHo = tinhTrangCanHoMap.GetValueOrDefault((int)row.TinhTrangCanHoId, string.Empty)
-                    });
-                }
+                    Id = r.CanHoId,
+                    MaCanHo = r.MaCanHo,
+                    TenCanHo = r.TenCanHo,
+                    TangId = tangId,
+                    TenTang = tang.TenTang,
+                    DienTich = r.DienTich,
+                    SoPhongNgu = r.SoPhongNgu,
+                    SoPhongTam = r.SoPhongTam,
+                    LoaiCanHoId = r.LoaiCanHoId,
+                    TinhTrangCanHoId = r.TinhTrangCanHoId,
+                    TenLoaiCanHo = loaiCanHoMap.GetValueOrDefault(r.LoaiCanHoId, string.Empty),
+                    TenTinhTrangCanHo = tinhTrangCanHoMap.GetValueOrDefault(r.TinhTrangCanHoId, string.Empty)
+                });
             }
         }
 
@@ -204,15 +210,14 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             { "TenTang", "t.TenTang" },
             { "ToaNhaId", "t.ToaNhaId" },
             { "LoaiTangId", "t.LoaiTangId" },
-            { "IsDeleted", "t.IsDeleted" }
+            { "IsDeleted", "t.IsDeleted" },
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var joins = new[]
-        {
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+        var sqlJoins = DapperQueryBuilder.BuildJoin([
             new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", Type: JoinType.Inner)
-        };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+        ]);
 
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
@@ -234,7 +239,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             """;
 
 
-        var rows = (await connection.QueryAsync<GetListTangReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
+        var rows = (await connection.QueryAsync<TangReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
 
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
@@ -274,62 +279,68 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "t.Id" },
-            { "TangIsDeleted", "t.IsDeleted" },
-            { "ToaNhaIsDeleted", "tn.IsDeleted" }
+            { "IsDeleted", "t.IsDeleted" },
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var joins = new[]
-        {
-            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", Type: JoinType.Inner),
-            new JoinDefinition("CanHo", "c", "c.TangId = t.Id")
-        };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+        var sqlJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", Type: JoinType.Inner)
+        ]);
+
+        var sqlJoinsCanHo = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("CanHo", "c", "c.TangId = t.Id", JoinType.Inner)
+        ]);
 
         var sql = $"""
-            SELECT t.Id, t.MaTang, t.TenTang, t.LoaiTangId, t.ToaNhaId, tn.TenToaNha,
-                   c.Id AS CanHoId, t.TenTang AS TenTangColumn, c.MaCanHo, c.TenCanHo, c.DienTich, c.SoPhongNgu, c.SoPhongTam, c.LoaiCanHoId, c.TinhTrangCanHoId
+            SELECT t.Id, t.MaTang, t.TenTang, t.LoaiTangId, t.ToaNhaId, tn.TenToaNha
             FROM Tang t
             {sqlJoins}
             {sqlWhere};
+
+            SELECT c.Id AS CanHoId, c.MaCanHo, c.TenCanHo, c.DienTich, c.SoPhongNgu, c.SoPhongTam, c.LoaiCanHoId, c.TinhTrangCanHoId
+            FROM Tang t
+            {sqlJoinsCanHo}
+            {sqlWhere};
             """;
 
-        var rows = (await connection.QueryAsync<GetTangByIdReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
+        using var multi = await connection.QueryMultipleAsync(sql, parameters, transaction: _dbContext.GetDbTransaction());
+        var firstRow = await multi.ReadFirstOrDefaultAsync<TangDetailReadModel>();
 
-        if (!rows.Any())
+        if (firstRow == null)
             return null;
 
-        var firstRow = rows.First();
         var tang = new TangResponse
         {
             Id = firstRow.Id,
-            MaTang = firstRow.MaTang,
-            TenTang = firstRow.TenTang,
+            MaTang = firstRow.MaTang ?? string.Empty,
+            TenTang = firstRow.TenTang ?? string.Empty,
             LoaiTangId = firstRow.LoaiTangId,
             ToaNhaId = firstRow.ToaNhaId,
-            TenToaNha = firstRow.TenToaNha,
+            TenToaNha = firstRow.TenToaNha ?? string.Empty,
             TenLoaiTang = LoaiTang.ToDictionary().GetValueOrDefault(firstRow.LoaiTangId, string.Empty)
         };
 
         var loaiCanHoDict = LoaiCanHo.ToDictionary();
         var tinhTrangCanHoDict = TrangThaiCanHo.ToDictionary();
 
-        var canHos = rows
-            .Where(r => r.CanHoId.HasValue)
+        var canHoRows = await multi.ReadAsync<CanHoInTangReadModel>();
+
+        var canHos = canHoRows
             .Select(r => new CanHoDetailResponse
             {
-                Id = r.CanHoId!.Value,
-                TangId = firstRow.Id,
-                TenTang = r.TenTangColumn ?? firstRow.TenTang,
-                MaCanHo = r.MaCanHo ?? string.Empty,
-                TenCanHo = r.TenCanHo ?? string.Empty,
-                DienTich = r.DienTich ?? 0,
-                SoPhongNgu = r.SoPhongNgu ?? 0,
-                SoPhongTam = r.SoPhongTam ?? 0,
-                LoaiCanHoId = r.LoaiCanHoId ?? 0,
-                TinhTrangCanHoId = r.TinhTrangCanHoId ?? 0,
-                TenLoaiCanHo = loaiCanHoDict.GetValueOrDefault(r.LoaiCanHoId ?? 0, string.Empty),
-                TenTinhTrangCanHo = tinhTrangCanHoDict.GetValueOrDefault(r.TinhTrangCanHoId ?? 0, string.Empty)
+                Id = r.CanHoId,
+                TangId = tang.Id,
+                TenTang = tang.TenTang,
+                MaCanHo = r.MaCanHo,
+                TenCanHo = r.TenCanHo,
+                DienTich = r.DienTich,
+                SoPhongNgu = r.SoPhongNgu,
+                SoPhongTam = r.SoPhongTam,
+                LoaiCanHoId = r.LoaiCanHoId,
+                TinhTrangCanHoId = r.TinhTrangCanHoId,
+                TenLoaiCanHo = loaiCanHoDict.GetValueOrDefault(r.LoaiCanHoId, string.Empty),
+                TenTinhTrangCanHo = tinhTrangCanHoDict.GetValueOrDefault(r.TinhTrangCanHoId, string.Empty)
             })
             .ToList();
 
@@ -356,17 +367,15 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             { "LoaiTangId", "f.LoaiTangId" },
             { "MaCanHo", "c.MaCanHo" },
             { "TenCanHo", "c.TenCanHo" },
-
-            { "ToaNhaIsDeleted", "t.IsDeleted" }
+            { "IsDeleted", "t.IsDeleted" },
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var joins = new[]
-        {
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+        var sqlJoins = DapperQueryBuilder.BuildJoin([
             new JoinDefinition("Tang", "f", "f.ToaNhaId = t.Id"),
             new JoinDefinition("CanHo", "c", "c.TangId = f.Id")
-        };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+        ]);
 
         var sql = $"""
             SELECT 
@@ -379,7 +388,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             ORDER BY t.TenToaNha, f.Id, c.MaCanHo
             """;
 
-        var rows = await connection.QueryAsync<GetCauTrucChungCuReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction());
+        var rows = await connection.QueryAsync<CauTrucChungCuReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction());
 
         var toaNhaMap = new Dictionary<int, CauTrucToaNhaResponse>();
         var tangMap = new Dictionary<int, CauTrucTangResponse>();

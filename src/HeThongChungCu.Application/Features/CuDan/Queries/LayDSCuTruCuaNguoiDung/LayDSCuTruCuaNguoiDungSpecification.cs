@@ -7,6 +7,6 @@ public class LayDSCuTruCuaNguoiDungSpecification : BaseSpecification
     {
         AddFilter("NguoiDungId", FilterOperator.Equal, userId);
         AddFilter("TrangThaiCuTruId", FilterOperator.Equal, 1);
-        AddFilter("IsDeleted", FilterOperator.Equal, false);
+
     }
 }

@@ -17,8 +17,6 @@ public class GetListDoiTacsQueryHandler : IQueryHandler<GetListDoiTacsQuery, Pag
     {
         var spec = new GetListDoiTacSpecification(
             request.Keyword,
-            null, // trangThaiHopDongId
-            request.LoaiDichVuId,
             request.SortCol,
             request.IsAsc,
             request.PageNumber,

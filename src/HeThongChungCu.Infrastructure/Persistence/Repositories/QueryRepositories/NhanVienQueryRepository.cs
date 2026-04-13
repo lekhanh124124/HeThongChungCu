@@ -1,14 +1,6 @@
-using Dapper;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
-using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QLNhanVien.DTOs;
 using HeThongChungCu.Application.Features.QLNhanVien.Queries.GetNhanVienById;
 using HeThongChungCu.Application.Features.QLNhanVien.Queries.GetNhanVienList;
-using HeThongChungCu.Domain.Enums;
-using HeThongChungCu.Infrastructure.Persistence.Helpers;
-using HeThongChungCu.Infrastructure.Persistence.ReadModels;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.QueryRepositories;
 
@@ -27,25 +19,31 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
-
-
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "nv.Id" },
-            { "IsDeleted", "nv.IsDeleted" }
+            { "IsDeleted", "nv.IsDeleted" },
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var joins = new[]
-        {
-            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", Type: JoinType.Inner),
-            new JoinDefinition("TaiKhoan", "a", "u.Id = a.NguoiDungId AND a.IsActive = 1"),
-            new JoinDefinition("TepTaiLieu", "atl", "a.AnhDaiDienId = atl.Id"),
-            new JoinDefinition("PhanQuyen", "pq", "a.Id = pq.TaiKhoanId", AddSoftDelete: false),
-            new JoinDefinition("TaiLieu", "t", "t.NguoiDungId = u.Id", Discriminator: ("LoaiTaiLieu", "TaiLieuNguoiDung")),
-            new JoinDefinition("TepTaiLieu", "f", "f.TaiLieuId = t.Id", Discriminator: ("LoaiTepTaiLieu", "TepTaiLieuNguoiDung"))
-        };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters, addSoftDeleteFilter: true);
+
+        var sqlMainJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", JoinType.Left),
+            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id AND a.IsActive = 1"),
+            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId")
+        ]);
+
+        var sqlPqJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", JoinType.Left),
+            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id AND a.IsActive = 1"),
+            new JoinDefinition("PhanQuyen", "pq", "pq.TaiKhoanId = a.Id", JoinType.Left, false)
+        ]);
+
+        var sqlDocJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("TaiLieu", "t", "t.NguoiDungId = nv.NguoiDungId", JoinType.Left, Discriminators: [("LoaiTaiLieu", "TaiLieuNguoiDung")]),
+            new JoinDefinition("TepTaiLieu", "f", "f.TaiLieuId = t.Id", Discriminators: [("LoaiTepTaiLieu", "TepTaiLieuNguoiDung")])
+        ]);
 
         var sql = $"""
             SELECT 
@@ -61,98 +59,95 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
                 u.NgaySinh AS Dob,
                 u.GioiTinhId,
                 atl.FileUrl AS AnhDaiDienUrl,
-                pq.RoleId,
                 nv.LoaiNhanVienId,
                 nv.TrangThaiNhanVienId,
                 nv.MaNhanVien,
                 nv.NgayVaoLam,
                 nv.NgayNghiLam,
-                nv.GhiChu,
-                t.Id AS DocId, t.LoaiGiayToId, t.SoGiayTo, t.NgayPhatHanh,
-                f.Id AS FileId, f.FileUrl, f.FileName, f.ContentType
+                nv.GhiChu
             FROM NhanVien nv
-            {sqlJoins}
-            {sqlWhere}
+            {sqlMainJoins}
+            {sqlWhere};
+
+            SELECT pq.RoleId
+            FROM NhanVien nv
+            {sqlPqJoins}
+            {sqlWhere};
+
+            SELECT t.Id AS DocId, t.LoaiGiayToId, t.SoGiayTo, t.NgayPhatHanh,
+                   f.Id AS FileId, f.FileUrl, f.FileName, f.ContentType
+            FROM NhanVien nv
+            {sqlDocJoins}
+            {sqlWhere};
             """;
 
-        var rows = await connection.QueryAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction());
+        using var multi = await connection.QueryMultipleAsync(sql, parameters, transaction: _dbContext.GetDbTransaction());
+        var first = await multi.ReadFirstOrDefaultAsync<NhanVienDetailReadModel>();
+        if (first == null) return null;
 
-        NhanVienDetailResponse? response = null;
-        var docLookup = new Dictionary<int, TaiLieuNhanVienResponse>();
-        var roleIds = new HashSet<int>();
+        var roleIds = (await multi.ReadAsync<int>()).ToList();
+        var docRows = (await multi.ReadAsync<TaiLieuReadModel>()).ToList();
 
         var gioiTinhMap = GioiTinh.ToDictionary();
         var roleMap = Role.ToDictionary();
+        var loaiNhanVienMap = LoaiNhanVien.ToDictionary();
+        var trangThaiNhanVienMap = TrangThaiNhanVien.ToDictionary();
+        var loaiGiayToMap = LoaiGiayTo.ToDictionary();
 
-        foreach (var row in rows)
+        var response = new NhanVienDetailResponse
         {
-            if (response == null)
+            Id = first.Id,
+            NguoiDungId = first.NguoiDungId,
+            FirstName = first.FirstName,
+            LastName = first.LastName,
+            HoTen = first.HoTen,
+            Email = first.Email ?? string.Empty,
+            SoDienThoai = first.SoDienThoai ?? string.Empty,
+            CCCD = first.CCCD ?? string.Empty,
+            DiaChi = first.DiaChi ?? string.Empty,
+            Dob = first.Dob.GetValueOrDefault(),
+            GioiTinhId = first.GioiTinhId ?? 0,
+            GioiTinhName = first.GioiTinhId != null ? gioiTinhMap.GetValueOrDefault(first.GioiTinhId.Value, string.Empty) : string.Empty,
+            AnhDaiDienUrl = first.AnhDaiDienUrl ?? string.Empty,
+            LoaiNhanVienId = first.LoaiNhanVienId,
+            LoaiNhanVienTen = loaiNhanVienMap.GetValueOrDefault(first.LoaiNhanVienId, string.Empty),
+            TrangThaiNhanVienId = first.TrangThaiNhanVienId,
+            TrangThaiNhanVienTen = trangThaiNhanVienMap.GetValueOrDefault(first.TrangThaiNhanVienId, string.Empty),
+            MaNhanVien = first.MaNhanVien,
+            NgayVaoLam = first.NgayVaoLam,
+            NgayNghiLam = first.NgayNghiLam,
+            GhiChu = first.GhiChu,
+            Roles = roleIds.Select(rId => roleMap.GetValueOrDefault(rId, string.Empty)).ToList(),
+            TaiLieuNguoiDungs = []
+        };
+
+        var docLookup = new Dictionary<int, TaiLieuNhanVienResponse>();
+        foreach (var row in docRows)
+        {
+            if (!docLookup.TryGetValue(row.DocId, out var doc))
             {
-                response = new NhanVienDetailResponse
+                doc = new TaiLieuNhanVienResponse
                 {
-                    Id = row.Id,
-                    NguoiDungId = row.NguoiDungId,
-                    FirstName = row.FirstName,
-                    LastName = row.LastName,
-                    HoTen = row.HoTen,
-                    Email = row.Email ?? string.Empty,
-                    SoDienThoai = row.SoDienThoai,
-                    CCCD = row.CCCD,
-                    DiaChi = row.DiaChi,
-                    Dob = row.Dob,
-                    GioiTinhId = row.GioiTinhId,
-                    GioiTinhName = gioiTinhMap.GetValueOrDefault((int)row.GioiTinhId, string.Empty),
-                    AnhDaiDienUrl = row.AnhDaiDienUrl ?? string.Empty,
-                    LoaiNhanVienId = row.LoaiNhanVienId,
-                    LoaiNhanVienTen = LoaiNhanVien.FromValue((int)row.LoaiNhanVienId)?.Name ?? string.Empty,
-                    TrangThaiNhanVienId = row.TrangThaiNhanVienId,
-                    TrangThaiNhanVienTen = TrangThaiNhanVien.FromValue((int)row.TrangThaiNhanVienId)?.Name ?? string.Empty,
-                    MaNhanVien = row.MaNhanVien,
-                    NgayVaoLam = row.NgayVaoLam,
-                    NgayNghiLam = row.NgayNghiLam,
-                    GhiChu = row.GhiChu,
-                    Roles = [],
-                    TaiLieuNguoiDungs = []
+                    Id = row.DocId,
+                    LoaiGiayToId = row.LoaiGiayToId,
+                    TenLoaiGiayTo = loaiGiayToMap.GetValueOrDefault(row.LoaiGiayToId, string.Empty),
+                    SoGiayTo = row.SoGiayTo,
+                    NgayPhatHanh = row.NgayPhatHanh,
+                    Files = []
                 };
+                docLookup.Add(doc.Id, doc);
+                response.TaiLieuNguoiDungs.Add(doc);
             }
 
-            if (row.RoleId != null)
+            if (row.FileId != 0)
             {
-                int rId = (int)row.RoleId;
-                if (!roleIds.Contains(rId))
+                if (!doc.Files.Any(f => f.Id == row.FileId))
                 {
-                    roleIds.Add(rId);
-                    response.Roles.Add(roleMap.GetValueOrDefault(rId, string.Empty));
-                }
-            }
-
-            if (row.DocId != null)
-            {
-                if (!docLookup.TryGetValue((int)row.DocId, out var doc))
-                {
-                    doc = new TaiLieuNhanVienResponse
-                    {
-                        Id = row.DocId,
-                        LoaiGiayToId = (int)row.LoaiGiayToId,
-                        TenLoaiGiayTo = LoaiGiayTo.FromValue((int)row.LoaiGiayToId)?.Name ?? string.Empty,
-                        SoGiayTo = row.SoGiayTo,
-                        NgayPhatHanh = row.NgayPhatHanh,
-                        Files = []
-                    };
-                    docLookup.Add(doc.Id, doc);
-                    response.TaiLieuNguoiDungs.Add(doc);
-                }
-
-                if (row.FileId != null)
-                {
-                    if (!doc.Files.Any(f => f.Id == (int)row.FileId))
-                    {
-                        doc.Files.Add(new TepTaiLieuNhanVienResponse(
-                            (int)row.FileId,
-                            (string)row.FileUrl,
-                            (string)row.FileName,
-                            (string)row.ContentType));
-                    }
+                    doc.Files.Add(new TepTaiLieuNhanVienResponse(
+                        row.FileId,
+                        row.FileUrl,
+                        row.FileName,
+                        row.ContentType));
                 }
             }
         }
@@ -177,17 +172,16 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
             { "TrangThaiNhanVienId", "nv.TrangThaiNhanVienId" },
             { "NgayVaoLam", "nv.NgayVaoLam" },
             { "NgayNghiLam", "nv.NgayNghiLam" },
-            { "IsDeleted", "nv.IsDeleted" }
+            { "IsDeleted", "nv.IsDeleted" },
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var joins = new[]
-        {
-            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", Type: JoinType.Inner),
-            new JoinDefinition("TaiKhoan", "a", "u.Id = a.NguoiDungId"),
-            new JoinDefinition("TepTaiLieu", "atl", "a.AnhDaiDienId = atl.Id")
-        };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters, addSoftDeleteFilter: true);
+        var sqlJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", JoinType.Left),
+            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id"),
+            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId")
+        ]);
 
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);

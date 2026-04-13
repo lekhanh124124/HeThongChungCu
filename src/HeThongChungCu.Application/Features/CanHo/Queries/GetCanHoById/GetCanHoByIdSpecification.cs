@@ -6,7 +6,5 @@ public class GetCanHoByIdSpecification : BaseSpecification
         : base(null, null, null, null)
     {
         AddFilter("Id", FilterOperator.Equal, id);
-        AddFilter("CanHoIsDeleted", FilterOperator.Equal, false);
-        AddFilter("TangIsDeleted", FilterOperator.Equal, false);
     }
 }

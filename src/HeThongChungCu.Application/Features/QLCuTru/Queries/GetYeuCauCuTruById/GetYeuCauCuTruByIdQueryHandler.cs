@@ -7,16 +7,17 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Queries.GetYeuCauCuTruById
 
 public class GetYeuCauCuTruByIdQueryHandler : IQueryHandler<GetYeuCauCuTruByIdQuery, YeuCauCuTruResponse>
 {
-    private readonly IYeuCauCuTruQueryRepository _QueryRepository;
+    private readonly IYeuCauCuTruQueryRepository _yeuCauQueryRepository;
 
-    public GetYeuCauCuTruByIdQueryHandler(IYeuCauCuTruQueryRepository QueryRepository)
+    public GetYeuCauCuTruByIdQueryHandler(IYeuCauCuTruQueryRepository yeuCauQueryRepository)
     {
-        _QueryRepository = QueryRepository;
+        _yeuCauQueryRepository = yeuCauQueryRepository;
     }
 
     public async Task<Result<YeuCauCuTruResponse>> Handle(GetYeuCauCuTruByIdQuery request, CancellationToken cancellationToken)
     {
-        var response = await _QueryRepository.GetByIdAsync(request.RequestId, cancellationToken);
+        var spec = new GetYeuCauCuTruByIdSpecification(request.RequestId);
+        var response = await _yeuCauQueryRepository.GetByIdAsync(spec, cancellationToken);
         
         if (response == null)
             return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.NotFound);

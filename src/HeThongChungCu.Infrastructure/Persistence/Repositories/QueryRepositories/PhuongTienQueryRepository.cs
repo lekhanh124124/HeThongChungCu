@@ -1,15 +1,7 @@
-using Dapper;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
-using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
+using HeThongChungCu.Application.Features.QLPhuongTien.Queries.GetPhuongTienById;
 using HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSPhuongTienTrongChungCu;
 using HeThongChungCu.Application.Features.UploadMedia.DTOs;
-using HeThongChungCu.Domain.Entities;
-using HeThongChungCu.Domain.Enums;
-using HeThongChungCu.Infrastructure.Persistence.Helpers;
-using HeThongChungCu.Infrastructure.Persistence.ReadModels;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.QueryRepositories;
 
@@ -35,27 +27,26 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
         {
             { "Id", "p.Id" },
             { "CanHoId", "p.CanHoId" },
-            { "MaCanHo", "c.MaCanHo" },
-            { "MaTang", "t.MaTang" },
+            { "MaCanHo", "ch.MaCanHo" },
+            { "MaTang", "tg.MaTang" },
             { "MaToaNha", "tn.MaToaNha" },
             { "TenPhuongTien", "p.TenPhuongTien" },
             { "LoaiPhuongTienId", "p.LoaiPhuongTienId" },
             { "BienSo", "p.BienSo" },
             { "MauXe", "p.MauXe" },
             { "TrangThaiPhuongTienId", "p.TrangThaiPhuongTienId" },
-            { "ToaNhaId", "tn.Id" },
-            { "TangId", "t.Id" },
-            { "IsDeleted", "p.IsDeleted" }
+            { "ToaNhaId", "tg.ToaNhaId" },
+            { "TangId", "ch.TangId" },
+            { "IsDeleted", "p.IsDeleted" },
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var joins = new[]
-        {
-            new JoinDefinition("CanHo", "c", "c.Id = p.CanHoId"),
-            new JoinDefinition("Tang", "t", "t.Id = c.TangId"),
-            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId")
-        };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+        var sqlJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("CanHo", "ch", "ch.Id = p.CanHoId"),
+            new JoinDefinition("Tang", "tg", "tg.Id = ch.TangId"),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = tg.ToaNhaId")
+        ]);
 
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
@@ -64,9 +55,9 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
             SELECT
                 COUNT(*) OVER() AS TotalCount,
                 p.Id,
-                c.Id AS CanHoId,
-                c.MaCanHo,
-                t.MaTang,
+                ch.Id AS CanHoId,
+                ch.MaCanHo,
+                tg.MaTang,
                 tn.MaToaNha,
                 p.TenPhuongTien,
                 p.LoaiPhuongTienId,
@@ -80,7 +71,7 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
             {sqlPagination};
             """;
 
-        var rows = (await connection.QueryAsync<GetListPhuongTienReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
+        var rows = (await connection.QueryAsync<PhuongTienReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var loaiPhuongTienMap = LoaiPhuongTien.ToDictionary();
@@ -114,27 +105,42 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
         };
     }
 
-    public async Task<PhuongTienResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<PhuongTienResponse?> GetByIdAsync(GetPhuongTienByIdSpecification spec, CancellationToken cancellationToken = default)
     {
         var connection = _dbContext.GetDbConnection();
 
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
-        var joins = new[]
+        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            new JoinDefinition("CanHo", "c", "c.Id = p.CanHoId"),
-            new JoinDefinition("Tang", "t", "t.Id = c.TangId"),
-            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId")
+            { "Id", "p.Id" },
+            { "IsDeleted", "p.IsDeleted" },
         };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+        var sqlJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("CanHo", "ch", "ch.Id = p.CanHoId"),
+            new JoinDefinition("Tang", "tg", "tg.Id = ch.TangId"),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = tg.ToaNhaId")
+        ]);
+
+        var sqlJoinsThe = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("ThePhuongTien", "tpt", "tpt.PhuongTienId = p.Id", JoinType.Left, true)
+        ]);
+
+        var sqlJoinsTtl = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("TepTaiLieu", "ttl", "ttl.PhuongTienId = p.Id", JoinType.Left, true, Discriminators: [("LoaiTepTaiLieu", "TepPhuongTien")])
+        ]);
 
         var sql = $"""
+            -- 1. Main Info
             SELECT
                 p.Id,
-                c.Id AS CanHoId,
-                c.MaCanHo,
-                t.MaTang,
+                ch.Id AS CanHoId,
+                ch.MaCanHo,
+                tg.MaTang,
                 tn.MaToaNha,
                 p.TenPhuongTien,
                 p.LoaiPhuongTienId,
@@ -143,38 +149,38 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
                 p.TrangThaiPhuongTienId
             FROM PhuongTien p
             {sqlJoins}
-            WHERE p.Id = @Id AND p.IsDeleted = 0;
+            {sqlWhere};
+
+            -- 2. Detail Info (1-N)
+            SELECT
+                tpt.Id,
+                tpt.PhuongTienId,
+                tpt.MaThe,
+                tpt.NgayBatDau,
+                tpt.NgayKetThuc,
+                tpt.TrangThaiId AS TrangThaiThePhuongTienId
+            FROM PhuongTien p
+            {sqlJoinsThe}
+            {sqlWhere};
 
             SELECT
-                Id,
-                PhuongTienId,
-                MaThe,
-                NgayBatDau,
-                NgayKetThuc,
-                TrangThaiId AS TrangThaiThePhuongTienId
-            FROM ThePhuongTien
-            WHERE PhuongTienId = @Id AND IsDeleted = 0;
-
-            SELECT
-                t.Id AS FileId,
-                t.FileName,
-                t.FileUrl,
-                t.ContentType
-            FROM TepTaiLieu t
-            WHERE t.PhuongTienId = @Id AND t.LoaiTepTaiLieu = 'TepPhuongTien' AND t.IsDeleted = 0;
+                ttl.Id AS FileId,
+                ttl.FileName,
+                ttl.FileUrl,
+                ttl.ContentType
+            FROM PhuongTien p
+            {sqlJoinsTtl}
+            {sqlWhere};
             """;
 
-        using var multi = await connection.QueryMultipleAsync(sql, new { Id = id }, transaction: _dbContext.GetDbTransaction());
-        var phuongTien = await multi.ReadFirstOrDefaultAsync<GetListPhuongTienReadModel>();
-        
+        using var multi = await connection.QueryMultipleAsync(sql, parameters, transaction: _dbContext.GetDbTransaction());
+        var phuongTien = await multi.ReadFirstOrDefaultAsync<PhuongTienReadModel>();
+
         if (phuongTien == null)
             return null;
 
-        var cards = (await multi.ReadAsync<ThePhuongTienResponse>()).ToList();
-        foreach (var card in cards)
-        {
-            card.TenTrangThaiThePhuongTien = TrangThaiThePhuongTien.FromValue(card.TrangThaiThePhuongTienId)?.Name ?? string.Empty;
-        }
+        var cards = (await multi.ReadAsync<ThePhuongTienReadModel>()).ToList();
+        var imageRows = (await multi.ReadAsync<PhuongTienFileReadModel>()).ToList();
 
         return new PhuongTienResponse
         {
@@ -190,8 +196,17 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
             MauXe = phuongTien.MauXe,
             TrangThaiPhuongTienId = phuongTien.TrangThaiPhuongTienId,
             TenTrangThaiPhuongTien = TrangThaiPhuongTien.FromValue(phuongTien.TrangThaiPhuongTienId)?.Name ?? string.Empty,
-            ThePhuongTiens = cards,
-            HinhAnhPhuongTiens = (await multi.ReadAsync<UploadFileResponse>()).ToList()
+            ThePhuongTiens = cards.Select(c => new ThePhuongTienResponse
+            {
+                Id = c.Id,
+                PhuongTienId = c.PhuongTienId,
+                MaThe = c.MaThe,
+                NgayBatDau = c.NgayBatDau,
+                NgayKetThuc = c.NgayKetThuc,
+                TrangThaiThePhuongTienId = c.TrangThaiThePhuongTienId,
+                TenTrangThaiThePhuongTien = TrangThaiThePhuongTien.FromValue(c.TrangThaiThePhuongTienId)?.Name ?? string.Empty
+            }).ToList(),
+            HinhAnhPhuongTiens = imageRows.Select(f => new UploadFileResponse(f.FileId, f.FileName, f.FileUrl, f.ContentType)).ToList()
         };
     }
 }

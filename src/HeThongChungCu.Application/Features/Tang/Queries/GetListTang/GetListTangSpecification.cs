@@ -19,11 +19,9 @@ public class GetListTangSpecification : BaseSpecification
         string? sortCol,
         bool? isAsc,
         int? pageNumber,
-        int? pageSize) 
+        int? pageSize)
         : base(sortCol, isAsc, pageNumber, pageSize)
     {
-        AddFilter("IsDeleted", FilterOperator.Equal, false);
-
         if (toaNhaId.HasValue)
         {
             AddFilter("ToaNhaId", FilterOperator.Equal, toaNhaId.Value);

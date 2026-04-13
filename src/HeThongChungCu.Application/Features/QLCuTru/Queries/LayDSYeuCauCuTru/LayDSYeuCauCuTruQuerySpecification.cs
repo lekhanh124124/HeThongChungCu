@@ -23,25 +23,24 @@ public class LayDSYeuCauCuTruQuerySpecification : BaseSpecification
     {
         if (toaNhaId != null)
             AddFilter("ToaNhaId", FilterOperator.Equal, toaNhaId);
-        
+
         if (tangId != null)
             AddFilter("TangId", FilterOperator.Equal, tangId);
 
         if (canHoId != null)
             AddFilter("CanHoId", FilterOperator.Equal, canHoId);
-        
+
         if (loaiYeuCauId != null)
             AddFilter("LoaiYeuCauId", FilterOperator.Equal, loaiYeuCauId);
-        
+
         if (trangThaiId != null)
             AddFilter("TrangThaiId", FilterOperator.Equal, trangThaiId);
-        
+
         if (!string.IsNullOrWhiteSpace(keyword))
         {
             AddKeyword("TenNguoiGui", FilterOperator.Contains, keyword);
             AddKeyword("TenNguoiXuLy", FilterOperator.Contains, keyword);
         }
-            
-        AddFilter("IsDeleted", FilterOperator.Equal, false);
+
     }
 }

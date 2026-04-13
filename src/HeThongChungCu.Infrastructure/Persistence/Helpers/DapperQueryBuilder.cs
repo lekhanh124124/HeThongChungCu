@@ -12,30 +12,34 @@ public enum JoinType
 }
 
 public record JoinDefinition(
-    string Table, 
-    string Alias, 
-    string OnCondition, 
-    JoinType Type = JoinType.Left, 
+    string Table,
+    string Alias,
+    string OnCondition,
+    JoinType Type = JoinType.Left,
     bool AddSoftDelete = true,
-    (string Column, string Value)? Discriminator = null);
+    IEnumerable<(string Column, object Value)>? Discriminators = null);
 
 public static class DapperQueryBuilder
 {
-    public static (string SqlWhere, DynamicParameters Parameters) BuildWhere(
-        IQuerySpecification spec, 
+    public static string BuildWhere(
+        IQuerySpecification spec,
         Dictionary<string, string> propertyToColumnMap,
+        DynamicParameters parameters,
         bool addSoftDeleteFilter = true,
-        (string Column, string Value)? discriminator = null)
+        IEnumerable<(string Column, object Value)>? discriminators = null)
     {
-        var parameters = new DynamicParameters();
         var andClauses = new List<string>();
 
         // 0. Automatically add Discriminator filter if provided
-        if (discriminator.HasValue)
+        if (discriminators != null)
         {
-            var paramName = "p_disc";
-            parameters.Add(paramName, discriminator.Value.Value);
-            andClauses.Add($"{discriminator.Value.Column} = @{paramName}");
+            int i = 0;
+            foreach (var (Column, Value) in discriminators)
+            {
+                var paramName = $"p_disc_{i++}";
+                parameters.Add(paramName, Value);
+                andClauses.Add($"{Column} = @{paramName}");
+            }
         }
 
         // 1. Process standard filters (JOIN with AND)
@@ -75,16 +79,17 @@ public static class DapperQueryBuilder
             finalClauses.Add("(" + string.Join(" OR ", orClauses) + ")");
         }
 
-        var sqlWhere = finalClauses.Count > 0 
-            ? "WHERE " + string.Join(" AND ", finalClauses) 
+        var sqlWhere = finalClauses.Count > 0
+            ? "WHERE " + string.Join(" AND ", finalClauses)
             : "";
 
-        return (sqlWhere, parameters);
+        return sqlWhere;
     }
 
+
     private static string BuildFilterClause(
-        FilterCriterion filter, 
-        DynamicParameters parameters, 
+        FilterCriterion filter,
+        DynamicParameters parameters,
         Dictionary<string, string> propertyToColumnMap)
     {
         if (!propertyToColumnMap.TryGetValue(filter.PropertyName, out var columnName))
@@ -142,12 +147,12 @@ public static class DapperQueryBuilder
     }
 
     public static string BuildOrderBy(
-        IQuerySpecification spec, 
+        IQuerySpecification spec,
         Dictionary<string, string> propertyToColumnMap,
         string defaultSortCol = nameof(BaseEntity.Id))
     {
         var propertyName = spec.SortCol;
-        
+
         if (string.IsNullOrWhiteSpace(propertyName))
         {
             propertyName = defaultSortCol;
@@ -155,7 +160,7 @@ public static class DapperQueryBuilder
 
         if (!propertyToColumnMap.TryGetValue(propertyName, out var columnName))
         {
-            if (propertyName == defaultSortCol && !propertyName.Contains("."))
+            if (propertyName == defaultSortCol && !propertyName.Contains('.'))
             {
                 columnName = propertyName;
             }
@@ -184,7 +189,8 @@ public static class DapperQueryBuilder
         return "OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
     }
 
-    public static string BuildJoin(IEnumerable<JoinDefinition> joins)
+    public static string BuildJoin(
+        IEnumerable<JoinDefinition> joins)
     {
         var joinClauses = new List<string>();
 
@@ -204,9 +210,13 @@ public static class DapperQueryBuilder
                 onClauses.Add($"{join.Alias}.IsDeleted = 0");
             }
 
-            if (join.Discriminator.HasValue)
+            if (join.Discriminators != null)
             {
-                onClauses.Add($"{join.Alias}.{join.Discriminator.Value.Column} = '{join.Discriminator.Value.Value}'");
+                foreach (var (Column, Value) in join.Discriminators)
+                {
+                    var formattedValue = Value is string s ? $"'{s}'" : Value.ToString();
+                    onClauses.Add($"{join.Alias}.{Column} = {formattedValue}");
+                }
             }
 
             var onSection = string.Join(" AND ", onClauses);

@@ -24,7 +24,6 @@ public class GetListDichVuSpecification : BaseSpecification
         bool? isAsc = false)
         : base(sortBy, isAsc, pageNumber, pageSize)
     {
-        AddFilter("IsDeleted", FilterOperator.Equal, false);
 
         if (!string.IsNullOrWhiteSpace(keyword))
         {

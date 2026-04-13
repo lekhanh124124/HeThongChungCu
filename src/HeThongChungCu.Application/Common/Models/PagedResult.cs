@@ -2,7 +2,7 @@ namespace HeThongChungCu.Application.Common.Models
 {
     public class PagedResult<T>
     {
-        public IEnumerable<T>? Items { get; set; } = new List<T>();
+        public IEnumerable<T>? Items { get; set; } = [];
         public PagingInfo PagingInfo { get; set; } = new();
     }
 

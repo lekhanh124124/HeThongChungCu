@@ -42,7 +42,5 @@ public class LayDSYeuCauPhuongTienQuerySpecification : BaseSpecification
             AddKeyword("TenNguoiXuLy", FilterOperator.Contains, keyword);
             AddKeyword("YeuCauBienSo", FilterOperator.Contains, keyword);
         }
-            
-        AddFilter("IsDeleted", FilterOperator.Equal, false);
     }
 }

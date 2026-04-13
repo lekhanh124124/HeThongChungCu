@@ -1,6 +1,6 @@
 namespace HeThongChungCu.Infrastructure.Persistence.ReadModels;
 
-internal sealed class GetCauTrucChungCuReadModel
+internal record CauTrucChungCuReadModel
 {
     public int ToaNhaId { get; init; }
     public string MaToaNha { get; init; } = string.Empty;

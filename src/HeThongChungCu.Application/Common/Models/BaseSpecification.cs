@@ -12,10 +12,10 @@ public abstract class BaseSpecification : IQuerySpecification
     public int? PageSize { get; set; }
     public virtual HashSet<string> AllowedSortColumns => new(StringComparer.OrdinalIgnoreCase) { nameof(BaseEntity.Id) };
 
-    private readonly List<FilterCriterion> _filters = new();
+    private readonly List<FilterCriterion> _filters = [];
     public IReadOnlyList<FilterCriterion> Filters => _filters;
 
-    private readonly List<FilterCriterion> _keywords = new();
+    private readonly List<FilterCriterion> _keywords = [];
     public IReadOnlyList<FilterCriterion> Keywords => _keywords;
 
     protected BaseSpecification(string? sortCol, bool? isAsc, int? pageNumber, int? pageSize)
@@ -29,23 +29,23 @@ public abstract class BaseSpecification : IQuerySpecification
         {
             throw new ValidationException(
             [
-                new(nameof(SortCol), $"Không thể sắp xếp theo trường '{SortCol}'")
+                new(nameof(SortCol), $"Hệ thống không hỗ trợ sắp xếp theo trường '{SortCol}'")
             ]);
         }
     }
 
+    // Thêm trường tìm kiếm vào bộ lọc
     protected void AddFilter(string propertyName, FilterOperator @operator, object? value = null)
     {
-        // bỏ qua nếu value null và không phải explicit null operator
         if (value is null && @operator != FilterOperator.IsNull && @operator != FilterOperator.IsNotNull)
             return;
 
         _filters.Add(new FilterCriterion(propertyName, @operator, value));
     }
 
+    // Thêm trường tìm kiếm vào từ khóa
     protected void AddKeyword(string propertyName, FilterOperator @operator, object? value = null)
     {
-        // bỏ qua nếu value null và không phải explicit null operator
         if (value is null && @operator != FilterOperator.IsNull && @operator != FilterOperator.IsNotNull)
             return;
 

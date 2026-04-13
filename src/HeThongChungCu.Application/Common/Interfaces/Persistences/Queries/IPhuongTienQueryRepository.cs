@@ -1,5 +1,6 @@
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 using HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSPhuongTienTrongChungCu;
+using HeThongChungCu.Application.Features.QLPhuongTien.Queries.GetPhuongTienById;
 
 namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 
@@ -9,5 +10,5 @@ public interface IPhuongTienQueryRepository
         LayDSPhuongTienTrongChungCuSpecification spec,
         CancellationToken cancellationToken = default);
 
-    Task<PhuongTienResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<PhuongTienResponse?> GetByIdAsync(GetPhuongTienByIdSpecification spec, CancellationToken cancellationToken = default);
 }

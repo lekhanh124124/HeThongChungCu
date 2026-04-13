@@ -1,6 +1,6 @@
 namespace HeThongChungCu.Infrastructure.Persistence.ReadModels;
 
-internal sealed class NhanVienReadModel
+internal record NhanVienReadModel
 {
     public int TotalCount { get; init; }
     public int Id { get; init; }

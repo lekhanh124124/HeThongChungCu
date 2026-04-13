@@ -1,16 +1,9 @@
-using Dapper;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
-using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.CuDan.DTOs;
 using HeThongChungCu.Application.Features.CuDan.Queries.LayDSCuTruCuaNguoiDung;
 using HeThongChungCu.Application.Features.CuDan.Queries.LayThanhVienCuTru;
 using HeThongChungCu.Application.Features.CuDan.Queries.LayThongTinCuDan;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Application.Features.QLCuTru.Queries.LayDSCuDanTrongChungCu;
-using HeThongChungCu.Infrastructure.Persistence.Helpers;
-using HeThongChungCu.Infrastructure.Persistence.ReadModels;
-using System.Data;
-using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.QueryRepositories;
 
@@ -43,22 +36,21 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
             { "NguoiDungId", "q.NguoiDungId" },
             { "TrangThaiCuTruId", "q.TrangThaiCuTruId" },
             { "NgayBatDau", "q.NgayBatDau" },
-            { "IsDeleted", "q.IsDeleted" },
             { "NgayKetThuc", "q.NgayKetThuc" },
             { "LoaiQuanHeCuTruId", "q.LoaiQuanHeCuTruId" },
             { "HoTen", "u.Ho + N' ' + u.Ten" },
-            { "SoDienThoai", "u.SoDienThoai" }
+            { "SoDienThoai", "u.SoDienThoai" },
+            { "IsDeleted", "q.IsDeleted" },
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var joins = new[]
-        {
-            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId"),
-            new JoinDefinition("CanHo", "c", "c.Id = q.CanHoId"),
-            new JoinDefinition("Tang", "t", "t.Id = c.TangId"),
-            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId")
-        };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+        var sqlJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", JoinType.Left),
+            new JoinDefinition("CanHo", "c", "c.Id = q.CanHoId", JoinType.Left),
+            new JoinDefinition("Tang", "t", "t.Id = c.TangId", JoinType.Left),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", JoinType.Left)
+        ]);
 
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "NgayBatDau");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
@@ -84,7 +76,7 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
             {sqlPagination}
             """;
 
-        var rows = (await connection.QueryAsync<DSCuDanTrongChungCuReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
+        var rows = (await connection.QueryAsync<CuDanReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
@@ -132,17 +124,16 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
         {
             { "NguoiDungId", "q.NguoiDungId" },
             { "TrangThaiCuTruId", "q.TrangThaiCuTruId" },
-            { "IsDeleted", "q.IsDeleted" }
+            { "IsDeleted", "q.IsDeleted" },
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var joins = new[]
-        {
-            new JoinDefinition("CanHo", "c", "c.Id = q.CanHoId"),
-            new JoinDefinition("Tang", "t", "t.Id = c.TangId"),
-            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId")
-        };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+        var sqlJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("CanHo", "c", "c.Id = q.CanHoId", JoinType.Left),
+            new JoinDefinition("Tang", "t", "t.Id = c.TangId", JoinType.Left),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", JoinType.Left)
+        ]);
 
         var sql = $"""
             SELECT
@@ -166,7 +157,7 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
             {sqlWhere}
             """;
 
-        var rows = await connection.QueryAsync<LayDSCuTruByUserIdReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction());
+        var rows = await connection.QueryAsync<CuTruReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction());
 
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
         var items = rows.Select(r => new QuanHeCuTruResponse
@@ -202,21 +193,25 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
         {
             { "Id", "q.Id" },
             { "NguoiDungId", "q.NguoiDungId" },
-            { "IsDeleted", "q.IsDeleted" }
+            { "IsDeleted", "q.IsDeleted" },
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var joins = new[]
-        {
-            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", Type: JoinType.Inner),
-            new JoinDefinition("TaiKhoan", "a", "u.Id = a.NguoiDungId AND a.IsActive = 1", AddSoftDelete: false),
-            new JoinDefinition("TepTaiLieu", "atl", "a.AnhDaiDienId = atl.Id"),
-            new JoinDefinition("TaiLieu", "t", "t.NguoiDungId = u.Id AND t.LoaiTaiLieu = 'TaiLieuNguoiDung'"),
-            new JoinDefinition("TepTaiLieu", "f", "f.TaiLieuId = t.Id AND f.LoaiTepTaiLieu = 'TepTaiLieuNguoiDung'")
-        };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+
+        var sqlJoinsRoot = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", JoinType.Left),
+            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id AND a.IsActive = 1", AddSoftDelete: false),
+            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId", JoinType.Left, true, Discriminators: [("LoaiTepTaiLieu", "TepTaiLieuNguoiDung")])
+        ]);
+
+        var sqlJoinsDoc = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("TaiLieu", "t", "t.NguoiDungId = q.NguoiDungId", JoinType.Left, true, Discriminators: [("LoaiTaiLieu", "TaiLieuNguoiDung")]),
+            new JoinDefinition("TepTaiLieu", "f", "f.TaiLieuId = t.Id", JoinType.Left, true, Discriminators: [("LoaiTepTaiLieu", "TepTaiLieuNguoiDung")])
+        ]);
 
         var sql = $"""
+            -- Query 1: QuanHeCuTru + NguoiDung + Icon (N-1)
             SELECT
                 q.NguoiDungId,
                 u.Ho + N' ' + u.Ten AS FullName,
@@ -232,77 +227,80 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
                 q.NgayBatDau,
                 q.NgayKetThuc,
                 q.TrangThaiCuTruId,
-                u.DiaChi,
-                -- Document fields
-                t.Id AS DocId, t.LoaiGiayToId, t.SoGiayTo, t.NgayPhatHanh,
-                -- File fields
-                f.Id AS FileId, f.FileUrl, f.FileName, f.ContentType
+                u.DiaChi
             FROM QuanHeCuTru q
-            {sqlJoins}
-            {sqlWhere}
+            {sqlJoinsRoot}
+            {sqlWhere};
+
+            -- Query 2: TaiLieu + TepTaiLieu (1-N)
+            SELECT t.Id AS DocId, t.LoaiGiayToId, t.SoGiayTo, t.NgayPhatHanh,
+                   f.Id AS FileId, f.FileUrl, f.FileName, f.ContentType
+            FROM QuanHeCuTru q
+            {sqlJoinsDoc}
+            {sqlWhere};
             """;
 
-        var rows = await connection.QueryAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction());
+        using var multi = await connection.QueryMultipleAsync(sql, parameters, transaction: _dbContext.GetDbTransaction());
+        var firstRow = await multi.ReadFirstOrDefaultAsync<CuDanDetailReadModel>();
 
-        LayThongTinCuDanResponse? result = null;
+        if (firstRow == null) return null;
+
+        var docRows = (await multi.ReadAsync<TaiLieuReadModel>()).ToList();
         var docLookup = new Dictionary<int, TaiLieuResponse>();
 
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
         var gioiTinhMap = GioiTinh.ToDictionary();
         var trangThaiCuTruMap = TrangThaiCuTru.ToDictionary();
 
-        foreach (var row in rows)
+        var result = new LayThongTinCuDanResponse
         {
-            result ??= new LayThongTinCuDanResponse
-            {
-                UserId = row.NguoiDungId,
-                FullName = row.FullName,
-                FirstName = row.FirstName,
-                LastName = row.LastName,
-                PhoneNumber = row.PhoneNumber,
-                Dob = row.Dob,
-                GioiTinhId = row.GioiTinhId,
-                GioiTinhName = gioiTinhMap.GetValueOrDefault((int)row.GioiTinhId, string.Empty),
-                AnhDaiDienUrl = row.AnhDaiDienUrl ?? string.Empty,
-                QuanHeCuTruId = row.QuanHeCuTruId,
-                LoaiQuanHeCuTruId = row.LoaiQuanHeCuTruId,
-                LoaiQuanHeTen = loaiQuanHeMap.GetValueOrDefault((int)row.LoaiQuanHeCuTruId, string.Empty),
-                NgayBatDau = row.NgayBatDau,
-                NgayKetThuc = row.NgayKetThuc,
-                TrangThaiCuTruId = row.TrangThaiCuTruId,
-                TrangThaiCuTruTen = trangThaiCuTruMap.GetValueOrDefault((int)row.TrangThaiCuTruId, string.Empty),
-                DiaChi = row.DiaChi,
-                IdCard = row.IdCard,
-                TaiLieuCuTrus = []
-            };
+            UserId = firstRow.NguoiDungId,
+            FullName = firstRow.FullName,
+            FirstName = firstRow.FirstName,
+            LastName = firstRow.LastName,
+            PhoneNumber = firstRow.PhoneNumber,
+            Dob = firstRow.Dob.GetValueOrDefault(),
+            GioiTinhId = firstRow.GioiTinhId,
+            GioiTinhName = gioiTinhMap.GetValueOrDefault(firstRow.GioiTinhId, string.Empty),
+            AnhDaiDienUrl = firstRow.AnhDaiDienUrl ?? string.Empty,
+            QuanHeCuTruId = firstRow.QuanHeCuTruId,
+            LoaiQuanHeCuTruId = firstRow.LoaiQuanHeCuTruId,
+            LoaiQuanHeTen = loaiQuanHeMap.GetValueOrDefault(firstRow.LoaiQuanHeCuTruId, string.Empty),
+            NgayBatDau = firstRow.NgayBatDau,
+            NgayKetThuc = firstRow.NgayKetThuc,
+            TrangThaiCuTruId = firstRow.TrangThaiCuTruId,
+            TrangThaiCuTruTen = trangThaiCuTruMap.GetValueOrDefault(firstRow.TrangThaiCuTruId, string.Empty),
+            DiaChi = firstRow.DiaChi,
+            IdCard = firstRow.IdCard,
+            TaiLieuCuTrus = []
+        };
 
-            if (row.DocId != null)
+        foreach (var row in docRows)
+        {
+            if (!docLookup.TryGetValue(row.DocId, out var doc))
             {
-                if (!docLookup.TryGetValue((int)row.DocId, out var doc))
+                doc = new TaiLieuResponse
                 {
-                    doc = new TaiLieuResponse
-                    {
-                        Id = row.DocId,
-                        LoaiGiayToId = row.LoaiGiayToId,
-                        TenLoaiGiayTo = LoaiGiayTo.FromValue((int)row.LoaiGiayToId)?.Name ?? string.Empty,
-                        SoGiayTo = row.SoGiayTo,
-                        NgayPhatHanh = row.NgayPhatHanh,
-                        Files = []
-                    };
-                    docLookup.Add(doc.Id, doc);
-                    result.TaiLieuCuTrus.Add(doc);
-                }
+                    Id = row.DocId,
+                    LoaiGiayToId = row.LoaiGiayToId,
+                    TenLoaiGiayTo = LoaiGiayTo.FromValue(row.LoaiGiayToId)?.Name ?? string.Empty,
+                    SoGiayTo = row.SoGiayTo,
+                    NgayPhatHanh = row.NgayPhatHanh,
+                    Files = []
+                };
+                docLookup.Add(doc.Id, doc);
+                result.TaiLieuCuTrus.Add(doc);
+            }
 
-                if (row.FileId != null)
+            if (row.FileId != 0)
+            {
+                if (!doc.Files.Any(f => f.Id == row.FileId))
                 {
-                    if (!doc.Files.Any(f => f.Id == (int)row.FileId))
-                    {
-                        doc.Files.Add(new TepTaiLieuResponse(
-                            (int)row.FileId,
-                            (string)row.FileUrl,
-                            (string)row.FileName,
-                            (string)row.ContentType));
-                    }
+                    doc.Files.Add(new TepTaiLieuResponse(
+                        row.FileId,
+                        row.FileUrl,
+                        row.FileName,
+                        row.ContentType));
                 }
             }
         }
@@ -323,17 +321,16 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
         {
             { "CanHoId", "q.CanHoId" },
             { "TrangThaiCuTruId", "q.TrangThaiCuTruId" },
-            { "IsDeleted", "q.IsDeleted" }
+            { "IsDeleted", "q.IsDeleted" },
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var joins = new[]
-        {
-            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", Type: JoinType.Inner),
-            new JoinDefinition("TaiKhoan", "a", "u.Id = a.NguoiDungId AND a.IsActive = 1", AddSoftDelete: false),
-            new JoinDefinition("TepTaiLieu", "atl", "a.AnhDaiDienId = atl.Id")
-        };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+        var sqlJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", JoinType.Left),
+            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id AND a.IsActive = 1", AddSoftDelete: false),
+            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId", JoinType.Left, true, Discriminators: [("LoaiTepTaiLieu", "TepTaiLieuNguoiDung")])
+        ]);
 
         var sql = $"""
             SELECT

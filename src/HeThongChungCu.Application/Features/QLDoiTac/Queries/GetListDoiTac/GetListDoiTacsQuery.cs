@@ -5,7 +5,6 @@ namespace HeThongChungCu.Application.Features.QLDoiTac.Queries.GetListDoiTac;
 
 public record GetListDoiTacsQuery(
     string? Keyword,
-    int? LoaiDichVuId,
     string? SortCol,
     bool? IsAsc,
     int? PageNumber,

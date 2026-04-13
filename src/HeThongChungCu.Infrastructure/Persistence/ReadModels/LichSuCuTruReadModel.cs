@@ -1,6 +1,6 @@
 namespace HeThongChungCu.Infrastructure.Persistence.ReadModels;
 
-internal sealed class GetLichSuCuTruReadModel
+internal record LichSuCuTruReadModel
 {
     public int TotalCount { get; init; }
 

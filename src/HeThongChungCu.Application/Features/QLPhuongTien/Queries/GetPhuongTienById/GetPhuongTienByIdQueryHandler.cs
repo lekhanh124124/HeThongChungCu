@@ -13,8 +13,9 @@ public class GetPhuongTienByIdQueryHandler : IQueryHandler<GetPhuongTienByIdQuer
 
     public async Task<Result<PhuongTienResponse>> Handle(GetPhuongTienByIdQuery request, CancellationToken cancellationToken)
     {
-        var phuongTien = await _phuongTienQueryRepository.GetByIdAsync(request.Id, cancellationToken);
-        
+        var spec = new GetPhuongTienByIdSpecification(request.Id);
+        var phuongTien = await _phuongTienQueryRepository.GetByIdAsync(spec, cancellationToken);
+
         if (phuongTien == null)
             return Result.Failure<PhuongTienResponse>(PhuongTienErrors.NotFound);
 

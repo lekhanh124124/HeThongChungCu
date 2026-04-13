@@ -20,7 +20,6 @@ public class GetListKhungGioDichVuSpecification : BaseSpecification
         bool? isActive = null)
         : base(sortBy, isAsc, pageNumber, pageSize)
     {
-        AddFilter("IsDeleted", FilterOperator.Equal, false);
 
         if (dichVuId.HasValue)
         {

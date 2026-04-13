@@ -40,7 +40,7 @@ public class LayDSCuDanTrongChungCuQuerySpecification : BaseSpecification
         AddFilter("CanHoId", FilterOperator.Equal, canHoId);
         AddFilter("LoaiQuanHeCuTruId", FilterOperator.Equal, loaiQuanHeCuTruId);
         AddFilter("TrangThaiCuTruId", FilterOperator.Equal, trangThaiCuTruId);
-        AddFilter("IsDeleted", FilterOperator.Equal, false);
+
 
         if (!string.IsNullOrWhiteSpace(maToaNha))
             AddFilter("MaToaNha", FilterOperator.Equal, maToaNha);

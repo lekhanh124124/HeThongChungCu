@@ -1,6 +1,6 @@
 namespace HeThongChungCu.Infrastructure.Persistence.ReadModels;
 
-public record YeuCauCuTruReadModel
+internal record YeuCauCuTruReadModel
 {
     public int TotalCount { get; init; }
     public int Id { get; init; }

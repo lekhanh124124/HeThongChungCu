@@ -1,13 +1,6 @@
-using Dapper;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
-using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Application.Features.QLCuTru.Queries.LayDSYeuCauCuTru;
-using HeThongChungCu.Infrastructure.Persistence.Helpers;
-using HeThongChungCu.Infrastructure.Persistence.ReadModels;
-using System.Data;
-using HeThongChungCu.Domain.Enums;
-using Microsoft.EntityFrameworkCore;
+using HeThongChungCu.Application.Features.QLCuTru.Queries.GetYeuCauCuTruById;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.QueryRepositories;
 
@@ -35,31 +28,32 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
             { "CanHoId", "y.CanHoId" },
             { "LoaiYeuCauId", "y.LoaiYeuCauId" },
             { "TrangThaiId", "y.TrangThaiId" },
-            { "IsDeleted", "y.IsDeleted" },
             { "CreatedAt", "y.CreatedAt" },
             { "ToaNhaId", "tg.ToaNhaId" },
             { "TangId", "ch.TangId" },
             { "TenNguoiGui", "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))" },
-            { "TenNguoiXuLy", "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))" }
+            { "TenNguoiXuLy", "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))" },
+            { "IsDeleted", "y.IsDeleted" }
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(
-            spec, 
-            columnMapping, 
-            discriminator: ("y.LoaiYeuCauCuDan", "YeuCauCuTru"));
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(
+            spec,
+            columnMapping,
+            parameters,
+            discriminators: [("y.LoaiYeuCauCuDan", "YeuCauCuTru")],
+            addSoftDeleteFilter: true);
 
-        var joins = new[]
-        {
-            new JoinDefinition("CanHo", "ch", "y.CanHoId = ch.Id"),
-            new JoinDefinition("Tang", "tg", "ch.TangId = tg.Id"),
-            new JoinDefinition("ToaNha", "tn", "tg.ToaNhaId = tn.Id"),
-            new JoinDefinition("NguoiDung", "nd1", "y.CreatedBy = nd1.Id"),
-            new JoinDefinition("TaiKhoan", "tk1", "nd1.Id = tk1.NguoiDungId AND tk1.IsActive = 1", AddSoftDelete: false),
-            new JoinDefinition("NguoiDung", "nd2", "y.NguoiXuLyId = nd2.Id"),
-            new JoinDefinition("TaiKhoan", "tk2", "nd2.Id = tk2.NguoiDungId AND tk2.IsActive = 1", AddSoftDelete: false)
-        };
+        var sqlJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("CanHo", "ch", "y.CanHoId = ch.Id", JoinType.Inner, true),
+            new JoinDefinition("Tang", "tg", "ch.TangId = tg.Id", JoinType.Inner, true),
+            new JoinDefinition("ToaNha", "tn", "tg.ToaNhaId = tn.Id", JoinType.Inner, true),
+            new JoinDefinition("NguoiDung", "nd1", "y.CreatedBy = nd1.Id", JoinType.Left, true),
+            new JoinDefinition("TaiKhoan", "tk1", "nd1.Id = tk1.NguoiDungId AND tk1.IsActive = 1", JoinType.Left, false),
+            new JoinDefinition("NguoiDung", "nd2", "y.NguoiXuLyId = nd2.Id", JoinType.Left, true),
+            new JoinDefinition("TaiKhoan", "tk2", "nd2.Id = tk2.NguoiDungId AND tk2.IsActive = 1", JoinType.Left, false)
+        ]);
 
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "CreatedAt");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
@@ -90,8 +84,8 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
                 tg.ToaNhaId,
                 ch.TangId,
                 tn.TenToaNha,
-                COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10))) AS TenNguoiGui,
-                COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10))) AS TenNguoiXuLy
+                {columnMapping["TenNguoiGui"]} AS TenNguoiGui,
+                {columnMapping["TenNguoiXuLy"]} AS TenNguoiXuLy
             FROM YeuCau y
             {sqlJoins}
             {sqlWhere}
@@ -141,24 +135,47 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
         };
     }
 
-    public async Task<YeuCauCuTruResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<YeuCauCuTruResponse?> GetByIdAsync(GetYeuCauCuTruByIdSpecification spec, CancellationToken cancellationToken = default)
     {
         var connection = _dbContext.GetDbConnection();
 
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
-        var joins = new[]
+        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            new JoinDefinition("CanHo", "ch", "y.CanHoId = ch.Id"),
-            new JoinDefinition("Tang", "tg", "ch.TangId = tg.Id"),
-            new JoinDefinition("ToaNha", "tn", "tg.ToaNhaId = tn.Id"),
-            new JoinDefinition("NguoiDung", "nd1", "y.CreatedBy = nd1.Id"),
-            new JoinDefinition("TaiKhoan", "tk1", "nd1.Id = tk1.NguoiDungId AND tk1.IsActive = 1", AddSoftDelete: false),
-            new JoinDefinition("NguoiDung", "nd2", "y.NguoiXuLyId = nd2.Id"),
-            new JoinDefinition("TaiKhoan", "tk2", "nd2.Id = tk2.NguoiDungId AND tk2.IsActive = 1", AddSoftDelete: false)
+            { "Id", "y.Id" },
+            { "TenNguoiGui", "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))" },
+            { "TenNguoiXuLy", "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))" },
+            { "IsDeleted", "y.IsDeleted" }
         };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(
+            spec,
+            columnMapping,
+            parameters,
+            discriminators: [("y.LoaiYeuCauCuDan", "YeuCauCuTru")],
+            addSoftDeleteFilter: true);
+
+        var sqlJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("CanHo", "ch", "y.CanHoId = ch.Id", JoinType.Inner, true),
+            new JoinDefinition("Tang", "tg", "ch.TangId = tg.Id", JoinType.Inner, true),
+            new JoinDefinition("ToaNha", "tn", "tg.ToaNhaId = tn.Id", JoinType.Inner, true),
+            new JoinDefinition("NguoiDung", "nd1", "y.CreatedBy = nd1.Id", JoinType.Left, true),
+            new JoinDefinition("TaiKhoan", "tk1", "nd1.Id = tk1.NguoiDungId AND tk1.IsActive = 1", JoinType.Left, false),
+            new JoinDefinition("NguoiDung", "nd2", "y.NguoiXuLyId = nd2.Id", JoinType.Left, true),
+            new JoinDefinition("TaiKhoan", "tk2", "nd2.Id = tk2.NguoiDungId AND tk2.IsActive = 1", JoinType.Left, false)
+        ]);
+
+        var sqlJoinsTl = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("TaiLieu", "tl", "tl.YeuCauCuTruId = y.Id", JoinType.Inner, true, Discriminators: [("LoaiTaiLieu", "YeuCauTaiLieuCuTru")])
+        ]);
+
+        var sqlJoinsTtl = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("TaiLieu", "tl", "tl.YeuCauCuTruId = y.Id", JoinType.Inner, true, Discriminators: [("LoaiTaiLieu", "YeuCauTaiLieuCuTru")]),
+            new JoinDefinition("TepTaiLieu", "ttl", "ttl.TaiLieuId = tl.Id", JoinType.Inner, true, Discriminators: [("LoaiTepTaiLieu", "TepYeuCauTaiLieuCuTru")])
+        ]);
 
         var sql = $"""
             -- 1. Main Info
@@ -169,35 +186,35 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
                 y.YeuCauSoDienThoai, y.YeuCauCCCD, y.YeuCauDiaChi,
                 y.YeuCauLoaiQuanHeId, y.YeuCauQuanHeCuTruId AS TargetQuanHeCuTruId,
                 ch.TenCanHo, tg.TenTang, tn.TenToaNha,
-                COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10))) AS TenNguoiGui,
-                COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10))) AS TenNguoiXuLy
+                {columnMapping["TenNguoiGui"]} AS TenNguoiGui,
+                {columnMapping["TenNguoiXuLy"]} AS TenNguoiXuLy
             FROM YeuCau y
             {sqlJoins}
-            WHERE y.Id = @Id AND y.LoaiYeuCauCuDan = 'YeuCauCuTru';
+            {sqlWhere};
 
-            -- 2. Documents
+            -- 2. Documents (1-N)
             SELECT 
-                ytl.Id, ytl.LoaiGiayToId, ytl.SoGiayTo, ytl.NgayPhatHanh, 
-                ytl.TaiLieuCuTruId AS TargetTaiLieuCuTruId
-            FROM TaiLieu ytl
-            WHERE ytl.YeuCauCuTruId = @Id AND ytl.LoaiTaiLieu = 'YeuCauTaiLieuCuTru' AND ytl.IsDeleted = 0;
+                tl.Id, tl.LoaiGiayToId, tl.SoGiayTo, tl.NgayPhatHanh, 
+                tl.TaiLieuCuTruId AS TargetTaiLieuCuTruId
+            FROM YeuCau y
+            {sqlJoinsTl}
+            {sqlWhere};
 
-            -- 3. Files
+            -- 3. Files (1-N)
             SELECT 
                 ttl.Id, ttl.FileUrl, ttl.FileName, ttl.ContentType,
                 ttl.TaiLieuId AS DocumentId
-            FROM TepTaiLieu ttl
-            WHERE ttl.TaiLieuId IN (SELECT Id FROM TaiLieu WHERE YeuCauCuTruId = @Id AND LoaiTaiLieu = 'YeuCauTaiLieuCuTru' AND IsDeleted = 0)
-              AND ttl.LoaiTepTaiLieu = 'TepYeuCauTaiLieuCuTru' AND ttl.IsDeleted = 0;
+            FROM YeuCau y
+            {sqlJoinsTtl}
+            {sqlWhere};
             """;
 
-        // Sử dụng helper GetDbTransaction() có sẵn trong AppDbContext
         var transaction = _dbContext.GetDbTransaction();
 
-        using var multi = await connection.QueryMultipleAsync(sql, new { Id = id }, transaction: transaction);
+        using var multi = await connection.QueryMultipleAsync(sql, parameters, transaction: transaction);
 
-        var response = await multi.ReadFirstOrDefaultAsync<YeuCauCuTruResponse>();
-        if (response == null) return null;
+        var readModel = await multi.ReadFirstOrDefaultAsync<YeuCauCuTruReadModel>();
+        if (readModel == null) return null;
 
         var loaiYeuCauMap = LoaiYeuCau.ToDictionary();
         var trangThaiMap = TrangThaiYeuCau.ToDictionary();
@@ -205,49 +222,91 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
         var gioiTinhMap = GioiTinh.ToDictionary();
         var loaiQuanHeCuTruMap = LoaiQuanHeCuTru.ToDictionary();
 
-        // Enrich main info
-        response = response with
+        // Map to Response
+        var response = new YeuCauCuTruResponse
         {
-            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(response.LoaiYeuCauId, string.Empty),
-            TenTrangThai = trangThaiMap.GetValueOrDefault(response.TrangThaiId, string.Empty),
-            YeuCauGioiTinhTen = response.YeuCauGioiTinhId.HasValue ? gioiTinhMap.GetValueOrDefault(response.YeuCauGioiTinhId.Value, string.Empty) : null,
-            YeuCauLoaiQuanHeTen = response.YeuCauLoaiQuanHeId.HasValue ? loaiQuanHeCuTruMap.GetValueOrDefault(response.YeuCauLoaiQuanHeId.Value, string.Empty) : null,
+            Id = readModel.Id,
+            CanHoId = readModel.CanHoId,
+            LoaiYeuCauId = readModel.LoaiYeuCauId,
+            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(readModel.LoaiYeuCauId, string.Empty),
+            TrangThaiId = readModel.TrangThaiId,
+            TenTrangThai = trangThaiMap.GetValueOrDefault(readModel.TrangThaiId, string.Empty),
+            LyDo = readModel.LyDo,
+            NoiDung = readModel.NoiDung,
+            CreatedAt = readModel.CreatedAt,
+            NgayXuLy = readModel.NgayXuLy,
+            NguoiXuLyId = readModel.NguoiXuLyId,
+            CreatedBy = readModel.CreatedBy,
+            TenNguoiGui = readModel.TenNguoiGui,
+            TenNguoiXuLy = readModel.TenNguoiXuLy,
+            TenCanHo = readModel.TenCanHo,
+            TenTang = readModel.TenTang,
+            TenToaNha = readModel.TenToaNha,
+            YeuCauTen = readModel.YeuCauTen,
+            YeuCauHo = readModel.YeuCauHo,
+            YeuCauNgaySinh = readModel.YeuCauNgaySinh,
+            YeuCauGioiTinhId = readModel.YeuCauGioiTinhId,
+            YeuCauGioiTinhTen = readModel.YeuCauGioiTinhId.HasValue ? gioiTinhMap.GetValueOrDefault(readModel.YeuCauGioiTinhId.Value, string.Empty) : null,
+            YeuCauSoDienThoai = readModel.YeuCauSoDienThoai,
+            YeuCauCCCD = readModel.YeuCauCCCD,
+            YeuCauDiaChi = readModel.YeuCauDiaChi,
+            YeuCauLoaiQuanHeId = readModel.YeuCauLoaiQuanHeId,
+            YeuCauLoaiQuanHeTen = readModel.YeuCauLoaiQuanHeId.HasValue ? loaiQuanHeCuTruMap.GetValueOrDefault(readModel.YeuCauLoaiQuanHeId.Value, string.Empty) : null,
+            TargetQuanHeCuTruId = readModel.YeuCauQuanHeCuTruId
         };
 
-        var documents = (await multi.ReadAsync<TaiLieuResponse>()).ToList();
-        var fileRows = (await multi.ReadAsync<dynamic>()).ToList();
+        var documents = (await multi.ReadAsync<YeuCauCuTruDocumentReadModel>()).ToList();
+        var fileRows = (await multi.ReadAsync<YeuCauCuTruFileReadModel>()).ToList();
 
-        // Map Enums and Stitch Files
-        foreach (var doc in documents)
+        // 2. Map Documents to Response
+        var docResponses = documents.Select(doc => new TaiLieuResponse
         {
-            doc.TenLoaiGiayTo = loaiGiayToMap.GetValueOrDefault(doc.LoaiGiayToId, string.Empty);
-            doc.Files = fileRows
-                .Where(f => (int)f.DocumentId == doc.Id)
-                .Select(f => new TepTaiLieuResponse((int)f.Id, (string)f.FileUrl, (string)f.FileName, (string)f.ContentType))
-                .ToList();
-        }
+            Id = doc.Id,
+            LoaiGiayToId = doc.LoaiGiayToId,
+            TenLoaiGiayTo = loaiGiayToMap.GetValueOrDefault(doc.LoaiGiayToId, string.Empty),
+            SoGiayTo = doc.SoGiayTo,
+            NgayPhatHanh = doc.NgayPhatHanh,
+            Files = fileRows
+                .Where(f => f.DocumentId == doc.Id)
+                .Select(f => new TepTaiLieuResponse(f.Id, f.FileUrl, f.FileName, f.ContentType))
+                .ToList()
+        }).ToList();
 
-        return response with { Documents = documents };
+        return response with { Documents = docResponses };
     }
 
-    public async Task<DSYeuCauCuTruResponse?> GetListResponseByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<DSYeuCauCuTruResponse?> GetListResponseByIdAsync(GetYeuCauCuTruByIdSpecification spec, CancellationToken cancellationToken = default)
     {
         var connection = _dbContext.GetDbConnection();
 
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
-        var joins = new[]
+        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            new JoinDefinition("CanHo", "ch", "y.CanHoId = ch.Id"),
-            new JoinDefinition("Tang", "tg", "ch.TangId = tg.Id"),
-            new JoinDefinition("ToaNha", "tn", "tg.ToaNhaId = tn.Id"),
-            new JoinDefinition("NguoiDung", "nd1", "y.CreatedBy = nd1.Id"),
-            new JoinDefinition("TaiKhoan", "tk1", "nd1.Id = tk1.NguoiDungId AND tk1.IsActive = 1", AddSoftDelete: false),
-            new JoinDefinition("NguoiDung", "nd2", "y.NguoiXuLyId = nd2.Id"),
-            new JoinDefinition("TaiKhoan", "tk2", "nd2.Id = tk2.NguoiDungId AND tk2.IsActive = 1", AddSoftDelete: false)
+            { "Id", "y.Id" },
+            { "TenNguoiGui", "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))" },
+            { "TenNguoiXuLy", "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))" },
+            { "IsDeleted", "y.IsDeleted" }
         };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(
+            spec,
+            columnMapping,
+            parameters,
+            discriminators: [("y.LoaiYeuCauCuDan", "YeuCauCuTru")],
+            addSoftDeleteFilter: true);
+
+        var sqlJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("CanHo", "ch", "y.CanHoId = ch.Id", JoinType.Inner, true),
+            new JoinDefinition("Tang", "tg", "ch.TangId = tg.Id", JoinType.Inner, true),
+            new JoinDefinition("ToaNha", "tn", "tg.ToaNhaId = tn.Id", JoinType.Inner, true),
+            new JoinDefinition("NguoiDung", "nd1", "y.CreatedBy = nd1.Id", JoinType.Left, true),
+            new JoinDefinition("TaiKhoan", "tk1", "nd1.Id = tk1.NguoiDungId AND tk1.IsActive = 1", JoinType.Left, false),
+            new JoinDefinition("NguoiDung", "nd2", "y.NguoiXuLyId = nd2.Id", JoinType.Left, true),
+            new JoinDefinition("TaiKhoan", "tk2", "nd2.Id = tk2.NguoiDungId AND tk2.IsActive = 1", JoinType.Left, false)
+        ]);
 
         var sql = $"""
             SELECT
@@ -266,17 +325,16 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
                 tg.ToaNhaId,
                 ch.TangId,
                 tn.TenToaNha,
-                COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10))) AS TenNguoiGui,
-                COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10))) AS TenNguoiXuLy
+                {columnMapping["TenNguoiGui"]} AS TenNguoiGui,
+                {columnMapping["TenNguoiXuLy"]} AS TenNguoiXuLy
             FROM YeuCau y
             {sqlJoins}
-            WHERE y.Id = @Id AND y.IsDeleted = 0 AND y.LoaiYeuCauCuDan = 'YeuCauCuTru'
+            {sqlWhere}
             """;
 
-        // Sử dụng helper GetDbTransaction() có sẵn trong AppDbContext
         var transaction = _dbContext.GetDbTransaction();
 
-        var row = await connection.QueryFirstOrDefaultAsync<YeuCauCuTruReadModel>(sql, new { Id = id }, transaction: transaction);
+        var row = await connection.QueryFirstOrDefaultAsync<YeuCauCuTruReadModel>(sql, parameters, transaction: transaction);
         if (row == null) return null;
 
         var loaiYeuCauMap = LoaiYeuCau.ToDictionary();

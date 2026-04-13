@@ -28,7 +28,6 @@ public class GetListCanHoSpecification : BaseSpecification
         int? pageSize) 
         : base(sortCol, isAsc, pageNumber, pageSize)
     {
-        AddFilter("IsDeleted", FilterOperator.Equal, false);
 
         if (tangId.HasValue)
         {

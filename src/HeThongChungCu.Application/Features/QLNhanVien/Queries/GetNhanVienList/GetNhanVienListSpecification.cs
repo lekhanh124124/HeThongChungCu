@@ -40,7 +40,5 @@ public class GetNhanVienListSpecification : BaseSpecification
 
         if (trangThaiNhanVienId.HasValue)
             AddFilter("TrangThaiNhanVienId", FilterOperator.Equal, trangThaiNhanVienId.Value);
-
-        AddFilter("IsDeleted", FilterOperator.Equal, false);
     }
 }

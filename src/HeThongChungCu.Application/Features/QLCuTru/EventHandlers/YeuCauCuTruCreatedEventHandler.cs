@@ -1,5 +1,6 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Features.QLCuTru.Queries.GetYeuCauCuTruById;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Entities;
@@ -50,7 +51,7 @@ public class YeuCauCuTruCreatedEventHandler : INotificationHandler<YeuCauCuTruCr
         if (allRecipientIds.Count == 0) return;
 
         // Lấy dữ liệu đầy đủ để đưa vào Metadata (Giúp Frontend hiển thị ngay mà không cần gọi API)
-        var listResponse = await _yeuCauQueryRepository.GetListResponseByIdAsync(yeuCau.Id, cancellationToken);
+        var listResponse = await _yeuCauQueryRepository.GetListResponseByIdAsync(new GetYeuCauCuTruByIdSpecification(yeuCau.Id), cancellationToken);
         string? metadataJson = listResponse != null ? JsonSerializer.Serialize(listResponse) : null;
 
         // 2. Tạo thực thể ThongBao và Phân bổ

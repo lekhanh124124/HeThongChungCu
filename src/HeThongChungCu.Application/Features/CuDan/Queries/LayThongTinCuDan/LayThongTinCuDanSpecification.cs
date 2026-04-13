@@ -6,6 +6,6 @@ public class LayThongTinCuDanSpecification : BaseSpecification
         : base(null, null, null, null)
     {
         AddFilter("Id", FilterOperator.Equal, quanHeCuTruId);
-        AddFilter("IsDeleted", FilterOperator.Equal, false);
+
     }
 }

@@ -1,6 +1,6 @@
 namespace HeThongChungCu.Infrastructure.Persistence.ReadModels;
 
-internal sealed class GetListToaNhaReadModel
+internal record ToaNhaReadModel
 {
     public int TotalCount { get; init; }
     public int Id { get; init; }

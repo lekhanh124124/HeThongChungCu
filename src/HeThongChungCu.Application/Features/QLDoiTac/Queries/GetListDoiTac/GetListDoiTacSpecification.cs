@@ -13,34 +13,18 @@ public class GetListDoiTacSpecification : BaseSpecification
 
     public GetListDoiTacSpecification(
         string? keyword,
-        int? trangThaiHopDongId,
-        int? loaiDichVuId,
         string? sortCol,
         bool? isAsc,
         int? pageNumber,
-        int? pageSize) 
+        int? pageSize)
         : base(sortCol, isAsc, pageNumber, pageSize)
     {
-        AddFilter("IsDeleted", FilterOperator.Equal, false);
-
-        if (trangThaiHopDongId.HasValue)
-        {
-            AddFilter("TrangThaiHopDongId", FilterOperator.Equal, trangThaiHopDongId.Value);
-        }
-
         if (!string.IsNullOrWhiteSpace(keyword))
         {
             AddKeyword("TenDoiTac", FilterOperator.Contains, keyword);
             AddKeyword("TenCongTy", FilterOperator.Contains, keyword);
             AddKeyword("Email", FilterOperator.Contains, keyword);
             AddKeyword("SoDienThoai", FilterOperator.Contains, keyword);
-        }
-
-        if (loaiDichVuId.HasValue)
-        {
-            // Custom handle in repository using this property if needed,
-            // or we add a proxy filter that repository maps.
-            AddFilter("LoaiDichVuId", FilterOperator.Equal, loaiDichVuId.Value);
         }
     }
 }

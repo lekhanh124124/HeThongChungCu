@@ -75,7 +75,7 @@ public class NhanVienController : ApiControllerBase
     /// - **Hoàn cảnh sử dụng**: Loại bỏ danh sách nhân viên khỏi hệ thống quản lý.
     /// - **Hệ thống xử lý**: 
     ///     - Kiểm tra sự tồn tại của tất cả các ID cung cấp.
-    ///     - Đánh dấu nhân viên là đã xóa (IsDeleted).
+    ///     - Đánh dấu nhân viên là đã xóa.
     ///     - Chuyển trạng thái nhân viên sang "Đã nghỉ việc".
     /// - **Yêu cầu dữ liệu**: 
     ///     - **Bắt buộc**: `Ids` (Danh sách ID nhân viên).

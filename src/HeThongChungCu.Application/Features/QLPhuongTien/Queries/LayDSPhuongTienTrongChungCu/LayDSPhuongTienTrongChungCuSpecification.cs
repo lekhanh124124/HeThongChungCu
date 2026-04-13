@@ -52,7 +52,6 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSPhuongTi
             AddFilter("LoaiPhuongTienId", FilterOperator.Equal, loaiPhuongTienId);
             AddFilter("MauXe", FilterOperator.Equal, mauXe);
             AddFilter("TrangThaiPhuongTienId", FilterOperator.Equal, trangThaiPhuongTienId);
-            AddFilter("IsDeleted", FilterOperator.Equal, false);
         }
     }
 }

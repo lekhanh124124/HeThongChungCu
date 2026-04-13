@@ -1,14 +1,7 @@
-using Dapper;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
-using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QLDoiTac.DTOs;
 using HeThongChungCu.Application.Features.QLDoiTac.Queries.GetDoiTacById;
 using HeThongChungCu.Application.Features.QLDoiTac.Queries.GetListDoiTac;
 using HeThongChungCu.Application.Features.UploadMedia.DTOs;
-using HeThongChungCu.Domain.Entities;
-using HeThongChungCu.Domain.Enums;
-using HeThongChungCu.Infrastructure.Persistence.Helpers;
-using System.Data;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.QueryRepositories;
 
@@ -22,7 +15,7 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
     }
 
     public async Task<PagedResult<DoiTacResponse>> GetAllAsync(
-        HeThongChungCu.Application.Features.QLDoiTac.Queries.GetListDoiTac.GetListDoiTacSpecification spec,
+        GetListDoiTacSpecification spec,
         CancellationToken cancellationToken = default)
     {
         var connection = _dbContext.GetDbConnection();
@@ -32,50 +25,40 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
 
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "IsDeleted", "dt.IsDeleted" },
             { "TenDoiTac", "dt.TenDoiTac" },
             { "TenCongTy", "dt.TenCongTy" },
             { "Email", "dt.Email" },
             { "SoDienThoai", "dt.SoDienThoai" },
-            { "LoaiDichVuId", "hd_filter.LoaiDichVuId" },
-            { "Id", "dt.Id" }
+            { "Id", "dt.Id" },
+            { "IsDeleted", "dt.IsDeleted" }
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
-
-        var joins = new List<JoinDefinition>();
-        var loaiDichVuFilter = spec.Filters.FirstOrDefault(f => f.PropertyName == "LoaiDichVuId");
-        if (loaiDichVuFilter != null)
-        {
-            joins.Add(new JoinDefinition("HopDongDoiTac", "hd_filter", "hd_filter.DoiTacId = dt.Id AND hd_filter.TrangThaiHopDongId = 1", JoinType.Inner, false));
-        }
-        var sqlJoin = DapperQueryBuilder.BuildJoin(joins);
 
         var sql = $"""
             SELECT COUNT(*) OVER() AS TotalCount, 
                    dt.Id, dt.TenDoiTac, dt.TenCongTy, dt.NguoiDaiDien, dt.SoDienThoai, dt.Email
             FROM DoiTac dt
-            {sqlJoin}
             {sqlWhere}
-            GROUP BY dt.Id, dt.TenDoiTac, dt.TenCongTy, dt.NguoiDaiDien, dt.SoDienThoai, dt.Email
             {sqlOrderBy}
             {sqlPagination};
             """;
 
-        var rows = (await connection.QueryAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
+        var rows = (await connection.QueryAsync<DoiTacReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
 
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var items = rows.Select(r => new DoiTacResponse
         {
-            Id = (int)r.Id,
-            TenDoiTac = (string)r.TenDoiTac,
-            TenCongTy = (string?)r.TenCongTy,
-            NguoiDaiDien = (string?)r.NguoiDaiDien,
-            SoDienThoai = (string?)r.SoDienThoai,
-            Email = (string?)r.Email
+            Id = r.Id,
+            TenDoiTac = r.TenDoiTac,
+            TenCongTy = r.TenCongTy,
+            NguoiDaiDien = r.NguoiDaiDien,
+            SoDienThoai = r.SoDienThoai,
+            Email = r.Email
         }).ToList();
 
         return new PagedResult<DoiTacResponse>
@@ -105,92 +88,98 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
             { "IsDeleted", "dt.IsDeleted" }
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
 
-        var joins = new List<JoinDefinition>
-        {
-            new("HopDongDoiTac", "hd", "hd.DoiTacId = dt.Id", JoinType.Left, false),
-            new("DichVu", "dv", "dv.Id = hd.DichVuId", JoinType.Left, false),
-            new("TepTaiLieu", "tp", "tp.HopDongDoiTacId = hd.Id", JoinType.Left, false)
-        };
-        var sqlJoin = DapperQueryBuilder.BuildJoin(joins);
+        var sqlJoinHd = DapperQueryBuilder.BuildJoin([
+            new("HopDongDoiTac", "hd", "hd.DoiTacId = dt.Id"),
+            new("DichVu", "dv", "dv.Id = hd.DichVuId")
+        ]);
+
+        var sqlJoinTp = DapperQueryBuilder.BuildJoin([
+            new("HopDongDoiTac", "hd", "hd.DoiTacId = dt.Id"),
+            new("TepTaiLieu", "tp", "tp.HopDongDoiTacId = hd.Id", JoinType.Left, true, Discriminators: [("LoaiTepTaiLieu", "TepHopDongDoiTac")])
+        ]);
 
         var sql = $"""
-            SELECT dt.Id, dt.TenDoiTac, dt.TenCongTy, dt.NguoiDaiDien, dt.SoGiayPhepKD, dt.MaSoThue, dt.DiaChi, dt.SoDienThoai, dt.Email,
-                   dv.Id AS DichVuUid, dv.MaDichVu, dv.TenDichVu, dv.LoaiDichVuId, dv.DonViTinh, dv.IsBatBuoc, dv.TrangThaiId AS DichVuTrangThaiId,
-                   hd.Id AS HopDongUid, hd.SoHopDong, hd.NgayKy, hd.NgayHetHan, hd.GiaTriHopDong, hd.NoiDung, hd.DichVuId AS HopDongDichVuId, hd.TrangThaiHopDongId,
-                   tp.Id AS FileUid, tp.FileUrl, tp.FileName, tp.ContentType
+            -- Query 1: DoiTac
+            SELECT dt.Id, dt.TenDoiTac, dt.TenCongTy, dt.NguoiDaiDien, dt.SoGiayPhepKD, dt.MaSoThue, dt.DiaChi, dt.SoDienThoai, dt.Email
             FROM DoiTac dt
-            {sqlJoin}
+            {sqlWhere};
+
+            -- Query 2: HopDong + DichVu
+            SELECT hd.Id AS HopDongUid, hd.SoHopDong, hd.NgayKy, hd.NgayHetHan, hd.GiaTriHopDong, hd.NoiDung, hd.DichVuId AS HopDongDichVuId, hd.TrangThaiHopDongId,
+                   dv.Id AS DichVuUid, dv.MaDichVu, dv.TenDichVu, dv.LoaiDichVuId, dv.DonViTinh, dv.IsBatBuoc, dv.TrangThaiId AS DichVuTrangThaiId
+            FROM DoiTac dt
+            {sqlJoinHd}
             {sqlWhere}
             ORDER BY hd.NgayKy DESC;
+
+            -- Query 3: TepTaiLieu
+            SELECT tp.Id AS FileUid, tp.FileUrl, tp.FileName, tp.ContentType, tp.HopDongDoiTacId
+            FROM DoiTac dt
+            {sqlJoinTp}
+            {sqlWhere};
             """;
 
-        var rows = (await connection.QueryAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
+        using var multi = await connection.QueryMultipleAsync(sql, parameters, transaction: _dbContext.GetDbTransaction());
 
-        if (rows.Count == 0)
-            return null;
-
-        var firstRow = rows.First();
+        var firstRow = await multi.ReadFirstOrDefaultAsync<DoiTacDetailReadModel>();
+        if (firstRow == null) return null;
 
         var doiTac = new DoiTacDetailResponse
         {
-            Id = (int)firstRow.Id,
-            TenDoiTac = (string)firstRow.TenDoiTac,
-            TenCongTy = (string?)firstRow.TenCongTy,
-            NguoiDaiDien = (string?)firstRow.NguoiDaiDien,
-            SoGiayPhepKD = (string?)firstRow.SoGiayPhepKD,
-            MaSoThue = (string?)firstRow.MaSoThue,
-            DiaChi = (string?)firstRow.DiaChi,
-            SoDienThoai = (string?)firstRow.SoDienThoai,
-            Email = (string?)firstRow.Email,
+            Id = firstRow.Id,
+            TenDoiTac = firstRow.TenDoiTac,
+            TenCongTy = firstRow.TenCongTy,
+            NguoiDaiDien = firstRow.NguoiDaiDien,
+            SoGiayPhepKD = firstRow.SoGiayPhepKD,
+            MaSoThue = firstRow.MaSoThue,
+            DiaChi = firstRow.DiaChi,
+            SoDienThoai = firstRow.SoDienThoai,
+            Email = firstRow.Email,
             HopDongs = []
         };
 
         var loaiDichVuMap = LoaiDichVu.ToDictionary();
         var trangThaiHopDongMap = TrangThaiHopDong.ToDictionary();
         var trangThaiDichVuMap = TrangThaiDichVu.ToDictionary();
-        var fileIds = new HashSet<int>();
 
-        foreach (var row in rows)
+        var hopDongs = (await multi.ReadAsync<HopDongReadModel>()).ToList();
+        var teps = (await multi.ReadAsync<DoiTacContractFileReadModel>()).ToList();
+
+        foreach (var hd in hopDongs)
         {
-            if (row.HopDongUid != null)
+            var existingHopDong = new HopDongResponse
             {
-                var hopDongId = (int)row.HopDongUid;
-                var existingHopDong = doiTac.HopDongs.FirstOrDefault(h => h.Id == hopDongId);
+                Id = hd.HopDongUid,
+                SoHopDong = hd.SoHopDong,
+                NgayKy = hd.NgayKy,
+                NgayHetHan = hd.NgayHetHan,
+                GiaTriHopDong = hd.GiaTriHopDong,
+                LoaiDichVuId = hd.HopDongDichVuId,
+                TenLoaiDichVu = loaiDichVuMap.GetValueOrDefault(hd.HopDongDichVuId, string.Empty),
+                TrangThaiHopDongId = hd.TrangThaiHopDongId,
+                TenTrangThaiHopDong = trangThaiHopDongMap.GetValueOrDefault(hd.TrangThaiHopDongId, string.Empty),
+                NoiDung = hd.NoiDung,
+                Teps = [],
 
-                if (existingHopDong == null)
-                {
-                    existingHopDong = new HopDongResponse
-                    {
-                        Id = hopDongId,
-                        SoHopDong = (string)row.SoHopDong,
-                        NgayKy = (DateTimeOffset)row.NgayKy,
-                        NgayHetHan = (DateTimeOffset)row.NgayHetHan,
-                        GiaTriHopDong = (decimal)row.GiaTriHopDong,
-                        LoaiDichVuId = (int)row.HopDongDichVuId,
-                        TenLoaiDichVu = loaiDichVuMap.GetValueOrDefault((int)row.HopDongDichVuId, string.Empty),
-                        TrangThaiHopDongId = (int)row.TrangThaiHopDongId,
-                        TenTrangThaiHopDong = trangThaiHopDongMap.GetValueOrDefault((int)row.TrangThaiHopDongId, string.Empty),
-                        NoiDung = (string?)row.NoiDung,
-                        Teps = [],
+                // Dich Vu Info
+                MaDichVu = hd.MaDichVu,
+                TenDichVu = hd.TenDichVu,
+                DonViTinh = hd.DonViTinh,
+                IsBatBuoc = hd.IsBatBuoc,
+                TrangThaiDichVuId = hd.DichVuTrangThaiId,
+                TrangThaiDichVuTen = trangThaiDichVuMap.GetValueOrDefault(hd.DichVuTrangThaiId, string.Empty)
+            };
 
-                        // Dich Vu Info
-                        MaDichVu = (string?)row.MaDichVu ?? string.Empty,
-                        TenDichVu = (string?)row.TenDichVu ?? string.Empty,
-                        DonViTinh = (string?)row.DonViTinh ?? string.Empty,
-                        IsBatBuoc = (bool?)row.IsBatBuoc ?? false,
-                        TrangThaiDichVuId = (int?)row.DichVuTrangThaiId ?? 0,
-                        TrangThaiDichVuTen = trangThaiDichVuMap.GetValueOrDefault((int?)row.DichVuTrangThaiId ?? 0, string.Empty)
-                    };
-                    doiTac.HopDongs.Add(existingHopDong);
-                }
-
-                if (row.FileUid != null && fileIds.Add((int)row.FileUid))
-                {
-                    existingHopDong.Teps.Add(new UploadFileResponse((int)row.FileUid, (string)row.FileName, (string)row.FileUrl, (string)row.ContentType));
-                }
+            var relatedTeps = teps.Where(t => t.HopDongDoiTacId == hd.HopDongUid);
+            foreach (var tp in relatedTeps)
+            {
+                existingHopDong.Teps.Add(new UploadFileResponse(tp.FileUid, tp.FileName, tp.FileUrl, tp.ContentType));
             }
+
+            doiTac.HopDongs.Add(existingHopDong);
         }
 
 

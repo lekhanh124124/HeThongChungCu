@@ -1,12 +1,6 @@
-using Dapper;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
-using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
 using HeThongChungCu.Application.Features.CanHo.Queries.GetCanHoById;
 using HeThongChungCu.Application.Features.CanHo.Queries.GetListCanHo;
-using HeThongChungCu.Infrastructure.Persistence.Helpers;
-using HeThongChungCu.Infrastructure.Persistence.ReadModels;
-using System.Data;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.QueryRepositories;
 
@@ -40,15 +34,13 @@ public class CanHoQueryRepository : ICanHoQueryRepository
             { "TenCanHo", "c.TenCanHo" },
             { "LoaiCanHoId", "c.LoaiCanHoId" },
             { "IsDeleted", "c.IsDeleted" },
-
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var joins = new[]
-        {
-            new JoinDefinition("Tang", "t", "t.Id = c.TangId")
-        };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+        var sqlJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("Tang", "t", "t.Id = c.TangId", JoinType.Left, true)
+        ]);
 
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
@@ -73,7 +65,7 @@ public class CanHoQueryRepository : ICanHoQueryRepository
             {sqlPagination}
             """;
 
-        var rows = (await connection.QueryAsync<GetListCanHoReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
+        var rows = (await connection.QueryAsync<CanHoReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var loaiMap = LoaiCanHo.ToDictionary();
@@ -116,16 +108,14 @@ public class CanHoQueryRepository : ICanHoQueryRepository
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "c.Id" },
-            { "CanHoIsDeleted", "c.IsDeleted" },
-            { "TangIsDeleted", "t.IsDeleted" },
+            { "IsDeleted", "c.IsDeleted" },
         };
 
-        var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
-        var joins = new[]
-        {
-            new JoinDefinition("Tang", "t", "t.Id = c.TangId")
-        };
-        var sqlJoins = DapperQueryBuilder.BuildJoin(joins);
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+        var sqlJoins = DapperQueryBuilder.BuildJoin([
+            new JoinDefinition("Tang", "t", "t.Id = c.TangId", JoinType.Left, true)
+        ]);
 
         var sql = $"""
             SELECT 
@@ -144,7 +134,7 @@ public class CanHoQueryRepository : ICanHoQueryRepository
             {sqlWhere};
             """;
 
-        var result = await connection.QueryFirstOrDefaultAsync<GetCanHoByIdReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction());
+        var result = await connection.QueryFirstOrDefaultAsync<CanHoDetailReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction());
 
         if (result is null)
             return null;
