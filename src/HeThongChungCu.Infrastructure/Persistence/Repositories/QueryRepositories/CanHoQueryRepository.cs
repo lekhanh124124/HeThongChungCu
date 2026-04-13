@@ -73,7 +73,7 @@ public class CanHoQueryRepository : ICanHoQueryRepository
             {sqlPagination}
             """;
 
-        var rows = (await connection.QueryAsync<GetListCanHoReadModel>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<GetListCanHoReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var loaiMap = LoaiCanHo.ToDictionary();
@@ -144,7 +144,7 @@ public class CanHoQueryRepository : ICanHoQueryRepository
             {sqlWhere};
             """;
 
-        var result = await connection.QueryFirstOrDefaultAsync<GetCanHoByIdReadModel>(sql, parameters);
+        var result = await connection.QueryFirstOrDefaultAsync<GetCanHoByIdReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction());
 
         if (result is null)
             return null;

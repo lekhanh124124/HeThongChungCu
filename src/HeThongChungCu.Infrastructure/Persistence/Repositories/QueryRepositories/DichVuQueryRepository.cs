@@ -35,7 +35,9 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             { "IsDeleted", "dv.IsDeleted" },
             { "LoaiDichVuId", "dv.LoaiDichVuId" },
             { "TenDichVu", "dv.TenDichVu" },
-            { "MaDichVu", "dv.MaDichVu" }
+            { "MaDichVu", "dv.MaDichVu" },
+            { "IsBatBuoc", "dv.IsBatBuoc" },
+            { "TrangThaiDichVuId", "dv.TrangThaiId" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
@@ -59,7 +61,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             {sqlPagination};
             """;
 
-        var rows = (await connection.QueryAsync<dynamic>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var items = rows.Select(r => new DichVuResponse
@@ -137,7 +139,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             {sqlWhere};
             """;
 
-        var rows = (await connection.QueryAsync<DichVuDetailReadModel>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<DichVuDetailReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
         if (!rows.Any()) return null;
 
         var first = rows.First();
@@ -262,7 +264,8 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             { "Id", "kg.Id" },
             { "DichVuId", "kg.DichVuId" },
             { "TenKhungGio", "kg.TenKhungGio" },
-            { "IsDeleted", "kg.IsDeleted" }
+            { "IsDeleted", "kg.IsDeleted" },
+            { "IsActive", "kg.IsActive" }
         };
 
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
@@ -271,14 +274,14 @@ public class DichVuQueryRepository : IDichVuQueryRepository
 
         var sql = $"""
             SELECT COUNT(*) OVER() AS TotalCount, 
-                   kg.Id, kg.DichVuId, kg.GioBatDau, kg.GioKetThuc, kg.TenKhungGio, kg.NgayTrongTuan
+                   kg.Id, kg.DichVuId, kg.GioBatDau, kg.GioKetThuc, kg.TenKhungGio, kg.NgayTrongTuan, kg.IsActive
             FROM KhungGioDichVu kg
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination};
             """;
 
-        var rows = (await connection.QueryAsync<dynamic>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var items = rows.Select(r => new KhungGioDichVuResponse
@@ -288,7 +291,8 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             GioBatDau = (TimeSpan)r.GioBatDau,
             GioKetThuc = (TimeSpan)r.GioKetThuc,
             TenKhungGio = (string)r.TenKhungGio,
-            NgayTrongTuan = (int?)r.NgayTrongTuan
+            NgayTrongTuan = (int?)r.NgayTrongTuan,
+            IsActive = (bool)r.IsActive
         }).ToList();
 
         return new PagedResult<KhungGioDichVuResponse>
@@ -321,12 +325,12 @@ public class DichVuQueryRepository : IDichVuQueryRepository
         var (sqlWhere, parameters) = DapperQueryBuilder.BuildWhere(spec, columnMapping);
 
         var sql = $"""
-            SELECT kg.Id, kg.DichVuId, kg.GioBatDau, kg.GioKetThuc, kg.TenKhungGio, kg.NgayTrongTuan
+            SELECT kg.Id, kg.DichVuId, kg.GioBatDau, kg.GioKetThuc, kg.TenKhungGio, kg.NgayTrongTuan, kg.IsActive
             FROM KhungGioDichVu kg
             {sqlWhere};
             """;
 
-        var row = await connection.QueryFirstOrDefaultAsync<dynamic>(sql, parameters);
+        var row = await connection.QueryFirstOrDefaultAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction());
         if (row == null) return null;
 
         return new KhungGioDichVuResponse
@@ -336,7 +340,8 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             GioBatDau = (TimeSpan)row.GioBatDau,
             GioKetThuc = (TimeSpan)row.GioKetThuc,
             TenKhungGio = (string)row.TenKhungGio,
-            NgayTrongTuan = (int?)row.NgayTrongTuan
+            NgayTrongTuan = (int?)row.NgayTrongTuan,
+            IsActive = (bool)row.IsActive
         };
     }
 
@@ -374,7 +379,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             {sqlPagination};
             """;
 
-        var rows = (await connection.QueryAsync<dynamic>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var items = rows.Select(r => new BangGiaResponse
@@ -382,8 +387,8 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             Id = (int)r.Id,
             DichVuId = (int)r.DichVuId,
             TenBangGia = (string)r.TenBangGia,
-            NgayApDung = r.NgayApDung is DateTimeOffset dto1 ? dto1.UtcDateTime : (DateTime)r.NgayApDung,
-            NgayKetThuc = r.NgayKetThuc is DateTimeOffset dto2 ? dto2.UtcDateTime : (DateTime?)r.NgayKetThuc,
+            NgayApDung = r.NgayApDung is DateTimeOffset dto1 ? dto1.DateTime : (DateTime)r.NgayApDung,
+            NgayKetThuc = r.NgayKetThuc is DateTimeOffset dto2 ? dto2.DateTime : (DateTime?)r.NgayKetThuc,
             LoaiDinhGiaId = (int)r.LoaiDinhGiaId,
             LoaiDinhGiaTen = LoaiDinhGia.FromValue((int)r.LoaiDinhGiaId)?.Name ?? string.Empty,
             DonGia = (decimal?)r.DonGia,
@@ -426,7 +431,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             {sqlWhere};
             """;
 
-        var row = await connection.QueryFirstOrDefaultAsync<dynamic>(sqlBangGia, parameters);
+        var row = await connection.QueryFirstOrDefaultAsync<dynamic>(sqlBangGia, parameters, transaction: _dbContext.GetDbTransaction());
         if (row == null) return null;
 
         var bangGia = new BangGiaResponse
@@ -434,8 +439,8 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             Id = (int)row.Id,
             DichVuId = (int)row.DichVuId,
             TenBangGia = (string)row.TenBangGia,
-            NgayApDung = row.NgayApDung is DateTimeOffset dto1 ? dto1.UtcDateTime : (DateTime)row.NgayApDung,
-            NgayKetThuc = row.NgayKetThuc is DateTimeOffset dto2 ? dto2.UtcDateTime : (DateTime?)row.NgayKetThuc,
+            NgayApDung = row.NgayApDung is DateTimeOffset dto1 ? dto1.DateTime : (DateTime)row.NgayApDung,
+            NgayKetThuc = row.NgayKetThuc is DateTimeOffset dto2 ? dto2.DateTime : (DateTime?)row.NgayKetThuc,
             LoaiDinhGiaId = (int)row.LoaiDinhGiaId,
             LoaiDinhGiaTen = LoaiDinhGia.FromValue((int)row.LoaiDinhGiaId)?.Name ?? string.Empty,
             DonGia = (decimal?)row.DonGia,
@@ -451,7 +456,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
                 WHERE BangGiaId = @BangGiaId
                 ORDER BY TuMuc;
                 """;
-            var details = await connection.QueryAsync<ChiTietGiaLuyTienResponse>(sqlLuyTien, new { BangGiaId = bangGia.Id });
+            var details = await connection.QueryAsync<ChiTietGiaLuyTienResponse>(sqlLuyTien, new { BangGiaId = bangGia.Id }, transaction: _dbContext.GetDbTransaction());
             bangGia = bangGia with { GiaLuyTiens = details.ToList() };
         }
         else if (bangGia.LoaiDinhGiaId == LoaiDinhGia.TheoKhungGio.Value)
@@ -462,7 +467,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
                 JOIN KhungGioDichVu kg ON ct.KhungGioId = kg.Id
                 WHERE ct.BangGiaId = @BangGiaId;
                 """;
-            var details = await connection.QueryAsync<ChiTietGiaKhungGioResponse>(sqlKhungGio, new { BangGiaId = bangGia.Id });
+            var details = await connection.QueryAsync<ChiTietGiaKhungGioResponse>(sqlKhungGio, new { BangGiaId = bangGia.Id }, transaction: _dbContext.GetDbTransaction());
             bangGia = bangGia with { GiaKhungGios = details.ToList() };
         }
         else if (bangGia.LoaiDinhGiaId == LoaiDinhGia.TheoDienTich.Value)
@@ -472,7 +477,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
                 FROM ChiTietGiaLoaiCanHo
                 WHERE BangGiaId = @BangGiaId;
                 """;
-            var details = (await connection.QueryAsync<dynamic>(sqlLoaiCanHo, new { BangGiaId = bangGia.Id })).Select(r => new ChiTietGiaLoaiCanHoResponse
+            var details = (await connection.QueryAsync<dynamic>(sqlLoaiCanHo, new { BangGiaId = bangGia.Id }, transaction: _dbContext.GetDbTransaction())).Select(r => new ChiTietGiaLoaiCanHoResponse
             {
                 Id = (int)r.Id,
                 LoaiCanHoId = (int?)r.LoaiCanHoId,

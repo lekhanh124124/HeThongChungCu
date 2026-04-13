@@ -90,7 +90,7 @@ public class UserSeeder
     {
         var faker = new Bogus.Faker();
         string idCard;
-        
+
         lock (_lock)
         {
             do
@@ -105,7 +105,7 @@ public class UserSeeder
                 int genderCode;
                 int year = birthYear ?? faker.Date.Past(50, DateTime.Now.AddYears(-20)).Year;
                 bool isMale = gioiTinhId == null || gioiTinhId == 1; // Giả định 1 là Nam
-                
+
                 if (year < 2000) genderCode = isMale ? 0 : 1;
                 else genderCode = isMale ? 2 : 3;
 
@@ -222,7 +222,7 @@ public class UserSeeder
             var email = EnsureUniqueEmail(faker.Internet.Email().ToLower());
             var account = new TaiKhoan(null, email, email, hashedPassword);
             account.AddRole(Role.Guest);
-            account.SetCreated(adminId, DateTimeOffset.UtcNow);
+            account.SetCreated(adminId, DateTimeOffset.Now);
             await context.TaiKhoan.AddAsync(account);
         }
 
@@ -249,7 +249,7 @@ public class UserSeeder
 
         if (createdBy.HasValue)
         {
-            account.SetCreated(createdBy.Value, DateTimeOffset.UtcNow);
+            account.SetCreated(createdBy.Value, DateTimeOffset.Now);
         }
 
         await context.TaiKhoan.AddAsync(account);
@@ -269,7 +269,7 @@ public class UserSeeder
     {
         var faker = new Bogus.Faker("vi");
 
-        var dob = faker.Date.PastOffset(40, DateTimeOffset.UtcNow.AddYears(-20));
+        var dob = faker.Date.PastOffset(40, DateTimeOffset.Now.AddYears(-20));
         var gioiTinh = faker.PickRandom(GioiTinh.GetAll().ToArray());
 
         var user = new NguoiDung(
@@ -277,15 +277,15 @@ public class UserSeeder
             lastName,
             dob,
             gioiTinh,
-            string.IsNullOrWhiteSpace(address) || address == "Hồ Chí Minh" || address == "TP. Hồ Chí Minh" 
-                ? GetRandomVietnamAddress() 
+            string.IsNullOrWhiteSpace(address) || address == "Hồ Chí Minh" || address == "TP. Hồ Chí Minh"
+                ? GetRandomVietnamAddress()
                 : address,
             RegisterIdCard(GetUniqueIdCard(gioiTinh.Value, dob.Year)),
             phoneNumber ?? RegisterPhoneNumber(GetUniquePhoneNumber()));
-        
+
         if (createdBy.HasValue)
         {
-            user.SetCreated(createdBy.Value, DateTimeOffset.UtcNow);
+            user.SetCreated(createdBy.Value, DateTimeOffset.Now);
         }
 
         await context.NguoiDung.AddAsync(user);

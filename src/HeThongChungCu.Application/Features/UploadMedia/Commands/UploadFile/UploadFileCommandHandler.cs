@@ -35,7 +35,9 @@ public class UploadFileCommandHandler : ICommandHandler<UploadFileCommand, List<
             return Result.Failure<List<UploadFileResponse>>(FileErrors.UnrecognizedCategory);
         }
 
-        var responses = new List<UploadFileResponse>();
+        var uploadData = new List<(Stream Stream, string FileName, string ContentType)>();
+        var originalFileNameMap = new Dictionary<string, string>(); // UniqueName -> OriginalName
+        var contentTypeMap = new Dictionary<string, string>(); // UniqueName -> ContentType
 
         foreach (var file in request.Files)
         {
@@ -49,29 +51,48 @@ public class UploadFileCommandHandler : ICommandHandler<UploadFileCommand, List<
                 $"{Guid.NewGuid():N}{extension}",
                 _dateTimeProvider.UtcNow.DateTime);
 
-            var uploadResult = await _fileStorageService.UploadFileAsync(
-                file.Content,
-                uniqueFileName,
-                category,
-                file.ContentType,
-                cancellationToken);
+            uploadData.Add((file.Content, uniqueFileName, file.ContentType));
+            originalFileNameMap[uniqueFileName] = file.FileName;
+            contentTypeMap[uniqueFileName] = file.ContentType;
+        }
 
-            if (uploadResult.IsFailure)
-            {
-                return Result.Failure<List<UploadFileResponse>>(uploadResult.Errors);
-            }
+        var uploadResult = await _fileStorageService.UploadFilesAsync(
+            uploadData,
+            category,
+            cancellationToken);
 
-            var fileUrl = uploadResult.Value;
+        if (uploadResult.IsFailure)
+        {
+            return Result.Failure<List<UploadFileResponse>>(uploadResult.Errors);
+        }
 
-            var tepTaiLieu = new TepTaiLieu(file.FileName, fileUrl, file.Content.Length, file.ContentType);
-            await _tepTaiLieuRepository.AddAsync(tepTaiLieu, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var fileUrls = uploadResult.Value;
+        var tepTaiLieus = new List<TepTaiLieu>();
+        var responses = new List<UploadFileResponse>();
 
+        for (int i = 0; i < fileUrls.Count; i++)
+        {
+            var url = fileUrls[i];
+            var uniqueName = uploadData[i].FileName;
+            var originalName = originalFileNameMap[uniqueName];
+            var contentType = contentTypeMap[uniqueName];
+            var streamSize = uploadData[i].Stream.Length;
+
+            var tepTaiLieu = new TepTaiLieu(originalName, url, streamSize, contentType);
+            tepTaiLieus.Add(tepTaiLieu);
+        }
+
+        await _tepTaiLieuRepository.AddRangeAsync(tepTaiLieus, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        for (int i = 0; i < tepTaiLieus.Count; i++)
+        {
+            var entity = tepTaiLieus[i];
             responses.Add(new UploadFileResponse(
-                tepTaiLieu.Id,
-                file.FileName,
-                fileUrl,
-                file.ContentType));
+                entity.Id,
+                entity.FileName,
+                entity.FileUrl,
+                entity.ContentType));
         }
 
         return Result.Success(responses);

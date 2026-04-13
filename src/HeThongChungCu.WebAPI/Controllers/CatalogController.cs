@@ -321,4 +321,144 @@ public class CatalogController : ApiControllerBase
 
         return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cung cấp danh sách các loại hình dịch vụ (Điện, Nước, Quản lý,...) để phân loại dịch vụ.
+    /// - **Hệ thống xử lý**: Lấy danh sách các loại dịch vụ từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("loai-dich-vu-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetLoaiDichVuForSelector()
+    {
+        var result = LoaiDichVu.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cung cấp các trạng thái vận hành của dịch vụ (Đang hoạt động, Ngừng cung cấp,...) để quản lý hoặc lọc dữ liệu.
+    /// - **Hệ thống xử lý**: Trả về danh sách các trạng thái dịch vụ từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("trang-thai-dich-vu-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTrangThaiDichVuForSelector()
+    {
+        var result = TrangThaiDichVu.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cung cấp các trạng thái của hợp đồng (Chờ ký, Hiệu lực, Đã thanh lý,...) để quản lý vòng đời hợp đồng.
+    /// - **Hệ thống xử lý**: Lấy danh sách trạng thái hợp đồng từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("trang-thai-hop-dong-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTrangThaiHopDongForSelector()
+    {
+        var result = TrangThaiHopDong.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Phân loại trạng thái phê duyệt đăng ký dịch vụ (Chờ duyệt, Thành công, Từ chối,...).
+    /// - **Hệ thống xử lý**: Trả về danh sách trạng thái đăng ký dịch vụ từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("trang-thai-dang-ky-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTrangThaiDangKyForSelector()
+    {
+        var result = TrangThaiDangKy.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cung cấp các phương thức định giá dịch vụ (Theo chỉ số, Theo căn hộ, Miễn phí,...) khi thiết lập bảng giá.
+    /// - **Hệ thống xử lý**: Lấy danh sách các loại định giá từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("loai-dinh-gia-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetLoaiDinhGiaForSelector()
+    {
+        var result = LoaiDinhGia.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Phân loại các loại thông báo gửi đến cư dân (Phí dịch vụ, Bảo trì, Thông báo chung,...).
+    /// - **Hệ thống xử lý**: Trả về danh sách các loại thông báo từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("loai-thong-bao-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetLoaiThongBaoForSelector()
+    {
+        var result = LoaiThongBao.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cung cấp danh sách các ngày trong tuần khi thiết lập lịch trình hoặc khung giờ dịch vụ.
+    /// - **Hệ thống xử lý**: Trả về danh sách các ngày từ Thứ Hai đến Chủ Nhật từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("ngay-trong-tuan-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetNgayTrongTuanForSelector()
+    {
+        var result = NgayTrongTuan.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
 }

@@ -42,10 +42,10 @@ public class QuanHeCuTruSeeder
             (NguoiDung user, _) = await UserSeeder.CreateUserWithAccountAsync(
                 context, firstName, lastName, email, Role.Resident, null!, null, null, adminId == 0 ? null : adminId);
 
-            var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.ChuHo, DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(10, 100)));
-            if (adminId != 0) qh.SetCreated(adminId, DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(10, 100)));
+            var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.ChuHo, DateTimeOffset.Now.AddDays(-faker.Random.Number(10, 100)));
+            if (adminId != 0) qh.SetCreated(adminId, DateTimeOffset.Now.AddDays(-faker.Random.Number(10, 100)));
             context.QuanHeCuTrus.Add(qh);
-            
+
             canHo.MarkAsOccupied();
             headApartmentIds.Add(canHo.Id);
         }
@@ -64,16 +64,16 @@ public class QuanHeCuTruSeeder
             (NguoiDung user, _) = await UserSeeder.CreateUserWithAccountAsync(
                 context, firstName, lastName, email, Role.Resident, null!, null, null, adminId == 0 ? null : adminId);
 
-            var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.NguoiThue, DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(5, 50)));
-            if (adminId != 0) qh.SetCreated(adminId, DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(5, 50)));
+            var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.NguoiThue, DateTimeOffset.Now.AddDays(-faker.Random.Number(5, 50)));
+            if (adminId != 0) qh.SetCreated(adminId, DateTimeOffset.Now.AddDays(-faker.Random.Number(5, 50)));
             context.QuanHeCuTrus.Add(qh);
-            
+
             canHo.MarkAsOccupied();
             headApartmentIds.Add(canHo.Id);
         }
 
         DatabaseSeeder.ClearAllDomainEvents(context);
-        await context.SaveChangesAsync(); 
+        await context.SaveChangesAsync();
 
         // 3. Seed Others (NguoiOCung, Khac) for apartments that already have a head
         if (headApartmentIds.Count != 0)
@@ -103,17 +103,17 @@ public class QuanHeCuTruSeeder
                         batchUsers.Add((user, canHoId));
                     }
                 }
-                
+
                 DatabaseSeeder.ClearAllDomainEvents(context);
                 await context.SaveChangesAsync();
 
                 foreach (var item in batchUsers)
                 {
-                    var qh = new QuanHeCuTru(item.CanHoId, item.User.Id, faker.PickRandom(otherRoles), DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(1, 10)));
-                    if (adminId != 0) qh.SetCreated(adminId, DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(1, 10)));
+                    var qh = new QuanHeCuTru(item.CanHoId, item.User.Id, faker.PickRandom(otherRoles), DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 10)));
+                    if (adminId != 0) qh.SetCreated(adminId, DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 10)));
                     context.QuanHeCuTrus.Add(qh);
                 }
-                
+
                 DatabaseSeeder.ClearAllDomainEvents(context);
                 await context.SaveChangesAsync();
             }

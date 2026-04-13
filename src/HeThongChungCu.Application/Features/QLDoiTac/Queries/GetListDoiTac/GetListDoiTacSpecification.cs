@@ -8,9 +8,7 @@ public class GetListDoiTacSpecification : BaseSpecification
     {
         "Id",
         "TenDoiTac",
-        "TenCongTy",
-        "NgayKyHopDong",
-        "NgayHetHan"
+        "TenCongTy"
     };
 
     public GetListDoiTacSpecification(

@@ -81,7 +81,7 @@ public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuT
                 request.PhoneNumber,
                 request.CCCD,
                 request.DiaChi,
-                request.LoaiQuanHeId ?? yeuCau.YeuCauLoaiQuanHeId, // Use existing if null? Actually command should probably send full state or handle partial
+                request.LoaiQuanHeId, 
                 request.NoiDung,
                 requestDocuments);
 

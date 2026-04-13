@@ -68,65 +68,65 @@ public class YeuCauCuTruSeeder
             YeuCauCuTru request;
             if (loaiYeuCau == LoaiYeuCau.Them)
             {
-                var addContents = new[] 
-                { 
-                    "Đăng ký tạm trú cho người thân vừa chuyển đến từ quê.", 
-                    "Bổ sung thành viên mới vào sổ hộ khẩu gia đình (con mới sinh).", 
-                    "Đăng ký cư trú cho người giúp việc theo hợp đồng mới.", 
+                var addContents = new[]
+                {
+                    "Đăng ký tạm trú cho người thân vừa chuyển đến từ quê.",
+                    "Bổ sung thành viên mới vào sổ hộ khẩu gia đình (con mới sinh).",
+                    "Đăng ký cư trú cho người giúp việc theo hợp đồng mới.",
                     "Đăng ký cho bố mẹ lên ở cùng để tiện chăm sóc sức khỏe.",
                     "Đăng ký tạm trú cho em gái lên học đại học và ở cùng anh chị.",
                     "Bổ sung thông tin vợ mới cưới vào danh sách cư dân căn hộ."
                 };
-                    var dob = faker.Date.Past(30, DateTime.UtcNow.AddYears(-20));
-                    var genderId = faker.PickRandom(new[] { 1, 2 });
-                    request = YeuCauCuTru.CreateAddMemberRequest(
-                        householder.CanHoId,
-                        null,
-                        LoaiQuanHeCuTru.NguoiOCung.Value,
-                        faker.Name.FirstName(),
-                        faker.Name.LastName(),
-                        dob,
-                        genderId,
-                        UserSeeder.GetUniquePhoneNumber(),
-                        UserSeeder.GetUniqueIdCard(genderId, dob.Year),
-                        UserSeeder.GetRandomVietnamAddress(),
-                        faker.PickRandom(addContents),
+                var dob = faker.Date.Past(30, DateTime.Now.AddYears(-20));
+                var genderId = faker.PickRandom(new[] { 1, 2 });
+                request = YeuCauCuTru.CreateAddMemberRequest(
+                    householder.CanHoId,
                     null,
-                    initialStatus);
+                    LoaiQuanHeCuTru.NguoiOCung.Value,
+                    faker.Name.FirstName(),
+                    faker.Name.LastName(),
+                    dob,
+                    genderId,
+                    UserSeeder.GetUniquePhoneNumber(),
+                    UserSeeder.GetUniqueIdCard(genderId, dob.Year),
+                    UserSeeder.GetRandomVietnamAddress(),
+                    faker.PickRandom(addContents),
+                null,
+                initialStatus);
             }
             else if (loaiYeuCau == LoaiYeuCau.Sua)
             {
-                var updateContents = new[] 
-                { 
-                    "Cập nhật lại số điện thoại liên lạc chính xác do thay đổi SIM.", 
-                    "Sửa đổi thông tin nghề nghiệp và nơi làm việc hiện tại.", 
-                    "Cập nhật ảnh thẻ cư dân mới để làm lại thẻ từ thang máy.", 
+                var updateContents = new[]
+                {
+                    "Cập nhật lại số điện thoại liên lạc chính xác do thay đổi SIM.",
+                    "Sửa đổi thông tin nghề nghiệp và nơi làm việc hiện tại.",
+                    "Cập nhật ảnh thẻ cư dân mới để làm lại thẻ từ thang máy.",
                     "Đính chính lại sai sót về ngày tháng năm sinh trong hồ sơ.",
                     "Cập nhật số CCCD mới sau khi làm lại thẻ căn cước có gắn chip."
                 };
-                    var dobUpdate = faker.Date.Past(25, DateTime.UtcNow.AddYears(-18));
-                    request = YeuCauCuTru.CreateUpdateMemberRequest(
-                        householder.CanHoId,
-                        householder.Id,
-                        householder.LoaiQuanHeCuTruId, // Keep same relationship
-                        faker.Name.FirstName(),
-                        faker.Name.LastName(),
-                        dobUpdate,
-                        householder.GioiTinhId,
-                        UserSeeder.GetUniquePhoneNumber(),
-                        UserSeeder.GetUniqueIdCard(householder.GioiTinhId, dobUpdate.Year),
-                        UserSeeder.GetRandomVietnamAddress(),
-                        faker.PickRandom(updateContents),
-                    null,
-                    initialStatus);
+                var dobUpdate = faker.Date.Past(25, DateTime.Now.AddYears(-18));
+                request = YeuCauCuTru.CreateUpdateMemberRequest(
+                    householder.CanHoId,
+                    householder.Id,
+                    householder.LoaiQuanHeCuTruId, // Keep same relationship
+                    faker.Name.FirstName(),
+                    faker.Name.LastName(),
+                    dobUpdate,
+                    householder.GioiTinhId,
+                    UserSeeder.GetUniquePhoneNumber(),
+                    UserSeeder.GetUniqueIdCard(householder.GioiTinhId, dobUpdate.Year),
+                    UserSeeder.GetRandomVietnamAddress(),
+                    faker.PickRandom(updateContents),
+                null,
+                initialStatus);
             }
             else // Xoa
             {
-                var removeContents = new[] 
-                { 
-                    "Thành viên gia đình đã chuyển đi nơi khác sinh sống.", 
-                    "Người thuê đã hết hạn hợp đồng thuê nhà và trả phòng.", 
-                    "Hủy thông tin đăng ký tạm trú cho khách ở chơi dài ngày.", 
+                var removeContents = new[]
+                {
+                    "Thành viên gia đình đã chuyển đi nơi khác sinh sống.",
+                    "Người thuê đã hết hạn hợp đồng thuê nhà và trả phòng.",
+                    "Hủy thông tin đăng ký tạm trú cho khách ở chơi dài ngày.",
                     "Xóa thông tin người giúp việc cũ đã nghỉ việc.",
                     "Thành viên chuyển đi du học nước ngoài dài hạn."
                 };
@@ -137,7 +137,7 @@ public class YeuCauCuTruSeeder
                     initialStatus);
             }
 
-            request.SetCreated(householder.TaiKhoanId, DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(5, 10)));
+            request.SetCreated(householder.TaiKhoanId, DateTimeOffset.Now.AddDays(-faker.Random.Number(5, 10)));
 
             // Apply Approval/Rejection if needed
             if (targetStatus == TrangThaiYeuCau.Approved && admin != null)
@@ -146,10 +146,10 @@ public class YeuCauCuTruSeeder
             }
             else if (targetStatus == TrangThaiYeuCau.Rejected && admin != null)
             {
-                var rejectionReasons = new[] 
-                { 
-                    "Hồ sơ đính kèm không đủ cơ sở pháp lý (thiếu giấy tạm trú).", 
-                    "Ảnh chụp giấy tờ tùy thân bị mờ, không nhìn rõ thông tin.", 
+                var rejectionReasons = new[]
+                {
+                    "Hồ sơ đính kèm không đủ cơ sở pháp lý (thiếu giấy tạm trú).",
+                    "Ảnh chụp giấy tờ tùy thân bị mờ, không nhìn rõ thông tin.",
                     "Căn hộ đã đạt số lượng cư dân tối đa theo diện tích.",
                     "Thông tin khai báo không khớp với dữ liệu dân cư phường."
                 };

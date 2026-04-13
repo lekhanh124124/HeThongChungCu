@@ -35,7 +35,7 @@ public class AuditableEntitySaveChangesInterceptor : SaveChangesInterceptor
         if (context == null) return;
 
         var userId = _currentUserService.UserId ?? 0; // Tránh null fallback về Id system
-        var now = _dateTimeProvider.UtcNow;
+        var now = _dateTimeProvider.Now;
 
         foreach (var entry in context.ChangeTracker.Entries<AuditableEntity>())
         {

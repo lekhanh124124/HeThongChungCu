@@ -71,6 +71,31 @@ public partial class FileStorageService : IFileStorageService
         return Result.Success(blobClient.Uri.ToString());
     }
 
+    public async Task<Result<List<string>>> UploadFilesAsync(
+        List<(Stream Stream, string FileName, string ContentType)> files,
+        FileCategory category,
+        CancellationToken cancellationToken = default)
+    {
+        var urls = new List<string>();
+        var uploadTasks = new List<Task<Result<string>>>();
+
+        foreach (var file in files)
+        {
+            uploadTasks.Add(UploadFileAsync(file.Stream, file.FileName, category, file.ContentType, cancellationToken));
+        }
+
+        var results = await Task.WhenAll(uploadTasks);
+
+        var errors = results.Where(r => r.IsFailure).SelectMany(r => r.Errors).ToList();
+        if (errors.Count > 0)
+        {
+            return Result.Failure<List<string>>(errors);
+        }
+
+        urls.AddRange(results.Select(r => r.Value));
+        return Result.Success(urls);
+    }
+
     public async Task DeleteFileAsync(string fileUrl, FileCategory? category, CancellationToken cancellationToken = default)
     {
         var blobUriBuilder = new BlobUriBuilder(new Uri(fileUrl));
@@ -135,6 +160,7 @@ public partial class FileStorageService : IFileStorageService
         if (category == FileCategory.Apartment) return _settings.ApartmentContainer;
         if (category == FileCategory.Document) return _settings.DocumentContainer;
         if (category == FileCategory.Vehicle) return _settings.VehicleContainer;
+        if (category == FileCategory.StaffDocument) return _settings.StaffDocumentContainer;
 
         return _settings.DocumentContainer; // Default
     }

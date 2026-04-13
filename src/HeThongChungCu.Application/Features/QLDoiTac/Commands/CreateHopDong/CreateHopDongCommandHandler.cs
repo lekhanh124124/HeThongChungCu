@@ -128,12 +128,6 @@ public class CreateHopDongCommandHandler : ICommandHandler<CreateHopDongCommand,
             }).OrderByDescending(h => h.NgayKy).ToList()
         };
 
-        // Calculate top-level expiry date from contracts
-        response.NgayHetHan = response.HopDongs
-            .Where(h => h.TrangThaiHopDongId == TrangThaiHopDong.ConHieuLuc.Value || h.TrangThaiHopDongId == TrangThaiHopDong.SapHetHan.Value)
-            .Select(h => (DateTimeOffset?)h.NgayHetHan)
-            .Max();
-
         return Result.Success(response);
     }
 }

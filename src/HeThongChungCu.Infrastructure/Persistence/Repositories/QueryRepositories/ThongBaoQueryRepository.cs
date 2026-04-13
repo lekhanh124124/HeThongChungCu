@@ -67,7 +67,7 @@ public class ThongBaoQueryRepository : IThongBaoQueryRepository
             {sqlPagination}
             """;
 
-        var rows = (await connection.QueryAsync<dynamic>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
 
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
         var loaiThongBaoMap = LoaiThongBao.ToDictionary();

@@ -28,12 +28,12 @@ public class YeuCauPhuongTienSeeder
             .Join(context.TaiKhoan,
                 qh => qh.NguoiDungId,
                 tk => tk.NguoiDungId,
-                (qh, tk) => new HouseholderData 
-                { 
+                (qh, tk) => new HouseholderData
+                {
                     Id = qh.Id,
-                    CanHoId = qh.CanHoId, 
-                    TaiKhoanId = tk.Id, 
-                    TrangThaiCuTruId = qh.TrangThaiCuTruId 
+                    CanHoId = qh.CanHoId,
+                    TaiKhoanId = tk.Id,
+                    TrangThaiCuTruId = qh.TrangThaiCuTruId
                 })
             .ToListAsync();
 
@@ -75,11 +75,11 @@ public class YeuCauPhuongTienSeeder
             YeuCauPhuongTien request;
             if (loaiYeuCau == LoaiYeuCau.Them)
             {
-                var addContents = new[] 
-                { 
-                    "Đăng ký xe mới mua, loại sedan 5 chỗ để đi làm.", 
-                    "Đăng ký thêm thẻ gửi xe máy cho con mới đi học đại học.", 
-                    "Đăng ký chỗ đậu xe ô tô cố định dưới hầm B1.", 
+                var addContents = new[]
+                {
+                    "Đăng ký xe mới mua, loại sedan 5 chỗ để đi làm.",
+                    "Đăng ký thêm thẻ gửi xe máy cho con mới đi học đại học.",
+                    "Đăng ký chỗ đậu xe ô tô cố định dưới hầm B1.",
                     "Đăng ký sạc điện cho xe máy điện mới mua, cần vị trí gần trạm sạc.",
                     "Đăng ký xe đạp điện mới để đưa đón con đi học.",
                     "Bổ sung xe ô tô thứ 2 cho gia đình (xe SUV 7 chỗ)."
@@ -103,11 +103,11 @@ public class YeuCauPhuongTienSeeder
 
                 if (loaiYeuCau == LoaiYeuCau.Sua)
                 {
-                    var updateContents = new[] 
-                    { 
-                        "Cập nhật lại biển số xe mới sau khi làm thủ tục sang tên đổi chủ.", 
-                        "Sửa đổi thông tin màu sơn xe thực tế (đã dán decal đổi màu).", 
-                        "Cập nhật dòng xe chính xác hơn theo giấy tờ đăng ký xe.", 
+                    var updateContents = new[]
+                    {
+                        "Cập nhật lại biển số xe mới sau khi làm thủ tục sang tên đổi chủ.",
+                        "Sửa đổi thông tin màu sơn xe thực tế (đã dán decal đổi màu).",
+                        "Cập nhật dòng xe chính xác hơn theo giấy tờ đăng ký xe.",
                         "Đính chính lại số khung, số máy do bị nhầm lẫn khi đăng ký lần đầu.",
                         "Chuyển đổi từ xe xăng sang xe điện, cần đăng ký lại dịch vụ sạc."
                     };
@@ -124,11 +124,11 @@ public class YeuCauPhuongTienSeeder
                 }
                 else // Xoa
                 {
-                    var removeContents = new[] 
-                    { 
-                        "Hủy thẻ gửi xe do đã bán phương tiện cho người khác.", 
-                        "Hết nhu cầu gửi xe ô tô tại chung cư do đã có chỗ gửi ngoài.", 
-                        "Xóa thông tin xe máy cũ đã hư hỏng, không còn sử dụng.", 
+                    var removeContents = new[]
+                    {
+                        "Hủy thẻ gửi xe do đã bán phương tiện cho người khác.",
+                        "Hết nhu cầu gửi xe ô tô tại chung cư do đã có chỗ gửi ngoài.",
+                        "Xóa thông tin xe máy cũ đã hư hỏng, không còn sử dụng.",
                         "Hủy dịch vụ sạc xe điện do đã thanh lý xe.",
                         "Gia đình chuyển nhà đi nơi khác, cần hủy toàn bộ thẻ xe."
                     };
@@ -145,23 +145,23 @@ public class YeuCauPhuongTienSeeder
             }
 
             // Set the requester (CreatedBy) manually for seed data
-            request.SetCreated(householder.TaiKhoanId, DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(5, 10)));
+            request.SetCreated(householder.TaiKhoanId, DateTimeOffset.Now.AddDays(-faker.Random.Number(5, 10)));
 
             if (targetStatus == TrangThaiYeuCau.Approved && admin != null)
             {
-                request.Approve(admin.Id, DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(1, 5)));
+                request.Approve(admin.Id, DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 5)));
             }
             else if (targetStatus == TrangThaiYeuCau.Rejected && admin != null)
             {
-                var rejectionReasons = new[] 
-                { 
-                    "Biển số xe không rõ ràng hoặc hình ảnh cung cấp bị lóa mờ.", 
+                var rejectionReasons = new[]
+                {
+                    "Biển số xe không rõ ràng hoặc hình ảnh cung cấp bị lóa mờ.",
                     "Vượt quá số lượng phương tiện tối đa cho phép của một căn hộ.",
                     "Loại xe không được phép gửi trong hầm tòa nhà theo quy định.",
                     "Giấy tờ xe (Cavet) không chính chủ hoặc thiếu thông tin hợp lệ.",
                     "Biển số xe đã được đăng ký cho một căn hộ khác trong hệ thống."
                 };
-                request.Reject(admin.Id, faker.PickRandom(rejectionReasons), DateTimeOffset.UtcNow.AddDays(-faker.Random.Number(1, 5)));
+                request.Reject(admin.Id, faker.PickRandom(rejectionReasons), DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 5)));
             }
 
             await context.YeuCauPhuongTiens.AddAsync(request);

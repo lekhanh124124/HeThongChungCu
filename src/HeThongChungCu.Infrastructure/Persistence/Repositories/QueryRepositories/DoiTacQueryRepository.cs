@@ -54,9 +54,8 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
         var sqlJoin = DapperQueryBuilder.BuildJoin(joins);
 
         var sql = $"""
-            SELECT COUNT(DISTINCT dt.Id) OVER() AS TotalCount, 
-                   dt.Id, dt.TenDoiTac, dt.TenCongTy, dt.NguoiDaiDien, dt.SoDienThoai, dt.Email,
-                   (SELECT MAX(NgayHetHan) FROM HopDongDoiTac hd WHERE hd.DoiTacId = dt.Id AND hd.TrangThaiHopDongId = 1) AS NgayHetHan
+            SELECT COUNT(*) OVER() AS TotalCount, 
+                   dt.Id, dt.TenDoiTac, dt.TenCongTy, dt.NguoiDaiDien, dt.SoDienThoai, dt.Email
             FROM DoiTac dt
             {sqlJoin}
             {sqlWhere}
@@ -65,7 +64,7 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
             {sqlPagination};
             """;
 
-        var rows = (await connection.QueryAsync<dynamic>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
 
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
@@ -76,8 +75,7 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
             TenCongTy = (string?)r.TenCongTy,
             NguoiDaiDien = (string?)r.NguoiDaiDien,
             SoDienThoai = (string?)r.SoDienThoai,
-            Email = (string?)r.Email,
-            NgayHetHan = (DateTimeOffset?)r.NgayHetHan
+            Email = (string?)r.Email
         }).ToList();
 
         return new PagedResult<DoiTacResponse>
@@ -120,7 +118,7 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
         var sql = $"""
             SELECT dt.Id, dt.TenDoiTac, dt.TenCongTy, dt.NguoiDaiDien, dt.SoGiayPhepKD, dt.MaSoThue, dt.DiaChi, dt.SoDienThoai, dt.Email,
                    dv.Id AS DichVuUid, dv.MaDichVu, dv.TenDichVu, dv.LoaiDichVuId, dv.DonViTinh, dv.IsBatBuoc, dv.TrangThaiId AS DichVuTrangThaiId,
-                   hd.Id AS HopDongUid, hd.SoHopDong, hd.NgayKy, hd.NgayHetHan, hd.GiaTriHopDong_SoTien, hd.NoiDung, hd.DichVuId AS HopDongDichVuId, hd.TrangThaiHopDongId,
+                   hd.Id AS HopDongUid, hd.SoHopDong, hd.NgayKy, hd.NgayHetHan, hd.GiaTriHopDong, hd.NoiDung, hd.DichVuId AS HopDongDichVuId, hd.TrangThaiHopDongId,
                    tp.Id AS FileUid, tp.FileUrl, tp.FileName, tp.ContentType
             FROM DoiTac dt
             {sqlJoin}
@@ -128,7 +126,7 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
             ORDER BY hd.NgayKy DESC;
             """;
 
-        var rows = (await connection.QueryAsync<dynamic>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
 
         if (rows.Count == 0)
             return null;
@@ -169,7 +167,7 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
                         SoHopDong = (string)row.SoHopDong,
                         NgayKy = (DateTimeOffset)row.NgayKy,
                         NgayHetHan = (DateTimeOffset)row.NgayHetHan,
-                        GiaTriHopDong = (decimal)row.GiaTriHopDong_SoTien,
+                        GiaTriHopDong = (decimal)row.GiaTriHopDong,
                         LoaiDichVuId = (int)row.HopDongDichVuId,
                         TenLoaiDichVu = loaiDichVuMap.GetValueOrDefault((int)row.HopDongDichVuId, string.Empty),
                         TrangThaiHopDongId = (int)row.TrangThaiHopDongId,
@@ -195,12 +193,6 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
             }
         }
 
-        // Set top-level contract dates for backward compatibility or easy access
-        var latestHopDong = doiTac.HopDongs.OrderByDescending(h => h.NgayHetHan).FirstOrDefault();
-        if (latestHopDong != null)
-        {
-            doiTac.NgayHetHan = latestHopDong.NgayHetHan;
-        }
 
         return doiTac;
     }

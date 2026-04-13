@@ -19,6 +19,7 @@ using HeThongChungCu.Application.Features.QLDichVu.Commands.ActivateBangGia;
 using HeThongChungCu.Application.Features.QLDichVu.Commands.DeleteBangGia;
 using HeThongChungCu.Application.Features.QLDichVu.Commands.ActivateKhungGioDichVu;
 using HeThongChungCu.Application.Features.QLDichVu.Commands.DeleteKhungGioDichVu;
+using HeThongChungCu.Application.Features.QLDichVu.Commands.DangKyDichVu;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -78,16 +79,16 @@ public class DichVuController : ApiControllerBase
     }
 
     /// <summary>
-    /// Lấy danh sách dịch vụ (hỗ trợ phân trang, lọc theo loại, đối tác, hợp đồng)
+    /// Lấy danh sách dịch vụ (hỗ trợ phân trang, lọc theo loại, đối tác, hợp đồng, trạng thái, bắt buộc)
     /// </summary>
     /// <remarks>
     /// - **Hoàn cảnh sử dụng**: Quản lý tổng thể các dịch vụ trong hệ thống, tra cứu giá và đối tác cung cấp.
     /// - **Hệ thống xử lý**: 
-    ///     - Lọc theo `LoaiDichVuId`, `DoiTacId`, `HopDongDoiTacId`.
+    ///     - Lọc theo `LoaiDichVuId`, `DoiTacId`, `HopDongDoiTacId`, `IsBatBuoc`, `TrangThaiDichVuId`.
     ///     - Tìm kiếm theo `Keyword` (Mã hoặc tên dịch vụ).
     ///     - Hỗ trợ phân trang mặc định (10 bản ghi/trang).
     /// - **Yêu cầu dữ liệu**: 
-    ///     - **Tùy chọn**: `LoaiDichVuId`, `DoiTacId`, `HopDongDoiTacId`, `Keyword`, `PageNumber`, `PageSize`.
+    ///     - **Tùy chọn**: `LoaiDichVuId`, `DoiTacId`, `HopDongDoiTacId`, `IsBatBuoc`, `TrangThaiDichVuId`, `Keyword`, `PageNumber`, `PageSize`.
     /// </remarks>
     [HttpPost("get-list")]
     [ProducesResponseType(typeof(ApiResponse<PagedResult<DichVuResponse>>), StatusCodes.Status200OK)]
@@ -296,7 +297,31 @@ public class DichVuController : ApiControllerBase
     /// </summary>
     [HttpDelete("bang-gia")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeleteBangGia([FromBody] DeleteBangGiaCommand command, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(command, cancellationToken));
+    }
+
+    /// <summary>
+    /// Đăng ký sử dụng dịch vụ cho căn hộ
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cư dân hoặc BQL đăng ký sử dụng một dịch vụ cho căn hộ (điện, nước, hồ bơi, gym...).
+    /// - **Hệ thống xử lý**: 
+    ///     - Kiểm tra sự tồn tại của dịch vụ và khung giờ (nếu có).
+    ///     - Kiểm tra sức chứa (capacity) của dịch vụ tại thời điểm đăng ký.
+    ///     - Kiểm tra tính hợp lệ về thời gian (thứ trong tuần) và trạng thái hoạt động của dịch vụ.
+    ///     - Tạo bản ghi đăng ký với trạng thái "Đang sử dụng".
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: `CanHoId`, `DichVuId`, `NgaySuDung`.
+    ///     - **Tùy chọn**: `SoLuong` (mặc định 1), `KhungGioId`.
+    /// </remarks>
+    [HttpPost("dang-ky")]
+    // [HasPermission(Permissions.DangKyDichVuWrite)]
+    [ProducesResponseType(typeof(ApiResponse<int>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DangKy([FromBody] DangKyDichVuCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
     }

@@ -16,7 +16,7 @@ public class HopDongDoiTac : AuditableEntity
     public string? NoiDung { get; private set; }
     public int DichVuId { get; private set; }
     public TrangThaiHopDong TrangThaiHopDongId { get; private set; } = null!;
-    
+
     private readonly List<TepHopDongDoiTac> _tepHopDongs = new();
     public virtual IReadOnlyCollection<TepHopDongDoiTac> TepHopDongs => _tepHopDongs.AsReadOnly();
 
@@ -81,15 +81,15 @@ public class HopDongDoiTac : AuditableEntity
     public void Revoke()
     {
         TrangThaiHopDongId = TrangThaiHopDong.DaThanhLy;
-        if (NgayHetHan > DateTimeOffset.UtcNow)
+        if (NgayHetHan > DateTimeOffset.Now)
         {
-            NgayHetHan = DateTimeOffset.UtcNow;
+            NgayHetHan = DateTimeOffset.Now;
         }
     }
 
     public void UpdateStatus()
     {
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTimeOffset.Now;
         if (now < NgayKy)
         {
             TrangThaiHopDongId = TrangThaiHopDong.ChuaKy;

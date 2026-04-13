@@ -7,8 +7,10 @@ namespace HeThongChungCu.Application.Features.QLNhanVien.Commands.CreateNhanVien
 
 public class CreateNhanVienCommandValidator : AbstractValidator<CreateNhanVienCommand>
 {
+    private readonly IDateTimeProvider _dateTimeProvider;
     public CreateNhanVienCommandValidator(IDateTimeProvider dateTimeProvider)
     {
+        _dateTimeProvider = dateTimeProvider;
         // User Profile Validation
         RuleFor(x => x.Ho)
             .NotEmpty().WithMessage(UserErrors.FirstNameNotEmpty.Description)
@@ -20,7 +22,7 @@ public class CreateNhanVienCommandValidator : AbstractValidator<CreateNhanVienCo
 
         RuleFor(x => x.NgaySinh)
             .NotEmpty().WithMessage(UserErrors.DobNotEmpty.Description)
-            .LessThan(dateTimeProvider.UtcNow.DateTime).WithMessage(UserErrors.DobInFuture.Description);
+            .LessThan(_dateTimeProvider.Now.DateTime).WithMessage(UserErrors.DobInFuture.Description);
 
         RuleFor(x => x.GioiTinhId)
             .Must(id => GioiTinh.GetAll().Any(g => g.Value == id))
@@ -41,7 +43,7 @@ public class CreateNhanVienCommandValidator : AbstractValidator<CreateNhanVienCo
         RuleFor(x => x.LoaiNhanVienId)
             .Must(id => LoaiNhanVien.GetAll().Any(g => g.Value == id))
             .WithMessage(NhanVienErrors.LoaiNhanVienInvalid(LoaiNhanVien.GetAll().Select(l => $"{l.Value} ({l.Name})")).Description);
-            
+
         RuleFor(x => x.NgayVaoLam)
             .NotEmpty();
     }

@@ -38,6 +38,7 @@ public class UploadMediaController : ApiControllerBase
     ///         - `targetContainer` (string) - Định danh loại tệp tin (File Category). Các giá trị hợp lệ:
     ///             - `tai-lieu-cu-tru` (mặc định)
     ///             - `tai-lieu-phuong-tien`
+    ///             - `tai-lieu-nhan-vien`
     /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<List<UploadFileResponse>>), StatusCodes.Status200OK)]

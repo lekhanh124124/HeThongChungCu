@@ -7,8 +7,10 @@ namespace HeThongChungCu.Application.Features.QLNhanVien.Commands.UpdateNhanVien
 
 public class UpdateNhanVienCommandValidator : AbstractValidator<UpdateNhanVienCommand>
 {
+    private readonly IDateTimeProvider _dateTimeProvider;
     public UpdateNhanVienCommandValidator(IDateTimeProvider dateTimeProvider)
     {
+        _dateTimeProvider = dateTimeProvider;
         RuleFor(x => x.Id)
             .NotEmpty();
 
@@ -23,7 +25,7 @@ public class UpdateNhanVienCommandValidator : AbstractValidator<UpdateNhanVienCo
 
         RuleFor(x => x.NgaySinh)
             .NotEmpty().WithMessage(UserErrors.DobNotEmpty.Description)
-            .LessThan(dateTimeProvider.UtcNow.DateTime).WithMessage(UserErrors.DobInFuture.Description);
+            .LessThan(_dateTimeProvider.UtcNow.DateTime).WithMessage(UserErrors.DobInFuture.Description);
 
         RuleFor(x => x.GioiTinhId)
             .Must(id => GioiTinh.GetAll().Any(g => g.Value == id))
@@ -39,11 +41,11 @@ public class UpdateNhanVienCommandValidator : AbstractValidator<UpdateNhanVienCo
         RuleFor(x => x.LoaiNhanVienId)
             .Must(id => LoaiNhanVien.GetAll().Any(g => g.Value == id))
             .WithMessage(NhanVienErrors.LoaiNhanVienInvalid(LoaiNhanVien.GetAll().Select(l => $"{l.Value} ({l.Name})")).Description);
-            
+
         RuleFor(x => x.TrangThaiNhanVienId)
             .Must(id => TrangThaiNhanVien.GetAll().Any(s => s.Value == id))
             .WithMessage(Error.InvalidType("Trạng thái nhân viên", TrangThaiNhanVien.GetAll().Select(t => t.Name)).Description);
-            
+
         RuleFor(x => x.NgayVaoLam)
             .NotEmpty();
     }

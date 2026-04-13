@@ -35,7 +35,7 @@ public class HoaDonDoiTac : AggregateRoot
         Thang = thang;
         Nam = nam;
         SoTien = new GiaTien(soTien);
-        NgayGhiNhan = DateTimeOffset.UtcNow;
+        NgayGhiNhan = DateTimeOffset.Now;
         FileHoaDonId = fileHoaDonId;
         GhiChu = ghiChu;
         TrangThaiThanhToanId = TrangThaiThanhToanDoiTac.ChuaThanhToan;

@@ -55,7 +55,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         if (canHo == null)
             return Result.Failure<YeuCauCuTruResponse>(CanHoErrors.NotFound);
 
-        var now = _dateTimeProvider.UtcNow;
+        var now = _dateTimeProvider.Now;
         yeuCau.Approve(adminId.Value, now);
 
         // Logic Phê duyệt

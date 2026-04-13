@@ -48,7 +48,7 @@ public class NguoiDungQueryRepository : INguoiDungQueryRepository
             GROUP BY u.Id, a.TenDangNhap, a.Email, u.Ten, u.Ho, u.SoDienThoai, u.NgaySinh, u.DiaChi, u.GioiTinhId, atl.FileUrl
             """;
 
-        var result = await connection.QueryFirstOrDefaultAsync<dynamic>(sql, parameters);
+        var result = await connection.QueryFirstOrDefaultAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction());
 
         if (result is null) return null;
 

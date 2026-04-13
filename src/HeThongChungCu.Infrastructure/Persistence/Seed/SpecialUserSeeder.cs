@@ -45,8 +45,8 @@ public class SpecialUserSeeder
                 {
                     adminId = result.TaiKhoan.Id;
                     // Self-reference for the first admin to avoid 0
-                    result.NguoiDung.SetCreated(adminId.Value, DateTimeOffset.UtcNow);
-                    result.TaiKhoan.SetCreated(adminId.Value, DateTimeOffset.UtcNow);
+                    result.NguoiDung.SetCreated(adminId.Value, DateTimeOffset.Now);
+                    result.TaiKhoan.SetCreated(adminId.Value, DateTimeOffset.Now);
                     await context.SaveChangesAsync();
                 }
             }
@@ -124,11 +124,11 @@ public class SpecialUserSeeder
         var email = UserSeeder.RegisterEmail(emailInput);
         var account = new TaiKhoan(user.Id, UserSeeder.RegisterUsername(username), email, _passwordHasher.HashPassword("123456."));
         account.AddRole(Role.Resident);
-        
+
         if (adminAccount != null)
         {
-            user.SetCreated(adminAccount.Id, DateTimeOffset.UtcNow);
-            account.SetCreated(adminAccount.Id, DateTimeOffset.UtcNow);
+            user.SetCreated(adminAccount.Id, DateTimeOffset.Now);
+            account.SetCreated(adminAccount.Id, DateTimeOffset.Now);
         }
 
         await context.TaiKhoan.AddAsync(account);
@@ -153,22 +153,22 @@ public class SpecialUserSeeder
             {
                 foreach (var h in activeHeads.Where(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo || r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue))
                 {
-                    h.KetThucCuTru(DateTimeOffset.UtcNow);
+                    h.KetThucCuTru(DateTimeOffset.Now);
                 }
             }
 
             // 3 active, 1 terminated
             var isTerminated = i == 3;
-            var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.ChuHo, DateTimeOffset.UtcNow.AddMonths(-6));
+            var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.ChuHo, DateTimeOffset.Now.AddMonths(-6));
 
             if (adminAccount != null)
             {
-                qh.SetCreated(adminAccount.Id, DateTimeOffset.UtcNow.AddMonths(-6));
+                qh.SetCreated(adminAccount.Id, DateTimeOffset.Now.AddMonths(-6));
             }
 
             if (isTerminated)
             {
-                qh.KetThucCuTru(DateTimeOffset.UtcNow.AddMonths(-1));
+                qh.KetThucCuTru(DateTimeOffset.Now.AddMonths(-1));
             }
 
             context.QuanHeCuTrus.Add(qh);
@@ -188,11 +188,11 @@ public class SpecialUserSeeder
                 var rLastName = faker.Name.LastName();
                 var rUser = await UserSeeder.CreateUserOnlyAsync(context, rFirstName, rLastName, faker.Phone.PhoneNumber("09########"), "Hồ Chí Minh", adminAccount?.Id);
 
-                var rqh = new QuanHeCuTru(canHo.Id, rUser.Id, faker.PickRandom(otherRoles), DateTimeOffset.UtcNow.AddMonths(-5));
-                
+                var rqh = new QuanHeCuTru(canHo.Id, rUser.Id, faker.PickRandom(otherRoles), DateTimeOffset.Now.AddMonths(-5));
+
                 if (adminAccount != null)
                 {
-                    rqh.SetCreated(adminAccount.Id, DateTimeOffset.UtcNow.AddMonths(-5));
+                    rqh.SetCreated(adminAccount.Id, DateTimeOffset.Now.AddMonths(-5));
                 }
 
                 context.QuanHeCuTrus.Add(rqh);
@@ -206,10 +206,10 @@ public class SpecialUserSeeder
                 var bienSo = PhuongTienSeeder.RegisterBienSo($"{faker.Random.Int(29, 31)}{faker.Random.String2(1, "ABCDEFGHJK")}-{faker.Random.Int(10000, 99999)}");
 
                 var pt = new PhuongTien(canHo.Id, model, loai, bienSo, model, null);
-                
+
                 if (adminAccount != null)
                 {
-                    pt.SetCreated(adminAccount.Id, DateTimeOffset.UtcNow.AddMonths(-4));
+                    pt.SetCreated(adminAccount.Id, DateTimeOffset.Now.AddMonths(-4));
                 }
 
                 await context.PhuongTiens.AddAsync(pt);
@@ -218,16 +218,16 @@ public class SpecialUserSeeder
                 for (int c = 0; c < 2; c++)
                 {
                     var maThe = PhuongTienSeeder.RegisterMaThe(faker.Random.Replace("SP-##########"));
-                    var the = pt.AddThe(maThe, DateTimeOffset.UtcNow.AddMonths(-4));
+                    var the = pt.AddThe(maThe, DateTimeOffset.Now.AddMonths(-4));
 
                     if (adminAccount != null)
                     {
-                        the.SetCreated(adminAccount.Id, DateTimeOffset.UtcNow.AddMonths(-4));
+                        the.SetCreated(adminAccount.Id, DateTimeOffset.Now.AddMonths(-4));
                     }
 
                     if (c == 0)
                     {
-                        the.KhoaThe(DateTimeOffset.UtcNow.AddMonths(-3));
+                        the.KhoaThe(DateTimeOffset.Now.AddMonths(-3));
                     }
                 }
             }
@@ -243,32 +243,32 @@ public class SpecialUserSeeder
                 genderIdReq1, UserSeeder.GetUniquePhoneNumber(),
                 UserSeeder.GetUniqueIdCard(genderIdReq1, dobReq1.Year), UserSeeder.GetRandomVietnamAddress(),
                 "Đăng ký tạm trú cho người thân ở quê lên phụ giúp việc gia đình.", null, req1Status);
-            
-            req1.SetCreated(account.Id, DateTimeOffset.UtcNow.AddMonths(-2));
+
+            req1.SetCreated(account.Id, DateTimeOffset.Now.AddMonths(-2));
 
             if (!isTerminated && adminAccount != null)
             {
-                req1.Approve(adminAccount.Id, DateTimeOffset.UtcNow.AddMonths(-1));
+                req1.Approve(adminAccount.Id, DateTimeOffset.Now.AddMonths(-1));
             }
             await context.YeuCauCuTrus.AddAsync(req1);
 
             var req2 = YeuCauCuTru.CreateRemoveMemberRequest(
                 canHo.Id, user.Id, "Yêu cầu xóa tên thành viên đã chuyển đi nơi khác sinh sống.",
                 isTerminated ? TrangThaiYeuCau.Invalidated : TrangThaiYeuCau.Pending);
-            
-            req2.SetCreated(account.Id, DateTimeOffset.UtcNow.AddMonths(-1));
+
+            req2.SetCreated(account.Id, DateTimeOffset.Now.AddMonths(-1));
             await context.YeuCauCuTrus.AddAsync(req2);
 
             var vreq1 = YeuCauPhuongTien.CreateAddRequest(
                 canHo.Id, LoaiPhuongTien.Oto, "Mercedes-Benz C200",
                 faker.Vehicle.Vin().Substring(0, 8).ToUpper(), "Silver",
                 "Đấu giá được biển số xe mới, cần đăng ký chỗ đậu xe ô tô cố định.", null, req1Status);
-            
-            vreq1.SetCreated(account.Id, DateTimeOffset.UtcNow.AddMonths(-2));
+
+            vreq1.SetCreated(account.Id, DateTimeOffset.Now.AddMonths(-2));
 
             if (!isTerminated && adminAccount != null)
             {
-                vreq1.Approve(adminAccount.Id, DateTimeOffset.UtcNow.AddMonths(-2));
+                vreq1.Approve(adminAccount.Id, DateTimeOffset.Now.AddMonths(-2));
             }
             await context.YeuCauPhuongTiens.AddAsync(vreq1);
 
@@ -276,12 +276,12 @@ public class SpecialUserSeeder
                 canHo.Id, faker.Random.Int(10, 1000), LoaiPhuongTien.XeMay,
                 "Honda Vision", faker.Vehicle.Vin().Substring(0, 8).ToUpper(), "Red",
                 "Cập nhật lại màu phối của xe sau khi dán decal bảo vệ.", null, req1Status);
-            
-            vreq2.SetCreated(account.Id, DateTimeOffset.UtcNow.AddMonths(-1));
+
+            vreq2.SetCreated(account.Id, DateTimeOffset.Now.AddMonths(-1));
 
             if (!isTerminated && adminAccount != null)
             {
-                vreq2.Reject(adminAccount.Id, "Sai thông tin biển số xe.", DateTimeOffset.UtcNow.AddMonths(-1));
+                vreq2.Reject(adminAccount.Id, "Sai thông tin biển số xe.", DateTimeOffset.Now.AddMonths(-1));
             }
             await context.YeuCauPhuongTiens.AddAsync(vreq2);
         }

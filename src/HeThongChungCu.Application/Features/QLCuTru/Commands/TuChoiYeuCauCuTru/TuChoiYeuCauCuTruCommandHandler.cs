@@ -36,7 +36,7 @@ public class TuChoiYeuCauCuTruCommandHandler : ICommandHandler<TuChoiYeuCauCuTru
         if (yeuCau == null)
             return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.NotFound);
 
-        var now = _dateTimeProvider.UtcNow;
+        var now = _dateTimeProvider.Now;
         yeuCau.Reject(userId.Value, request.LyDo, now);
         _yeuCauRepository.Update(yeuCau);
 

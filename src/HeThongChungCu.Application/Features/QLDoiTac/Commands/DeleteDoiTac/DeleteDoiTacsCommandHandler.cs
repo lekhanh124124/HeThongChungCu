@@ -35,8 +35,7 @@ public class DeleteDoiTacsCommandHandler : ICommandHandler<DeleteDoiTacsCommand,
             TenCongTy = t.TenCongTy,
             NguoiDaiDien = t.NguoiDaiDien,
             SoDienThoai = t.SoDienThoai?.Value,
-            Email = t.Email?.Value,
-            NgayHetHan = null // Contract history is not loaded for bulk delete response
+            Email = t.Email?.Value
         }).ToList();
 
         _doiTacCommandRepository.RemoveRange(doiTacs);

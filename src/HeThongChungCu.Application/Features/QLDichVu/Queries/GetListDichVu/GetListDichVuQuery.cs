@@ -8,6 +8,8 @@ public record GetListDichVuQuery(
     int? LoaiDichVuId,
     int? DoiTacId,
     int? HopDongDoiTacId,
+    bool? IsBatBuoc,
+    int? TrangThaiDichVuId,
     string? Keyword,
     int? PageNumber,
     int? PageSize,

@@ -53,7 +53,7 @@ public class ToaNhaSeeder
                     trangThaiToaNhaId: TrangThaiToaNha.DangHoatDong
                 );
 
-                if (adminId != 0) toaNha.SetCreated(adminId, DateTimeOffset.UtcNow);
+                if (adminId != 0) toaNha.SetCreated(adminId, DateTimeOffset.Now);
 
                 await context.ToaNhas.AddAsync(toaNha);
 
@@ -61,14 +61,14 @@ public class ToaNhaSeeder
                 for (int i = 1; i <= 2; i++)
                 {
                     var tang = toaNha.AddTang($"B{i}-{toaNha.MaToaNha}", $"Tầng hầm B{i}", LoaiTang.TangHam);
-                    if (adminId != 0) tang.SetCreated(adminId, DateTimeOffset.UtcNow);
+                    if (adminId != 0) tang.SetCreated(adminId, DateTimeOffset.Now);
                 }
 
                 // 2. Each building has exactly 8 floors
                 for (int f = 1; f <= 8; f++)
                 {
                     var tang = toaNha.AddTang($"F{f}-{toaNha.MaToaNha}", $"Tầng {f}", LoaiTang.TangLau);
-                    if (adminId != 0) tang.SetCreated(adminId, DateTimeOffset.UtcNow);
+                    if (adminId != 0) tang.SetCreated(adminId, DateTimeOffset.Now);
                 }
 
                 // IMPORTANT: Save now to generate IDs for ToaNha and Tangs 
@@ -101,7 +101,7 @@ public class ToaNhaSeeder
                             tinhTrangCanHoId: TrangThaiCanHo.DangTrong
                         );
 
-                        if (adminId != 0) canHo.SetCreated(adminId, DateTimeOffset.UtcNow);
+                        if (adminId != 0) canHo.SetCreated(adminId, DateTimeOffset.Now);
 
                         await context.CanHos.AddAsync(canHo);
                     }

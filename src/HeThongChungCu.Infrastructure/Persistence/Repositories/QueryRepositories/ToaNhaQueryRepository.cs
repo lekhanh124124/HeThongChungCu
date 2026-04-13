@@ -54,7 +54,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             {sqlPagination};
             """;
 
-        var rows = (await connection.QueryAsync<GetListToaNhaReadModel>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<GetListToaNhaReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
 
         Console.WriteLine(sql);
 
@@ -117,7 +117,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             {sqlWhere};
             """;
 
-        var rows = (await connection.QueryAsync<dynamic>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
 
         if (!rows.Any())
             return null;
@@ -234,7 +234,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             """;
 
 
-        var rows = (await connection.QueryAsync<GetListTangReadModel>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<GetListTangReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
 
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
@@ -294,7 +294,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             {sqlWhere};
             """;
 
-        var rows = (await connection.QueryAsync<GetTangByIdReadModel>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<GetTangByIdReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
 
         if (!rows.Any())
             return null;
@@ -379,7 +379,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             ORDER BY t.TenToaNha, f.Id, c.MaCanHo
             """;
 
-        var rows = await connection.QueryAsync<GetCauTrucChungCuReadModel>(sql, parameters);
+        var rows = await connection.QueryAsync<GetCauTrucChungCuReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction());
 
         var toaNhaMap = new Dictionary<int, CauTrucToaNhaResponse>();
         var tangMap = new Dictionary<int, CauTrucTangResponse>();

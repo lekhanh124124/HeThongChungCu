@@ -84,7 +84,7 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
             {sqlPagination}
             """;
 
-        var rows = (await connection.QueryAsync<DSCuDanTrongChungCuReadModel>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<DSCuDanTrongChungCuReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
@@ -166,7 +166,7 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
             {sqlWhere}
             """;
 
-        var rows = await connection.QueryAsync<LayDSCuTruByUserIdReadModel>(sql, parameters);
+        var rows = await connection.QueryAsync<LayDSCuTruByUserIdReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction());
 
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
         var items = rows.Select(r => new QuanHeCuTruResponse
@@ -242,7 +242,7 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
             {sqlWhere}
             """;
 
-        var rows = await connection.QueryAsync<dynamic>(sql, parameters);
+        var rows = await connection.QueryAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction());
 
         LayThongTinCuDanResponse? result = null;
         var docLookup = new Dictionary<int, TaiLieuResponse>();
@@ -349,7 +349,7 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
             {sqlWhere}
             """;
 
-        var rows = await connection.QueryAsync<ThanhVienCuTruReadModel>(sql, parameters);
+        var rows = await connection.QueryAsync<ThanhVienCuTruReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction());
 
         var loaiQuanHeMap = LoaiQuanHeCuTru.ToDictionary();
         var items = rows.Select(r => new ThanhVienCuTruResponse

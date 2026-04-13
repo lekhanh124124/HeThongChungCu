@@ -4,17 +4,20 @@ namespace HeThongChungCu.Application.Features.UploadMedia.Commands.CleanupUnused
 
 public class CleanupUnusedFilesCommandHandler : IRequestHandler<CleanupUnusedFilesCommand, Result<int>>
 {
+    private readonly IDateTimeProvider _dateTimeProvider;
     private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
     private readonly IFileStorageService _fileStorageService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CleanupUnusedFilesCommandHandler> _logger;
 
     public CleanupUnusedFilesCommandHandler(
+        IDateTimeProvider dateTimeProvider,
         ITepTaiLieuRepository tepTaiLieuRepository,
         IFileStorageService fileStorageService,
         IUnitOfWork unitOfWork,
         ILogger<CleanupUnusedFilesCommandHandler> _logger)
     {
+        _dateTimeProvider = dateTimeProvider;
         _tepTaiLieuRepository = tepTaiLieuRepository;
         _fileStorageService = fileStorageService;
         _unitOfWork = unitOfWork;
@@ -23,7 +26,7 @@ public class CleanupUnusedFilesCommandHandler : IRequestHandler<CleanupUnusedFil
 
     public async Task<Result<int>> Handle(CleanupUnusedFilesCommand request, CancellationToken cancellationToken)
     {
-        var before = DateTime.UtcNow.AddHours(-request.ThresholdHours);
+        var before = _dateTimeProvider.UtcNow.DateTime.AddHours(-request.ThresholdHours);
         _logger.LogInformation("CQRS: Scanning for unused files created before {ThresholdTime}", before);
 
         var unusedFiles = (await _tepTaiLieuRepository.GetUnusedFilesAsync(before, cancellationToken)).ToList();

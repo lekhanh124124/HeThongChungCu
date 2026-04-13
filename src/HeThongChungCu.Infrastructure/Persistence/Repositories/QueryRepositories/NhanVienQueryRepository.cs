@@ -27,6 +27,8 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
+
+
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "nv.Id" },
@@ -73,7 +75,7 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
             {sqlWhere}
             """;
 
-        var rows = await connection.QueryAsync<dynamic>(sql, parameters);
+        var rows = await connection.QueryAsync<dynamic>(sql, parameters, transaction: _dbContext.GetDbTransaction());
 
         NhanVienDetailResponse? response = null;
         var docLookup = new Dictionary<int, TaiLieuNhanVienResponse>();
@@ -212,7 +214,7 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
             {sqlPagination}
             """;
 
-        var rows = (await connection.QueryAsync<NhanVienReadModel>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<NhanVienReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
         var loaiNhanVienMap = LoaiNhanVien.ToDictionary();
         var trangThaiNhanVienMap = TrangThaiNhanVien.ToDictionary();

@@ -20,6 +20,8 @@ public class GetListDichVuQueryHandler : IQueryHandler<GetListDichVuQuery, Paged
             request.LoaiDichVuId,
             request.DoiTacId,
             request.HopDongDoiTacId,
+            request.IsBatBuoc,
+            request.TrangThaiDichVuId,
             request.Keyword,
             request.PageNumber,
             request.PageSize,

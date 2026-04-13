@@ -80,7 +80,7 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
             {sqlPagination};
             """;
 
-        var rows = (await connection.QueryAsync<GetListPhuongTienReadModel>(sql, parameters)).ToList();
+        var rows = (await connection.QueryAsync<GetListPhuongTienReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var loaiPhuongTienMap = LoaiPhuongTien.ToDictionary();
@@ -164,7 +164,7 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
             WHERE t.PhuongTienId = @Id AND t.LoaiTepTaiLieu = 'TepPhuongTien' AND t.IsDeleted = 0;
             """;
 
-        using var multi = await connection.QueryMultipleAsync(sql, new { Id = id });
+        using var multi = await connection.QueryMultipleAsync(sql, new { Id = id }, transaction: _dbContext.GetDbTransaction());
         var phuongTien = await multi.ReadFirstOrDefaultAsync<GetListPhuongTienReadModel>();
         
         if (phuongTien == null)

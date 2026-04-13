@@ -8,4 +8,5 @@ public class KhungGioDichVuResponse
     public TimeSpan GioKetThuc { get; set; }
     public string TenKhungGio { get; set; } = string.Empty;
     public int? NgayTrongTuan { get; set; }
+    public bool IsActive { get; set; }
 }

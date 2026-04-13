@@ -23,9 +23,10 @@ public class GetListKhungGioDichVuQueryHandler : IQueryHandler<GetListKhungGioDi
             request.PageNumber,
             request.PageSize,
             request.SortCol,
-            request.IsAsc);
+            request.IsAsc,
+            request.IsActive);
 
         var result = await _queryRepository.GetListKhungGioAsync(spec, cancellationToken);
-        return Result<PagedResult<KhungGioDichVuResponse>>.Success(result);
+        return Result.Success(result);
     }
 }

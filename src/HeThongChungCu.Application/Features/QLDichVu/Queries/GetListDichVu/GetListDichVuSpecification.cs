@@ -15,6 +15,8 @@ public class GetListDichVuSpecification : BaseSpecification
         int? loaiDichVuId,
         int? doiTacId,
         int? hopDongDoiTacId,
+        bool? isBatBuoc,
+        int? trangThaiDichVuId,
         string? keyword,
         int? pageNumber = 1,
         int? pageSize = 10,
@@ -43,6 +45,16 @@ public class GetListDichVuSpecification : BaseSpecification
         if (hopDongDoiTacId.HasValue)
         {
             AddFilter("HopDongDoiTacId", FilterOperator.Equal, hopDongDoiTacId.Value);
+        }
+
+        if (isBatBuoc.HasValue)
+        {
+            AddFilter("IsBatBuoc", FilterOperator.Equal, isBatBuoc.Value);
+        }
+
+        if (trangThaiDichVuId.HasValue)
+        {
+            AddFilter("TrangThaiDichVuId", FilterOperator.Equal, trangThaiDichVuId.Value);
         }
     }
 }

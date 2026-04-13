@@ -58,3 +58,6 @@ nunit-*.xml
 .vs
 .github
 wwwroot/
+docs/
+PublishProfiles/
+build_output/

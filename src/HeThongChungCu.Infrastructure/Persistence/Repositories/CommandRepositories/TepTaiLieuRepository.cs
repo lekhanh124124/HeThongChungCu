@@ -38,6 +38,11 @@ public class TepTaiLieuRepository : ITepTaiLieuRepository
         await _context.TepTaiLieus.AddAsync(file, cancellationToken);
     }
 
+    public async Task AddRangeAsync(IEnumerable<TepTaiLieu> files, CancellationToken cancellationToken = default)
+    {
+        await _context.TepTaiLieus.AddRangeAsync(files, cancellationToken);
+    }
+
     public void Update(TepTaiLieu file)
     {
         _context.TepTaiLieus.Update(file);

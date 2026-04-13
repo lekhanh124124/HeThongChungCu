@@ -67,28 +67,28 @@ public class PhuongTienSeeder
                 hinhAnhs: null
             );
 
-            if (adminId != 0) pt.SetCreated(adminId, DateTimeOffset.UtcNow);
+            if (adminId != 0) pt.SetCreated(adminId, DateTimeOffset.Now);
 
             await context.PhuongTiens.AddAsync(pt);
 
             // Status-based card logic
             if (status == TrangThaiPhuongTien.Active)
             {
-                var the = pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.UtcNow.AddMonths(-1));
-                if (adminId != 0) the.SetCreated(adminId, DateTimeOffset.UtcNow);
+                var the = pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.Now.AddMonths(-1));
+                if (adminId != 0) the.SetCreated(adminId, DateTimeOffset.Now);
             }
             else if (status == TrangThaiPhuongTien.Inactive)
             {
                 // Inactive vehicles might still have old cards
-                var the = pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.UtcNow.AddMonths(-2));
-                if (adminId != 0) the.SetCreated(adminId, DateTimeOffset.UtcNow);
-                pt.Huy(DateTimeOffset.UtcNow);
+                var the = pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.Now.AddMonths(-2));
+                if (adminId != 0) the.SetCreated(adminId, DateTimeOffset.Now);
+                pt.Huy(DateTimeOffset.Now);
             }
             else if (status == TrangThaiPhuongTien.Blocked)
             {
-                var the = pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.UtcNow.AddMonths(-3));
-                if (adminId != 0) the.SetCreated(adminId, DateTimeOffset.UtcNow);
-                pt.Khoa(DateTimeOffset.UtcNow);
+                var the = pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.Now.AddMonths(-3));
+                if (adminId != 0) the.SetCreated(adminId, DateTimeOffset.Now);
+                pt.Khoa(DateTimeOffset.Now);
             }
         }
 

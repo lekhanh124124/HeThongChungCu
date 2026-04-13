@@ -11,6 +11,5 @@ public class DoiTacResponse
     public string? SoDienThoai { get; set; }
     public string? Email { get; set; }
     public string? GhiChu { get; set; }
-    public DateTimeOffset? NgayHetHan { get; set; }
 }
 

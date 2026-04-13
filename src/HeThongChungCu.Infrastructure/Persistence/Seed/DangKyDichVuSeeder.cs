@@ -39,7 +39,7 @@ public class DangKyDichVuSeeder
             return;
         }
 
-        var startOfMonth = new DateTimeOffset(DateTimeOffset.UtcNow.Year, DateTimeOffset.UtcNow.Month, 1, 0, 0, 0, DateTimeOffset.UtcNow.Offset);
+        var startOfMonth = new DateTimeOffset(DateTimeOffset.Now.Year, DateTimeOffset.Now.Month, 1, 0, 0, 0, DateTimeOffset.Now.Offset);
 
         // 3. Create registrations
         var registrations = new List<DangKyDichVu>();
@@ -49,9 +49,9 @@ public class DangKyDichVuSeeder
             {
                 var registration = new DangKyDichVu(canHo.Id, dichVu.Id, startOfMonth);
                 registration.UpdateStatus(TrangThaiDangKy.DangSuDung);
-                
-                if (adminId != 0) registration.SetCreated(adminId, DateTimeOffset.UtcNow);
-                
+
+                if (adminId != 0) registration.SetCreated(adminId, DateTimeOffset.Now);
+
                 registrations.Add(registration);
             }
         }

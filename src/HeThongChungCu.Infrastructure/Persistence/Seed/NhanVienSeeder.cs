@@ -37,11 +37,11 @@ public class NhanVienSeeder
 
             // Create User and Account with Role.Staff (No immediate SaveChanges)
             (NguoiDung user, _) = await UserSeeder.CreateUserWithAccountAsync(
-                context, 
-                firstName, 
-                lastName, 
-                email, 
-                Role.Staff, 
+                context,
+                firstName,
+                lastName,
+                email,
+                Role.Staff,
                 null!,
                 address: null,
                 username: null,
@@ -51,25 +51,25 @@ public class NhanVienSeeder
             var loaiCode = loaiNhanVien == LoaiNhanVien.KyThuat ? "KT" :
                           loaiNhanVien == LoaiNhanVien.VeSinh ? "VS" :
                           loaiNhanVien == LoaiNhanVien.BaoVe ? "BV" : "QL";
-            
+
             var maNhanVien = $"NV-{loaiCode}-{user.Id:D4}";
 
             var rolesNotes = new Dictionary<LoaiNhanVien, string[]>
             {
-                { LoaiNhanVien.KyThuat, new[] { "Kỹ thuật viên điện nước, hỗ trợ sửa chữa căn hộ.", "Chuyên viên bảo trì hệ thống PCCC.", "Thợ sửa chữa điện lạnh và thiết bị tòa nhà.", "Kỹ thuật viên vận hành thang máy." } },
-                { LoaiNhanVien.VeSinh, new[] { "Nhân viên dọn dẹp khu vực hành lang và sảnh.", "Chuyên trách thu gom rác thải cư dân.", "Nhân viên làm sạch khu vực hồ bơi và công viên.", "Vệ sinh kính mặt ngoài tòa nhà." } },
-                { LoaiNhanVien.BaoVe, new[] { "Nhân viên trực cổng chính 24/7.", "Tuần tra khu vực hầm xe và khuôn viên.", "Trực camera an ninh tại phòng điều hành.", "Bảo vệ trực sảnh đón khách." } },
-                { LoaiNhanVien.QuanLy, new[] { "Quản lý tòa nhà, tiếp nhận phản ánh từ cư dân.", "Kế toán ban quản lý tòa nhà.", "Trưởng bộ phận chăm sóc khách hàng.", "Giám sát vận hành dự án." } }
+                { LoaiNhanVien.KyThuat, ["Kỹ thuật viên điện nước, hỗ trợ sửa chữa căn hộ.", "Chuyên viên bảo trì hệ thống PCCC.", "Thợ sửa chữa điện lạnh và thiết bị tòa nhà.", "Kỹ thuật viên vận hành thang máy." ] },
+                { LoaiNhanVien.VeSinh, ["Nhân viên dọn dẹp khu vực hành lang và sảnh.", "Chuyên trách thu gom rác thải cư dân.", "Nhân viên làm sạch khu vực hồ bơi và công viên.", "Vệ sinh kính mặt ngoài tòa nhà." ] },
+                { LoaiNhanVien.BaoVe, ["Nhân viên trực cổng chính 24/7.", "Tuần tra khu vực hầm xe và khuôn viên.", "Trực camera an ninh tại phòng điều hành.", "Bảo vệ trực sảnh đón khách." ] },
+                { LoaiNhanVien.QuanLy, ["Quản lý tòa nhà, tiếp nhận phản ánh từ cư dân.", "Kế toán ban quản lý tòa nhà.", "Trưởng bộ phận chăm sóc khách hàng.", "Giám sát vận hành dự án." ] }
             };
-            
+
             var nhanVien = new NhanVien(
-                user.Id, 
-                loaiNhanVien, 
-                maNhanVien, 
-                DateTimeOffset.UtcNow.AddMonths(-faker.Random.Number(1, 24)),
+                user.Id,
+                loaiNhanVien,
+                maNhanVien,
+                DateTimeOffset.Now.AddMonths(-faker.Random.Number(1, 24)),
                 faker.PickRandom(rolesNotes[loaiNhanVien]));
 
-            if (adminId != 0) nhanVien.SetCreated(adminId, DateTimeOffset.UtcNow);
+            if (adminId != 0) nhanVien.SetCreated(adminId, DateTimeOffset.Now);
 
             await context.NhanViens.AddAsync(nhanVien);
         }

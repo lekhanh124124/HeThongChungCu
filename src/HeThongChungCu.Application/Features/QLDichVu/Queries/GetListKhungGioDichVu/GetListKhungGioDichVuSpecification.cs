@@ -7,7 +7,7 @@ public class GetListKhungGioDichVuSpecification : BaseSpecification
 {
     public override HashSet<string> AllowedSortColumns => new(StringComparer.OrdinalIgnoreCase)
     {
-        "Id", "TenKhungGio", "GioBatDau", "GioKetThuc", "NgayTrongTuan"
+        "Id", "TenKhungGio", "GioBatDau", "GioKetThuc", "NgayTrongTuan", "IsActive"
     };
 
     public GetListKhungGioDichVuSpecification(
@@ -16,7 +16,8 @@ public class GetListKhungGioDichVuSpecification : BaseSpecification
         int? pageNumber = 1,
         int? pageSize = 10,
         string? sortBy = null,
-        bool? isAsc = true)
+        bool? isAsc = true,
+        bool? isActive = null)
         : base(sortBy, isAsc, pageNumber, pageSize)
     {
         AddFilter("IsDeleted", FilterOperator.Equal, false);
@@ -24,6 +25,11 @@ public class GetListKhungGioDichVuSpecification : BaseSpecification
         if (dichVuId.HasValue)
         {
             AddFilter("DichVuId", FilterOperator.Equal, dichVuId.Value);
+        }
+
+        if (isActive.HasValue)
+        {
+            AddFilter("IsActive", FilterOperator.Equal, isActive.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(keyword))

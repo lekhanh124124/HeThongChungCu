@@ -14,6 +14,7 @@ namespace HeThongChungCu.Application.Features.QLNhanVien.Commands.UpdateNhanVien
 
 public class UpdateNhanVienCommandHandler : ICommandHandler<UpdateNhanVienCommand, NhanVienDetailResponse>
 {
+    private readonly IDateTimeProvider _dateTimeProvider;
     private readonly INhanVienCommandRepository _nhanVienRepository;
     private readonly INhanVienQueryRepository _nhanVienQueryRepository;
     private readonly INguoiDungCommandRepository _nguoiDungRepository;
@@ -23,6 +24,7 @@ public class UpdateNhanVienCommandHandler : ICommandHandler<UpdateNhanVienComman
     private readonly IUnitOfWork _unitOfWork;
 
     public UpdateNhanVienCommandHandler(
+        IDateTimeProvider dateTimeProvider,
         INhanVienCommandRepository nhanVienRepository,
         INhanVienQueryRepository nhanVienQueryRepository,
         INguoiDungCommandRepository nguoiDungRepository,
@@ -31,6 +33,7 @@ public class UpdateNhanVienCommandHandler : ICommandHandler<UpdateNhanVienComman
         IDocumentReconciliationService documentReconciliationService,
         IUnitOfWork unitOfWork)
     {
+        _dateTimeProvider = dateTimeProvider;
         _nhanVienRepository = nhanVienRepository;
         _nhanVienQueryRepository = nhanVienQueryRepository;
         _nguoiDungRepository = nguoiDungRepository;
@@ -42,6 +45,7 @@ public class UpdateNhanVienCommandHandler : ICommandHandler<UpdateNhanVienComman
 
     public async Task<Result<NhanVienDetailResponse>> Handle(UpdateNhanVienCommand request, CancellationToken cancellationToken)
     {
+        var now = _dateTimeProvider.Now;
         // 1. Fetch Staff and linked User Profile with documents
         var nhanVien = await _nhanVienRepository.GetByIdAsync(request.Id, cancellationToken);
         if (nhanVien == null)
@@ -117,7 +121,7 @@ public class UpdateNhanVienCommandHandler : ICommandHandler<UpdateNhanVienComman
             return Result.Failure<NhanVienDetailResponse>(Error.InvalidType("Trạng thái nhân viên", TrangThaiNhanVien.GetAll().Select(t => t.Name)));
 
         nhanVien.UpdateProfile(loaiNhanVien, request.NgayVaoLam, request.GhiChu);
-        nhanVien.CapNhatTrangThai(trangThai, DateTimeOffset.UtcNow);
+        nhanVien.CapNhatTrangThai(trangThai, now);
 
         // 7. Atomic Save
         _nguoiDungRepository.Update(nguoiDung);

@@ -61,7 +61,7 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
         if (yeuCau.TrangThaiId != TrangThaiYeuCau.Pending)
             return Result.Failure<YeuCauPhuongTienResponse>(new Error("YeuCauPhuongTien.InvalidStatus", "Chỉ có thể duyệt yêu cầu đang chờ duyệt."));
 
-        var now = _dateTimeProvider.UtcNow;
+        var now = _dateTimeProvider.Now;
         yeuCau.Approve(adminId.Value, now);
 
         if (yeuCau.LoaiYeuCauId == LoaiYeuCau.Them)
@@ -104,7 +104,7 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
             // Gather data for Domain Service
             var canHo = await _canHoRepository.GetByIdAsync(yeuCau.CanHoId, cancellationToken);
             var activeVehicles = await _phuongTienRepository.GetPhuongTiensByCanHoIdAsync(yeuCau.CanHoId, cancellationToken);
-            
+
             bool isPlateDuplicate = false;
             if (phuongTien.BienSo != yeuCau.YeuCauBienSo)
             {

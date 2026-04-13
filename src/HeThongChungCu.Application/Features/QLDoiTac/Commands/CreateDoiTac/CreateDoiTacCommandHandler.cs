@@ -58,12 +58,11 @@ public class CreateDoiTacCommandHandler : ICommandHandler<CreateDoiTacCommand, D
 
             foreach (var h in request.HopDongs)
             {
-                var loaiDichVu = HeThongChungCu.Domain.Enums.LoaiDichVu.FromValue(h.LoaiDichVuId)
-                    ?? throw new Domain.Exceptions.BusinessException($"Loại dịch vụ không hợp lệ.");
-                var dichVu = new Domain.Entities.DichVu(
+                var loaiDichVu = LoaiDichVu.FromValue(h.LoaiDichVuId)!;
+                var dichVu = new DichVu(
                     h.MaDichVu, h.TenDichVu, loaiDichVu, h.DonViTinh,
                     h.MoTa, h.IconId, h.IsBatBuoc, h.SoLuongToiDa);
-                
+
                 await _dichVuCommandRepository.AddAsync(dichVu, cancellationToken);
                 dichVuDict.Add(h, dichVu);
             }
@@ -134,12 +133,6 @@ public class CreateDoiTacCommandHandler : ICommandHandler<CreateDoiTacCommand, D
                 };
             }).ToList()
         };
-
-        // Calculate top-level expiry date from contracts
-        response.NgayHetHan = response.HopDongs
-            .Where(h => h.TrangThaiHopDongId == TrangThaiHopDong.ConHieuLuc.Value || h.TrangThaiHopDongId == TrangThaiHopDong.SapHetHan.Value)
-            .Select(h => (DateTimeOffset?)h.NgayHetHan)
-            .Max();
 
         return Result.Success(response);
     }

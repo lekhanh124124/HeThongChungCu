@@ -6,8 +6,10 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Commands.TaoHoSo;
 
 public class TaoHoSoCommandValidator : AbstractValidator<TaoHoSoCommand>
 {
-    public TaoHoSoCommandValidator()
+    private readonly IDateTimeProvider _dateTimeProvider;
+    public TaoHoSoCommandValidator(IDateTimeProvider dateTimeProvider)
     {
+        _dateTimeProvider = dateTimeProvider;
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage(UserErrors.FirstNameNotEmpty.Description)
             .MaximumLength(50).WithMessage(UserErrors.FirstNameMaxLength.Description);
@@ -16,7 +18,7 @@ public class TaoHoSoCommandValidator : AbstractValidator<TaoHoSoCommand>
             .MaximumLength(50).WithMessage(UserErrors.LastNameMaxLength.Description);
         RuleFor(x => x.Dob)
             .NotEmpty().WithMessage(UserErrors.DobNotEmpty.Description)
-            .LessThan(DateTime.UtcNow).WithMessage(UserErrors.DobInFuture.Description);
+            .LessThan(_dateTimeProvider.Now.DateTime).WithMessage(UserErrors.DobInFuture.Description);
         RuleFor(x => x.GioiTinhId)
             .NotEmpty().WithMessage(UserErrors.GenderNotEmpty.Description)
             .Must(id => GioiTinh.GetAll().Any(g => g.Value == id))

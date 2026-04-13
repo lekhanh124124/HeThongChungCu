@@ -49,7 +49,7 @@ public class TuChoiYeuCauPhuongTienCommandHandler : ICommandHandler<TuChoiYeuCau
         if (yeuCau.TrangThaiId != TrangThaiYeuCau.Pending)
             return Result.Failure<YeuCauPhuongTienResponse>(new Error("YeuCauPhuongTien.InvalidStatus", "Chỉ có thể từ chối yêu cầu đang chờ duyệt."));
 
-        var now = _dateTimeProvider.UtcNow;
+        var now = _dateTimeProvider.Now;
         yeuCau.Reject(userId.Value, request.LyDo, now);
         _yeuCauRepository.Update(yeuCau);
 
