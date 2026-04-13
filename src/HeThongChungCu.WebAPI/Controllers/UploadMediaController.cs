@@ -39,6 +39,7 @@ public class UploadMediaController : ApiControllerBase
     ///             - `tai-lieu-cu-tru` (mặc định)
     ///             - `tai-lieu-phuong-tien`
     ///             - `tai-lieu-nhan-vien`
+    ///             - `tai-lieu-doi-tac`
     /// </remarks>
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<List<UploadFileResponse>>), StatusCodes.Status200OK)]

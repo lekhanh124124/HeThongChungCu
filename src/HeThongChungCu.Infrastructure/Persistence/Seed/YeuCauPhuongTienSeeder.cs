@@ -96,10 +96,9 @@ public class YeuCauPhuongTienSeeder
             }
             else
             {
-                // For Update/Delete, try to find a vehicle for this apartment if possible, else random
-                var vehicleId = existingVehicles.Count > 0
-                    ? faker.PickRandom(existingVehicles).Id
-                    : faker.Random.Number(1, 100);
+                // For Update/Delete, try to find a vehicle from existing ones
+                if (existingVehicles.Count == 0) continue;
+                var vehicleId = faker.PickRandom(existingVehicles).Id;
 
                 if (loaiYeuCau == LoaiYeuCau.Sua)
                 {

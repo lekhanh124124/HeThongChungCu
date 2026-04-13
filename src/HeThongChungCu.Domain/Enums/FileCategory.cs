@@ -10,6 +10,7 @@ public class FileCategory : BaseEnum<FileCategory, int>
     public static readonly FileCategory Apartment = new(4, "Ảnh căn hộ", 5, [".jpg", ".jpeg", ".png"]);
     public static readonly FileCategory Vehicle = new(5, "Ảnh phương tiện", 5, [".jpg", ".jpeg", ".png"]);
     public static readonly FileCategory StaffDocument = new(6, "Tài liệu nhân viên", 10, [".pdf", ".doc", ".docx", ".png", ".jpg", ".jpeg"]);
+    public static readonly FileCategory PartnerDocument = new(7, "Tài liệu đối tác", 10, [".pdf", ".doc", ".docx", ".png", ".jpg", ".jpeg"]);
 
     public int MaxSizeMB { get; }
     public string[] AllowedExtensions { get; }
@@ -31,6 +32,7 @@ public class FileCategory : BaseEnum<FileCategory, int>
             "tai-lieu-cu-tru" => Document,
             "tai-lieu-phuong-tien" => Vehicle,
             "tai-lieu-nhan-vien" => StaffDocument,
+            "tai-lieu-doi-tac" => PartnerDocument,
             _ => Document
         };
     }

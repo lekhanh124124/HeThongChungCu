@@ -48,6 +48,7 @@ public class ToaNhaSeeder
                 var toaNha = new ToaNha(
                     maToaNha: bData.Ma,
                     tenToaNha: bData.Ten,
+                    block: bData.Block,
                     diaChi: bData.DiaChi,
                     moTa: bData.MoTa,
                     trangThaiToaNhaId: TrangThaiToaNha.DangHoatDong
@@ -77,6 +78,11 @@ public class ToaNhaSeeder
                 await context.SaveChangesAsync();
 
                 // 3. Create apartments for each floor
+                var maxFloor = toaNha.Tangs
+                    .Where(t => t.LoaiTangId == LoaiTang.TangLau)
+                    .Select(t => int.Parse(t.TenTang.Split(' ')[1]))
+                    .Max();
+
                 foreach (var tang in toaNha.Tangs)
                 {
                     if (tang.LoaiTangId != LoaiTang.TangLau) continue;
@@ -90,15 +96,67 @@ public class ToaNhaSeeder
                     for (int a = 1; a <= roomsCount; a++)
                     {
                         var apartmentNum = $"{floorNum}{a:D2}";
+                        var status = faker.Random.WeightedRandom(
+                            [TrangThaiCanHo.DangTrong, TrangThaiCanHo.ChuaBanGiao, TrangThaiCanHo.DangThiCong],
+                            [0.85f, 0.10f, 0.05f]
+                        );
+
+                        // Logic-based Apartment Type selection
+                        var loaiCanHo = LoaiCanHo.Standard;
+                        var dienTich = Math.Round(faker.Random.Decimal(55, 90), 1);
+                        var soPhongNgu = faker.Random.Int(1, 2);
+                        var soPhongTam = faker.Random.Int(1, 1);
+
+                        if (floorNum == 1)
+                        {
+                            // Floor 1 has a 40% chance of being a Shophouse
+                            if (faker.Random.Bool(0.4f))
+                            {
+                                loaiCanHo = LoaiCanHo.Shophouse;
+                                dienTich = Math.Round(faker.Random.Decimal(100, 200), 1);
+                                soPhongNgu = 1; // Shophouses usually have less bedrooms, more open space
+                                soPhongTam = 2;
+                            }
+                        }
+                        else if (floorNum == maxFloor)
+                        {
+                            // Top floor has a 50% chance of being a Penthouse
+                            if (faker.Random.Bool(0.5f))
+                            {
+                                loaiCanHo = LoaiCanHo.Penthouse;
+                                dienTich = Math.Round(faker.Random.Decimal(180, 350), 1);
+                                soPhongNgu = faker.Random.Int(3, 5);
+                                soPhongTam = faker.Random.Int(3, 4);
+                            }
+                        }
+                        else
+                        {
+                            // Other floors: Standard (70%) or Studio (30%)
+                            if (faker.Random.Bool(0.3f))
+                            {
+                                loaiCanHo = LoaiCanHo.Studio;
+                                dienTich = Math.Round(faker.Random.Decimal(35, 50), 1);
+                                soPhongNgu = 1;
+                                soPhongTam = 1;
+                            }
+                            else
+                            {
+                                loaiCanHo = LoaiCanHo.Standard;
+                                dienTich = Math.Round(faker.Random.Decimal(65, 110), 1);
+                                soPhongNgu = faker.Random.Int(2, 3);
+                                soPhongTam = faker.Random.Int(1, 2);
+                            }
+                        }
+
                         var canHo = new CanHo(
                             tangId: tang.Id,
                             maCanHo: $"{toaNha.MaToaNha}-{apartmentNum}",
                             tenCanHo: $"Phòng {bData.Block}{apartmentNum}",
-                            dienTich: Math.Round(faker.Random.Decimal(45, 120), 1),
-                            soPhongNgu: faker.Random.Int(1, 3),
-                            soPhongTam: faker.Random.Int(1, 2),
-                            loaiCanHoId: faker.PickRandom(LoaiCanHo.GetAll().ToArray()),
-                            tinhTrangCanHoId: TrangThaiCanHo.DangTrong
+                            dienTich: dienTich,
+                            soPhongNgu: soPhongNgu,
+                            soPhongTam: soPhongTam,
+                            loaiCanHoId: loaiCanHo,
+                            tinhTrangCanHoId: status
                         );
 
                         if (adminId != 0) canHo.SetCreated(adminId, DateTimeOffset.Now);

@@ -20,7 +20,7 @@ public static class DichVuSeeder
         var evn = new DoiTac(
             "EVN TP.HCM",
             "Tổng Công ty Điện lực Thành phố Hồ Chí Minh",
-            "Trần Văn Điện",
+            "Trần Thế Vinh",
             "GPKD-EVN-001",
             "MST-0300465569",
             "356 Lý Tự Trọng, Quận 1, TP. Hồ Chí Minh",
@@ -31,7 +31,7 @@ public static class DichVuSeeder
         var sawaco = new DoiTac(
             "SAWACO",
             "Tổng Công ty Cấp nước Sài Gòn",
-            "Lê Văn Nước",
+            "Lê Hoàng Nam",
             "GPKD-SW-002",
             "MST-0304169542",
             "01 Công trường Quốc tế, Phường Võ Thị Sáu, Quận 3, TP. Hồ Chí Minh",
@@ -64,7 +64,7 @@ public static class DichVuSeeder
         var cleany = new DoiTac(
             "Cleany",
             "Hệ thống Giặt ủi Cleany",
-            "Nguyễn Văn Giặt",
+            "Nguyễn Minh Tiến",
             "GPKD-CLEAN-002",
             "MST-0315442211",
             "200 Nguyễn Thị Minh Khai, Quận 3, TP. Hồ Chí Minh",
@@ -102,7 +102,7 @@ public static class DichVuSeeder
         var dvVanHanh = new DichVu(
             "DV_VANHANH",
             "Dịch vụ vận hành tòa nhà",
-            LoaiDichVu.QuanLy,
+            LoaiDichVu.VanHanh,
             "m2",
             "Phí quản lý vận hành, bảo trì hạ tầng chung của tòa nhà.",
             null,
@@ -140,7 +140,7 @@ public static class DichVuSeeder
         await context.BangGias.AddAsync(bgDien);
 
         // Ký hợp đồng tổng với EVN
-        var hdDien = evn.KyHopDongMoi("HD-EVN-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(10), 1000000000, dvDien.Id, "Hợp đồng mua điện năng tổng cho tòa nhà.");
+        var hdDien = evn.KyHopDongMoi("HD-EVN-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(10), 20000000000, dvDien.Id, "Hợp đồng mua điện năng tổng cho tòa nhà.");
         if (adminId != 0) hdDien.SetCreated(adminId, DateTimeOffset.Now);
 
         // 2.3. Dịch vụ Nước sinh hoạt (Nội bộ quản lý - Có đối tác nguồn)
@@ -158,7 +158,7 @@ public static class DichVuSeeder
         await context.BangGias.AddAsync(bgNuoc);
 
         // Ký hợp đồng tổng với SAWACO
-        var hdNuoc = sawaco.KyHopDongMoi("HD-SW-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5), 500000000, dvNuoc.Id, "Hợp đồng cấp nước sạch toàn khu dân cư.");
+        var hdNuoc = sawaco.KyHopDongMoi("HD-SW-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5), 3000000000, dvNuoc.Id, "Hợp đồng cấp nước sạch toàn khu dân cư.");
         if (adminId != 0) hdNuoc.SetCreated(adminId, DateTimeOffset.Now);
 
         // 2.4. Dịch vụ Trông giữ phương tiện (Nội bộ)

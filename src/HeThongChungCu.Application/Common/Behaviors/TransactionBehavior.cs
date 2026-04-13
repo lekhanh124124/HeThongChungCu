@@ -28,6 +28,12 @@ public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
             {
                 var response = await next();
 
+                if (response is Result { IsFailure: true })
+                {
+                    await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+                    return response;
+                }
+
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await _unitOfWork.CommitTransactionAsync(cancellationToken);
 

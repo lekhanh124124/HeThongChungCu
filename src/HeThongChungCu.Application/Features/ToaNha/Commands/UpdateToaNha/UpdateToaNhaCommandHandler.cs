@@ -22,16 +22,9 @@ public class UpdateToaNhaCommandHandler : ICommandHandler<UpdateToaNhaCommand, T
 
         var trangThaiToaNha = TrangThaiToaNha.FromValue(request.TrangThaiToaNhaId);
 
-        // Nếu mã thay đổi, kiểm tra trùng mã
-        if (request.MaToaNha != toaNha.MaToaNha)
-        {
-            var maExists = toaNha.Tangs.Any(t => t.MaTang == request.MaToaNha);
-            if (maExists)
-                return Result.Failure<ToaNhaDetailResponse>(ToaNhaErrors.MaToaNhaAlreadyExists);
-        }
         toaNha.Update(
-            request.MaToaNha,
             request.TenToaNha,
+            request.Block,
             request.DiaChi,
             request.MoTa,
             trangThaiToaNha);
@@ -44,6 +37,7 @@ public class UpdateToaNhaCommandHandler : ICommandHandler<UpdateToaNhaCommand, T
             Id = toaNha.Id,
             MaToaNha = toaNha.MaToaNha,
             TenToaNha = toaNha.TenToaNha,
+            Block = toaNha.Block,
             DiaChi = toaNha.DiaChi.FullAddress,
             MoTa = toaNha.MoTa,
             TrangThaiToaNhaId = toaNha.TrangThaiToaNhaId.Value,

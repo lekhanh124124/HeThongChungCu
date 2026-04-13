@@ -52,18 +52,25 @@ public class PhuongTienSeeder
             { LoaiPhuongTien.XeDien, ["VinFast Klara", "Pega", "VinFast Vento"] }
         };
 
+        var vehicleColors = new[] { "Trắng", "Đen", "Đỏ", "Xanh dương", "Xám", "Bạc", "Vàng cát" };
+
         for (int i = 0; i < soLuongPhuongTien; i++)
         {
             var loaiId = faker.PickRandom(loaiPhuongTiens);
             var model = faker.PickRandom(vehicleModels[loaiId]);
             var status = faker.PickRandom(trangThais);
+            var color = faker.PickRandom(vehicleColors);
+
+            // Bicycles don't have plates in Vietnam, generation a fake internal plate instead
+            var bienSo = (loaiId == LoaiPhuongTien.XeDap) ? GenerateBienSoXeDap(faker) : GenerateBienSo(faker);
+            var tenHienThi = $"{model} ({bienSo})";
 
             var pt = new PhuongTien(
                 canHoId: faker.PickRandom(canHoIds),
-                tenPhuongTien: $"{model} {GenerateBienSo(faker)}",
+                tenPhuongTien: tenHienThi,
                 loaiPhuongTienId: loaiId,
-                bienSo: GenerateBienSo(faker),
-                mauXe: model,
+                bienSo: bienSo,
+                mauXe: color,
                 hinhAnhs: null
             );
 
@@ -106,6 +113,19 @@ public class PhuongTienSeeder
             {
                 var provinceCode = faker.PickRandom(new[] { "29", "30", "31", "33", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "43", "60", "61", "72" });
                 bienSo = $"{provinceCode}{faker.Random.String2(1, "ABCDEFGHJK")}-{faker.Random.Int(100, 999)}.{faker.Random.Int(10, 99)}";
+            } while (!_usedBienSos.Add(bienSo));
+        }
+        return bienSo;
+    }
+
+    private static string GenerateBienSoXeDap(Faker faker)
+    {
+        string bienSo;
+        lock (_lock)
+        {
+            do
+            {
+                bienSo = $"XD-{faker.Random.Int(1000, 99999)}";
             } while (!_usedBienSos.Add(bienSo));
         }
         return bienSo;

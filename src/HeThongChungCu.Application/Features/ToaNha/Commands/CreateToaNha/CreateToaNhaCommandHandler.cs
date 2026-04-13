@@ -25,6 +25,7 @@ public class CreateToaNhaCommandHandler : ICommandHandler<CreateToaNhaCommand, T
         var toaNha = new Domain.Entities.ToaNha(
             request.MaToaNha,
             request.TenToaNha,
+            request.Block,
             request.DiaChi,
             request.MoTa,
             trangThaiToaNha);
@@ -38,6 +39,7 @@ public class CreateToaNhaCommandHandler : ICommandHandler<CreateToaNhaCommand, T
             Id = toaNha.Id,
             MaToaNha = toaNha.MaToaNha,
             TenToaNha = toaNha.TenToaNha,
+            Block = toaNha.Block,
             DiaChi = toaNha.DiaChi.FullAddress,
             MoTa = toaNha.MoTa,
             TrangThaiToaNhaId = toaNha.TrangThaiToaNhaId.Value,

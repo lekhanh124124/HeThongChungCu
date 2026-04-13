@@ -83,9 +83,9 @@ public class DatabaseSeeder : IDatabaseSeeder
 
             // Seed Cứng (Fixed Seeds)
             _logger.LogInformation("Seeding fixed data...");
+            await SpecialUserSeeder.SeedAdminAndTestAccountsAsync(_context, _logger);
             await ToaNhaSeeder.SeedAsync(_context, _logger);
             await DichVuSeeder.SeedAsync(_context, _logger);
-            await SpecialUserSeeder.SeedAdminAndTestAccountsAsync(_context, _logger);
 
             // Lấy ID Admin sau khi đã seed ở trên
             var admin = await _context.TaiKhoan.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Email.Value == "admin@gmail.com");

@@ -5,6 +5,7 @@ internal record ToaNhaDetailReadModel
     public int Id { get; init; }
     public string MaToaNha { get; init; } = string.Empty;
     public string TenToaNha { get; init; } = string.Empty;
+    public string Block { get; init; } = string.Empty;
     public string DiaChi { get; init; } = string.Empty;
     public string? MoTa { get; init; }
     public int TrangThaiToaNhaId { get; init; }

@@ -24,6 +24,10 @@ public class ToaNhaConfiguration : IEntityTypeConfiguration<ToaNha>
             .IsRequired()
             .HasMaxLength(100);
 
+        builder.Property(t => t.Block)
+            .IsRequired()
+            .HasMaxLength(1);
+
         builder.OwnsOne(t => t.DiaChi, da =>
         {
             da.Property(p => p.FullAddress)

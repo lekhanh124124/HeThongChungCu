@@ -17,15 +17,21 @@ public class ApplicationDbContextInitialiser(
 
         try
         {
-            _logger.LogInformation("Starting database migration...");
+            _logger.LogInformation("Testing database connection...");
 
-            await _context.Database.MigrateAsync();
-
-            _logger.LogInformation("Database migration completed.");
+            var canConnect = await _context.Database.CanConnectAsync();
+            if (!canConnect)
+            {
+                _logger.LogWarning("Cannot connect to the database. Did you forget to update the database? Run: 'dotnet ef database update'");
+            }
+            else
+            {
+                _logger.LogInformation("Database connection successful.");
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Database migration failed. Application will continue to start.");
+            _logger.LogError(ex, "Failed to connect or verify the database. Application will continue but might fail at runtime.");
         }
     }
 

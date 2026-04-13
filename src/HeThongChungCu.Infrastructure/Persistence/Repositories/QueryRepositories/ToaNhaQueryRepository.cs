@@ -41,7 +41,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sql = $"""
-            SELECT COUNT(*) OVER() AS TotalCount, Id, MaToaNha, TenToaNha, DiaChi, MoTa, TrangThaiToaNhaId,
+            SELECT COUNT(*) OVER() AS TotalCount, Id, MaToaNha, TenToaNha, Block, DiaChi, MoTa, TrangThaiToaNhaId,
                    (SELECT COUNT(*) FROM CanHo c JOIN Tang t ON c.TangId = t.Id WHERE t.ToaNhaId = ToaNha.Id AND c.IsDeleted = 0 AND t.IsDeleted = 0) AS SoCanHo
             FROM ToaNha
             {sqlWhere}
@@ -61,6 +61,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             Id = r.Id,
             MaToaNha = r.MaToaNha,
             TenToaNha = r.TenToaNha,
+            Block = r.Block,
             DiaChi = r.DiaChi,
             MoTa = r.MoTa,
             TrangThaiToaNhaId = r.TrangThaiToaNhaId,
@@ -106,7 +107,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
         ]);
 
         var sql = $"""
-            SELECT tn.Id, tn.MaToaNha, tn.TenToaNha, tn.DiaChi, tn.MoTa, tn.TrangThaiToaNhaId,
+            SELECT tn.Id, tn.MaToaNha, tn.TenToaNha, tn.Block, tn.DiaChi, tn.MoTa, tn.TrangThaiToaNhaId,
                    (SELECT COUNT(*) FROM CanHo c JOIN Tang t ON c.TangId = t.Id WHERE t.ToaNhaId = tn.Id AND c.IsDeleted = 0 AND t.IsDeleted = 0) AS SoCanHo
             FROM ToaNha tn
             {sqlWhere};
@@ -133,6 +134,7 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             Id = firstRow.Id,
             MaToaNha = firstRow.MaToaNha,
             TenToaNha = firstRow.TenToaNha,
+            Block = firstRow.Block,
             SoCanHo = firstRow.SoCanHo,
             DiaChi = firstRow.DiaChi,
             MoTa = firstRow.MoTa,

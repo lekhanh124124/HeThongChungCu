@@ -10,6 +10,7 @@ public class ToaNha : AggregateRoot
 {
     public string MaToaNha { get; private set; } = null!;
     public string TenToaNha { get; private set; } = null!;
+    public string Block { get; private set; } = null!;
 
     public DiaChi DiaChi { get; private set; } = null!;
     public string? MoTa { get; private set; }
@@ -24,25 +25,34 @@ public class ToaNha : AggregateRoot
     public ToaNha(
         string maToaNha, 
         string tenToaNha, 
+        string block,
         string? diaChi, 
         string? moTa, 
         TrangThaiToaNha trangThaiToaNhaId)
     {
+        if (string.IsNullOrWhiteSpace(block) || block.Length != 1 || !char.IsLetter(block[0]) || !char.IsUpper(block[0]))
+            throw new BusinessException("Block phải là một ký tự alphabet in hoa (A-Z).");
+
         MaToaNha = maToaNha;
         TenToaNha = tenToaNha;
+        Block = block;
         DiaChi = new DiaChi(diaChi);
         MoTa = moTa;
         TrangThaiToaNhaId = trangThaiToaNhaId;
     }
 
     public void Update(
-        string maToaNha,
         string tenToaNha, 
+        string block,
         string? diaChi, 
         string? moTa, 
         TrangThaiToaNha? trangThaiToaNhaId)
     {
+        if (string.IsNullOrWhiteSpace(block) || block.Length != 1 || !char.IsLetter(block[0]) || !char.IsUpper(block[0]))
+            throw new BusinessException("Block phải là một ký tự alphabet in hoa (A-Z).");
+
         TenToaNha = tenToaNha;
+        Block = block;
         DiaChi = new DiaChi(diaChi);
         MoTa = moTa;
         TrangThaiToaNhaId = trangThaiToaNhaId ?? TrangThaiToaNhaId;

@@ -31,7 +31,7 @@ public class QuanHeCuTruSeeder
         // 1. Seed Owners (ChuHo)
         int chuHoCount = Math.Min(soLuongChuHo, availableCanHos.Count / 2); // Seed owners for up to half of apartments
         var chuHoCanHos = availableCanHos.Take(chuHoCount).ToList();
-        var headApartmentIds = new List<int>();
+        var headApartmentDates = new Dictionary<int, DateTimeOffset>();
 
         foreach (var canHo in chuHoCanHos)
         {
@@ -42,12 +42,13 @@ public class QuanHeCuTruSeeder
             (NguoiDung user, _) = await UserSeeder.CreateUserWithAccountAsync(
                 context, firstName, lastName, email, Role.Resident, null!, null, null, adminId == 0 ? null : adminId);
 
-            var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.ChuHo, DateTimeOffset.Now.AddDays(-faker.Random.Number(10, 100)));
-            if (adminId != 0) qh.SetCreated(adminId, DateTimeOffset.Now.AddDays(-faker.Random.Number(10, 100)));
+            var joinDate = DateTimeOffset.Now.AddDays(-faker.Random.Number(30, 120));
+            var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.ChuHo, joinDate);
+            if (adminId != 0) qh.SetCreated(adminId, joinDate);
             context.QuanHeCuTrus.Add(qh);
 
             canHo.MarkAsOccupied();
-            headApartmentIds.Add(canHo.Id);
+            headApartmentDates[canHo.Id] = joinDate;
         }
 
         // 2. Seed Tenants (NguoiThue) for remaining vacant apartments
@@ -64,20 +65,22 @@ public class QuanHeCuTruSeeder
             (NguoiDung user, _) = await UserSeeder.CreateUserWithAccountAsync(
                 context, firstName, lastName, email, Role.Resident, null!, null, null, adminId == 0 ? null : adminId);
 
-            var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.NguoiThue, DateTimeOffset.Now.AddDays(-faker.Random.Number(5, 50)));
-            if (adminId != 0) qh.SetCreated(adminId, DateTimeOffset.Now.AddDays(-faker.Random.Number(5, 50)));
+            var joinDate = DateTimeOffset.Now.AddDays(-faker.Random.Number(10, 60));
+            var qh = new QuanHeCuTru(canHo.Id, user.Id, LoaiQuanHeCuTru.NguoiThue, joinDate);
+            if (adminId != 0) qh.SetCreated(adminId, joinDate);
             context.QuanHeCuTrus.Add(qh);
 
             canHo.MarkAsOccupied();
-            headApartmentIds.Add(canHo.Id);
+            headApartmentDates[canHo.Id] = joinDate;
         }
 
         DatabaseSeeder.ClearAllDomainEvents(context);
         await context.SaveChangesAsync();
 
         // 3. Seed Others (NguoiOCung, Khac) for apartments that already have a head
-        if (headApartmentIds.Count != 0)
+        if (headApartmentDates.Count != 0)
         {
+            var headApartmentIds = headApartmentDates.Keys.ToList();
             var otherRoles = new[] { LoaiQuanHeCuTru.NguoiOCung, LoaiQuanHeCuTru.Khac };
             int batchSize = 50;
             for (int i = 0; i < soLuongCuTru; i += batchSize)
@@ -109,8 +112,13 @@ public class QuanHeCuTruSeeder
 
                 foreach (var item in batchUsers)
                 {
-                    var qh = new QuanHeCuTru(item.CanHoId, item.User.Id, faker.PickRandom(otherRoles), DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 10)));
-                    if (adminId != 0) qh.SetCreated(adminId, DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 10)));
+                    var headJoinDate = headApartmentDates[item.CanHoId];
+                    // "Other" joins between head's join date and today
+                    var daysSinceHeadJoined = (int)(DateTimeOffset.Now - headJoinDate).TotalDays;
+                    var joinDate = headJoinDate.AddDays(faker.Random.Number(0, daysSinceHeadJoined));
+
+                    var qh = new QuanHeCuTru(item.CanHoId, item.User.Id, faker.PickRandom(otherRoles), joinDate);
+                    if (adminId != 0) qh.SetCreated(adminId, joinDate);
                     context.QuanHeCuTrus.Add(qh);
                 }
 

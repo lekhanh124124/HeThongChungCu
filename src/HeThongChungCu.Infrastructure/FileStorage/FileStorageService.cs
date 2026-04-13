@@ -161,6 +161,7 @@ public partial class FileStorageService : IFileStorageService
         if (category == FileCategory.Document) return _settings.DocumentContainer;
         if (category == FileCategory.Vehicle) return _settings.VehicleContainer;
         if (category == FileCategory.StaffDocument) return _settings.StaffDocumentContainer;
+        if (category == FileCategory.PartnerDocument) return _settings.PartnerDocumentContainer;
 
         return _settings.DocumentContainer; // Default
     }
