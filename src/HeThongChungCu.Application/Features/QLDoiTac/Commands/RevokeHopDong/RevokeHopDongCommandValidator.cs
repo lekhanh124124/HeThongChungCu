@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLDoiTac.Commands.RevokeHopDong;
 
@@ -8,7 +7,7 @@ public class RevokeHopDongCommandValidator : AbstractValidator<RevokeHopDongComm
     public RevokeHopDongCommandValidator()
     {
         RuleFor(x => x.DoiTacId)
-            .GreaterThan(0).WithErrorCode(DoiTacErrors.IdNotEmpty.Code).WithMessage(DoiTacErrors.IdNotEmpty.Description);
+            .GreaterThan(0).WithErrorCode("Validation.NotEmpty").WithMessage("ID không được để trống.");
 
         RuleFor(x => x.Ids)
             .NotEmpty().WithMessage("Danh sách ID hợp đồng cần thu hồi không được để trống.")

@@ -25,7 +25,7 @@ public class CreateKhungGioDichVuCommandHandler : ICommandHandler<CreateKhungGio
     {
         var dichVu = await _dichVuCommandRepository.GetByIdWithKhungGiosAsync(request.DichVuId, cancellationToken);
         if (dichVu == null)
-            return Result.Failure<KhungGioDichVuResponse>(Error.NotFound("DichVu.NotFound", $"Không tìm thấy dịch vụ với ID {request.DichVuId}"));
+            return Result.Failure<KhungGioDichVuResponse>(DichVuErrors.NotFoundById(request.DichVuId));
 
         var addResult = dichVu.AddKhungGio(
             request.GioBatDau,

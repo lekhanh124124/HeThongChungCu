@@ -18,7 +18,7 @@ public class GetDoiTacByIdQueryHandler : IQueryHandler<GetDoiTacByIdQuery, DoiTa
         var result = await _doiTacQueryRepository.GetByIdAsync(spec, cancellationToken);
         
         if (result == null)
-            return Result.Failure<DoiTacDetailResponse>(Error.NotFound("DoiTac.NotFound", "Không tìm thấy đơn vị cung cấp."));
+            return Result.Failure<DoiTacDetailResponse>(DoiTacErrors.NotFoundById(request.Id));
 
         return Result.Success(result);
     }

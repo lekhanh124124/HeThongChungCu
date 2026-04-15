@@ -53,7 +53,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
 
         var sql = $"""
             SELECT COUNT(*) OVER() AS TotalCount, 
-                   dv.Id, dv.MaDichVu, dv.TenDichVu, dv.LoaiDichVuId, dv.DonViTinh, dv.MoTa, dv.IsBatBuoc, dv. सोLuongToiDa, dv.TrangThaiId,
+                   dv.Id, dv.MaDichVu, dv.TenDichVu, dv.LoaiDichVuId, dv.DonViTinh, dv.MoTa, dv.IsBatBuoc, dv.SoLuongToiDa, dv.TrangThaiId,
                    tp.FileUrl AS IconUrl
             FROM DichVu dv
             {sqlJoin}

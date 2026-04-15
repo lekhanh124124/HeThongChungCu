@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.Profile.Commands.ChangePassword;
 
@@ -8,19 +7,19 @@ public class ChangePasswordCommandValidator : AbstractValidator<ChangePasswordCo
     public ChangePasswordCommandValidator()
     {
         RuleFor(x => x.OldPassword)
-            .NotEmpty().WithMessage(AuthErrors.CurrentPasswordNotEmpty.Description);
+            .NotEmpty().WithMessage("Mật khẩu hiện tại không được để trống.");
 
         RuleFor(x => x.NewPassword)
-            .NotEmpty().WithMessage(AuthErrors.NewPasswordNotEmpty.Description)
-            .MinimumLength(6).WithMessage(AuthErrors.PasswordMinLength(6).Description)
-            .Matches(@"[A-Z]").WithMessage(AuthErrors.PasswordRequiresUpper.Description)
-            .Matches(@"[a-z]").WithMessage(AuthErrors.PasswordRequiresLower.Description)
-            .Matches(@"[0-9]").WithMessage(AuthErrors.PasswordRequiresDigit.Description)
-            .Matches(@"[^a-zA-Z0-9]").WithMessage(AuthErrors.PasswordRequiresNonAlphanumeric.Description);
+            .NotEmpty().WithMessage("Mật khẩu mới không được để trống.")
+            .MinimumLength(6).WithMessage("Mật khẩu phải có ít nhất 6 ký tự.")
+            .Matches(@"[A-Z]").WithMessage("Mật khẩu phải chứa ít nhất một chữ cái viết hoa.")
+            .Matches(@"[a-z]").WithMessage("Mật khẩu phải chứa ít nhất một chữ cái viết thường.")
+            .Matches(@"[0-9]").WithMessage("Mật khẩu phải chứa ít nhất một chữ số.")
+            .Matches(@"[^a-zA-Z0-9]").WithMessage("Mật khẩu phải chứa ít nhất một ký tự đặc biệt.");
 
 
         RuleFor(x => x.ConfirmPassword)
-            .Equal(x => x.NewPassword).WithMessage(AuthErrors.PasswordConfirmationMismatch.Description);
+            .Equal(x => x.NewPassword).WithMessage("Xác nhận mật khẩu phải khớp với mật khẩu.");
     }
 }
 

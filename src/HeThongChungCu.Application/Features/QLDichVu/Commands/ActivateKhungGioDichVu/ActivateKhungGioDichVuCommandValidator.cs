@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.ActivateKhungGioDichVu;
 
@@ -9,8 +8,8 @@ public class ActivateKhungGioDichVuCommandValidator : AbstractValidator<Activate
     {
         RuleFor(x => x.DichVuId)
             .GreaterThan(0)
-            .WithErrorCode(DichVuErrors.DichVuIdRange.Code)
-            .WithMessage(DichVuErrors.DichVuIdRange.Description);
+            .WithErrorCode("Validation.Range")
+            .WithMessage("Giá trị Dịch vụ phải nằm trong khoảng từ 1 đến 2147483647.");
 
         RuleFor(x => x.Ids)
             .NotEmpty().WithMessage("Danh sách ID không được để trống.")

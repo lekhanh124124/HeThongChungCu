@@ -1,8 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
-
-using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.KhoaThePhuongTien;
 
@@ -11,9 +7,9 @@ public class KhoaThePhuongTienCommandValidator : AbstractValidator<KhoaThePhuong
     public KhoaThePhuongTienCommandValidator()
     {
         RuleFor(x => x.TheIds)
-            .NotEmpty().WithMessage(PhuongTienErrors.TheIdsNotEmpty.Description);
+            .NotEmpty().WithMessage("Danh sách thẻ phương tiện không được để trống.");
 
         RuleForEach(x => x.TheIds)
-            .GreaterThan(0).WithMessage(PhuongTienErrors.TheIdRange.Description);
+            .GreaterThan(0).WithMessage("Giá trị Thẻ phương tiện phải nằm trong khoảng từ 1 đến 2147483647.");
     }
 }

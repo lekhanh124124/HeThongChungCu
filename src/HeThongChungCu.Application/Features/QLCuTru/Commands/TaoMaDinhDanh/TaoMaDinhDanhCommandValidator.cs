@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.TaoMaDinhDanh;
 
@@ -9,7 +8,7 @@ public class TaoMaDinhDanhCommandValidator : AbstractValidator<TaoMaDinhDanhComm
     {
         RuleFor(x => x.QuanHeCuTruId).GreaterThan(0);
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage(AuthErrors.EmailNotEmpty.Description)
-            .EmailAddress().WithMessage(AuthErrors.EmailInvalid.Description);
+            .NotEmpty().WithMessage("Email không được để trống.")
+            .EmailAddress().WithMessage("Email không đúng định dạng email.");
     }
 }

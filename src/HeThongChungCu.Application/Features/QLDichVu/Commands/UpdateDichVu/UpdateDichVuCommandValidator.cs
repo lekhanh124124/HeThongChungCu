@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.UpdateDichVu;
@@ -9,7 +8,7 @@ public class UpdateDichVuCommandValidator : AbstractValidator<UpdateDichVuComman
     public UpdateDichVuCommandValidator()
     {
         RuleFor(x => x.Id)
-            .GreaterThan(0).WithMessage(DichVuErrors.DichVuIdRange.Description);
+            .GreaterThan(0).WithMessage("Giá trị Dịch vụ phải nằm trong khoảng từ 1 đến 2147483647.");
     }
 }
 

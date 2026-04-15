@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.KetThucCuTru;
 
@@ -8,6 +7,6 @@ public class KetThucCuTruCommandValidator : AbstractValidator<KetThucCuTruComman
     public KetThucCuTruCommandValidator()
     {
         RuleFor(x => x.QuanHeCuTruId)
-            .GreaterThan(0).WithMessage(YeuCauCuTruErrors.QuanHeIdRange.Description);
+            .GreaterThan(0).WithMessage("Giá trị Quan hệ cư trú phải nằm trong khoảng từ 1 đến 2147483647.");
     }
 }

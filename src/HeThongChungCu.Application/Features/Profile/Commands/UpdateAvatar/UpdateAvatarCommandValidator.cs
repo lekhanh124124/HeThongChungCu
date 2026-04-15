@@ -1,6 +1,5 @@
 using FluentValidation;
 using HeThongChungCu.Domain.Enums;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.Profile.Commands.UpdateAvatar;
 
@@ -17,20 +16,18 @@ public class UpdateAvatarCommandValidator : AbstractValidator<UpdateAvatarComman
     public UpdateAvatarCommandValidator()
     {
         RuleFor(x => x.FileName)
-            .NotEmpty().WithMessage(FileErrors.EmptyFileName.Description)
+            .NotEmpty().WithMessage("Tên tệp tin không được để trống.")
             .Must(HaveValidExtension)
-            .WithMessage(x => FileErrors.InvalidType(
-                Path.GetExtension(x.FileName), 
-                FileCategory.Avatar.AllowedExtensions).Description);
+            .WithMessage(x => $"Tệp tin '{Path.GetExtension(x.FileName)}' không hợp lệ. Chỉ chấp nhận: {string.Join(", ", FileCategory.Avatar.AllowedExtensions)}.");
 
         RuleFor(x => x.ContentType)
-            .NotEmpty().WithMessage(FileErrors.ContentTypeNotEmpty.Description)
+            .NotEmpty().WithMessage("Loại nội dung không được để trống.")
             .Must(x => AllowedContentTypes.Contains(x))
-            .WithMessage(FileErrors.InvalidContentType(AllowedContentTypes).Description);
+            .WithMessage($"Chỉ cho phép định dạng: {string.Join(", ", AllowedContentTypes)}.");
 
         RuleFor(x => x.AvatarStream)
             .NotNull()
-            .WithMessage(FileErrors.EmptyContent.Description);
+            .WithMessage("Nội dung tệp tin không được để trống.");
     }
 
     private bool HaveValidExtension(string fileName)

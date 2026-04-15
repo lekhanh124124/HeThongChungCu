@@ -19,7 +19,7 @@ public class GetDichVuByIdQueryHandler : IQueryHandler<GetDichVuByIdQuery, DichV
         var spec = new GetDichVuByIdSpecification(request.Id);
         var result = await _dichVuQueryRepository.GetByIdAsync(spec, cancellationToken);
         if (result == null)
-            return Result.Failure<DichVuDetailResponse>(Error.NotFound("DichVu", request.Id));
+            return Result.Failure<DichVuDetailResponse>(DichVuErrors.NotFoundById(request.Id));
 
         return Result.Success(result);
     }

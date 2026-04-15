@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Application.Features.Tang.Commands.UpdateTang;
@@ -9,21 +8,21 @@ public class UpdateTangCommandValidator : AbstractValidator<UpdateTangCommand>
     public UpdateTangCommandValidator()
     {
         RuleFor(x => x.Id)
-            .GreaterThan(0).WithMessage(TangErrors.TangIdRange.Description);
+            .GreaterThan(0).WithMessage("Giá trị Tầng phải nằm trong khoảng từ 1 đến 2147483647.");
 
         RuleFor(x => x.ToaNhaId)
-            .GreaterThan(0).WithMessage(ToaNhaErrors.ToaNhaIdRange.Description);
+            .GreaterThan(0).WithMessage("Giá trị Tòa nhà phải nằm trong khoảng từ 1 đến 2147483647.");
 
         RuleFor(x => x.MaTang)
-            .NotEmpty().WithMessage(TangErrors.MaTangNotEmpty.Description)
-            .MaximumLength(20).WithMessage(TangErrors.MaTangMaxLength.Description);
+            .NotEmpty().WithMessage("Mã tầng không được để trống.")
+            .MaximumLength(20).WithMessage("Mã tầng không được vượt quá 20 ký tự.");
 
         RuleFor(x => x.TenTang)
-            .NotEmpty().WithMessage(TangErrors.TenTangNotEmpty.Description)
-            .MaximumLength(100).WithMessage(TangErrors.TenTangMaxLength.Description);
+            .NotEmpty().WithMessage("Tên tầng không được để trống.")
+            .MaximumLength(100).WithMessage("Tên tầng không được vượt quá 100 ký tự.");
 
         RuleFor(x => x.LoaiTangId)
             .Must(id => LoaiTang.GetAll().Any(g => g.Value == id))
-            .WithMessage(TangErrors.InvalidType(LoaiTang.GetAll().Select(l => $"{l.Value} ({l.Name})")).Description);
+            .WithMessage($"Loại tầng không hợp lệ. Các giá trị hợp lệ: {string.Join(", ", LoaiTang.GetAll().Select(l => $"{l.Value} ({l.Name})"))}.");
     }
 }

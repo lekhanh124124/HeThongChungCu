@@ -4,9 +4,13 @@ using HeThongChungCu.Domain.Common;
 
 public static class ChiSoTieuThuErrors
 {
-    public static readonly Error NotFound = Error.NotFound("Chỉ số tiêu thụ");
+    public static readonly Error NotFound = new(
+        "ChiSoTieuThu.NotFound",
+        "Không tìm thấy chỉ số tiêu thụ.");
 
-    public static Error NotFoundById(int id) => Error.NotFound("Chỉ số tiêu thụ", id);
+    public static Error NotFoundById(int id) => new(
+        "ChiSoTieuThu.NotFound",
+        $"Không tìm thấy chỉ số tiêu thụ với ID '{id}'.");
 
     public static readonly Error AlreadyExists = new(
         "ChiSoTieuThu.AlreadyExists",
@@ -20,9 +24,23 @@ public static class ChiSoTieuThuErrors
         "ChiSoTieuThu.Locked",
         "Không thể xóa chỉ số tiêu thụ đã bị khóa.");
 
-    public static readonly Error ChiSoCuRange = Error.Range("Chỉ số cũ", 0, (double)decimal.MaxValue);
-    public static readonly Error ChiSoMoiRange = Error.Range("Chỉ số mới", 0, (double)decimal.MaxValue);
-    public static readonly Error ThangRange = Error.Range("Tháng", 1, 12);
-    public static readonly Error NamRange = Error.Range("Năm", 2000, 2100);
-    public static readonly Error ChiSoTieuThuIdRange = Error.Range("Chỉ số tiêu thụ", 1, int.MaxValue);
+    public static readonly Error ChiSoCuRange = new(
+        "Validation.Range",
+        $"Giá trị Chỉ số cũ phải nằm trong khoảng từ 0 đến {(double)decimal.MaxValue}.");
+
+    public static readonly Error ChiSoMoiRange = new(
+        "Validation.Range",
+        $"Giá trị Chỉ số mới phải nằm trong khoảng từ 0 đến {(double)decimal.MaxValue}.");
+
+    public static readonly Error ThangRange = new(
+        "Validation.Range",
+        "Giá trị Tháng phải nằm trong khoảng từ 1 đến 12.");
+
+    public static readonly Error NamRange = new(
+        "Validation.Range",
+        "Giá trị Năm phải nằm trong khoảng từ 2000 đến 2100.");
+
+    public static readonly Error ChiSoTieuThuIdRange = new(
+        "Validation.Range",
+        $"Giá trị Chỉ số tiêu thụ phải nằm trong khoảng từ 1 đến {int.MaxValue}.");
 }

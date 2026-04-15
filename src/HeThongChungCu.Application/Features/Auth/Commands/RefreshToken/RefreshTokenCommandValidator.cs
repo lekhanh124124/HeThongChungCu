@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.Auth.Commands.RefreshToken;
 
@@ -8,7 +7,7 @@ public class RefreshTokenCommandValidator : AbstractValidator<RefreshTokenComman
     public RefreshTokenCommandValidator()
     {
         RuleFor(x => x.RefreshToken)
-            .NotEmpty().WithMessage(AuthErrors.RefreshTokenNotEmpty.Description);
+            .NotEmpty().WithMessage("Refresh token không được để trống.");
     }
 }
 

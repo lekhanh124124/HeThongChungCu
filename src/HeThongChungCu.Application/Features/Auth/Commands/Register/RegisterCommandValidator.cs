@@ -1,6 +1,5 @@
 using FluentValidation;
 using HeThongChungCu.Application.Common.Interfaces;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.Auth.Commands.Register;
 
@@ -13,20 +12,20 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
 
 
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage(AuthErrors.EmailNotEmpty.Description)
-            .EmailAddress().WithMessage(AuthErrors.EmailInvalid.Description);
+            .NotEmpty().WithMessage("Email không được để trống.")
+            .EmailAddress().WithMessage("Email không đúng định dạng email.");
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage(AuthErrors.PasswordNotEmpty.Description)
-            .MinimumLength(6).WithMessage(AuthErrors.PasswordMinLength(6).Description)
-            .Matches(@"[A-Z]").WithMessage(AuthErrors.PasswordRequiresUpper.Description)
-            .Matches(@"[a-z]").WithMessage(AuthErrors.PasswordRequiresLower.Description)
-            .Matches(@"[0-9]").WithMessage(AuthErrors.PasswordRequiresDigit.Description)
-            .Matches(@"[^a-zA-Z0-9]").WithMessage(AuthErrors.PasswordRequiresNonAlphanumeric.Description);
+            .NotEmpty().WithMessage("Mật khẩu không được để trống.")
+            .MinimumLength(6).WithMessage("Mật khẩu phải có ít nhất 6 ký tự.")
+            .Matches(@"[A-Z]").WithMessage("Mật khẩu phải chứa ít nhất một chữ cái viết hoa.")
+            .Matches(@"[a-z]").WithMessage("Mật khẩu phải chứa ít nhất một chữ cái viết thường.")
+            .Matches(@"[0-9]").WithMessage("Mật khẩu phải chứa ít nhất một chữ số.")
+            .Matches(@"[^a-zA-Z0-9]").WithMessage("Mật khẩu phải chứa ít nhất một ký tự đặc biệt.");
 
 
         RuleFor(x => x.ConfirmPassword)
-            .NotEmpty().WithMessage(AuthErrors.ConfirmPasswordNotEmpty.Description)
-            .Equal(x => x.Password).WithMessage(AuthErrors.PasswordConfirmationMismatch.Description);
+            .NotEmpty().WithMessage("Xác nhận mật khẩu không được để trống.")
+            .Equal(x => x.Password).WithMessage("Xác nhận mật khẩu phải khớp với mật khẩu.");
     }
 }

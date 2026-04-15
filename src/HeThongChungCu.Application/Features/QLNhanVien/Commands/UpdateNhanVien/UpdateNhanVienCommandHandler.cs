@@ -116,9 +116,7 @@ public class UpdateNhanVienCommandHandler : ICommandHandler<UpdateNhanVienComman
         if (loaiNhanVien == null)
             return Result.Failure<NhanVienDetailResponse>(NhanVienErrors.LoaiNhanVienInvalid(LoaiNhanVien.GetAll().Select(l => l.Name)));
 
-        var trangThai = TrangThaiNhanVien.FromValue(request.TrangThaiNhanVienId);
-        if (trangThai == null)
-            return Result.Failure<NhanVienDetailResponse>(Error.InvalidType("Trạng thái nhân viên", TrangThaiNhanVien.GetAll().Select(t => t.Name)));
+        var trangThai = TrangThaiNhanVien.FromValue(request.TrangThaiNhanVienId)!;
 
         nhanVien.UpdateProfile(loaiNhanVien, request.NgayVaoLam, request.GhiChu);
         nhanVien.CapNhatTrangThai(trangThai, now);

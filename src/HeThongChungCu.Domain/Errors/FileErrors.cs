@@ -4,10 +4,6 @@ namespace HeThongChungCu.Domain.Errors;
 
 public static class FileErrors
 {
-    public static readonly Error DuplicateFileName = new(
-        "File.DuplicateFileName",
-        "Trong một lượt tải lên không được có các tệp tin trùng tên nhau để đảm bảo việc ánh xạ dữ liệu chính xác.");
-
     public static Error TooLarge(int maxSizeMB) => new(
         "File.TooLarge",
         $"Dung lượng tệp tin vượt quá giới hạn cho phép ({maxSizeMB}MB).");
@@ -23,22 +19,4 @@ public static class FileErrors
     public static readonly Error UnrecognizedCategory = new(
         "File.UnrecognizedCategory",
         "Loại tệp tin không được hệ thống hỗ trợ.");
-
-    public static readonly Error EmptyTargetContainer = new(
-        "File.EmptyTargetContainer",
-        "Mục đích tải lên (Target Container/Category) không được để trống.");
-
-    public static readonly Error EmptyFileName = Error.NotEmpty("Tên tệp tin");
-
-    public static readonly Error EmptyContent = Error.NotEmpty("Nội dung tệp tin");
-
-    public static readonly Error ContentTypeNotEmpty = Error.NotEmpty("Loại nội dung");
-
-    public static readonly Error InvalidSize = new(
-        "File.InvalidSize",
-        "Tệp tin không được rỗng.");
-
-    public static Error InvalidContentType(string[] allowedTypes) => new(
-        "File.InvalidContentType",
-        $"Chỉ cho phép định dạng: {string.Join(", ", allowedTypes)}.");
 }

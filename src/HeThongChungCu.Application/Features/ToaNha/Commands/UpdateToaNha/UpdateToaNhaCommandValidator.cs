@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Application.Features.ToaNha.Commands.UpdateToaNha;
@@ -9,11 +8,11 @@ public class UpdateToaNhaCommandValidator : AbstractValidator<UpdateToaNhaComman
     public UpdateToaNhaCommandValidator()
     {
         RuleFor(x => x.Id)
-            .GreaterThan(0).WithMessage(ToaNhaErrors.ToaNhaIdRange.Description);
+            .GreaterThan(0).WithMessage("Giá trị Tòa nhà phải nằm trong khoảng từ 1 đến 2147483647.");
 
         RuleFor(x => x.TenToaNha)
-            .NotEmpty().WithMessage(ToaNhaErrors.TenToaNhaNotEmpty.Description)
-            .MaximumLength(100).WithMessage(ToaNhaErrors.TenToaNhaMaxLength.Description);
+            .NotEmpty().WithMessage("Tên tòa nhà không được để trống.")
+            .MaximumLength(100).WithMessage("Tên tòa nhà không được vượt quá 100 ký tự.");
 
         RuleFor(x => x.Block)
             .NotEmpty().WithMessage("Block không được để trống.")
@@ -22,11 +21,11 @@ public class UpdateToaNhaCommandValidator : AbstractValidator<UpdateToaNhaComman
 
 
         RuleFor(x => x.DiaChi)
-            .NotEmpty().WithMessage(ToaNhaErrors.DiaChiNotEmpty.Description)
-            .MaximumLength(255).WithMessage(ToaNhaErrors.DiaChiMaxLength.Description);
+            .NotEmpty().WithMessage("Địa chỉ không được để trống.")
+            .MaximumLength(255).WithMessage("Địa chỉ không được vượt quá 255 ký tự.");
 
         RuleFor(x => x.TrangThaiToaNhaId)
             .Must(id => TrangThaiToaNha.GetAll().Any(g => g.Value == id))
-            .WithMessage(ToaNhaErrors.InvalidStatus(TrangThaiToaNha.GetAll().Select(l => $"{l.Value} ({l.Name})")).Description);
+            .WithMessage($"Trạng thái tòa nhà không hợp lệ. Các giá trị hợp lệ: {string.Join(", ", TrangThaiToaNha.GetAll().Select(l => $"{l.Value} ({l.Name})"))}.");
     }
 }

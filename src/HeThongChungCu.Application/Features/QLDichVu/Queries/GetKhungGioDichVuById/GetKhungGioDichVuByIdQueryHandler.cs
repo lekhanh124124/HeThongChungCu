@@ -21,7 +21,7 @@ public class GetKhungGioDichVuByIdQueryHandler : IQueryHandler<GetKhungGioDichVu
         var result = await _queryRepository.GetKhungGioByIdAsync(spec, cancellationToken);
         
         if (result == null)
-            return Result.Failure<KhungGioDichVuResponse>(Error.NotFound("KhungGioDichVu.NotFound", $"Không tìm thấy khung giờ dịch vụ với ID {request.Id}"));
+            return Result.Failure<KhungGioDichVuResponse>(DichVuErrors.NotFoundById(request.Id));
 
         return Result.Success(result);
     }

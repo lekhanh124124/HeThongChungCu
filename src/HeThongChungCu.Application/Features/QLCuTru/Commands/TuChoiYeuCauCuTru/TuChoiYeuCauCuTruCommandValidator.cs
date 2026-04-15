@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Commands.TuChoiYeuCauCuTru;
 
@@ -8,10 +7,10 @@ public class TuChoiYeuCauCuTruCommandValidator : AbstractValidator<TuChoiYeuCauC
     public TuChoiYeuCauCuTruCommandValidator()
     {
         RuleFor(x => x.YeuCauCuTruId)
-            .NotEmpty().WithMessage(YeuCauCuTruErrors.YeuCauCuTruIdRange.Description);
+            .NotEmpty().WithMessage("Giá trị Yêu cầu cư trú phải nằm trong khoảng từ 1 đến 2147483647.");
 
         RuleFor(x => x.LyDo)
-            .NotEmpty().WithMessage(YeuCauCuTruErrors.LyDoNotEmpty.Description)
-            .MaximumLength(500).WithMessage(YeuCauCuTruErrors.LyDoMaxLength.Description);
+            .NotEmpty().WithMessage("Lý do không được để trống.")
+            .MaximumLength(500).WithMessage("Lý do không được vượt quá 500 ký tự.");
     }
 }

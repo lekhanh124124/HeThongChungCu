@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.TuChoiYeuCauPhuongTien;
 
@@ -8,9 +7,9 @@ public class TuChoiYeuCauPhuongTienCommandValidator : AbstractValidator<TuChoiYe
     public TuChoiYeuCauPhuongTienCommandValidator()
     {
         RuleFor(x => x.YeuCauPhuongTienId)
-            .NotEmpty().WithMessage(YeuCauPhuongTienErrors.YeuCauPhuongTienIdRange.Description);
+            .NotEmpty().WithMessage("Giá trị Yêu cầu phương tiện phải nằm trong khoảng từ 1 đến 2147483647.");
 
         RuleFor(x => x.LyDo)
-            .NotEmpty().WithMessage(YeuCauPhuongTienErrors.LyDoNotEmpty.Description);
+            .NotEmpty().WithMessage("Lý do không được để trống.");
     }
 }

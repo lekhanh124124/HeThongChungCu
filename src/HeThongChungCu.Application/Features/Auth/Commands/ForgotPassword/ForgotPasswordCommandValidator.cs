@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.Auth.Commands.ForgotPassword;
 
@@ -8,7 +7,7 @@ public class ForgotPasswordCommandValidator : AbstractValidator<ForgotPasswordCo
     public ForgotPasswordCommandValidator()
     {
         RuleFor(x => x.Username)
-            .NotEmpty().WithMessage(AuthErrors.UsernameNotEmpty.Description);
+            .NotEmpty().WithMessage("Tên đăng nhập không được để trống.");
     }
 }
 

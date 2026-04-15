@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.DangKyDichVu;
 
@@ -8,16 +7,16 @@ public class DangKyDichVuCommandValidator : AbstractValidator<DangKyDichVuComman
     public DangKyDichVuCommandValidator()
     {
         RuleFor(x => x.CanHoId)
-            .NotEmpty().WithMessage(DichVuErrors.CanHoIdNotEmpty.Description);
+            .NotEmpty().WithMessage("Mã căn hộ không được để trống.");
 
         RuleFor(x => x.DichVuId)
-            .NotEmpty().WithMessage(DichVuErrors.NotFound.Description);
+            .NotEmpty().WithMessage("Không tìm thấy dịch vụ.");
 
         RuleFor(x => x.SoLuong)
-            .GreaterThan(0).WithMessage(DichVuErrors.SoLuongPositive.Description);
+            .GreaterThan(0).WithMessage("Giá trị Số lượng phải nằm trong khoảng từ 1 đến 2147483647.");
         
         RuleFor(x => x.NgaySuDung)
-            .NotEmpty().WithMessage(DichVuErrors.NgaySuDungNotEmpty.Description);
+            .NotEmpty().WithMessage("Ngày sử dụng không được để trống.");
     }
 }
 

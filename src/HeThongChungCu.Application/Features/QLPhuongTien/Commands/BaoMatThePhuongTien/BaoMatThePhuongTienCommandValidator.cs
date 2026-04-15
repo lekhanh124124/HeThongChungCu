@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.BaoMatThePhuongTien;
 
@@ -8,7 +7,7 @@ public class BaoMatThePhuongTienCommandValidator : AbstractValidator<BaoMatThePh
     public BaoMatThePhuongTienCommandValidator()
     {
         RuleForEach(x => x.TheIds)
-            .GreaterThan(0).WithMessage(PhuongTienErrors.TheIdRange.Description);
+            .GreaterThan(0).WithMessage("Giá trị Thẻ phương tiện phải nằm trong khoảng từ 1 đến 2147483647.");
     }
 }
 

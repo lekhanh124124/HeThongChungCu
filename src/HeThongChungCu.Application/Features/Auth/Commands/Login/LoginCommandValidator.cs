@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.Auth.Commands.Login;
 
@@ -8,10 +7,10 @@ public class LoginCommandValidator : AbstractValidator<LoginCommand>
     public LoginCommandValidator()
     {
         RuleFor(x => x.Username)
-            .NotEmpty().WithMessage(AuthErrors.UsernameNotEmpty.Description);
+            .NotEmpty().WithMessage("Tên đăng nhập không được để trống.");
 
         RuleFor(x => x.Password)
-            .NotEmpty().WithMessage(AuthErrors.PasswordNotEmpty.Description);
+            .NotEmpty().WithMessage("Mật khẩu không được để trống.");
     }
 }
 

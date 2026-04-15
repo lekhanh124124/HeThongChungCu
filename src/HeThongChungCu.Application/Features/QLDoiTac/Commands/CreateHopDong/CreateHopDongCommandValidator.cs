@@ -1,5 +1,4 @@
 using FluentValidation;
-using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLDoiTac.Commands.CreateHopDong;
 
@@ -8,21 +7,21 @@ public class CreateHopDongCommandValidator : AbstractValidator<CreateHopDongComm
     public CreateHopDongCommandValidator()
     {
         RuleFor(x => x.DoiTacId)
-            .NotEmpty().WithErrorCode(DoiTacErrors.IdNotEmpty.Code).WithMessage(DoiTacErrors.IdNotEmpty.Description);
+            .NotEmpty().WithErrorCode("Validation.NotEmpty").WithMessage("ID không được để trống.");
 
         RuleFor(x => x.HopDong).ChildRules(hopDong =>
         {
-            hopDong.RuleFor(x => x.SoHopDong).NotEmpty().WithErrorCode(DoiTacErrors.SoHopDongNotEmpty.Code).WithMessage(DoiTacErrors.SoHopDongNotEmpty.Description);
+            hopDong.RuleFor(x => x.SoHopDong).NotEmpty().WithErrorCode("Validation.NotEmpty").WithMessage("Số hợp đồng không được để trống.");
             hopDong.RuleFor(x => x.NgayHetHan)
-                .GreaterThan(x => x.NgayKy).WithErrorCode(DoiTacErrors.NgayHetHanInvalid.Code).WithMessage(DoiTacErrors.NgayHetHanInvalid.Description);
-            hopDong.RuleFor(x => x.GiaTri).GreaterThanOrEqualTo(0).WithErrorCode(DoiTacErrors.GiaTriHopDongNegative.Code).WithMessage(DoiTacErrors.GiaTriHopDongNegative.Description);
+                .GreaterThan(x => x.NgayKy).WithErrorCode("DoiTac.NgayHetHanInvalid").WithMessage("Ngày hết hạn phải sau ngày ký.");
+            hopDong.RuleFor(x => x.GiaTri).GreaterThanOrEqualTo(0).WithErrorCode("DoiTac.GiaTriHopDongNegative").WithMessage("Giá trị hợp đồng không được âm.");
 
             // Validate Service Fields directly on HopDongRequestDto
-            hopDong.RuleFor(x => x.MaDichVu).NotEmpty().WithErrorCode(DoiTacErrors.MaDichVuNotEmpty.Code).WithMessage(DoiTacErrors.MaDichVuNotEmpty.Description);
-            hopDong.RuleFor(x => x.TenDichVu).NotEmpty().WithErrorCode(DoiTacErrors.TenDichVuNotEmpty.Code).WithMessage(DoiTacErrors.TenDichVuNotEmpty.Description);
-            hopDong.RuleFor(x => x.LoaiDichVuId).GreaterThan(0).WithErrorCode(DoiTacErrors.LoaiDichVuInvalid.Code).WithMessage(DoiTacErrors.LoaiDichVuInvalid.Description);
-            hopDong.RuleFor(x => x.DonViTinh).NotEmpty().WithErrorCode(DoiTacErrors.DonViTinhNotEmpty.Code).WithMessage(DoiTacErrors.DonViTinhNotEmpty.Description);
-            hopDong.RuleFor(x => x.SoLuongToiDa).GreaterThan(0).When(x => x.SoLuongToiDa != null).WithErrorCode(DoiTacErrors.SoLuongToiDaInvalid.Code).WithMessage(DoiTacErrors.SoLuongToiDaInvalid.Description);
+            hopDong.RuleFor(x => x.MaDichVu).NotEmpty().WithErrorCode("Validation.NotEmpty").WithMessage("Mã dịch vụ không được để trống.");
+            hopDong.RuleFor(x => x.TenDichVu).NotEmpty().WithErrorCode("Validation.NotEmpty").WithMessage("Tên dịch vụ không được để trống.");
+            hopDong.RuleFor(x => x.LoaiDichVuId).GreaterThan(0).WithErrorCode("DoiTac.LoaiDichVuInvalid").WithMessage("Loại dịch vụ không hợp lệ.");
+            hopDong.RuleFor(x => x.DonViTinh).NotEmpty().WithErrorCode("Validation.NotEmpty").WithMessage("Đơn vị tính không được để trống.");
+            hopDong.RuleFor(x => x.SoLuongToiDa).GreaterThan(0).When(x => x.SoLuongToiDa != null).WithErrorCode("DoiTac.SoLuongToiDaInvalid").WithMessage("Số lượng tối đa phải lớn hơn 0.");
         });
     }
 }
