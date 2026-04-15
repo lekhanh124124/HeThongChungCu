@@ -1,7 +1,3 @@
-using Dapper;
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
-using HeThongChungCu.Application.Common.Models;
-
 namespace HeThongChungCu.Infrastructure.Persistence.Helpers;
 
 public enum JoinType
@@ -16,77 +12,10 @@ public record JoinDefinition(
     string Alias,
     string OnCondition,
     JoinType Type = JoinType.Left,
-    bool AddSoftDelete = true,
-    IEnumerable<(string Column, object Value)>? Discriminators = null);
+    Dictionary<string, string>? Mapping = null);
 
 public static class DapperQueryBuilder
 {
-    public static string BuildWhere(
-        IQuerySpecification spec,
-        Dictionary<string, string> propertyToColumnMap,
-        DynamicParameters parameters,
-        bool addSoftDeleteFilter = true,
-        IEnumerable<(string Column, object Value)>? discriminators = null)
-    {
-        var andClauses = new List<string>();
-
-        // 0. Automatically add Discriminator filter if provided
-        if (discriminators != null)
-        {
-            int i = 0;
-            foreach (var (Column, Value) in discriminators)
-            {
-                var paramName = $"p_disc_{i++}";
-                parameters.Add(paramName, Value);
-                andClauses.Add($"{Column} = @{paramName}");
-            }
-        }
-
-        // 1. Process standard filters (JOIN with AND)
-        foreach (var filter in spec.Filters)
-        {
-            var clause = BuildFilterClause(filter, parameters, propertyToColumnMap);
-            andClauses.Add(clause);
-        }
-
-        // 2. Automatically add Soft Delete Filter (IsDeleted = 0) if mapped and NOT provided in Spec
-        if (addSoftDeleteFilter && propertyToColumnMap.TryGetValue("IsDeleted", out var isDeletedColumn))
-        {
-            // Check if Spec already has an explicit Filter for IsDeleted
-            var hasDirectFilter = spec.Filters.Any(f => f.PropertyName.Equals("IsDeleted", StringComparison.OrdinalIgnoreCase));
-            if (!hasDirectFilter)
-            {
-                andClauses.Add($"{isDeletedColumn} = 0");
-            }
-        }
-
-        // 3. Process keyword filters (JOIN with OR)
-        var orClauses = new List<string>();
-        foreach (var keyword in spec.Keywords)
-        {
-            var clause = BuildFilterClause(keyword, parameters, propertyToColumnMap);
-            orClauses.Add(clause);
-        }
-
-        var finalClauses = new List<string>();
-        if (andClauses.Count > 0)
-        {
-            finalClauses.Add(string.Join(" AND ", andClauses));
-        }
-
-        if (orClauses.Count > 0)
-        {
-            finalClauses.Add("(" + string.Join(" OR ", orClauses) + ")");
-        }
-
-        var sqlWhere = finalClauses.Count > 0
-            ? "WHERE " + string.Join(" AND ", finalClauses)
-            : "";
-
-        return sqlWhere;
-    }
-
-
     private static string BuildFilterClause(
         FilterCriterion filter,
         DynamicParameters parameters,
@@ -146,34 +75,6 @@ public static class DapperQueryBuilder
         return $"{columnName} {sqlOperator} @{paramName}";
     }
 
-    public static string BuildOrderBy(
-        IQuerySpecification spec,
-        Dictionary<string, string> propertyToColumnMap,
-        string defaultSortCol = nameof(BaseEntity.Id))
-    {
-        var propertyName = spec.SortCol;
-
-        if (string.IsNullOrWhiteSpace(propertyName))
-        {
-            propertyName = defaultSortCol;
-        }
-
-        if (!propertyToColumnMap.TryGetValue(propertyName, out var columnName))
-        {
-            if (propertyName == defaultSortCol && !propertyName.Contains('.'))
-            {
-                columnName = propertyName;
-            }
-            else
-            {
-                throw new ArgumentException($"Property '{propertyName}' has no mapping in the Infrastructure layer. Please add it to the propertyToColumnMap in the Repository.");
-            }
-        }
-
-        var direction = (spec.IsAsc.HasValue && !spec.IsAsc.Value) ? "DESC" : "ASC";
-        return $"ORDER BY {columnName} {direction}";
-    }
-
     public static string BuildPagination(IQuerySpecification spec, DynamicParameters parameters)
     {
         var pageNumber = spec.PageNumber ?? 1;
@@ -190,7 +91,9 @@ public static class DapperQueryBuilder
     }
 
     public static string BuildJoin(
-        IEnumerable<JoinDefinition> joins)
+        IQuerySpecification spec,
+        IEnumerable<JoinDefinition> joins,
+        DynamicParameters parameters)
     {
         var joinClauses = new List<string>();
 
@@ -205,17 +108,26 @@ public static class DapperQueryBuilder
 
             var onClauses = new List<string> { join.OnCondition };
 
-            if (join.AddSoftDelete)
+            if (join.Mapping != null)
             {
-                onClauses.Add($"{join.Alias}.IsDeleted = 0");
-            }
-
-            if (join.Discriminators != null)
-            {
-                foreach (var (Column, Value) in join.Discriminators)
+                // 1. Process Filters
+                foreach (var filter in spec.Filters)
                 {
-                    var formattedValue = Value is string s ? $"'{s}'" : Value.ToString();
-                    onClauses.Add($"{join.Alias}.{Column} = {formattedValue}");
+                    if (join.Mapping.TryGetValue(filter.PropertyName, out var columnName))
+                    {
+                        var clause = BuildFilterClause(filter, parameters, new Dictionary<string, string> { { filter.PropertyName, columnName } });
+                        onClauses.Add(clause);
+                    }
+                }
+
+                // 2. Process Keywords
+                foreach (var keyword in spec.Keywords)
+                {
+                    if (join.Mapping.TryGetValue(keyword.PropertyName, out var columnName))
+                    {
+                        var clause = BuildFilterClause(keyword, parameters, new Dictionary<string, string> { { keyword.PropertyName, columnName } });
+                        onClauses.Add(clause);
+                    }
                 }
             }
 
@@ -224,5 +136,66 @@ public static class DapperQueryBuilder
         }
 
         return string.Join("\n", joinClauses);
+    }
+
+    public static string BuildWhere(
+        IQuerySpecification spec,
+        Dictionary<string, string> propertyToColumnMap,
+        DynamicParameters parameters)
+    {
+        var andClauses = new List<string>();
+
+        // 1. Process standard filters (JOIN with AND)
+        foreach (var filter in spec.Filters)
+        {
+            if (propertyToColumnMap.ContainsKey(filter.PropertyName))
+            {
+                var clause = BuildFilterClause(filter, parameters, propertyToColumnMap);
+                andClauses.Add(clause);
+            }
+        }
+
+        // 2. Process keyword filters (JOIN with OR)
+        var orClauses = new List<string>();
+        foreach (var keyword in spec.Keywords)
+        {
+            if (propertyToColumnMap.ContainsKey(keyword.PropertyName))
+            {
+                var clause = BuildFilterClause(keyword, parameters, propertyToColumnMap);
+                orClauses.Add(clause);
+            }
+        }
+
+        var finalClauses = new List<string>();
+        if (andClauses.Count > 0)
+        {
+            finalClauses.Add(string.Join(" AND ", andClauses));
+        }
+
+        if (orClauses.Count > 0)
+        {
+            finalClauses.Add("(" + string.Join(" OR ", orClauses) + ")");
+        }
+
+        return finalClauses.Count > 0
+            ? "WHERE " + string.Join(" AND ", finalClauses)
+            : "";
+    }
+
+    public static string BuildOrderBy(
+        IQuerySpecification spec,
+        Dictionary<string, string> propertyToColumnMap,
+        string defaultSortCol = "Id")
+    {
+        var propertyName = spec.SortCol;
+
+        // Ưu tiên lấy mapping từ SortCol của Spec, nếu không có thì fallback về defaultSortCol
+        if (string.IsNullOrWhiteSpace(propertyName) || !propertyToColumnMap.TryGetValue(propertyName, out var columnName))
+        {
+            columnName = propertyToColumnMap.GetValueOrDefault(defaultSortCol, defaultSortCol);
+        }
+
+        var direction = (spec.IsAsc.HasValue && !spec.IsAsc.Value) ? "DESC" : "ASC";
+        return $"ORDER BY {columnName} {direction}";
     }
 }

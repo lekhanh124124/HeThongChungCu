@@ -28,6 +28,8 @@ public class GetNhanVienListSpecification : BaseSpecification
         int? pageSize)
         : base(sortCol, isAsc, pageIndex, pageSize)
     {
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
+
         if (!string.IsNullOrWhiteSpace(keyword))
         {
             AddKeyword("HoTen", FilterOperator.Contains, keyword);

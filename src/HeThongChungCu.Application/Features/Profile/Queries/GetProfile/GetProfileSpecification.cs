@@ -6,5 +6,14 @@ public class GetProfileSpecification : BaseSpecification
         : base(null, null, null, null)
     {
         AddFilter("Id", FilterOperator.Equal, id);
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
+
+        // Account filters
+        AddFilter("TaiKhoanIsActive", FilterOperator.Equal, true);
+        AddFilter("TaiKhoanIsDeleted", FilterOperator.Equal, false);
+
+        // File filters
+        AddFilter("TepIsDeleted", FilterOperator.Equal, false);
+        AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, "TepTaiLieu");
     }
 }

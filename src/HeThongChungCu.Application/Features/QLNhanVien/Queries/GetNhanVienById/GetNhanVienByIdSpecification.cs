@@ -10,5 +10,22 @@ public class GetNhanVienByIdSpecification : BaseSpecification
         : base(null, null, null, null)
     {
         AddFilter("Id", FilterOperator.Equal, id);
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
+
+        // NguoiDung filters
+        AddFilter("NguoiDungIsDeleted", FilterOperator.Equal, false);
+
+        // Account filters
+        AddFilter("TaiKhoanIsActive", FilterOperator.Equal, true);
+        AddFilter("TaiKhoanIsDeleted", FilterOperator.Equal, false);
+
+        // File filters
+        AddFilter("TepIsDeleted", FilterOperator.Equal, false);
+        AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, "TepTaiLieu");
+
+        // Document filters
+        AddFilter("TaiLieuIsDeleted", FilterOperator.Equal, false);
+        AddFilter("LoaiTaiLieu", FilterOperator.Equal, "TaiLieuNguoiDung");
+        AddFilter("LoaiTepTaiLieuNguoiDung", FilterOperator.Equal, "TepTaiLieuNguoiDung");
     }
 }

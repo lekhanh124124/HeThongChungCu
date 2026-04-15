@@ -97,14 +97,17 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
         var parameters = new DynamicParameters();
         var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
 
-        var sqlJoinsTang = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("Tang", "t", "t.ToaNhaId = tn.Id", JoinType.Inner)
-        ]);
+        var tangQueryMapping = new Dictionary<string, string> { { "TangIsDeleted", "t.IsDeleted" } };
+        var canHoQueryMapping = new Dictionary<string, string> { { "CanHoIsDeleted", "c.IsDeleted" } };
 
-        var sqlJoinsCanHo = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("Tang", "t", "t.ToaNhaId = tn.Id", JoinType.Inner),
-            new JoinDefinition("CanHo", "c", "c.TangId = t.Id", JoinType.Inner)
-        ]);
+        var sqlJoinsTang = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("Tang", "t", "t.ToaNhaId = tn.Id", Mapping: tangQueryMapping)
+        ], parameters);
+
+        var sqlJoinsCanHo = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("Tang", "t", "t.ToaNhaId = tn.Id", Mapping: tangQueryMapping),
+            new JoinDefinition("CanHo", "c", "c.TangId = t.Id", Mapping: canHoQueryMapping)
+        ], parameters);
 
         var sql = $"""
             SELECT tn.Id, tn.MaToaNha, tn.TenToaNha, tn.Block, tn.DiaChi, tn.MoTa, tn.TrangThaiToaNhaId,
@@ -215,11 +218,13 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             { "IsDeleted", "t.IsDeleted" },
         };
 
+        var toaNhaQueryMapping = new Dictionary<string, string> { { "ToaNhaIsDeleted", "tn.IsDeleted" } };
+
         var parameters = new DynamicParameters();
         var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", Type: JoinType.Inner)
-        ]);
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", Mapping: toaNhaQueryMapping)
+        ], parameters);
 
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
@@ -284,15 +289,18 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             { "IsDeleted", "t.IsDeleted" },
         };
 
+        var toaNhaQueryMapping = new Dictionary<string, string> { { "ToaNhaIsDeleted", "tn.IsDeleted" } };
+        var canHoQueryMapping = new Dictionary<string, string> { { "CanHoIsDeleted", "c.IsDeleted" } };
+
         var parameters = new DynamicParameters();
         var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", Type: JoinType.Inner)
-        ]);
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", Mapping: toaNhaQueryMapping)
+        ], parameters);
 
-        var sqlJoinsCanHo = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("CanHo", "c", "c.TangId = t.Id", JoinType.Inner)
-        ]);
+        var sqlJoinsCanHo = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("CanHo", "c", "c.TangId = t.Id", Mapping: canHoQueryMapping)
+        ], parameters);
 
         var sql = $"""
             SELECT t.Id, t.MaTang, t.TenTang, t.LoaiTangId, t.ToaNhaId, tn.TenToaNha
@@ -372,12 +380,15 @@ public class ToaNhaQueryRepository : IToaNhaQueryRepository
             { "IsDeleted", "t.IsDeleted" },
         };
 
+        var tangQueryMapping = new Dictionary<string, string> { { "TangIsDeleted", "f.IsDeleted" } };
+        var canHoQueryMapping = new Dictionary<string, string> { { "CanHoIsDeleted", "c.IsDeleted" } };
+
         var parameters = new DynamicParameters();
         var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("Tang", "f", "f.ToaNhaId = t.Id"),
-            new JoinDefinition("CanHo", "c", "c.TangId = f.Id")
-        ]);
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("Tang", "f", "f.ToaNhaId = t.Id", Mapping: tangQueryMapping),
+            new JoinDefinition("CanHo", "c", "c.TangId = f.Id", Mapping: canHoQueryMapping)
+        ], parameters);
 
         var sql = $"""
             SELECT 

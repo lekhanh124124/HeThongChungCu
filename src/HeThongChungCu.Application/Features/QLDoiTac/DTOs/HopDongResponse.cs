@@ -12,7 +12,7 @@ public class HopDongResponse
     public int LoaiDichVuId { get; set; }
     public string TenLoaiDichVu { get; set; } = string.Empty;
     public int TrangThaiHopDongId { get; set; }
-    public string TenTrangThaiHopDong { get; set; } = string.Empty;
+    public string TrangThaiHopDongTen { get; set; } = string.Empty;
     public string? NoiDung { get; set; }
     public List<UploadFileResponse> Teps { get; set; } = new();
 

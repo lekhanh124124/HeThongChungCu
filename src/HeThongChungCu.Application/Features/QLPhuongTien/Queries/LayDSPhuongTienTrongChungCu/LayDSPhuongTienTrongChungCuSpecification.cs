@@ -46,6 +46,10 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSPhuongTi
             if (!string.IsNullOrWhiteSpace(maCanHo))
                 AddFilter("MaCanHo", FilterOperator.Equal, maCanHo);
 
+            AddFilter("IsDeleted", FilterOperator.Equal, false);
+            AddFilter("CanHoIsDeleted", FilterOperator.Equal, false);
+            AddFilter("TangIsDeleted", FilterOperator.Equal, false);
+            AddFilter("ToaNhaIsDeleted", FilterOperator.Equal, false);
             AddFilter("ToaNhaId", FilterOperator.Equal, toaNhaId);
             AddFilter("TangId", FilterOperator.Equal, tangId);
             AddFilter("CanHoId", FilterOperator.Equal, canHoId);

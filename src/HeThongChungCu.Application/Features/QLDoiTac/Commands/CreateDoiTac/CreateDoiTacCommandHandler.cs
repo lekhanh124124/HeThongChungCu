@@ -114,7 +114,7 @@ public class CreateDoiTacCommandHandler : ICommandHandler<CreateDoiTacCommand, D
                     LoaiDichVuId = dv?.LoaiDichVuId.Value ?? 0,
                     TenLoaiDichVu = dv?.LoaiDichVuId.Name ?? string.Empty,
                     TrangThaiHopDongId = h.TrangThaiHopDongId.Value,
-                    TenTrangThaiHopDong = h.TrangThaiHopDongId.Name,
+                    TrangThaiHopDongTen = h.TrangThaiHopDongId.Name,
                     NoiDung = h.NoiDung,
                     MaDichVu = dv?.MaDichVu ?? string.Empty,
                     TenDichVu = dv?.TenDichVu ?? string.Empty,

@@ -82,24 +82,41 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
-        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        var doiTacMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "dt.Id" },
             { "IsDeleted", "dt.IsDeleted" }
         };
 
         var parameters = new DynamicParameters();
-        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, doiTacMapping, parameters);
 
-        var sqlJoinHd = DapperQueryBuilder.BuildJoin([
-            new("HopDongDoiTac", "hd", "hd.DoiTacId = dt.Id"),
-            new("DichVu", "dv", "dv.Id = hd.DichVuId")
-        ]);
+        // Mappings for related entities
+        var hopDongMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "HopDongIsDeleted", "hd.IsDeleted" }
+        };
 
-        var sqlJoinTp = DapperQueryBuilder.BuildJoin([
-            new("HopDongDoiTac", "hd", "hd.DoiTacId = dt.Id"),
-            new("TepTaiLieu", "tp", "tp.HopDongDoiTacId = hd.Id", JoinType.Left, true, Discriminators: [("LoaiTepTaiLieu", "TepHopDongDoiTac")])
-        ]);
+        var tepTaiLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TepIsDeleted", "tp.IsDeleted" },
+            { "LoaiTepTaiLieu", "tp.LoaiTepTaiLieu" }
+        };
+
+        var dichVuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "DichVuIsDeleted", "dv.IsDeleted" }
+        };
+
+        var sqlJoinHd = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("HopDongDoiTac", "hd", "hd.DoiTacId = dt.Id", Mapping: hopDongMapping),
+            new JoinDefinition("DichVu", "dv", "dv.Id = hd.DichVuId", Mapping: dichVuMapping)
+        ], parameters);
+
+        var sqlJoinTp = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("HopDongDoiTac", "hd", "hd.DoiTacId = dt.Id", Mapping: hopDongMapping),
+            new JoinDefinition("TepTaiLieu", "tp", "tp.HopDongDoiTacId = hd.Id", JoinType.Left, Mapping: tepTaiLieuMapping)
+        ], parameters);
 
         var sql = $"""
             -- Query 1: DoiTac
@@ -160,7 +177,7 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
                 LoaiDichVuId = hd.HopDongDichVuId,
                 TenLoaiDichVu = loaiDichVuMap.GetValueOrDefault(hd.HopDongDichVuId, string.Empty),
                 TrangThaiHopDongId = hd.TrangThaiHopDongId,
-                TenTrangThaiHopDong = trangThaiHopDongMap.GetValueOrDefault(hd.TrangThaiHopDongId, string.Empty),
+                TrangThaiHopDongTen = trangThaiHopDongMap.GetValueOrDefault(hd.TrangThaiHopDongId, string.Empty),
                 NoiDung = hd.NoiDung,
                 Teps = [],
 
@@ -181,7 +198,6 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
 
             doiTac.HopDongs.Add(existingHopDong);
         }
-
 
         return doiTac;
     }

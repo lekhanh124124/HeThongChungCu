@@ -21,28 +21,33 @@ public class CanHoQueryRepository : ICanHoQueryRepository
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
-        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        var canHoMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "c.Id" },
             { "MaCanHo", "c.MaCanHo" },
+            { "TenCanHo", "c.TenCanHo" },
+            { "TangId", "c.TangId" },
             { "DienTich", "c.DienTich" },
             { "SoPhongNgu", "c.SoPhongNgu" },
             { "SoPhongTam", "c.SoPhongTam" },
-            { "TinhTrangCanHoId", "c.TinhTrangCanHoId" },
-            { "TangId", "c.TangId" },
-            { "TenTang", "t.TenTang" },
-            { "TenCanHo", "c.TenCanHo" },
             { "LoaiCanHoId", "c.LoaiCanHoId" },
+            { "TinhTrangCanHoId", "c.TinhTrangCanHoId" },
             { "IsDeleted", "c.IsDeleted" },
         };
 
-        var parameters = new DynamicParameters();
-        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("Tang", "t", "t.Id = c.TangId", JoinType.Left, true)
-        ]);
+        var tangMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TenTang", "t.TenTang" },
+            { "TangIsDeleted", "t.IsDeleted" }
+        };
 
-        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, canHoMapping, parameters);
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("Tang", "t", "t.Id = c.TangId", Mapping: tangMapping)
+        ], parameters);
+
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, canHoMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sql = $"""
@@ -105,17 +110,23 @@ public class CanHoQueryRepository : ICanHoQueryRepository
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
-        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        var canHoMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "c.Id" },
             { "IsDeleted", "c.IsDeleted" },
         };
 
+        var tangMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TenTang", "t.TenTang" },
+            { "TangIsDeleted", "t.IsDeleted" }
+        };
+
         var parameters = new DynamicParameters();
-        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("Tang", "t", "t.Id = c.TangId", JoinType.Left, true)
-        ]);
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, canHoMapping, parameters);
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("Tang", "t", "t.Id = c.TangId", Mapping: tangMapping)
+        ], parameters);
 
         var sql = $"""
             SELECT 

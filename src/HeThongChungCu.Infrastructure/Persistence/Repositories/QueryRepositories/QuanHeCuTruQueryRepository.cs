@@ -45,12 +45,12 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
 
         var parameters = new DynamicParameters();
         var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", JoinType.Left),
-            new JoinDefinition("CanHo", "c", "c.Id = q.CanHoId", JoinType.Left),
-            new JoinDefinition("Tang", "t", "t.Id = c.TangId", JoinType.Left),
-            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", JoinType.Left)
-        ]);
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", JoinType.Left, Mapping: new() { { "NguoiDungIsDeleted", "u.IsDeleted" } }),
+            new JoinDefinition("CanHo", "c", "c.Id = q.CanHoId", JoinType.Left, Mapping: new() { { "CanHoIsDeleted", "c.IsDeleted" } }),
+            new JoinDefinition("Tang", "t", "t.Id = c.TangId", JoinType.Left, Mapping: new() { { "TangIsDeleted", "t.IsDeleted" } }),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", JoinType.Left, Mapping: new() { { "ToaNhaIsDeleted", "tn.IsDeleted" } })
+        ], parameters);
 
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "NgayBatDau");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
@@ -129,11 +129,11 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
 
         var parameters = new DynamicParameters();
         var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("CanHo", "c", "c.Id = q.CanHoId", JoinType.Left),
-            new JoinDefinition("Tang", "t", "t.Id = c.TangId", JoinType.Left),
-            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", JoinType.Left)
-        ]);
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("CanHo", "c", "c.Id = q.CanHoId", JoinType.Left, Mapping: new() { { "CanHoIsDeleted", "c.IsDeleted" } }),
+            new JoinDefinition("Tang", "t", "t.Id = c.TangId", JoinType.Left, Mapping: new() { { "TangIsDeleted", "t.IsDeleted" } }),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = t.ToaNhaId", JoinType.Left, Mapping: new() { { "ToaNhaIsDeleted", "tn.IsDeleted" } })
+        ], parameters);
 
         var sql = $"""
             SELECT
@@ -199,16 +199,16 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
         var parameters = new DynamicParameters();
         var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
 
-        var sqlJoinsRoot = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", JoinType.Left),
-            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id AND a.IsActive = 1", AddSoftDelete: false),
-            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId", JoinType.Left, true, Discriminators: [("LoaiTepTaiLieu", "TepTaiLieuNguoiDung")])
-        ]);
+        var sqlJoinsRoot = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", JoinType.Left, Mapping: new() { { "NguoiDungIsDeleted", "u.IsDeleted" } }),
+            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id", Mapping: new() { { "TaiKhoanIsActive", "a.IsActive" }, { "TaiKhoanIsDeleted", "a.IsDeleted" } }),
+            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId", JoinType.Left, Mapping: new() { { "TepIsDeleted", "atl.IsDeleted" }, { "LoaiTepNguoiDung", "atl.LoaiTepTaiLieu" } })
+        ], parameters);
 
-        var sqlJoinsDoc = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("TaiLieu", "t", "t.NguoiDungId = q.NguoiDungId", JoinType.Left, true, Discriminators: [("LoaiTaiLieu", "TaiLieuNguoiDung")]),
-            new JoinDefinition("TepTaiLieu", "f", "f.TaiLieuId = t.Id", JoinType.Left, true, Discriminators: [("LoaiTepTaiLieu", "TepTaiLieuNguoiDung")])
-        ]);
+        var sqlJoinsDoc = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("TaiLieu", "t", "t.NguoiDungId = q.NguoiDungId", JoinType.Left, Mapping: new() { { "TaiLieuIsDeleted", "t.IsDeleted" }, { "LoaiTaiLieuNguoiDung", "t.LoaiTaiLieu" } }),
+            new JoinDefinition("TepTaiLieu", "f", "f.TaiLieuId = t.Id", JoinType.Left, Mapping: new() { { "TepIsDeleted", "f.IsDeleted" }, { "LoaiTepNguoiDung", "f.LoaiTepTaiLieu" } })
+        ], parameters);
 
         var sql = $"""
             -- Query 1: QuanHeCuTru + NguoiDung + Icon (N-1)
@@ -326,11 +326,11 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
 
         var parameters = new DynamicParameters();
         var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", JoinType.Left),
-            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id AND a.IsActive = 1", AddSoftDelete: false),
-            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId", JoinType.Left, true, Discriminators: [("LoaiTepTaiLieu", "TepTaiLieuNguoiDung")])
-        ]);
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", JoinType.Left, Mapping: new() { { "NguoiDungIsDeleted", "u.IsDeleted" } }),
+            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id", Mapping: new() { { "TaiKhoanIsActive", "a.IsActive" }, { "TaiKhoanIsDeleted", "a.IsDeleted" } }),
+            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId", JoinType.Left, Mapping: new() { { "TepIsDeleted", "atl.IsDeleted" }, { "LoaiTepNguoiDung", "atl.LoaiTepTaiLieu" } })
+        ], parameters);
 
         var sql = $"""
             SELECT

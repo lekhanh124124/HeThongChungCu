@@ -8,5 +8,16 @@ public class GetYeuCauCuTruByIdSpecification : BaseSpecification
         : base(null, null, null, null)
     {
         AddFilter("Id", FilterOperator.Equal, id);
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
+        AddFilter("LoaiYeuCauCuDan", FilterOperator.Equal, "YeuCauCuTru");
+        AddFilter("CanHoIsDeleted", FilterOperator.Equal, false);
+        AddFilter("TangIsDeleted", FilterOperator.Equal, false);
+        AddFilter("ToaNhaIsDeleted", FilterOperator.Equal, false);
+        AddFilter("TaiKhoanIsActive", FilterOperator.Equal, true);
+        AddFilter("TaiKhoanIsDeleted", FilterOperator.Equal, false);
+        AddFilter("TaiLieuIsDeleted", FilterOperator.Equal, false);
+        AddFilter("LoaiTaiLieuYeuCau", FilterOperator.Equal, "YeuCauTaiLieuCuTru");
+        AddFilter("TepIsDeleted", FilterOperator.Equal, false);
+        AddFilter("LoaiTepYeuCau", FilterOperator.Equal, "TepYeuCauTaiLieuCuTru");
     }
 }

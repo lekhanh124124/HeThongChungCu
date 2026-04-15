@@ -8,6 +8,9 @@ public class LayCauTrucChungCuSpecification : BaseSpecification
         : base(null, null, null, null)
     {
         AddFilter("LoaiTangId", FilterOperator.NotEqual, LoaiTang.TangHam.Value);
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
+        AddFilter("TangIsDeleted", FilterOperator.Equal, false);
+        AddFilter("CanHoIsDeleted", FilterOperator.Equal, false);
 
         if (!string.IsNullOrWhiteSpace(keyword))
         {

@@ -6,7 +6,11 @@ namespace HeThongChungCu.Application.Features.CuDan.Queries.LayThanhVienCuTru
         {
             AddFilter("CanHoId", FilterOperator.Equal, canHoId);
             AddFilter("TrangThaiCuTruId", FilterOperator.Equal, 1);
-
+            AddFilter("IsDeleted", FilterOperator.Equal, false);
+            AddFilter("NguoiDungIsDeleted", FilterOperator.Equal, false);
+            AddFilter("TaiKhoanIsActive", FilterOperator.Equal, true);
+            AddFilter("TepIsDeleted", FilterOperator.Equal, false);
+            AddFilter("LoaiTepNguoiDung", FilterOperator.Equal, "TepTaiLieuNguoiDung");
         }
     }
 }

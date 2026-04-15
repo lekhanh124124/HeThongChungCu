@@ -29,10 +29,13 @@ public class ThongBaoQueryRepository : IThongBaoQueryRepository
             { "CreatedAt", "t.CreatedAt" },
         };
 
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("ThongBao", "t", "pb.ThongBaoId = t.Id", Type: JoinType.Inner)
-        ]);
         var parameters = new DynamicParameters();
+        var thongBaoQueryMap = new Dictionary<string, string> { { "ThongBaoIsDeleted", "t.IsDeleted" } };
+
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("ThongBao", "t", "pb.ThongBaoId = t.Id", Mapping: thongBaoQueryMap)
+        ], parameters);
+
         var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "CreatedAt");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);

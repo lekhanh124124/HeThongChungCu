@@ -1,7 +1,7 @@
-using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
-using HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSYeuCauPhuongTien;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
+using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 using HeThongChungCu.Application.Features.QLPhuongTien.Queries.GetYeuCauPhuongTienById;
+using HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSYeuCauPhuongTien;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.QueryRepositories;
 
@@ -35,26 +35,34 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             { "TenNguoiGui", "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))" },
             { "TenNguoiXuLy", "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))" },
             { "YeuCauBienSo", "y.YeuCauBienSo" },
-            { "IsDeleted", "y.IsDeleted" }
+            { "IsDeleted", "y.IsDeleted" },
+            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDan" }
         };
 
         var parameters = new DynamicParameters();
-        var sqlWhere = DapperQueryBuilder.BuildWhere(
-            spec,
-            columnMapping,
-            parameters,
-            discriminators: [("y.LoaiYeuCauCuDan", "YeuCauPhuongTien")],
-            addSoftDeleteFilter: true);
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
 
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("CanHo", "ch", "ch.Id = y.CanHoId", JoinType.Inner, true),
-            new JoinDefinition("Tang", "tg", "tg.Id = ch.TangId", JoinType.Inner, true),
-            new JoinDefinition("ToaNha", "tn", "tn.Id = tg.ToaNhaId", JoinType.Inner, true),
-            new JoinDefinition("NguoiDung", "nd1", "nd1.Id = y.CreatedBy", JoinType.Left, true),
-            new JoinDefinition("TaiKhoan", "tk1", "tk1.NguoiDungId = nd1.Id AND tk1.IsActive = 1", JoinType.Left, false),
-            new JoinDefinition("NguoiDung", "nd2", "nd2.Id = y.NguoiXuLyId", JoinType.Left, true),
-            new JoinDefinition("TaiKhoan", "tk2", "tk2.NguoiDungId = nd2.Id AND tk2.IsActive = 1", JoinType.Left, false)
-        ]);
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("CanHo", "ch", "ch.Id = y.CanHoId", JoinType.Inner,
+                Mapping: new() {
+                    { "CanHoIsDeleted", "ch.IsDeleted" } }),
+            new JoinDefinition("Tang", "tg", "tg.Id = ch.TangId", JoinType.Inner,
+                Mapping: new() {
+                    { "TangIsDeleted", "tg.IsDeleted" } }),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = tg.ToaNhaId", JoinType.Inner,
+                Mapping: new() {
+                    { "ToaNhaIsDeleted", "tn.IsDeleted" } }),
+            new JoinDefinition("NguoiDung", "nd1", "nd1.Id = y.CreatedBy", JoinType.Left),
+            new JoinDefinition("TaiKhoan", "tk1", "tk1.NguoiDungId = nd1.Id", JoinType.Left,
+                Mapping: new() {
+                    { "TaiKhoanIsActive", "tk1.IsActive" },
+                    { "TaiKhoanIsDeleted", "tk1.IsDeleted" } }),
+            new JoinDefinition("NguoiDung", "nd2", "nd2.Id = y.NguoiXuLyId", JoinType.Left),
+            new JoinDefinition("TaiKhoan", "tk2", "tk2.NguoiDungId = nd2.Id", JoinType.Left,
+                Mapping: new() {
+                    { "TaiKhoanIsActive", "tk2.IsActive" },
+                    { "TaiKhoanIsDeleted", "tk2.IsDeleted" } })
+        ], parameters);
 
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "CreatedAt");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
@@ -141,30 +149,30 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "y.Id" },
-            { "IsDeleted", "y.IsDeleted" }
+            { "IsDeleted", "y.IsDeleted" },
+            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDan" }
         };
 
         var parameters = new DynamicParameters();
-        var sqlWhere = DapperQueryBuilder.BuildWhere(
-            spec,
-            columnMapping,
-            parameters,
-            discriminators: [("y.LoaiYeuCauCuDan", "YeuCauPhuongTien")],
-            addSoftDeleteFilter: true);
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
 
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("CanHo", "ch", "ch.Id = y.CanHoId", JoinType.Inner, true),
-            new JoinDefinition("Tang", "tg", "tg.Id = ch.TangId", JoinType.Inner, true),
-            new JoinDefinition("ToaNha", "tn", "tn.Id = tg.ToaNhaId", JoinType.Inner, true),
-            new JoinDefinition("NguoiDung", "nd1", "nd1.Id = y.CreatedBy", JoinType.Left, true),
-            new JoinDefinition("TaiKhoan", "tk1", "tk1.NguoiDungId = nd1.Id AND tk1.IsActive = 1", JoinType.Left, false),
-            new JoinDefinition("NguoiDung", "nd2", "nd2.Id = y.NguoiXuLyId", JoinType.Left, true),
-            new JoinDefinition("TaiKhoan", "tk2", "tk2.NguoiDungId = nd2.Id AND tk2.IsActive = 1", JoinType.Left, false)
-        ]);
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("CanHo", "ch", "ch.Id = y.CanHoId", JoinType.Inner, Mapping: new() { { "CanHoIsDeleted", "ch.IsDeleted" } }),
+            new JoinDefinition("Tang", "tg", "tg.Id = ch.TangId", JoinType.Inner, Mapping: new() { { "TangIsDeleted", "tg.IsDeleted" } }),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = tg.ToaNhaId", JoinType.Inner, Mapping: new() { { "ToaNhaIsDeleted", "tn.IsDeleted" } }),
+            new JoinDefinition("NguoiDung", "nd1", "nd1.Id = y.CreatedBy", JoinType.Left),
+            new JoinDefinition("TaiKhoan", "tk1", "tk1.NguoiDungId = nd1.Id", JoinType.Left, Mapping: new() { { "TaiKhoanIsActive", "tk1.IsActive" }, { "TaiKhoanIsDeleted", "tk1.IsDeleted" } }),
+            new JoinDefinition("NguoiDung", "nd2", "nd2.Id = y.NguoiXuLyId", JoinType.Left),
+            new JoinDefinition("TaiKhoan", "tk2", "tk2.NguoiDungId = nd2.Id", JoinType.Left, Mapping: new() { { "TaiKhoanIsActive", "tk2.IsActive" }, { "TaiKhoanIsDeleted", "tk2.IsDeleted" } })
+        ], parameters);
 
-        var sqlJoinsTtl = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("TepTaiLieu", "ttl", "ttl.YeuCauId = y.Id", JoinType.Inner, true, Discriminators: [("LoaiTepTaiLieu", "TepYeuCauPhuongTien")])
-        ]);
+        var sqlJoinsTtl = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("TepTaiLieu", "ttl", "ttl.YeuCauId = y.Id", Mapping: new()
+            {
+                { "TepIsDeleted", "ttl.IsDeleted" },
+                { "LoaiTepYeuCauPhuongTien", "ttl.LoaiTepTaiLieu" }
+            })
+        ], parameters);
 
         var tenNguoiGuiSql = "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))";
         var tenNguoiXuLySql = "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))";
@@ -241,26 +249,22 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "y.Id" },
-            { "IsDeleted", "y.IsDeleted" }
+            { "IsDeleted", "y.IsDeleted" },
+            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDan" }
         };
 
         var parameters = new DynamicParameters();
-        var sqlWhere = DapperQueryBuilder.BuildWhere(
-            spec,
-            columnMapping,
-            parameters,
-            discriminators: [("y.LoaiYeuCauCuDan", "YeuCauPhuongTien")],
-            addSoftDeleteFilter: true);
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
 
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("CanHo", "ch", "ch.Id = y.CanHoId", JoinType.Inner, true),
-            new JoinDefinition("Tang", "tg", "tg.Id = ch.TangId", JoinType.Inner, true),
-            new JoinDefinition("ToaNha", "tn", "tn.Id = tg.ToaNhaId", JoinType.Inner, true),
-            new JoinDefinition("NguoiDung", "nd1", "nd1.Id = y.CreatedBy", JoinType.Left, true),
-            new JoinDefinition("TaiKhoan", "tk1", "tk1.NguoiDungId = nd1.Id AND tk1.IsActive = 1", JoinType.Left, false),
-            new JoinDefinition("NguoiDung", "nd2", "nd2.Id = y.NguoiXuLyId", JoinType.Left, true),
-            new JoinDefinition("TaiKhoan", "tk2", "tk2.NguoiDungId = nd2.Id AND tk2.IsActive = 1", JoinType.Left, false)
-        ]);
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("CanHo", "ch", "ch.Id = y.CanHoId", JoinType.Inner, Mapping: new() { { "CanHoIsDeleted", "ch.IsDeleted" } }),
+            new JoinDefinition("Tang", "tg", "tg.Id = ch.TangId", JoinType.Inner, Mapping: new() { { "TangIsDeleted", "tg.IsDeleted" } }),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = tg.ToaNhaId", JoinType.Inner, Mapping: new() { { "ToaNhaIsDeleted", "tn.IsDeleted" } }),
+            new JoinDefinition("NguoiDung", "nd1", "nd1.Id = y.CreatedBy", JoinType.Left),
+            new JoinDefinition("TaiKhoan", "tk1", "tk1.NguoiDungId = nd1.Id", JoinType.Left, Mapping: new() { { "TaiKhoanIsActive", "tk1.IsActive" }, { "TaiKhoanIsDeleted", "tk1.IsDeleted" } }),
+            new JoinDefinition("NguoiDung", "nd2", "nd2.Id = y.NguoiXuLyId", JoinType.Left),
+            new JoinDefinition("TaiKhoan", "tk2", "tk2.NguoiDungId = nd2.Id", JoinType.Left, Mapping: new() { { "TaiKhoanIsActive", "tk2.IsActive" }, { "TaiKhoanIsDeleted", "tk2.IsDeleted" } })
+        ], parameters);
 
         var tenNguoiGuiSql = "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))";
         var tenNguoiXuLySql = "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))";

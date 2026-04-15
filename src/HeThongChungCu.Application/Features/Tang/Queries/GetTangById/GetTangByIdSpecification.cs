@@ -8,5 +8,8 @@ public class GetTangByIdSpecification : BaseSpecification
         : base(null, null, null, null)
     {
         AddFilter("Id", FilterOperator.Equal, id);
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
+        AddFilter("ToaNhaIsDeleted", FilterOperator.Equal, false);
+        AddFilter("CanHoIsDeleted", FilterOperator.Equal, false);
     }
 }

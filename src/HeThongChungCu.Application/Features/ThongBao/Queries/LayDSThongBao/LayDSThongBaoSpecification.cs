@@ -22,6 +22,8 @@ public class LayDSThongBaoSpecification : BaseSpecification
         : base(sortCol, isAsc, pageNumber, pageSize)
     {
         AddFilter("UserId", FilterOperator.Equal, userId);
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
+        AddFilter("ThongBaoIsDeleted", FilterOperator.Equal, false);
 
         if (onlyUnread == true)
         {

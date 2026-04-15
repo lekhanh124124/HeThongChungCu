@@ -9,5 +9,16 @@ public class GetDoiTacByIdSpecification : BaseSpecification
         : base(null, null, null, null)
     {
         AddFilter("Id", FilterOperator.Equal, id);
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
+
+        // Filters for related HopDongDoiTac
+        AddFilter("HopDongIsDeleted", FilterOperator.Equal, false);
+
+        // Filters for related TepTaiLieu
+        AddFilter("TepIsDeleted", FilterOperator.Equal, false);
+        AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, "TepHopDongDoiTac");
+
+        // Filters for related DichVu
+        AddFilter("DichVuIsDeleted", FilterOperator.Equal, false);
     }
 }

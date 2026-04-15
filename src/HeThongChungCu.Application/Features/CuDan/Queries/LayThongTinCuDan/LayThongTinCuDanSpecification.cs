@@ -6,6 +6,13 @@ public class LayThongTinCuDanSpecification : BaseSpecification
         : base(null, null, null, null)
     {
         AddFilter("Id", FilterOperator.Equal, quanHeCuTruId);
-
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
+        AddFilter("NguoiDungIsDeleted", FilterOperator.Equal, false);
+        AddFilter("TaiKhoanIsActive", FilterOperator.Equal, true);
+        AddFilter("TaiKhoanIsDeleted", FilterOperator.Equal, false);
+        AddFilter("TepIsDeleted", FilterOperator.Equal, false);
+        AddFilter("LoaiTepNguoiDung", FilterOperator.Equal, "TepTaiLieuNguoiDung");
+        AddFilter("TaiLieuIsDeleted", FilterOperator.Equal, false);
+        AddFilter("LoaiTaiLieuNguoiDung", FilterOperator.Equal, "TaiLieuNguoiDung");
     }
 }

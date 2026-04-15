@@ -20,6 +20,7 @@ public class GetListBangGiaSpecification : BaseSpecification
         bool? isAsc = false)
         : base(sortBy, isAsc, pageNumber, pageSize)
     {
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
 
         if (dichVuId.HasValue)
         {

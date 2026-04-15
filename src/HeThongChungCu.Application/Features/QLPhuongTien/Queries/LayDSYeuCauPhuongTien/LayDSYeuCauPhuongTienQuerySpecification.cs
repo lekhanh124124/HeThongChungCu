@@ -21,6 +21,14 @@ public class LayDSYeuCauPhuongTienQuerySpecification : BaseSpecification
         int? pageNumber,
         int? pageSize) : base(sortCol, isAsc, pageNumber, pageSize)
     {
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
+        AddFilter("LoaiYeuCauCuDan", FilterOperator.Equal, "YeuCauPhuongTien");
+        AddFilter("CanHoIsDeleted", FilterOperator.Equal, false);
+        AddFilter("TangIsDeleted", FilterOperator.Equal, false);
+        AddFilter("ToaNhaIsDeleted", FilterOperator.Equal, false);
+        AddFilter("TaiKhoanIsActive", FilterOperator.Equal, true);
+        AddFilter("TaiKhoanIsDeleted", FilterOperator.Equal, false);
+
         if (toaNhaId != null)
             AddFilter("ToaNhaId", FilterOperator.Equal, toaNhaId);
         

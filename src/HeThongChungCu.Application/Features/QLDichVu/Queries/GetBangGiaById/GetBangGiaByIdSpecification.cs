@@ -8,6 +8,11 @@ public class GetBangGiaByIdSpecification : BaseSpecification
     public GetBangGiaByIdSpecification(int id)
         : base(null, null, null, null)
     {
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
         AddFilter("Id", FilterOperator.Equal, id);
+
+        // Lọc Khung giờ đi kèm bảng giá
+        AddFilter("KhungGioIsActive", FilterOperator.Equal, true);
+        AddFilter("KhungGioIsDeleted", FilterOperator.Equal, false);
     }
 }

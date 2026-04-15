@@ -19,6 +19,8 @@ public class GetListToaNhaSpecification : BaseSpecification
         int? pageSize)
         : base(sortCol, isAsc, pageNumber, pageSize)
     {
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
+
         if (!string.IsNullOrWhiteSpace(keyword))
         {
             AddKeyword("MaToaNha", FilterOperator.Contains, keyword);

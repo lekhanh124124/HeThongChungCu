@@ -36,6 +36,14 @@ public class LayDSYeuCauCuTruQuerySpecification : BaseSpecification
         if (trangThaiId != null)
             AddFilter("TrangThaiId", FilterOperator.Equal, trangThaiId);
 
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
+        AddFilter("LoaiYeuCauCuDan", FilterOperator.Equal, "YeuCauCuTru");
+        AddFilter("CanHoIsDeleted", FilterOperator.Equal, false);
+        AddFilter("TangIsDeleted", FilterOperator.Equal, false);
+        AddFilter("ToaNhaIsDeleted", FilterOperator.Equal, false);
+        AddFilter("TaiKhoanIsActive", FilterOperator.Equal, true);
+        AddFilter("TaiKhoanIsDeleted", FilterOperator.Equal, false);
+
         if (!string.IsNullOrWhiteSpace(keyword))
         {
             AddKeyword("TenNguoiGui", FilterOperator.Contains, keyword);

@@ -26,24 +26,53 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
         };
 
         var parameters = new DynamicParameters();
-        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters, addSoftDeleteFilter: true);
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
 
-        var sqlMainJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", JoinType.Left),
-            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id AND a.IsActive = 1"),
-            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId")
-        ]);
+        var nguoiDungMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "NguoiDungIsDeleted", "u.IsDeleted" }
+        };
 
-        var sqlPqJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", JoinType.Left),
-            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id AND a.IsActive = 1"),
-            new JoinDefinition("PhanQuyen", "pq", "pq.TaiKhoanId = a.Id", JoinType.Left, false)
-        ]);
+        var taiKhoanMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TaiKhoanIsActive", "a.IsActive" },
+            { "TaiKhoanIsDeleted", "a.IsDeleted" }
+        };
 
-        var sqlDocJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("TaiLieu", "t", "t.NguoiDungId = nv.NguoiDungId", JoinType.Left, Discriminators: [("LoaiTaiLieu", "TaiLieuNguoiDung")]),
-            new JoinDefinition("TepTaiLieu", "f", "f.TaiLieuId = t.Id", Discriminators: [("LoaiTepTaiLieu", "TepTaiLieuNguoiDung")])
-        ]);
+        var tepTaiLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TepIsDeleted", "atl.IsDeleted" },
+            { "LoaiTepTaiLieu", "atl.LoaiTepTaiLieu" }
+        };
+
+        var taiLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TaiLieuIsDeleted", "t.IsDeleted" },
+            { "LoaiTaiLieu", "t.LoaiTaiLieu" }
+        };
+
+        var tepTaiLieuNguoiDungMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TepIsDeleted", "f.IsDeleted" },
+            { "LoaiTepTaiLieuNguoiDung", "f.LoaiTepTaiLieu" }
+        };
+
+        var sqlMainJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", Mapping: nguoiDungMapping),
+            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id", Mapping: taiKhoanMapping),
+            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId", Mapping: tepTaiLieuMapping)
+        ], parameters);
+
+        var sqlPqJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", Mapping: nguoiDungMapping),
+            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id", Mapping: taiKhoanMapping),
+            new JoinDefinition("PhanQuyen", "pq", "pq.TaiKhoanId = a.Id", JoinType.Left)
+        ], parameters);
+
+        var sqlDocJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("TaiLieu", "t", "t.NguoiDungId = nv.NguoiDungId", Mapping: taiLieuMapping),
+            new JoinDefinition("TepTaiLieu", "f", "f.TaiLieuId = t.Id", Mapping: tepTaiLieuNguoiDungMapping)
+        ], parameters);
 
         var sql = $"""
             SELECT 
@@ -176,12 +205,30 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
         };
 
         var parameters = new DynamicParameters();
-        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters, addSoftDeleteFilter: true);
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", JoinType.Left),
-            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id"),
-            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId")
-        ]);
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+
+        var nguoiDungMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "NguoiDungIsDeleted", "u.IsDeleted" }
+        };
+
+        var taiKhoanMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TaiKhoanIsActive", "a.IsActive" },
+            { "TaiKhoanIsDeleted", "a.IsDeleted" }
+        };
+
+        var tepTaiLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TepIsDeleted", "atl.IsDeleted" },
+            { "LoaiTepTaiLieu", "atl.LoaiTepTaiLieu" }
+        };
+
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("NguoiDung", "u", "u.Id = nv.NguoiDungId", JoinType.Left, Mapping: nguoiDungMapping),
+            new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id", Mapping: taiKhoanMapping),
+            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId", Mapping: tepTaiLieuMapping)
+        ], parameters);
 
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);

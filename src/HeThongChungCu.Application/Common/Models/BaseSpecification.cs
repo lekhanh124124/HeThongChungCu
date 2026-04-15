@@ -51,4 +51,9 @@ public abstract class BaseSpecification : IQuerySpecification
 
         _keywords.Add(new FilterCriterion(propertyName, @operator, value));
     }
+
+    public void IgnoreSoftDelete()
+    {
+        _filters.RemoveAll(f => f.PropertyName.Equals("IsDeleted", StringComparison.OrdinalIgnoreCase));
+    }
 }

@@ -23,7 +23,7 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
-        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        var phuongTienMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "p.Id" },
             { "CanHoId", "p.CanHoId" },
@@ -40,15 +40,31 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
             { "IsDeleted", "p.IsDeleted" },
         };
 
-        var parameters = new DynamicParameters();
-        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("CanHo", "ch", "ch.Id = p.CanHoId"),
-            new JoinDefinition("Tang", "tg", "tg.Id = ch.TangId"),
-            new JoinDefinition("ToaNha", "tn", "tn.Id = tg.ToaNhaId")
-        ]);
+        var toaNhaMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "ToaNhaIsDeleted", "tn.IsDeleted" }
+        };
 
-        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
+        var tangMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TangIsDeleted", "tg.IsDeleted" }
+        };
+
+        var canHoMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "CanHoIsDeleted", "ch.IsDeleted" }
+        };
+
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, phuongTienMapping, parameters);
+
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("CanHo", "ch", "ch.Id = p.CanHoId", Mapping: canHoMapping),
+            new JoinDefinition("Tang", "tg", "tg.Id = ch.TangId", Mapping: tangMapping),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = tg.ToaNhaId", Mapping: toaNhaMapping)
+        ], parameters);
+
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, phuongTienMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sql = $"""
@@ -71,7 +87,8 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
             {sqlPagination};
             """;
 
-        var rows = (await connection.QueryAsync<PhuongTienReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
+        var transaction = _dbContext.GetDbTransaction();
+        var rows = (await connection.QueryAsync<PhuongTienReadModel>(sql, parameters, transaction: transaction)).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var loaiPhuongTienMap = LoaiPhuongTien.ToDictionary();
@@ -112,27 +129,50 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
-        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        var phuongTienMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "p.Id" },
             { "IsDeleted", "p.IsDeleted" },
         };
 
+        var toaNhaMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "ToaNhaIsDeleted", "tn.IsDeleted" }
+        };
+        var tangMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TangIsDeleted", "tg.IsDeleted" }
+        };
+        var canHoMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "CanHoIsDeleted", "ch.IsDeleted" }
+        };
+        var thePhuongTienMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "ThePhuongTienIsDeleted", "tpt.IsDeleted" }
+        };
+        var tepTaiLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TepIsDeleted", "ttl.IsDeleted" },
+            { "LoaiTepPhuongTien", "ttl.LoaiTepTaiLieu" }
+        };
+
         var parameters = new DynamicParameters();
-        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("CanHo", "ch", "ch.Id = p.CanHoId"),
-            new JoinDefinition("Tang", "tg", "tg.Id = ch.TangId"),
-            new JoinDefinition("ToaNha", "tn", "tn.Id = tg.ToaNhaId")
-        ]);
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, phuongTienMapping, parameters);
 
-        var sqlJoinsThe = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("ThePhuongTien", "tpt", "tpt.PhuongTienId = p.Id", JoinType.Left, true)
-        ]);
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("CanHo", "ch", "ch.Id = p.CanHoId", Mapping: canHoMapping),
+            new JoinDefinition("Tang", "tg", "tg.Id = ch.TangId", Mapping: tangMapping),
+            new JoinDefinition("ToaNha", "tn", "tn.Id = tg.ToaNhaId", Mapping: toaNhaMapping)
+        ], parameters);
 
-        var sqlJoinsTtl = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("TepTaiLieu", "ttl", "ttl.PhuongTienId = p.Id", JoinType.Left, true, Discriminators: [("LoaiTepTaiLieu", "TepPhuongTien")])
-        ]);
+        var sqlJoinsThe = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("ThePhuongTien", "tpt", "tpt.PhuongTienId = p.Id", Mapping: thePhuongTienMapping)
+        ], parameters);
+
+        var sqlJoinsTtl = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("TepTaiLieu", "ttl", "ttl.PhuongTienId = p.Id", Mapping: tepTaiLieuMapping)
+        ], parameters);
 
         var sql = $"""
             -- 1. Main Info
@@ -173,7 +213,8 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
             {sqlWhere};
             """;
 
-        using var multi = await connection.QueryMultipleAsync(sql, parameters, transaction: _dbContext.GetDbTransaction());
+        var transaction = _dbContext.GetDbTransaction();
+        using var multi = await connection.QueryMultipleAsync(sql, parameters, transaction: transaction);
         var phuongTien = await multi.ReadFirstOrDefaultAsync<PhuongTienReadModel>();
 
         if (phuongTien == null)

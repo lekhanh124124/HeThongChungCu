@@ -1,9 +1,9 @@
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
-using HeThongChungCu.Application.Features.QLDichVu.Queries.GetDichVuById;
-using HeThongChungCu.Application.Features.QLDichVu.Queries.GetListDichVu;
 using HeThongChungCu.Application.Features.QLDichVu.Queries.GetBangGiaById;
-using HeThongChungCu.Application.Features.QLDichVu.Queries.GetListBangGia;
+using HeThongChungCu.Application.Features.QLDichVu.Queries.GetDichVuById;
 using HeThongChungCu.Application.Features.QLDichVu.Queries.GetKhungGioDichVuById;
+using HeThongChungCu.Application.Features.QLDichVu.Queries.GetListBangGia;
+using HeThongChungCu.Application.Features.QLDichVu.Queries.GetListDichVu;
 using HeThongChungCu.Application.Features.QLDichVu.Queries.GetListKhungGioDichVu;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.QueryRepositories;
@@ -41,13 +41,19 @@ public class DichVuQueryRepository : IDichVuQueryRepository
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
-        var sqlJoin = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("TepTaiLieu", "tp", "tp.Id = dv.IconId", JoinType.Left, true, Discriminators: [("LoaiTepTaiLieu", "TepTaiLieu")])
-        ]);
+        var tepDuLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "LoaiTepTaiLieu", "tp.LoaiTepTaiLieu" },
+            { "TepDuLieuIsDeleted", "tp.IsDeleted" }
+        };
+
+        var sqlJoin = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("TepTaiLieu", "tp", "tp.Id = dv.IconId", Mapping: tepDuLieuMapping)
+        ], parameters);
 
         var sql = $"""
             SELECT COUNT(*) OVER() AS TotalCount, 
-                   dv.Id, dv.MaDichVu, dv.TenDichVu, dv.LoaiDichVuId, dv.DonViTinh, dv.MoTa, dv.IsBatBuoc, dv.TrangThaiId,
+                   dv.Id, dv.MaDichVu, dv.TenDichVu, dv.LoaiDichVuId, dv.DonViTinh, dv.MoTa, dv.IsBatBuoc, dv. सोLuongToiDa, dv.TrangThaiId,
                    tp.FileUrl AS IconUrl
             FROM DichVu dv
             {sqlJoin}
@@ -56,7 +62,8 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             {sqlPagination};
             """;
 
-        var rows = (await connection.QueryAsync<DichVuReadModel>(sql, parameters, transaction: _dbContext.GetDbTransaction())).ToList();
+        var transaction = _dbContext.GetDbTransaction();
+        var rows = (await connection.QueryAsync<DichVuReadModel>(sql, parameters, transaction)).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
         var items = rows.Select(r => new DichVuResponse
@@ -95,81 +102,104 @@ public class DichVuQueryRepository : IDichVuQueryRepository
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
-        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        // Mapping cơ bản cho root
+        var dichVuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "dv.Id" },
             { "IsDeleted", "dv.IsDeleted" }
         };
 
+        var khungGioMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "KhungGioIsActive", "kg.IsActive" },
+            { "KhungGioIsDeleted", "kg.IsDeleted" }
+        };
+
+        var bangGiaMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "BangGiaIsActive", "bg.IsActive" },
+            { "BangGiaIsDeleted", "bg.IsDeleted" }
+        };
+
+        var tepDuLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "LoaiTepTaiLieu", "tp.LoaiTepTaiLieu" },
+            { "TepDuLieuIsDeleted", "tp.IsDeleted" }
+        };
+
         var parameters = new DynamicParameters();
-        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
 
-        var sqlJoin = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("TepTaiLieu", "tp", "tp.Id = dv.IconId", JoinType.Left, true, Discriminators: [("LoaiTepTaiLieu", "TepTaiLieu")])
-        ]);
+        // Build SQL Where cho Dịch vụ (Root)
+        var sqlWhereDv = DapperQueryBuilder.BuildWhere(spec, dichVuMapping, parameters);
 
-        var sqlJoinsKg = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("KhungGioDichVu", "kg", "kg.DichVuId = dv.Id AND kg.IsActive = 1", JoinType.Left, true)
-        ]);
+        // --- Demo JoinExplicitWithSpec: Tầng Application quyết định OnCondition ---
 
-        var sqlJoinsBg = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id AND bg.IsActive = 1", JoinType.Left, true)
-        ]);
+        var sqlJoinIcon = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("TepTaiLieu", "tp", "tp.Id = dv.IconId", Mapping: tepDuLieuMapping)
+        ], parameters);
 
-        var sqlJoinsCtLuyTien = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id AND bg.IsActive = 1", JoinType.Left, true),
-            new JoinDefinition("ChiTietGiaLuyTien", "ct", "ct.BangGiaId = bg.Id", JoinType.Left, false)
-        ]);
+        var sqlJoinsKg = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("KhungGioDichVu", "kg", "kg.DichVuId = dv.Id", Mapping: khungGioMapping)
+        ], parameters);
 
-        var sqlJoinsCtKhungGio = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id AND bg.IsActive = 1", JoinType.Left, true),
-            new JoinDefinition("KhungGioDichVu", "kg", "kg.DichVuId = dv.Id AND kg.IsActive = 1", JoinType.Left, true),
-            new JoinDefinition("ChiTietGiaKhungGio", "ct", "ct.BangGiaId = bg.Id AND ct.KhungGioId = kg.Id", JoinType.Left, false)
-        ]);
+        var sqlJoinsBg = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id", Mapping: bangGiaMapping)
+        ], parameters);
 
-        var sqlJoinsCtLoaiCanHo = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id AND bg.IsActive = 1", JoinType.Left, true),
-            new JoinDefinition("ChiTietGiaLoaiCanHo", "ct", "ct.BangGiaId = bg.Id", JoinType.Left, true)
-        ]);
+        var sqlJoinsCtLuyTien = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id", Mapping: bangGiaMapping),
+            new JoinDefinition("ChiTietGiaLuyTien", "ct", "ct.BangGiaId = bg.Id")
+        ], parameters);
+
+        var sqlJoinsCtKhungGio = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id", Mapping: bangGiaMapping),
+            new JoinDefinition("KhungGioDichVu", "kg", "kg.DichVuId = dv.Id", Mapping: khungGioMapping),
+            new JoinDefinition("ChiTietGiaKhungGio", "ct", "ct.BangGiaId = bg.Id AND ct.KhungGioId = kg.Id")
+        ], parameters);
+
+        var sqlJoinsCtLoaiCanHo = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id", Mapping: bangGiaMapping),
+            new JoinDefinition("ChiTietGiaLoaiCanHo", "ct", "ct.BangGiaId = bg.Id")
+        ], parameters);
 
         var sql = $"""
             -- Query 1: DichVu + Icon (N-1)
             SELECT dv.Id, dv.MaDichVu, dv.TenDichVu, dv.LoaiDichVuId, dv.DonViTinh, dv.MoTa, dv.IsBatBuoc, dv.SoLuongToiDa, dv.TrangThaiId,
                    tp.FileUrl AS IconUrl
             FROM DichVu dv
-            {sqlJoin}
-            {sqlWhere};
+            {sqlJoinIcon}
+            {sqlWhereDv};
 
             -- Query 2: KhungGioDichVu (1-N)
             SELECT kg.Id, kg.DichVuId, kg.GioBatDau, kg.GioKetThuc, kg.TenKhungGio, kg.NgayTrongTuan, kg.IsActive
             FROM DichVu dv
             {sqlJoinsKg}
-            {sqlWhere};
+            {sqlWhereDv}; 
 
-            -- Query 3: BangGia (1-N, take active)
+            -- Query 3: BangGia (1-N)
             SELECT bg.Id, bg.TenBangGia, bg.NgayApDung, bg.NgayKetThuc, bg.LoaiDinhGiaId, bg.IsActive, bg.DonGia, bg.DichVuId
             FROM DichVu dv
             {sqlJoinsBg}
-            {sqlWhere};
+            {sqlWhereDv};
 
             -- Query 4: ChiTietGiaLuyTien
             SELECT ct.Id, ct.TuMuc, ct.DenMuc, ct.DonGia, ct.BangGiaId
             FROM DichVu dv
             {sqlJoinsCtLuyTien}
-            {sqlWhere}
+            {sqlWhereDv}
             ORDER BY ct.TuMuc;
 
             -- Query 5: ChiTietGiaKhungGio
             SELECT ct.Id, ct.KhungGioId, ct.DonGia, kg.TenKhungGio, ct.BangGiaId
             FROM DichVu dv
             {sqlJoinsCtKhungGio}
-            {sqlWhere};
+            {sqlWhereDv};
 
             -- Query 6: ChiTietGiaLoaiCanHo
             SELECT ct.Id, ct.LoaiCanHoId, ct.DonGia, ct.BangGiaId
             FROM DichVu dv
             {sqlJoinsCtLoaiCanHo}
-            {sqlWhere};
+            {sqlWhereDv};
             """;
 
         using var multi = await connection.QueryMultipleAsync(sql, parameters, transaction: _dbContext.GetDbTransaction());
@@ -447,48 +477,60 @@ public class DichVuQueryRepository : IDichVuQueryRepository
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
-        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        var bangGiaMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "bg.Id" },
             { "IsDeleted", "bg.IsDeleted" }
         };
 
+        var luyTienMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TuMuc", "ct.TuMuc" }
+        };
+
         var parameters = new DynamicParameters();
-        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+        var sqlWhereBg = DapperQueryBuilder.BuildWhere(spec, bangGiaMapping, parameters);
 
-        var sqlJoinsCtLuyTien = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("ChiTietGiaLuyTien", "ct", "ct.BangGiaId = bg.Id", JoinType.Left, false)
-        ]);
+        var khungGioMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "KhungGioIsActive", "kg.IsActive" },
+            { "KhungGioIsDeleted", "kg.IsDeleted" }
+        };
 
-        var sqlJoinsCtKhungGio = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("KhungGioDichVu", "kg", "kg.DichVuId = bg.DichVuId AND kg.IsActive = 1", JoinType.Left, true),
-            new JoinDefinition("ChiTietGiaKhungGio", "ct", "ct.BangGiaId = bg.Id AND ct.KhungGioId = kg.Id", JoinType.Left, false)
-        ]);
+        var sqlJoinsCtLuyTien = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("ChiTietGiaLuyTien", "ct", "ct.BangGiaId = bg.Id")
+        ], parameters);
 
-        var sqlJoinsCtLoaiCanHo = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("ChiTietGiaLoaiCanHo", "ct", "ct.BangGiaId = bg.Id", JoinType.Left, true)
-        ]);
+        var sqlJoinsCtKhungGio = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("KhungGioDichVu", "kg", "kg.DichVuId = bg.DichVuId", Mapping: khungGioMapping),
+            new JoinDefinition("ChiTietGiaKhungGio", "ct", "ct.BangGiaId = bg.Id AND ct.KhungGioId = kg.Id")
+        ], parameters);
 
+        var sqlJoinsCtLoaiCanHo = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("ChiTietGiaLoaiCanHo", "ct", "ct.BangGiaId = bg.Id")
+        ], parameters);
+
+        var sqlOrderByLuyTien = DapperQueryBuilder.BuildOrderBy(spec, luyTienMapping, "TuMuc");
         var sql = $"""
             SELECT bg.Id, bg.TenBangGia, bg.NgayApDung, bg.NgayKetThuc, bg.LoaiDinhGiaId, bg.IsActive, bg.DonGia, bg.DichVuId
             FROM BangGia bg
-            {sqlWhere};
+            {sqlWhereBg};
 
             SELECT ct.Id, ct.TuMuc, ct.DenMuc, ct.DonGia, ct.BangGiaId
             FROM BangGia bg
             {sqlJoinsCtLuyTien}
-            {sqlWhere}
-            ORDER BY ct.TuMuc;
+            {sqlWhereBg}
+            {sqlOrderByLuyTien};
 
             SELECT ct.Id, ct.KhungGioId, ct.DonGia, kg.TenKhungGio, ct.BangGiaId
             FROM BangGia bg
             {sqlJoinsCtKhungGio}
-            {sqlWhere};
+            {sqlWhereBg};
 
             SELECT ct.Id, ct.LoaiCanHoId, ct.DonGia, ct.BangGiaId
             FROM BangGia bg
             {sqlJoinsCtLoaiCanHo}
-            {sqlWhere};
+            {sqlWhereBg};
             """;
 
         using var multi = await connection.QueryMultipleAsync(sql, parameters, transaction: _dbContext.GetDbTransaction());

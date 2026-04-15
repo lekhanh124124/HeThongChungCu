@@ -27,6 +27,9 @@ public class GetListTangSpecification : BaseSpecification
             AddFilter("ToaNhaId", FilterOperator.Equal, toaNhaId.Value);
         }
 
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
+        AddFilter("ToaNhaIsDeleted", FilterOperator.Equal, false);
+
         if (!string.IsNullOrWhiteSpace(keyword))
         {
             AddKeyword("MaTang", FilterOperator.Contains, keyword);

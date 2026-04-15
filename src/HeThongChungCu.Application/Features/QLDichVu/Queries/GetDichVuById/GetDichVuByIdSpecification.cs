@@ -8,6 +8,20 @@ public class GetDichVuByIdSpecification : BaseSpecification
     public GetDichVuByIdSpecification(int id)
         : base(null, null, null, null)
     {
+        // Bộ lọc cho Dịch vụ (Root)
+        AddFilter("IsDeleted", FilterOperator.Equal, false);
         AddFilter("Id", FilterOperator.Equal, id);
+
+        // Bộ lọc cho Khung giờ
+        AddFilter("KhungGioIsActive", FilterOperator.Equal, true);
+        AddFilter("KhungGioIsDeleted", FilterOperator.Equal, false);
+
+        // Bộ lọc cho Bảng giá
+        AddFilter("BangGiaIsActive", FilterOperator.Equal, true);
+        AddFilter("BangGiaIsDeleted", FilterOperator.Equal, false);
+
+        // Bộ lọc cho Tệp dữ liệu
+        AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, "TepTaiLieu");
+        AddFilter("TepDuLieuIsDeleted", FilterOperator.Equal, false);
     }
 }

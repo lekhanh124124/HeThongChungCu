@@ -146,7 +146,7 @@ public class DatabaseSeeder : IDatabaseSeeder
             // 1. Disable all foreign key constraints
             foreach (var table in tableNames)
             {
-                await _context.Database.ExecuteSqlAsync($"ALTER TABLE {table} NOCHECK CONSTRAINT ALL");
+                await _context.Database.ExecuteSqlRawAsync($"ALTER TABLE {table} NOCHECK CONSTRAINT ALL");
             }
 
             // 2. Delete data from each table
@@ -154,7 +154,7 @@ public class DatabaseSeeder : IDatabaseSeeder
             {
                 try
                 {
-                    int deletedRows = await _context.Database.ExecuteSqlAsync($"DELETE FROM {table}");
+                    int deletedRows = await _context.Database.ExecuteSqlRawAsync($"DELETE FROM {table}");
                     if (deletedRows > 0)
                     {
                         _logger.LogInformation($"Cleared {deletedRows} rows from table {table}.");
@@ -162,7 +162,7 @@ public class DatabaseSeeder : IDatabaseSeeder
                         // Reseed identity columns so IDs start from 1
                         try
                         {
-                            await _context.Database.ExecuteSqlAsync($"DBCC CHECKIDENT ('{table}', RESEED, 0)");
+                            await _context.Database.ExecuteSqlRawAsync($"DBCC CHECKIDENT ('{table}', RESEED, 0)");
                         }
                         catch
                         {
@@ -179,7 +179,7 @@ public class DatabaseSeeder : IDatabaseSeeder
             // 3. Re-enable all foreign key constraints
             foreach (var table in tableNames)
             {
-                await _context.Database.ExecuteSqlAsync($"ALTER TABLE {table} WITH CHECK CHECK CONSTRAINT ALL");
+                await _context.Database.ExecuteSqlRawAsync($"ALTER TABLE {table} WITH CHECK CHECK CONSTRAINT ALL");
             }
 
             _logger.LogInformation("Database cleanup completed successfully.");

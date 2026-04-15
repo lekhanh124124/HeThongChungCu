@@ -26,17 +26,29 @@ public class NguoiDungQueryRepository : INguoiDungQueryRepository
         };
 
         var parameters = new DynamicParameters();
-        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters, addSoftDeleteFilter: true);
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
 
-        var sqlJoins = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("TaiKhoan", "a", "u.Id = a.NguoiDungId AND a.IsActive = 1", JoinType.Left, true),
-            new JoinDefinition("TepTaiLieu", "atl", "a.AnhDaiDienId = atl.Id", JoinType.Left, true, Discriminators: [("LoaiTepTaiLieu", "TepTaiLieu")])
-        ]);
+        var taiKhoanMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TaiKhoanIsActive", "a.IsActive" },
+            { "TaiKhoanIsDeleted", "a.IsDeleted" }
+        };
 
-        var sqlJoinsPq = DapperQueryBuilder.BuildJoin([
-            new JoinDefinition("TaiKhoan", "a", "u.Id = a.NguoiDungId AND a.IsActive = 1", JoinType.Left, true),
-            new JoinDefinition("PhanQuyen", "pq", "pq.TaiKhoanId = a.Id", JoinType.Left, false)
-        ]);
+        var tepTaiLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "TepIsDeleted", "atl.IsDeleted" },
+            { "LoaiTepTaiLieu", "atl.LoaiTepTaiLieu" }
+        };
+
+        var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("TaiKhoan", "a", "u.Id = a.NguoiDungId", Mapping: taiKhoanMapping),
+            new JoinDefinition("TepTaiLieu", "atl", "a.AnhDaiDienId = atl.Id", JoinType.Left, Mapping: tepTaiLieuMapping)
+        ], parameters);
+
+        var sqlJoinsPq = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("TaiKhoan", "a", "u.Id = a.NguoiDungId", Mapping: taiKhoanMapping),
+            new JoinDefinition("PhanQuyen", "pq", "pq.TaiKhoanId = a.Id", JoinType.Left)
+        ], parameters);
 
         var sql = $"""
             SELECT u.Id, a.TenDangNhap as Username, a.Email, u.Ten as FirstName, u.Ho as LastName, u.SoDienThoai as PhoneNumber, u.NgaySinh as Dob, u.DiaChi, u.GioiTinhId, atl.FileUrl as AnhDaiDienUrl
