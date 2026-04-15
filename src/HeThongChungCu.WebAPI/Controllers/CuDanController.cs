@@ -6,11 +6,13 @@ using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 
 namespace HeThongChungCu.WebAPI.Controllers
 {
 
     [Authorize]
+    [ApiVersion("1.0")]
     [ApiController]
     [Route("api/cu-dan")]
     public class CuDanController : ApiControllerBase

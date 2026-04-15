@@ -11,11 +11,13 @@ using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 
 namespace HeThongChungCu.WebAPI.Controllers;
 
 [Authorize]
 [ApiController]
+[ApiVersion("1.0")]
 [Route("api/doi-tac")]
 public class DoiTacController : ApiControllerBase
 {

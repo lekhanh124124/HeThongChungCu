@@ -65,7 +65,7 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
                 .Select(f => new TepYeuCauTaiLieuCuTru(f.FileName, f.FileUrl, f.Size, f.ContentType))
                 .ToList();
 
-            return new YeuCauTaiLieuCuTru(
+            return YeuCauCuTru.CreateYeuCauTaiLieuCuTru(
                 LoaiGiayTo.FromValue(a.LoaiGiayToId, null)!,
                 a.SoGiayTo,
                 a.NgayPhatHanh,

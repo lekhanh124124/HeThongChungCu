@@ -1,10 +1,12 @@
 using HeThongChungCu.Application.Features.Seeder.Commands.SeedDatabase;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 
 namespace HeThongChungCu.WebAPI.Controllers;
 
 [ApiController]
+[ApiVersion("1.0")]
 [Route("api/seeder")]
 public class SeederController : ControllerBase
 {

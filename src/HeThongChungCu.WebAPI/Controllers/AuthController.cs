@@ -9,10 +9,12 @@ using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 
 namespace HeThongChungCu.WebAPI.Controllers;
 
 [ApiController]
+[ApiVersion("1.0")]
 [Route("api/auth")]
 public class AuthController : ApiControllerBase
 {

@@ -22,11 +22,13 @@ using HeThongChungCu.WebAPI.Common.Templates;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 
 namespace HeThongChungCu.WebAPI.Controllers;
 
 [Authorize]
 [ApiController]
+[ApiVersion("1.0")]
 [Route("api/quan-he-cu-tru")]
 public class QuanHeCuTruController : ApiControllerBase
 {

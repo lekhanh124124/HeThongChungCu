@@ -7,12 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-      <_Parameter1>HeThongChungCu.Application</_Parameter1>
-    </AssemblyAttribute>
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Remove="Entities\HoaDon\**" />
     <Compile Remove="Policies\**" />
     <EmbeddedResource Remove="Entities\HoaDon\**" />

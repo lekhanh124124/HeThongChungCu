@@ -137,7 +137,6 @@ public class YeuCauCuTru : YeuCau
         return request;
     }
 
-
     public void Update(
         string? firstName,
         string? lastName,
@@ -179,7 +178,16 @@ public class YeuCauCuTru : YeuCau
             }
         }
     }
-
+    public static YeuCauTaiLieuCuTru CreateYeuCauTaiLieuCuTru(
+        LoaiGiayTo loaiGiayTo,
+        string soGiayTo,
+        DateTime? ngayPhatHanh,
+        IEnumerable<TepYeuCauTaiLieuCuTru>? files = null,
+        int? taiLieuCuTruId = null)
+    {
+        return new YeuCauTaiLieuCuTru(loaiGiayTo, soGiayTo, ngayPhatHanh, files, taiLieuCuTruId);
+    }
+    
     public override void Submit()
     {
         base.Submit();

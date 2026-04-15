@@ -22,11 +22,13 @@ using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 
 namespace HeThongChungCu.WebAPI.Controllers;
 
 [Authorize]
 [Route("api/phuong-tien")]
+[ApiVersion("1.0")]
 [ApiController]
 public class PhuongTienController : ApiControllerBase
 {

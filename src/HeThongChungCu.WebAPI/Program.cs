@@ -1,3 +1,4 @@
+using Asp.Versioning.ApiExplorer;
 using HealthChecks.UI.Client;
 using HeThongChungCu.Application;
 using HeThongChungCu.Infrastructure;
@@ -84,6 +85,12 @@ namespace HeThongChungCu.WebAPI
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
+                var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    c.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                }
+
                 c.InjectJavascript("/swagger-custom.js");
                 c.DocExpansion(DocExpansion.None);        // tránh rối UI
                 //c.DefaultModelsExpandDepth(-1);           // ẩn schema nếu API lớn
@@ -122,9 +129,17 @@ namespace HeThongChungCu.WebAPI
                 ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
             });
 
-            app.MapGet("/debug/apis", (ISwaggerProvider swaggerProvider) =>
+            app.MapGet("/debug/apis", (string? group, ISwaggerProvider swaggerProvider, IApiVersionDescriptionProvider apiVersionProvider) =>
             {
-                var doc = swaggerProvider.GetSwagger("v1");
+                var groupName = group;
+                if (string.IsNullOrWhiteSpace(groupName))
+                {
+                    groupName = apiVersionProvider.ApiVersionDescriptions
+                        .OrderByDescending(x => x.ApiVersion)
+                        .FirstOrDefault()?.GroupName ?? "v1";
+                }
+
+                var doc = swaggerProvider.GetSwagger(groupName);
 
                 var apis = doc.Paths
                     .SelectMany(path => path.Value.Operations.Select(op => new

@@ -6,11 +6,13 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 
 namespace HeThongChungCu.WebAPI.Controllers;
 
 [Authorize]
 [ApiController]
+[ApiVersion("1.0")]
 [Route("api/upload-media")]
 public class UploadMediaController : ApiControllerBase
 {

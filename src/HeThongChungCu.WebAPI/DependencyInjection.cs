@@ -1,11 +1,12 @@
+using Asp.Versioning;
 using HeThongChungCu.Infrastructure.Common.Settings;
 using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.WebAPI.Common.Models;
+using HeThongChungCu.WebAPI.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Tokens;
-using System.Reflection;
+using Microsoft.OpenApi.Models;
 
 namespace HeThongChungCu.WebAPI;
 
@@ -15,6 +16,20 @@ public static class DependencyInjection
     {
         services.AddControllers();
         services.AddEndpointsApiExplorer();
+
+        services.AddApiVersioning(options =>
+        {
+            options.DefaultApiVersion = new ApiVersion(1, 0);
+            options.AssumeDefaultVersionWhenUnspecified = true;
+            options.ReportApiVersions = true;
+
+            // Keep routes unchanged; clients can specify version via query string or header.
+            options.ApiVersionReader = new QueryStringApiVersionReader("api-version");
+        })
+        .AddApiExplorer(options =>
+        {
+            options.GroupNameFormat = "'v'VVV";
+        });
 
         services.Configure<ApplicationInsightsSettings>(
             configuration.GetSection(ApplicationInsightsSettings.SectionName));
@@ -89,44 +104,8 @@ public static class DependencyInjection
             });
         });
 
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Hệ thống Quản lý Chung cư API", Version = "v1" });
-
-            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-            {
-                Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-                Name = "Authorization",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.Http,
-                Scheme = "Bearer"
-            });
-
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    Array.Empty<string>()
-                }
-            });
-
-            c.TagActionsBy(api => new[] { api.GroupName ?? api.ActionDescriptor.RouteValues["controller"] });
-            c.DocInclusionPredicate((name, api) => true);
-
-            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-            if (File.Exists(xmlPath))
-            {
-                c.IncludeXmlComments(xmlPath);
-            }
-        });
+        services.AddSwaggerGen();
+        services.ConfigureOptions<ConfigureSwaggerOptions>();
 
         return services;
     }
