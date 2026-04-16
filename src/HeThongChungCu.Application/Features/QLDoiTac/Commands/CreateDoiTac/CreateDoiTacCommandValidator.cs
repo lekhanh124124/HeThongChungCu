@@ -31,8 +31,8 @@ public class CreateDoiTacCommandValidator : AbstractValidator<CreateDoiTacComman
         RuleFor(x => x.GhiChu)
             .MaximumLength(1000).WithErrorCode("Validation.MaxLength").WithMessage("Ghi chú không được vượt quá 1000 ký tự.");
 
-        RuleFor(x => x.HopDongs)
-            .NotEmpty().WithErrorCode("DoiTac.HopDongsNotEmpty").WithMessage("Phải có ít nhất một hợp đồng cung cấp dịch vụ.");
+        // RuleFor(x => x.HopDongs)
+        //     .NotEmpty().WithErrorCode("DoiTac.HopDongsNotEmpty").WithMessage("Phải có ít nhất một hợp đồng cung cấp dịch vụ.");
 
         RuleForEach(x => x.HopDongs).ChildRules(hopDong =>
         {

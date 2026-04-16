@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using HeThongChungCu.Domain.ValueObjects;
@@ -10,6 +11,13 @@ public class YeuCauCuTruConfiguration : IEntityTypeConfiguration<YeuCauCuTru>
     public void Configure(EntityTypeBuilder<YeuCauCuTru> builder)
     {
         // TPH: Inherits table from YeuCau
+
+        builder.Property(x => x.LoaiYeuCauId)
+            .HasColumnName("LoaiYeuCauId")
+            .HasConversion(
+                v => v.Value,
+                v => LoaiYeuCau.FromValue(v, null)!)
+            .IsRequired(false);
 
         builder.HasMany(x => x.YeuCauTaiLieuCuTrus)
             .WithOne(x => x.YeuCauCuTru)

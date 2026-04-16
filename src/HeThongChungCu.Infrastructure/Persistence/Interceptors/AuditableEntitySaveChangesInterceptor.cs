@@ -47,10 +47,40 @@ public class AuditableEntitySaveChangesInterceptor : SaveChangesInterceptor
             }
             else if (entry.State == EntityState.Deleted)
             {
-                // Ngăn chặn thao tác xóa vật lý rớt xuống DB, đổi sang thao tác cập nhật
-                entry.State = EntityState.Modified;
+                // Soft-delete: không để EF "Modified all properties"
+                entry.State = EntityState.Unchanged;
+
                 entry.Entity.MarkAsDeleted(now);
                 entry.Entity.SetModified(userId, now);
+
+                // Chỉ update các cột cần thiết cho soft delete
+                entry.Property(nameof(AuditableEntity.IsDeleted)).IsModified = true;
+                entry.Property(nameof(AuditableEntity.DeletedAt)).IsModified = true;
+                entry.Property(nameof(AuditableEntity.ModifiedBy)).IsModified = true;
+                entry.Property(nameof(AuditableEntity.ModifiedAt)).IsModified = true;
+
+                // Ngăn owned entries (DiaChi/Email/SoDienThoai...) bị cascade delete => NULL cột owned
+                foreach (var reference in entry.References)
+                {
+                    var target = reference.TargetEntry;
+                    if (target is not null && target.Metadata.IsOwned() && target.State == EntityState.Deleted)
+                    {
+                        target.State = EntityState.Unchanged;
+                    }
+                }
+
+                foreach (var collection in entry.Collections)
+                {
+                    if (collection.CurrentValue is null) continue;
+                    foreach (var dependent in collection.CurrentValue)
+                    {
+                        var dependentEntry = context.Entry(dependent);
+                        if (dependentEntry.Metadata.IsOwned() && dependentEntry.State == EntityState.Deleted)
+                        {
+                            dependentEntry.State = EntityState.Unchanged;
+                        }
+                    }
+                }
             }
             else if (entry.State == EntityState.Modified || entry.HasChangedOwnedEntities())
             {

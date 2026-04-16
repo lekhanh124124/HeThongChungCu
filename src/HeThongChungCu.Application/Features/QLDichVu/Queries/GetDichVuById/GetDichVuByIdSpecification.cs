@@ -1,5 +1,6 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Models;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Queries.GetDichVuById;
 
@@ -23,5 +24,8 @@ public class GetDichVuByIdSpecification : BaseSpecification
         // Bộ lọc cho Tệp dữ liệu
         AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, "TepTaiLieu");
         AddFilter("TepDuLieuIsDeleted", FilterOperator.Equal, false);
+
+        // Bộ lọc cho Hợp đồng
+        AddFilter("TrangThaiHopDongId", FilterOperator.In, new List<int> { TrangThaiHopDong.ConHieuLuc.Value, TrangThaiHopDong.SapHetHan.Value });
     }
 }

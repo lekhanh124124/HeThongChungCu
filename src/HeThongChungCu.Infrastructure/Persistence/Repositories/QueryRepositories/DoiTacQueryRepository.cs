@@ -139,7 +139,8 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
             {sqlWhere};
             """;
 
-        using var multi = await connection.QueryMultipleAsync(sql, parameters, transaction: _dbContext.GetDbTransaction());
+        var transaction = _dbContext.GetDbTransaction();
+        using var multi = await connection.QueryMultipleAsync(sql, parameters, transaction: transaction);
 
         var firstRow = await multi.ReadFirstOrDefaultAsync<DoiTacDetailReadModel>();
         if (firstRow == null) return null;
@@ -174,8 +175,8 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
                 NgayKy = hd.NgayKy,
                 NgayHetHan = hd.NgayHetHan,
                 GiaTriHopDong = hd.GiaTriHopDong,
-                LoaiDichVuId = hd.HopDongDichVuId,
-                TenLoaiDichVu = loaiDichVuMap.GetValueOrDefault(hd.HopDongDichVuId, string.Empty),
+                LoaiDichVuId = hd.LoaiDichVuId,
+                LoaiDichVuTen = loaiDichVuMap.GetValueOrDefault(hd.LoaiDichVuId, string.Empty),
                 TrangThaiHopDongId = hd.TrangThaiHopDongId,
                 TrangThaiHopDongTen = trangThaiHopDongMap.GetValueOrDefault(hd.TrangThaiHopDongId, string.Empty),
                 NoiDung = hd.NoiDung,

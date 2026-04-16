@@ -1,5 +1,6 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Models;
+using HeThongChungCu.Domain.Enums;
 using System.Text.Json;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Queries.GetListDichVu;
@@ -25,6 +26,7 @@ public class GetListDichVuSpecification : BaseSpecification
         : base(sortBy, isAsc, pageNumber, pageSize)
     {
         AddFilter("IsDeleted", FilterOperator.Equal, false);
+        AddFilter("TrangThaiHopDongId", FilterOperator.In, new List<int> { TrangThaiHopDong.ConHieuLuc.Value, TrangThaiHopDong.SapHetHan.Value });
 
         if (!string.IsNullOrWhiteSpace(keyword))
         {

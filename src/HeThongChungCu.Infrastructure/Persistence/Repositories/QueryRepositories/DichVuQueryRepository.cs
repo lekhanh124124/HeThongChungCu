@@ -47,14 +47,28 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             { "TepDuLieuIsDeleted", "tp.IsDeleted" }
         };
 
+        var hopDongMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "HopDongDoiTacId", "hd.Id" },
+            { "TrangThaiHopDongId", "hd.TrangThaiHopDongId" }
+        };
+
+        var doiTacMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "DoiTacId", "dt.Id" }
+        };
+
         var sqlJoin = DapperQueryBuilder.BuildJoin(spec, [
-            new JoinDefinition("TepTaiLieu", "tp", "tp.Id = dv.IconId", Mapping: tepDuLieuMapping)
+            new JoinDefinition("TepTaiLieu", "tp", "tp.Id = dv.IconId", Mapping: tepDuLieuMapping),
+            new JoinDefinition("HopDongDoiTac", "hd", "hd.DichVuId = dv.Id", Mapping: hopDongMapping),
+            new JoinDefinition("DoiTac", "dt", "dt.Id = hd.DoiTacId", Mapping: doiTacMapping)
         ], parameters);
 
         var sql = $"""
             SELECT COUNT(*) OVER() AS TotalCount, 
                    dv.Id, dv.MaDichVu, dv.TenDichVu, dv.LoaiDichVuId, dv.DonViTinh, dv.MoTa, dv.IsBatBuoc, dv.SoLuongToiDa, dv.TrangThaiId,
-                   tp.FileUrl AS IconUrl
+                   tp.FileUrl AS IconUrl,
+                   hd.Id AS HopDongDoiTacId, hd.SoHopDong, dt.TenDoiTac, hd.TrangThaiHopDongId
             FROM DichVu dv
             {sqlJoin}
             {sqlWhere}
@@ -78,7 +92,12 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             IsBatBuoc = r.IsBatBuoc,
             TrangThaiDichVuId = r.TrangThaiId,
             TrangThaiDichVuTen = TrangThaiDichVu.FromValue(r.TrangThaiId)!.Name,
-            IconUrl = r.IconUrl
+            IconUrl = r.IconUrl,
+            HopDongDoiTacId = r.HopDongDoiTacId,
+            SoHopDong = r.SoHopDong,
+            TenDoiTac = r.TenDoiTac,
+            TrangThaiHopDongId = r.TrangThaiHopDongId,
+            TrangThaiHopDongTen = r.TrangThaiHopDongId.HasValue ? TrangThaiHopDong.FromValue(r.TrangThaiHopDongId.Value)!.Name : null
         }).ToList();
 
         return new PagedResult<DichVuResponse>
@@ -127,6 +146,17 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             { "TepDuLieuIsDeleted", "tp.IsDeleted" }
         };
 
+        var hopDongMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "HopDongDoiTacId", "hd.Id" },
+            { "TrangThaiHopDongId", "hd.TrangThaiHopDongId" }
+        };
+
+        var doiTacMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "DoiTacId", "dt.Id" }
+        };
+
         var parameters = new DynamicParameters();
 
         // Build SQL Where cho Dịch vụ (Root)
@@ -134,8 +164,10 @@ public class DichVuQueryRepository : IDichVuQueryRepository
 
         // --- Demo JoinExplicitWithSpec: Tầng Application quyết định OnCondition ---
 
-        var sqlJoinIcon = DapperQueryBuilder.BuildJoin(spec, [
-            new JoinDefinition("TepTaiLieu", "tp", "tp.Id = dv.IconId", Mapping: tepDuLieuMapping)
+        var sqlJoinsDv = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("TepTaiLieu", "tp", "tp.Id = dv.IconId", Mapping: tepDuLieuMapping),
+            new JoinDefinition("HopDongDoiTac", "hd", "hd.DichVuId = dv.Id", Mapping: hopDongMapping),
+            new JoinDefinition("DoiTac", "dt", "dt.Id = hd.DoiTacId", Mapping: doiTacMapping)
         ], parameters);
 
         var sqlJoinsKg = DapperQueryBuilder.BuildJoin(spec, [
@@ -163,11 +195,12 @@ public class DichVuQueryRepository : IDichVuQueryRepository
         ], parameters);
 
         var sql = $"""
-            -- Query 1: DichVu + Icon (N-1)
+            -- Query 1: DichVu + Icon (N-1) + HopDong/DoiTac
             SELECT dv.Id, dv.MaDichVu, dv.TenDichVu, dv.LoaiDichVuId, dv.DonViTinh, dv.MoTa, dv.IsBatBuoc, dv.SoLuongToiDa, dv.TrangThaiId,
-                   tp.FileUrl AS IconUrl
+                   tp.FileUrl AS IconUrl,
+                   hd.Id AS HopDongDoiTacId, hd.SoHopDong, dt.TenDoiTac, hd.TrangThaiHopDongId
             FROM DichVu dv
-            {sqlJoinIcon}
+            {sqlJoinsDv}
             {sqlWhereDv};
 
             -- Query 2: KhungGioDichVu (1-N)
@@ -227,6 +260,11 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             TrangThaiDichVuId = first.TrangThaiId,
             TrangThaiDichVuTen = TrangThaiDichVu.FromValue(first.TrangThaiId)!.Name,
             IconUrl = first.IconUrl,
+            HopDongDoiTacId = first.HopDongDoiTacId,
+            SoHopDong = first.SoHopDong,
+            TenDoiTac = first.TenDoiTac,
+            TrangThaiHopDongId = first.TrangThaiHopDongId,
+            TrangThaiHopDongTen = first.TrangThaiHopDongId.HasValue ? TrangThaiHopDong.FromValue(first.TrangThaiHopDongId.Value)!.Name : null,
             KhungGioDichVu = kgDetails.Select(kg => new KhungGioDichVuResponse
             {
                 Id = kg.Id,

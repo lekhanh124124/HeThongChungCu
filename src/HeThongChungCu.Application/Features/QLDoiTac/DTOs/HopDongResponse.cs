@@ -10,7 +10,7 @@ public class HopDongResponse
     public DateTimeOffset NgayHetHan { get; set; }
     public decimal GiaTriHopDong { get; set; }
     public int LoaiDichVuId { get; set; }
-    public string TenLoaiDichVu { get; set; } = string.Empty;
+    public string LoaiDichVuTen { get; set; } = string.Empty;
     public int TrangThaiHopDongId { get; set; }
     public string TrangThaiHopDongTen { get; set; } = string.Empty;
     public string? NoiDung { get; set; }

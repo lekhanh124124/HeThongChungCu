@@ -15,16 +15,12 @@ public class YeuCauConfiguration : IEntityTypeConfiguration<YeuCau>
 
         builder.HasDiscriminator<string>("LoaiYeuCauCuDan")
             .HasValue<YeuCauCuTru>("YeuCauCuTru")
-            .HasValue<YeuCauPhuongTien>("YeuCauPhuongTien");
+            .HasValue<YeuCauPhuongTien>("YeuCauPhuongTien")
+            .HasValue<YeuCauSuaChua>("YeuCauSuaChua")
+            .HasValue<YeuCauThiCongNoiThat>("YeuCauThiCongNoiThat");
 
         builder.Property(e => e.NoiDung).HasMaxLength(1000);
         builder.Property(e => e.LyDo).HasMaxLength(500);
-
-        builder.Property(x => x.LoaiYeuCauId)
-            .HasConversion(
-                v => v.Value,
-                v => LoaiYeuCau.FromValue(v, null)!)
-            .IsRequired();
 
         builder.Property(x => x.TrangThaiId)
             .HasConversion(

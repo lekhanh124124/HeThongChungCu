@@ -16,5 +16,13 @@ public class DichVuResponse
     public int TrangThaiDichVuId { get; init; }
     public string TrangThaiDichVuTen { get; init; } = string.Empty;
     public string? IconUrl { get; init; }
+
+    public int? HopDongDoiTacId { get; init; }
+    public string? SoHopDong { get; init; }
+    public string? TenDoiTac { get; init; }
+    public int? TrangThaiHopDongId { get; init; }
+    public string? TrangThaiHopDongTen { get; init; }
+    public bool IsDoiTacCungCap => HopDongDoiTacId.HasValue;
+    public string NguonCungCapDescription => IsDoiTacCungCap ? "Đối tác cung cấp" : "Chung cư cung cấp";
 }
 

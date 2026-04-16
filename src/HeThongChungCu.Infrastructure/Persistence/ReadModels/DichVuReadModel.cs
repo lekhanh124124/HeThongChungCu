@@ -12,4 +12,8 @@ internal record DichVuReadModel
     public bool IsBatBuoc { get; init; }
     public int TrangThaiId { get; init; }
     public string? IconUrl { get; init; }
+    public int? HopDongDoiTacId { get; init; }
+    public string? SoHopDong { get; init; }
+    public string? TenDoiTac { get; init; }
+    public int? TrangThaiHopDongId { get; init; }
 }

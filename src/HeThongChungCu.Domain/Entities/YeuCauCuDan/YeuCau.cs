@@ -7,20 +7,17 @@ namespace HeThongChungCu.Domain.Entities;
 public abstract class YeuCau : AggregateRoot
 {
     public int CanHoId { get; protected set; }
-    public LoaiYeuCau LoaiYeuCauId { get; protected set; } = null!;
     public TrangThaiYeuCau TrangThaiId { get; protected set; } = null!;
     public string? NoiDung { get; protected set; }
     public string? LyDo { get; protected set; }
-    public int? NguoiXuLyId { get; private set; }
-    public int? NhanVienThucHienId { get; private set; }
-    public DateTimeOffset? NgayXuLy { get; private set; }
+    public int? NguoiXuLyId { get; protected set; }
+    public DateTimeOffset? NgayXuLy { get; protected set; }
 
     protected YeuCau() { } // EF Core
 
-    protected YeuCau(int canHoId, LoaiYeuCau loaiYeuCau, string? noiDung = null, TrangThaiYeuCau? initialStatus = null)
+    protected YeuCau(int canHoId, string? noiDung = null, TrangThaiYeuCau? initialStatus = null)
     {
         CanHoId = canHoId;
-        LoaiYeuCauId = loaiYeuCau;
         NoiDung = noiDung;
         TrangThaiId = initialStatus ?? TrangThaiYeuCau.Pending;
     }
@@ -65,11 +62,4 @@ public abstract class YeuCau : AggregateRoot
         TrangThaiId = TrangThaiYeuCau.Pending;
     }
 
-    public virtual void AssignStaff(int staffId)
-    {
-        if (TrangThaiId != TrangThaiYeuCau.Approved)
-            throw new BusinessException("Chỉ có thể giao việc cho yêu cầu đã được duyệt.");
-
-        NhanVienThucHienId = staffId;
-    }
 }

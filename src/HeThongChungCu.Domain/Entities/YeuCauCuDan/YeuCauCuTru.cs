@@ -8,6 +8,8 @@ namespace HeThongChungCu.Domain.Entities;
 
 public class YeuCauCuTru : YeuCau
 {
+    public LoaiYeuCau LoaiYeuCauId { get; private set; } = null!;
+
     // Proposed changes to User Info (used for 'Them' or 'Sua')
     public int? YeuCauQuanHeCuTruId { get; private set; }
     public string? YeuCauTen { get; private set; }
@@ -25,8 +27,9 @@ public class YeuCauCuTru : YeuCau
     private YeuCauCuTru() { } // EF Core
 
     private YeuCauCuTru(int canHoId, LoaiYeuCau loaiYeuCau, string? noiDung = null, TrangThaiYeuCau? initialStatus = null)
-        : base(canHoId, loaiYeuCau, noiDung, initialStatus)
+        : base(canHoId, noiDung, initialStatus)
     {
+        LoaiYeuCauId = loaiYeuCau;
     }
 
     public static YeuCauCuTru CreateAddMemberRequest(

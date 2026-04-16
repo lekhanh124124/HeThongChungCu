@@ -7,6 +7,8 @@ namespace HeThongChungCu.Domain.Entities;
 
 public class YeuCauPhuongTien : YeuCau
 {
+    public LoaiYeuCau LoaiYeuCauId { get; private set; } = null!;
+
     // Proposed changes to Vehicle Info (used for 'Them' or 'Sua')
     public int? YeuCauPhuongTienId { get; private set; }
     public string YeuCauTenPhuongTien { get; private set; } = string.Empty;
@@ -29,8 +31,9 @@ public class YeuCauPhuongTien : YeuCau
         string mauXe,
         string? noiDung = null,
         int? phuongTienId = null)
-        : base(canHoId, loaiYeuCau, noiDung, trangThaiId)
+        : base(canHoId, noiDung, trangThaiId)
     {
+        LoaiYeuCauId = loaiYeuCau;
         YeuCauLoaiPhuongTienId = loaiPhuongTien;
         YeuCauTenPhuongTien = tenPhuongTien;
         YeuCauBienSo = bienSo;
