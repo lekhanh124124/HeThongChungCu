@@ -22,9 +22,14 @@ public class YeuCauPhuongTienSeeder
         var adminAccount = await context.TaiKhoan
             .FirstOrDefaultAsync(a => a.TenDangNhap == "admin@gmail.com");
 
-        // Get householders (both active and moved out) with their TaiKhoanId
+        // Get all vehicles grouped by apartment
+        var vehiclesByApartment = await context.PhuongTiens
+            .GroupBy(v => v.CanHoId)
+            .ToDictionaryAsync(g => g.Key, g => g.ToList());
+
+        // Get householders with their TaiKhoanId
         var householders = await context.QuanHeCuTrus
-            .Where(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo)
+            .Where(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru)
             .Join(context.TaiKhoan,
                 qh => qh.NguoiDungId,
                 tk => tk.NguoiDungId,
@@ -43,12 +48,9 @@ public class YeuCauPhuongTienSeeder
             return;
         }
 
-        // Get some existing vehicles for Update/Delete requests
-        var existingVehicles = await context.PhuongTiens.Take(50).ToListAsync();
-
-        await SeedVehicleRequestsByType(context, householders, existingVehicles, LoaiYeuCau.Them, counts.SoLuongThem, faker, adminAccount);
-        await SeedVehicleRequestsByType(context, householders, existingVehicles, LoaiYeuCau.Sua, counts.SoLuongSua, faker, adminAccount);
-        await SeedVehicleRequestsByType(context, householders, existingVehicles, LoaiYeuCau.Xoa, counts.SoLuongXoa, faker, adminAccount);
+        await SeedVehicleRequestsByType(context, householders, vehiclesByApartment, LoaiHanhDongYeuCau.Them, counts.SoLuongThem, faker, adminAccount);
+        await SeedVehicleRequestsByType(context, householders, vehiclesByApartment, LoaiHanhDongYeuCau.Sua, counts.SoLuongSua, faker, adminAccount);
+        await SeedVehicleRequestsByType(context, householders, vehiclesByApartment, LoaiHanhDongYeuCau.Xoa, counts.SoLuongXoa, faker, adminAccount);
 
         DatabaseSeeder.ClearAllDomainEvents(context);
         await context.SaveChangesAsync();
@@ -58,8 +60,8 @@ public class YeuCauPhuongTienSeeder
     private static async Task SeedVehicleRequestsByType(
         AppDbContext context,
         List<HouseholderData> householders,
-        List<PhuongTien> existingVehicles,
-        LoaiYeuCau loaiYeuCau,
+        Dictionary<int, List<PhuongTien>> vehiclesByApartment,
+        LoaiHanhDongYeuCau loaiYeuCau,
         int count,
         Faker faker,
         TaiKhoan? admin)
@@ -73,7 +75,7 @@ public class YeuCauPhuongTienSeeder
             var loaiXe = faker.PickRandom(motorbikeTypes);
 
             YeuCauPhuongTien request;
-            if (loaiYeuCau == LoaiYeuCau.Them)
+            if (loaiYeuCau == LoaiHanhDongYeuCau.Them)
             {
                 var addContents = new[]
                 {
@@ -96,11 +98,23 @@ public class YeuCauPhuongTienSeeder
             }
             else
             {
-                // For Update/Delete, try to find a vehicle from existing ones
-                if (existingVehicles.Count == 0) continue;
-                var vehicleId = faker.PickRandom(existingVehicles).Id;
+                // For Update/Delete, find a vehicle from the requester's apartment
+                if (!vehiclesByApartment.TryGetValue(householder.CanHoId, out var apartmentVehicles) || apartmentVehicles.Count == 0)
+                {
+                    // If no vehicles, try to pick another householder who HAS vehicles
+                    var possibleHouseholders = householders
+                        .Where(h => vehiclesByApartment.ContainsKey(h.CanHoId) && vehiclesByApartment[h.CanHoId].Count > 0)
+                        .ToList();
 
-                if (loaiYeuCau == LoaiYeuCau.Sua)
+                    if (possibleHouseholders.Count == 0) continue;
+                    
+                    householder = faker.PickRandom(possibleHouseholders);
+                    apartmentVehicles = vehiclesByApartment[householder.CanHoId];
+                }
+
+                var targetVehicle = faker.PickRandom(apartmentVehicles);
+
+                if (loaiYeuCau == LoaiHanhDongYeuCau.Sua)
                 {
                     var updateContents = new[]
                     {
@@ -112,7 +126,7 @@ public class YeuCauPhuongTienSeeder
                     };
                     request = YeuCauPhuongTien.CreateUpdateRequest(
                         householder.CanHoId,
-                        vehicleId,
+                        targetVehicle.Id,
                         loaiXe,
                         faker.Vehicle.Model(),
                         faker.Vehicle.Vin().Substring(0, 8).ToUpper(),
@@ -133,7 +147,7 @@ public class YeuCauPhuongTienSeeder
                     };
                     request = YeuCauPhuongTien.CreateDeleteRequest(
                         householder.CanHoId,
-                        vehicleId,
+                        targetVehicle.Id,
                         loaiXe,
                         faker.Vehicle.Model(),
                         faker.Vehicle.Vin().Substring(0, 8).ToUpper(),
@@ -148,7 +162,7 @@ public class YeuCauPhuongTienSeeder
 
             if (targetStatus == TrangThaiYeuCau.Approved && admin != null)
             {
-                request.Approve(admin.Id, DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 5)));
+                request.Approve(admin.Id, DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 4)));
             }
             else if (targetStatus == TrangThaiYeuCau.Rejected && admin != null)
             {
@@ -160,7 +174,7 @@ public class YeuCauPhuongTienSeeder
                     "Giấy tờ xe (Cavet) không chính chủ hoặc thiếu thông tin hợp lệ.",
                     "Biển số xe đã được đăng ký cho một căn hộ khác trong hệ thống."
                 };
-                request.Reject(admin.Id, faker.PickRandom(rejectionReasons), DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 5)));
+                request.Reject(admin.Id, faker.PickRandom(rejectionReasons), DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 4)));
             }
 
             await context.YeuCauPhuongTiens.AddAsync(request);

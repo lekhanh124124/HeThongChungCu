@@ -37,7 +37,7 @@ public class NguoiDungQueryRepository : INguoiDungQueryRepository
         var tepTaiLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "TepIsDeleted", "atl.IsDeleted" },
-            { "LoaiTepTaiLieu", "atl.LoaiTepTaiLieu" }
+            { "LoaiTepTaiLieu", "atl.LoaiTepId" }
         };
 
         var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [

@@ -5,7 +5,7 @@ internal record YeuCauCuTruReadModel
     public int TotalCount { get; init; }
     public int Id { get; init; }
     public int CanHoId { get; init; }
-    public int LoaiYeuCauId { get; init; }
+    public int LoaiHanhDongYeuCauId { get; init; }
     public int TrangThaiId { get; init; }
     public string? LyDo { get; init; }
     public string? NoiDung { get; init; }
@@ -31,7 +31,7 @@ internal record YeuCauCuTruReadModel
     public string TenToaNha { get; init; } = null!;
     public string TenNguoiGui { get; init; } = null!;
     public string? TenNguoiXuLy { get; init; }
-    
+
     // Filter fields from join
     public int ToaNhaId { get; init; }
     public int TangId { get; init; }

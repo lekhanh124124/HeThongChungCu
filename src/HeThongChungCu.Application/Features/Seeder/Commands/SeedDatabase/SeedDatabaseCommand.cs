@@ -4,9 +4,10 @@ namespace HeThongChungCu.Application.Features.Seeder.Commands.SeedDatabase;
 
 public record SeedDatabaseCommand(
     int SoLuongChuHo = 50,
-    int SoLuongCuTru = 200,
-    int SoLuongPhuongTien = 150,
+    int SoLuongCuTru = 300,
+    int SoLuongPhuongTien = 200,
     int SoLuongTaiKhoanKhach = 50,
-    int SoLuongNhanVien = 20,
+    int SoLuongNhanVien = 50,
+    int SoLuongYeuCauSuaChua = 50,
     YeuCauCounts? SoLuongYeuCauCuTru = null,
     YeuCauCounts? SoLuongYeuCauPhuongTien = null) : ICommand<string>;

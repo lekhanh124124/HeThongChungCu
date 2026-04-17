@@ -6,7 +6,7 @@ internal record YeuCauPhuongTienReadModel
     public int Id { get; init; }
     public int CanHoId { get; init; }
     public int? YeuCauPhuongTienId { get; init; } // Target vehicle ID for Update/Delete
-    public int LoaiYeuCauId { get; init; }
+    public int LoaiHanhDongYeuCauId { get; init; }
     public int TrangThaiId { get; init; }
     public string? LyDo { get; init; }
     public string? NoiDung { get; init; }

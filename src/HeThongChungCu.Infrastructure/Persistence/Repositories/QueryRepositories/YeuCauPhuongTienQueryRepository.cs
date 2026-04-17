@@ -27,7 +27,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
         {
             { "Id", "y.Id" },
             { "CanHoId", "y.CanHoId" },
-            { "LoaiYeuCauId", "y.LoaiYeuCauId" },
+            { "LoaiYeuCauId", "y.LoaiHanhDongYeuCauId" },
             { "TrangThaiId", "y.TrangThaiId" },
             { "CreatedAt", "y.CreatedAt" },
             { "ToaNhaId", "tg.ToaNhaId" },
@@ -36,7 +36,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             { "TenNguoiXuLy", "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))" },
             { "YeuCauBienSo", "y.YeuCauBienSo" },
             { "IsDeleted", "y.IsDeleted" },
-            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDan" }
+            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDanId" }
         };
 
         var parameters = new DynamicParameters();
@@ -73,7 +73,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
                 y.Id,
                 y.CanHoId,
                 y.YeuCauPhuongTienId,
-                y.LoaiYeuCauId,
+                y.LoaiHanhDongYeuCauId,
                 y.TrangThaiId,
                 y.LyDo,
                 y.NoiDung,
@@ -101,7 +101,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
         var rows = (await connection.QueryAsync<YeuCauPhuongTienReadModel>(sql, parameters, transaction: transaction)).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
-        var loaiYeuCauMap = LoaiYeuCau.ToDictionary();
+        var loaiYeuCauMap = LoaiHanhDongYeuCau.ToDictionary();
         var trangThaiMap = TrangThaiYeuCau.ToDictionary();
 
         var items = rows.Select(r => new DSYeuCauPhuongTienResponse
@@ -111,8 +111,8 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             TenCanHo = r.TenCanHo,
             TenTang = r.TenTang,
             TenToaNha = r.TenToaNha,
-            LoaiYeuCauId = r.LoaiYeuCauId,
-            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(r.LoaiYeuCauId, string.Empty),
+            LoaiYeuCauId = r.LoaiHanhDongYeuCauId,
+            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(r.LoaiHanhDongYeuCauId, string.Empty),
             TrangThaiId = r.TrangThaiId,
             TenTrangThai = trangThaiMap.GetValueOrDefault(r.TrangThaiId, string.Empty),
             LyDo = r.LyDo,
@@ -150,7 +150,8 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
         {
             { "Id", "y.Id" },
             { "IsDeleted", "y.IsDeleted" },
-            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDan" }
+            { "LoaiYeuCauId", "y.LoaiHanhDongYeuCauId" },
+            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDanId" }
         };
 
         var parameters = new DynamicParameters();
@@ -170,7 +171,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             new JoinDefinition("TepTaiLieu", "ttl", "ttl.YeuCauId = y.Id", Mapping: new()
             {
                 { "TepIsDeleted", "ttl.IsDeleted" },
-                { "LoaiTepYeuCauPhuongTien", "ttl.LoaiTepTaiLieu" }
+                { "LoaiTepYeuCauPhuongTien", "ttl.LoaiTepId" }
             })
         ], parameters);
 
@@ -180,7 +181,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
         var sql = $"""
             -- 1. Main Info
             SELECT
-                y.Id, y.CanHoId, y.YeuCauPhuongTienId, y.LoaiYeuCauId, y.TrangThaiId, y.LyDo, y.NoiDung, 
+                y.Id, y.CanHoId, y.YeuCauPhuongTienId, y.LoaiHanhDongYeuCauId, y.TrangThaiId, y.LyDo, y.NoiDung, 
                 y.CreatedAt, y.NgayXuLy, y.NguoiXuLyId, y.CreatedBy,
                 y.YeuCauTenPhuongTien, y.YeuCauLoaiPhuongTienId, y.YeuCauBienSo, y.YeuCauMauXe,
                 ch.TenCanHo, tg.TenTang, tn.TenToaNha,
@@ -204,7 +205,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
         var readModel = await multi.ReadFirstOrDefaultAsync<YeuCauPhuongTienReadModel>();
         if (readModel == null) return null;
 
-        var loaiYeuCauMap = LoaiYeuCau.ToDictionary();
+        var loaiYeuCauMap = LoaiHanhDongYeuCau.ToDictionary();
         var trangThaiMap = TrangThaiYeuCau.ToDictionary();
         var loaiPhuongTienMap = LoaiPhuongTien.ToDictionary();
 
@@ -224,8 +225,8 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             TenNguoiXuLy = readModel.TenNguoiXuLy,
             NgayXuLy = readModel.NgayXuLy,
             PhuongTienId = readModel.YeuCauPhuongTienId,
-            LoaiYeuCauId = readModel.LoaiYeuCauId,
-            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(readModel.LoaiYeuCauId, string.Empty),
+            LoaiYeuCauId = readModel.LoaiHanhDongYeuCauId,
+            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(readModel.LoaiHanhDongYeuCauId, string.Empty),
             TrangThaiId = readModel.TrangThaiId,
             TenTrangThai = trangThaiMap.GetValueOrDefault(readModel.TrangThaiId, string.Empty),
             NoiDung = readModel.NoiDung,
@@ -250,7 +251,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
         {
             { "Id", "y.Id" },
             { "IsDeleted", "y.IsDeleted" },
-            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDan" }
+            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDanId" }
         };
 
         var parameters = new DynamicParameters();
@@ -274,7 +275,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
                 y.Id,
                 y.CanHoId,
                 y.YeuCauPhuongTienId,
-                y.LoaiYeuCauId,
+                y.LoaiHanhDongYeuCauId,
                 y.TrangThaiId,
                 y.LyDo,
                 y.NoiDung,
@@ -300,7 +301,7 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
         var row = await connection.QueryFirstOrDefaultAsync<YeuCauPhuongTienReadModel>(sql, parameters, transaction: transaction);
         if (row == null) return null;
 
-        var loaiYeuCauMap = LoaiYeuCau.ToDictionary();
+        var loaiYeuCauMap = LoaiHanhDongYeuCau.ToDictionary();
         var trangThaiMap = TrangThaiYeuCau.ToDictionary();
 
         return new DSYeuCauPhuongTienResponse
@@ -310,8 +311,8 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             TenCanHo = row.TenCanHo,
             TenTang = row.TenTang,
             TenToaNha = row.TenToaNha,
-            LoaiYeuCauId = row.LoaiYeuCauId,
-            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(row.LoaiYeuCauId, string.Empty),
+            LoaiYeuCauId = row.LoaiHanhDongYeuCauId,
+            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(row.LoaiHanhDongYeuCauId, string.Empty),
             TrangThaiId = row.TrangThaiId,
             TenTrangThai = trangThaiMap.GetValueOrDefault(row.TrangThaiId, string.Empty),
             LyDo = row.LyDo,

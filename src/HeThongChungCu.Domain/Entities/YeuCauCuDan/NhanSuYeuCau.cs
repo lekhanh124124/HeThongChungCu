@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
 using HeThongChungCu.Domain.ValueObjects;
 
@@ -6,6 +7,7 @@ namespace HeThongChungCu.Domain.Entities;
 
 public abstract class NhanSuYeuCau : AuditableEntity
 {
+    public LoaiNhanSuYeuCau LoaiNhanSuId { get; protected set; } = null!;
     public int YeuCauId { get; private set; }
     public int? NhanVienId { get; private set; } // Liên kết nếu là nhân viên nội bộ
     public string HoTen { get; private set; } = string.Empty;
@@ -16,8 +18,9 @@ public abstract class NhanSuYeuCau : AuditableEntity
 
     protected NhanSuYeuCau() { } // EF Core
 
-    protected NhanSuYeuCau(string hoTen, string soCCCD, string? soDienThoai, string? vaiTro, string? ghiChu = null, int? nhanVienId = null)
+    protected NhanSuYeuCau(LoaiNhanSuYeuCau loaiNhanSuId, string hoTen, string soCCCD, string? soDienThoai, string? vaiTro, string? ghiChu = null, int? nhanVienId = null)
     {
+        LoaiNhanSuId = loaiNhanSuId;
         if (nhanVienId == null)
         {
             if (string.IsNullOrWhiteSpace(hoTen))

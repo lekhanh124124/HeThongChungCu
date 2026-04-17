@@ -8,7 +8,7 @@ namespace HeThongChungCu.Domain.Entities;
 
 public class YeuCauCuTru : YeuCau
 {
-    public LoaiYeuCau LoaiYeuCauId { get; private set; } = null!;
+    public LoaiHanhDongYeuCau LoaiHanhDongYeuCauId { get; private set; } = null!;
 
     // Proposed changes to User Info (used for 'Them' or 'Sua')
     public int? YeuCauQuanHeCuTruId { get; private set; }
@@ -24,12 +24,12 @@ public class YeuCauCuTru : YeuCau
     private readonly List<YeuCauTaiLieuCuTru> _yeuCauTaiLieuCuTrus = [];
     public IReadOnlyCollection<YeuCauTaiLieuCuTru> YeuCauTaiLieuCuTrus => _yeuCauTaiLieuCuTrus.AsReadOnly();
 
-    private YeuCauCuTru() { } // EF Core
+    private YeuCauCuTru() : base() { } // EF Core
 
-    private YeuCauCuTru(int canHoId, LoaiYeuCau loaiYeuCau, string? noiDung = null, TrangThaiYeuCau? initialStatus = null)
-        : base(canHoId, noiDung, initialStatus)
+    private YeuCauCuTru(int canHoId, LoaiHanhDongYeuCau loaiYeuCau, string? noiDung = null, TrangThaiYeuCau? initialStatus = null)
+        : base(canHoId, LoaiYeuCauCuDan.CuTru, noiDung, initialStatus)
     {
-        LoaiYeuCauId = loaiYeuCau;
+        LoaiHanhDongYeuCauId = loaiYeuCau;
     }
 
     public static YeuCauCuTru CreateAddMemberRequest(
@@ -47,7 +47,7 @@ public class YeuCauCuTru : YeuCau
         IEnumerable<YeuCauTaiLieuCuTru>? documents,
         TrangThaiYeuCau? initialStatus = null)
     {
-        var request = new YeuCauCuTru(canHoId, LoaiYeuCau.Them, noiDung, initialStatus)
+        var request = new YeuCauCuTru(canHoId, LoaiHanhDongYeuCau.Them, noiDung, initialStatus)
         {
             YeuCauQuanHeCuTruId = quanHeCuTruYeuCauId,
             YeuCauLoaiQuanHeId = loaiQuanHeYeuCauId,
@@ -91,7 +91,7 @@ public class YeuCauCuTru : YeuCau
         IEnumerable<YeuCauTaiLieuCuTru>? documents,
         TrangThaiYeuCau? initialStatus = null)
     {
-        var request = new YeuCauCuTru(canHoId, LoaiYeuCau.Sua, noiDung, initialStatus)
+        var request = new YeuCauCuTru(canHoId, LoaiHanhDongYeuCau.Sua, noiDung, initialStatus)
         {
             YeuCauQuanHeCuTruId = quanHeCuTruId,
             YeuCauLoaiQuanHeId = newLoaiQuanHeId,
@@ -126,7 +126,7 @@ public class YeuCauCuTru : YeuCau
         string? noiDung,
         TrangThaiYeuCau? initialStatus = null)
     {
-        var request = new YeuCauCuTru(canHoId, LoaiYeuCau.Xoa, noiDung, initialStatus)
+        var request = new YeuCauCuTru(canHoId, LoaiHanhDongYeuCau.Xoa, noiDung, initialStatus)
         {
             YeuCauQuanHeCuTruId = quanHeCuTruId,
             YeuCauDiaChi = new DiaChi(null)
@@ -190,7 +190,7 @@ public class YeuCauCuTru : YeuCau
     {
         return new YeuCauTaiLieuCuTru(loaiGiayTo, soGiayTo, ngayPhatHanh, files, taiLieuCuTruId);
     }
-    
+
     public override void Submit()
     {
         base.Submit();

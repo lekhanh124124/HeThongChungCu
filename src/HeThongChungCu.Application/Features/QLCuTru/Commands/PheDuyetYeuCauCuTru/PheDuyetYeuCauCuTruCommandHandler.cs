@@ -59,7 +59,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         yeuCau.Approve(adminId.Value, now);
 
         // Logic Phê duyệt
-        if (yeuCau.LoaiYeuCauId == LoaiYeuCau.Them)
+        if (yeuCau.LoaiHanhDongYeuCauId == LoaiHanhDongYeuCau.Them)
         {
             // Gather data for uniqueness check
             var cccdExists = !string.IsNullOrEmpty(yeuCau.YeuCauCCCD) && await _userRepository.AnyAsync(u => u.CCCD == yeuCau.YeuCauCCCD, cancellationToken);
@@ -88,7 +88,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
             _residencyService.StartResidency(canHo, relationResult.Value, existingRelations.Append(relationResult.Value));
             _canHoRepository.Update(canHo);
         }
-        else if (yeuCau.LoaiYeuCauId == LoaiYeuCau.Sua)
+        else if (yeuCau.LoaiHanhDongYeuCauId == LoaiHanhDongYeuCau.Sua)
         {
             var relation = await _quanHeCuTruRepository.GetByIdAsync(yeuCau.YeuCauQuanHeCuTruId!.Value, cancellationToken);
             if (relation == null)
@@ -108,7 +108,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
             _residencyService.UpdateUserFromRequest(user, yeuCau);
             _userRepository.Update(user);
         }
-        else if (yeuCau.LoaiYeuCauId == LoaiYeuCau.Xoa)
+        else if (yeuCau.LoaiHanhDongYeuCauId == LoaiHanhDongYeuCau.Xoa)
         {
             var relation = await _quanHeCuTruRepository.GetByIdAsync(yeuCau.YeuCauQuanHeCuTruId!.Value, cancellationToken);
             if (relation != null)
@@ -131,8 +131,8 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         {
             Id = yeuCau.Id,
             CanHoId = yeuCau.CanHoId,
-            LoaiYeuCauId = yeuCau.LoaiYeuCauId.Value,
-            TenLoaiYeuCau = yeuCau.LoaiYeuCauId.Name,
+            LoaiYeuCauId = yeuCau.LoaiHanhDongYeuCauId.Value,
+            TenLoaiYeuCau = yeuCau.LoaiHanhDongYeuCauId.Name,
             TargetQuanHeCuTruId = yeuCau.YeuCauQuanHeCuTruId,
             YeuCauTen = yeuCau.YeuCauTen,
             YeuCauHo = yeuCau.YeuCauHo,

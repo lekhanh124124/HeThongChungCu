@@ -1,3 +1,5 @@
+using HeThongChungCu.Domain.Enums;
+
 namespace HeThongChungCu.Domain.Entities;
 
 public class TepHopDongDoiTac : TepTaiLieu
@@ -5,7 +7,7 @@ public class TepHopDongDoiTac : TepTaiLieu
     public int HopDongDoiTacId { get; private set; }
     public virtual HopDongDoiTac HopDongDoiTac { get; private set; } = null!;
 
-    private TepHopDongDoiTac() { }
+    private TepHopDongDoiTac() : base() { }
 
     public TepHopDongDoiTac(
         string fileName,
@@ -13,7 +15,7 @@ public class TepHopDongDoiTac : TepTaiLieu
         long size,
         string contentType,
         int hopDongDoiTacId = 0)
-        : base(fileName, fileUrl, size, contentType)
+        : base(LoaiTepTaiLieu.HopDongDoiTac, fileName, fileUrl, size, contentType)
     {
         HopDongDoiTacId = hopDongDoiTacId;
     }

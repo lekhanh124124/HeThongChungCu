@@ -1,3 +1,5 @@
+using HeThongChungCu.Domain.Enums;
+
 namespace HeThongChungCu.Domain.Entities;
 
 public class TepYeuCauSuaChua : TepTaiLieu
@@ -5,7 +7,7 @@ public class TepYeuCauSuaChua : TepTaiLieu
     public int YeuCauSuaChuaId { get; private set; }
     public YeuCauSuaChua YeuCauSuaChua { get; private set; } = null!;
 
-    private TepYeuCauSuaChua() { }
+    private TepYeuCauSuaChua() : base() { }
 
     public TepYeuCauSuaChua(
         string fileName,
@@ -13,7 +15,7 @@ public class TepYeuCauSuaChua : TepTaiLieu
         long size,
         string contentType,
         int yeuCauSuaChuaId = 0)
-        : base(fileName, fileUrl, size, contentType)
+        : base(LoaiTepTaiLieu.YeuCauSuaChua, fileName, fileUrl, size, contentType)
     {
         YeuCauSuaChuaId = yeuCauSuaChuaId;
     }

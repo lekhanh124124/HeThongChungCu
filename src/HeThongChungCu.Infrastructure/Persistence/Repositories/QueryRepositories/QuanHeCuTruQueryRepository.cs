@@ -202,12 +202,12 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
         var sqlJoinsRoot = DapperQueryBuilder.BuildJoin(spec, [
             new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", JoinType.Left, Mapping: new() { { "NguoiDungIsDeleted", "u.IsDeleted" } }),
             new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id", Mapping: new() { { "TaiKhoanIsActive", "a.IsActive" }, { "TaiKhoanIsDeleted", "a.IsDeleted" } }),
-            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId", JoinType.Left, Mapping: new() { { "TepIsDeleted", "atl.IsDeleted" }, { "LoaiTepNguoiDung", "atl.LoaiTepTaiLieu" } })
+            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId", JoinType.Left, Mapping: new() { { "TepIsDeleted", "atl.IsDeleted" }, { "LoaiTepNguoiDung", "atl.LoaiTepId" } })
         ], parameters);
 
         var sqlJoinsDoc = DapperQueryBuilder.BuildJoin(spec, [
-            new JoinDefinition("TaiLieu", "t", "t.NguoiDungId = q.NguoiDungId", JoinType.Left, Mapping: new() { { "TaiLieuIsDeleted", "t.IsDeleted" }, { "LoaiTaiLieuNguoiDung", "t.LoaiTaiLieu" } }),
-            new JoinDefinition("TepTaiLieu", "f", "f.TaiLieuId = t.Id", JoinType.Left, Mapping: new() { { "TepIsDeleted", "f.IsDeleted" }, { "LoaiTepNguoiDung", "f.LoaiTepTaiLieu" } })
+            new JoinDefinition("TaiLieu", "t", "t.NguoiDungId = q.NguoiDungId", JoinType.Left, Mapping: new() { { "TaiLieuIsDeleted", "t.IsDeleted" }, { "LoaiTaiLieuNguoiDung", "t.LoaiTaiLieuId" } }),
+            new JoinDefinition("TepTaiLieu", "f", "f.TaiLieuId = t.Id", JoinType.Left, Mapping: new() { { "TepIsDeleted", "f.IsDeleted" }, { "LoaiTepNguoiDung", "f.LoaiTepId" } })
         ], parameters);
 
         var sql = $"""
@@ -329,7 +329,7 @@ public class QuanHeCuTruQueryRepository : IQuanHeCuTruQueryRepository
         var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [
             new JoinDefinition("NguoiDung", "u", "u.Id = q.NguoiDungId", JoinType.Left, Mapping: new() { { "NguoiDungIsDeleted", "u.IsDeleted" } }),
             new JoinDefinition("TaiKhoan", "a", "a.NguoiDungId = u.Id", Mapping: new() { { "TaiKhoanIsActive", "a.IsActive" }, { "TaiKhoanIsDeleted", "a.IsDeleted" } }),
-            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId", JoinType.Left, Mapping: new() { { "TepIsDeleted", "atl.IsDeleted" }, { "LoaiTepNguoiDung", "atl.LoaiTepTaiLieu" } })
+            new JoinDefinition("TepTaiLieu", "atl", "atl.Id = a.AnhDaiDienId", JoinType.Left, Mapping: new() { { "TepIsDeleted", "atl.IsDeleted" }, { "LoaiTepNguoiDung", "atl.LoaiTepId" } })
         ], parameters);
 
         var sql = $"""

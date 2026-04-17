@@ -37,6 +37,7 @@ public class DatabaseSeeder : IDatabaseSeeder
         int soLuongPhuongTien,
         int soLuongTaiKhoanKhach,
         int soLuongNhanVien,
+        int soLuongYeuCauSuaChua,
         YeuCauCounts? soLuongYeuCauCuTru = null,
         YeuCauCounts? soLuongYeuCauPhuongTien = null)
     {
@@ -50,7 +51,8 @@ public class DatabaseSeeder : IDatabaseSeeder
                 soLuongTaiKhoanKhach,
                 soLuongNhanVien,
                 soLuongYeuCauCuTru,
-                soLuongYeuCauPhuongTien);
+                soLuongYeuCauPhuongTien,
+                soLuongYeuCauSuaChua);
         }
         finally
         {
@@ -65,7 +67,8 @@ public class DatabaseSeeder : IDatabaseSeeder
         int soLuongTaiKhoanKhach,
         int soLuongNhanVien,
         YeuCauCounts? soLuongYeuCauCuTru,
-        YeuCauCounts? soLuongYeuCauPhuongTien)
+        YeuCauCounts? soLuongYeuCauPhuongTien,
+        int soLuongYeuCauSuaChua)
     {
         var hasExistingTransaction = _context.Database.CurrentTransaction != null;
         var transaction = hasExistingTransaction ? null : await _context.Database.BeginTransactionAsync();
@@ -103,6 +106,7 @@ public class DatabaseSeeder : IDatabaseSeeder
             await YeuCauCuTruSeeder.SeedAsync(_context, _logger, soLuongYeuCauCuTru);
             await YeuCauPhuongTienSeeder.SeedAsync(_context, _logger, soLuongYeuCauPhuongTien);
             await DangKyDichVuSeeder.SeedAsync(_context, _logger);
+            await YeuCauSuaChuaSeeder.SeedAsync(_context, _logger, soLuongYeuCauSuaChua);
 
             ClearAllDomainEvents(_context);
             await _context.SaveChangesAsync();

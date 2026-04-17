@@ -11,10 +11,10 @@ public class TaiLieuNguoiDung : TaiLieu
     private readonly List<TepTaiLieuNguoiDung> _files = [];
     public IReadOnlyCollection<TepTaiLieuNguoiDung> Files => _files.AsReadOnly();
 
-    private TaiLieuNguoiDung() { } // EF Core
+    private TaiLieuNguoiDung() : base() { } // EF Core
 
     public TaiLieuNguoiDung(int? nguoiDungId, LoaiGiayTo loaiGiayTo, string soGiayTo, DateTimeOffset? ngayPhatHanh, IEnumerable<TepTaiLieuNguoiDung>? files = null)
-        : base(loaiGiayTo, soGiayTo, ngayPhatHanh)
+        : base(LoaiTaiLieu.NguoiDung, loaiGiayTo, soGiayTo, ngayPhatHanh)
     {
         NguoiDungId = nguoiDungId;
         if (files != null)

@@ -12,11 +12,10 @@ public class YeuCauCuTruConfiguration : IEntityTypeConfiguration<YeuCauCuTru>
     {
         // TPH: Inherits table from YeuCau
 
-        builder.Property(x => x.LoaiYeuCauId)
-            .HasColumnName("LoaiYeuCauId")
+        builder.Property(x => x.LoaiHanhDongYeuCauId)
             .HasConversion(
                 v => v.Value,
-                v => LoaiYeuCau.FromValue(v, null)!)
+                v => LoaiHanhDongYeuCau.FromValue(v, null)!)
             .IsRequired(false);
 
         builder.HasMany(x => x.YeuCauTaiLieuCuTrus)

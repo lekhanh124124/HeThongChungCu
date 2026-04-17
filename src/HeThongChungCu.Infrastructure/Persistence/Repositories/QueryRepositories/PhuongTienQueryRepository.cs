@@ -154,7 +154,7 @@ internal sealed class PhuongTienQueryRepository : IPhuongTienQueryRepository
         var tepTaiLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "TepIsDeleted", "ttl.IsDeleted" },
-            { "LoaiTepPhuongTien", "ttl.LoaiTepTaiLieu" }
+            { "LoaiTepPhuongTien", "ttl.LoaiTepId" }
         };
 
         var parameters = new DynamicParameters();

@@ -38,7 +38,7 @@ public class YeuCauPhuongTienCreatedEventHandler : INotificationHandler<YeuCauPh
         var yeuCau = notification.YeuCau;
         var loaiThongBao = LoaiThongBao.YeuCauPhuongTien;
         string title = "Yêu cầu phương tiện mới";
-        string content = $"Có một yêu cầu phương tiện mới cho căn hộ ID: {yeuCau.CanHoId}. Loại: {yeuCau.LoaiYeuCauId.Name}";
+        string content = $"Có một yêu cầu phương tiện mới cho căn hộ ID: {yeuCau.CanHoId}. Loại: {yeuCau.LoaiHanhDongYeuCauId.Name}";
 
         // 1. Tìm người nhận thuộc BQL (Manager, Staff & Admin)
         var managerIds = await _taiKhoanRepository.GetNguoiDungIdsByRoleAsync(Role.Manager, cancellationToken);

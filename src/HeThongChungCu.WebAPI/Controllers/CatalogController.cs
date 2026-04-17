@@ -253,7 +253,7 @@ public class CatalogController : ApiControllerBase
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
     public IActionResult GetLoaiYeuCauForSelector()
     {
-        var result = LoaiYeuCau.GetAll()
+        var result = LoaiHanhDongYeuCau.GetAll()
             .Select(x => new ItemForSelectorResponse
             {
                 Id = x.Value,
@@ -454,6 +454,166 @@ public class CatalogController : ApiControllerBase
     public IActionResult GetNgayTrongTuanForSelector()
     {
         var result = NgayTrongTuan.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cung cấp các mức độ ưu tiên (Thấp, Trung bình, Cao, Khẩn cấp) cho các yêu cầu xử lý.
+    /// - **Hệ thống xử lý**: Trả về danh sách mức độ ưu tiên từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("muc-do-uu-tien-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetMucDoUuTienForSelector()
+    {
+        var result = MucDoUuTien.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Phân loại các loại sự cố kỹ thuật (Điện, Nước, PCCC, ...) trong yêu cầu sửa chữa.
+    /// - **Hệ thống xử lý**: Trả về danh sách các loại sự cố kỹ thuật từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("loai-su-co-ky-thuat-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetLoaiSuCoKyThuatForSelector()
+    {
+        var result = LoaiSuCoKyThuat.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Xác định phạm vi sửa chữa (Trong căn hộ, Khu vực chung) để điều phối nhân sự phù hợp.
+    /// - **Hệ thống xử lý**: Trả về danh sách phạm vi sửa chữa từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("pham-vi-sua-chua-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetPhamViSuaChuaForSelector()
+    {
+        var result = PhamViSuaChua.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Theo dõi trạng thái của quy trình sửa chữa (Mới tạo, Đang xử lý, Hoàn thành, ...).
+    /// - **Hệ thống xử lý**: Trả về danh sách trạng thái sửa chữa từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("trang-thai-sua-chua-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTrangThaiSuaChuaForSelector()
+    {
+        var result = TrangThaiSuaChua.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Phân loại vai trò của nhân sự tham gia xử lý yêu cầu (Người xử lý, Người giám sát, ...).
+    /// - **Hệ thống xử lý**: Trả về danh sách các loại nhân sự trong yêu cầu từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("loai-nhan-su-yeu-cau-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetLoaiNhanSuYeuCauForSelector()
+    {
+        var result = LoaiNhanSuYeuCau.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Theo dõi tình trạng thanh toán cho các đối tác cung cấp dịch vụ bên ngoài.
+    /// - **Hệ thống xử lý**: Trả về danh sách trạng thái thanh toán đối tác từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("trang-thai-thanh-toan-doi-tac-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTrangThaiThanhToanDoiTacForSelector()
+    {
+        var result = TrangThaiThanhToanDoiTac.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cung cấp trạng thái chung cho các loại yêu cầu (Gửi duyệt, Đã duyệt, Từ chối, ...).
+    /// - **Hệ thống xử lý**: Trả về danh sách trạng thái yêu cầu từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("trang-thai-yeu-cau-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTrangThaiYeuCauForSelector()
+    {
+        var result = TrangThaiYeuCau.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Theo dõi trạng thái của quy trình thi công nội thất (Đang chờ, Đang thi công, Hoàn thành, ...).
+    /// - **Hệ thống xử lý**: Trả về danh sách trạng thái thi công từ cấu hình Enums.
+    /// - **Yêu cầu dữ liệu**: Không có.
+    /// </remarks>
+    [HttpPost("trang-thai-thi-cong-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTrangThaiThiCongForSelector()
+    {
+        var result = TrangThaiThiCong.GetAll()
             .Select(x => new ItemForSelectorResponse
             {
                 Id = x.Value,

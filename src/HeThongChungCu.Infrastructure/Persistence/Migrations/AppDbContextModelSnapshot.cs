@@ -737,10 +737,8 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LoaiNhanSu")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
+                    b.Property<int>("LoaiNhanSuId")
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset");
@@ -771,7 +769,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.ToTable("NhanSuYeuCau", (string)null);
 
-                    b.HasDiscriminator<string>("LoaiNhanSu").HasValue("NhanSuYeuCau");
+                    b.HasDiscriminator<int>("LoaiNhanSuId");
 
                     b.UseTphMappingStrategy();
                 });
@@ -1082,10 +1080,8 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Property<int>("LoaiGiayToId")
                         .HasColumnType("int");
 
-                    b.Property<string>("LoaiTaiLieu")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("nvarchar(21)");
+                    b.Property<int>("LoaiTaiLieuId")
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset");
@@ -1105,7 +1101,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.ToTable("TaiLieu", (string)null);
 
-                    b.HasDiscriminator<string>("LoaiTaiLieu").HasValue("TaiLieu");
+                    b.HasDiscriminator<int>("LoaiTaiLieuId");
 
                     b.UseTphMappingStrategy();
                 });
@@ -1200,10 +1196,8 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<string>("LoaiTepTaiLieu")
-                        .IsRequired()
-                        .HasMaxLength(34)
-                        .HasColumnType("nvarchar(34)");
+                    b.Property<int>("LoaiTepId")
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset");
@@ -1218,7 +1212,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.ToTable("TepTaiLieu", (string)null);
 
-                    b.HasDiscriminator<string>("LoaiTepTaiLieu").HasValue("TepTaiLieu");
+                    b.HasDiscriminator<int>("LoaiTepId").HasValue(1);
 
                     b.UseTphMappingStrategy();
                 });
@@ -1446,10 +1440,8 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LoaiYeuCauCuDan")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("nvarchar(21)");
+                    b.Property<int>("LoaiYeuCauCuDanId")
+                        .HasColumnType("int");
 
                     b.Property<string>("LyDo")
                         .HasMaxLength(500)
@@ -1480,7 +1472,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.ToTable("YeuCau", (string)null);
 
-                    b.HasDiscriminator<string>("LoaiYeuCauCuDan").HasValue("YeuCau");
+                    b.HasDiscriminator<int>("LoaiYeuCauCuDanId");
 
                     b.UseTphMappingStrategy();
                 });
@@ -1517,14 +1509,14 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                 {
                     b.HasBaseType("HeThongChungCu.Domain.Entities.NhanSuYeuCau");
 
-                    b.HasDiscriminator().HasValue("SuaChua");
+                    b.HasDiscriminator().HasValue(1);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.NhanSuThiCong", b =>
                 {
                     b.HasBaseType("HeThongChungCu.Domain.Entities.NhanSuYeuCau");
 
-                    b.HasDiscriminator().HasValue("ThiCong");
+                    b.HasDiscriminator().HasValue(2);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.TaiLieuNguoiDung", b =>
@@ -1536,7 +1528,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("NguoiDungId");
 
-                    b.HasDiscriminator().HasValue("TaiLieuNguoiDung");
+                    b.HasDiscriminator().HasValue(1);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.YeuCauTaiLieuCuTru", b =>
@@ -1551,7 +1543,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("YeuCauCuTruId");
 
-                    b.HasDiscriminator().HasValue("YeuCauTaiLieuCuTru");
+                    b.HasDiscriminator().HasValue(2);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.TepHopDongDoiTac", b =>
@@ -1563,7 +1555,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("HopDongDoiTacId");
 
-                    b.HasDiscriminator().HasValue("TepHopDongDoiTac");
+                    b.HasDiscriminator().HasValue(8);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.TepPhuongTien", b =>
@@ -1575,7 +1567,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("PhuongTienId");
 
-                    b.HasDiscriminator().HasValue("TepPhuongTien");
+                    b.HasDiscriminator().HasValue(7);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.TepTaiLieuNguoiDung", b =>
@@ -1589,7 +1581,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TaiLieuNguoiDungId");
 
-                    b.HasDiscriminator().HasValue("TepTaiLieuNguoiDung");
+                    b.HasDiscriminator().HasValue(2);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.TepYeuCauPhuongTien", b =>
@@ -1603,7 +1595,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("YeuCauPhuongTienId");
 
-                    b.HasDiscriminator().HasValue("TepYeuCauPhuongTien");
+                    b.HasDiscriminator().HasValue(4);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.TepYeuCauSuaChua", b =>
@@ -1617,7 +1609,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("YeuCauSuaChuaId");
 
-                    b.HasDiscriminator().HasValue("TepYeuCauSuaChua");
+                    b.HasDiscriminator().HasValue(5);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.TepYeuCauTaiLieuCuTru", b =>
@@ -1631,7 +1623,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("YeuCauTaiLieuCuTruId");
 
-                    b.HasDiscriminator().HasValue("TepYeuCauTaiLieuCuTru");
+                    b.HasDiscriminator().HasValue(3);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.TepYeuCauThiCongNoiThat", b =>
@@ -1645,17 +1637,15 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("YeuCauThiCongNoiThatId");
 
-                    b.HasDiscriminator().HasValue("TepYeuCauThiCongNoiThat");
+                    b.HasDiscriminator().HasValue(6);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.YeuCauCuTru", b =>
                 {
                     b.HasBaseType("HeThongChungCu.Domain.Entities.YeuCau");
 
-                    b.Property<int?>("LoaiYeuCauId")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("int")
-                        .HasColumnName("LoaiYeuCauId");
+                    b.Property<int?>("LoaiHanhDongYeuCauId")
+                        .HasColumnType("int");
 
                     b.Property<string>("YeuCauCCCD")
                         .HasMaxLength(20)
@@ -1681,17 +1671,15 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasDiscriminator().HasValue("YeuCauCuTru");
+                    b.HasDiscriminator().HasValue(1);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.YeuCauPhuongTien", b =>
                 {
                     b.HasBaseType("HeThongChungCu.Domain.Entities.YeuCau");
 
-                    b.Property<int?>("LoaiYeuCauId")
-                        .ValueGeneratedOnUpdateSometimes()
-                        .HasColumnType("int")
-                        .HasColumnName("LoaiYeuCauId");
+                    b.Property<int?>("LoaiHanhDongYeuCauId")
+                        .HasColumnType("int");
 
                     b.Property<string>("YeuCauBienSo")
                         .IsRequired()
@@ -1714,7 +1702,13 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.HasDiscriminator().HasValue("YeuCauPhuongTien");
+                    b.ToTable("YeuCau", t =>
+                        {
+                            t.Property("LoaiHanhDongYeuCauId")
+                                .HasColumnName("YeuCauPhuongTien_LoaiHanhDongYeuCauId");
+                        });
+
+                    b.HasDiscriminator().HasValue(2);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.YeuCauSuaChua", b =>
@@ -1780,7 +1774,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("HopDongDoiTacId");
 
-                    b.HasDiscriminator().HasValue("YeuCauSuaChua");
+                    b.HasDiscriminator().HasValue(3);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.YeuCauThiCongNoiThat", b =>
@@ -1823,7 +1817,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Property<int>("TrangThaiThiCongId")
                         .HasColumnType("int");
 
-                    b.HasDiscriminator().HasValue("YeuCauThiCongNoiThat");
+                    b.HasDiscriminator().HasValue(4);
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.BangGia", b =>

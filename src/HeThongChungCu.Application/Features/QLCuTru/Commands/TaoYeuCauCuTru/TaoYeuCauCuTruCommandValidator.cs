@@ -13,11 +13,11 @@ public class TaoYeuCauCuTruCommandValidator : AbstractValidator<TaoYeuCauCuTruCo
 
         RuleFor(x => x.LoaiYeuCauId)
             .NotEmpty().WithMessage("Loại yêu cầu không được để trống.")
-            .Must(id => LoaiYeuCau.GetAll().Any(g => g.Value == id))
-            .WithMessage($"Loại yêu cầu không hợp lệ. Các giá trị hợp lệ: {string.Join(", ", LoaiYeuCau.GetAll().Select(l => $"{l.Value} ({l.Name})"))}.");
+            .Must(id => LoaiHanhDongYeuCau.GetAll().Any(g => g.Value == id))
+            .WithMessage($"Loại yêu cầu không hợp lệ. Các giá trị hợp lệ: {string.Join(", ", LoaiHanhDongYeuCau.GetAll().Select(l => $"{l.Value} ({l.Name})"))}.");
 
 
-        When(x => x.LoaiYeuCauId == LoaiYeuCau.Them.Value, () => // AddMember
+        When(x => x.LoaiYeuCauId == LoaiHanhDongYeuCau.Them.Value, () => // AddMember
         {
             RuleFor(x => x.FirstName)
                 .NotEmpty().WithMessage("Họ không được để trống.")
@@ -39,14 +39,14 @@ public class TaoYeuCauCuTruCommandValidator : AbstractValidator<TaoYeuCauCuTruCo
                 .NotEmpty().WithMessage("Giá trị Quan hệ cư trú phải nằm trong khoảng từ 1 đến 2147483647.");
         });
 
-        When(x => x.LoaiYeuCauId != LoaiYeuCau.Them.Value, () => // Update/Remove/ChangeHead
+        When(x => x.LoaiYeuCauId != LoaiHanhDongYeuCau.Them.Value, () => // Update/Remove/ChangeHead
         {
             RuleFor(x => x.TargetQuanHeCuTruId)
                 .NotEmpty().WithMessage("Giá trị Quan hệ cư trú phải nằm trong khoảng từ 1 đến 2147483647.")
                 .GreaterThan(0).WithMessage("Giá trị Quan hệ cư trú phải nằm trong khoảng từ 1 đến 2147483647.");
         });
 
-        When(x => x.LoaiYeuCauId == LoaiYeuCau.Sua.Value, () => // UpdateRelationship
+        When(x => x.LoaiYeuCauId == LoaiHanhDongYeuCau.Sua.Value, () => // UpdateRelationship
         {
             RuleFor(x => x.LoaiQuanHeId)
                 .NotEmpty().WithMessage("Giá trị Quan hệ cư trú phải nằm trong khoảng từ 1 đến 2147483647.")

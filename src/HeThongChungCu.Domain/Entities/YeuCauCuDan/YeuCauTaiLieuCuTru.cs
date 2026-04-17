@@ -13,15 +13,15 @@ public class YeuCauTaiLieuCuTru : TaiLieu
     private readonly List<TepYeuCauTaiLieuCuTru> _files = [];
     public IReadOnlyCollection<TepYeuCauTaiLieuCuTru> Files => _files.AsReadOnly();
 
-    private YeuCauTaiLieuCuTru() { } // EF Core
+    private YeuCauTaiLieuCuTru() : base() { } // EF Core
 
     internal YeuCauTaiLieuCuTru(
         LoaiGiayTo loaiGiayTo,
         string soGiayTo,
-        DateTime? ngayPhatHanh,
+        DateTimeOffset? ngayPhatHanh,
         IEnumerable<TepYeuCauTaiLieuCuTru>? files = null,
         int? taiLieuCuTruId = null)
-        : base(loaiGiayTo, soGiayTo, ngayPhatHanh)
+        : base(LoaiTaiLieu.YeuCauCuTru, loaiGiayTo, soGiayTo, ngayPhatHanh)
     {
         TaiLieuCuTruId = taiLieuCuTruId;
         if (files != null)

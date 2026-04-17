@@ -16,6 +16,36 @@ public record JoinDefinition(
 
 public static class DapperQueryBuilder
 {
+    private static object? GetValueForSql(object? value)
+    {
+        if (value == null) return null;
+
+        var type = value.GetType();
+
+        // 1. Handle Collections (e.g., for FilterOperator.In)
+        if (value is System.Collections.IEnumerable enumerable && type != typeof(string))
+        {
+            var list = new List<object?>();
+            foreach (var item in enumerable)
+            {
+                list.Add(GetValueForSql(item));
+            }
+            return list;
+        }
+
+        // 2. Handle Smart Enum (objects with a Value property)
+        if (type.IsClass && type != typeof(string))
+        {
+            var valueProp = type.GetProperty("Value");
+            if (valueProp != null)
+            {
+                return valueProp.GetValue(value);
+            }
+        }
+
+        return value;
+    }
+
     private static string BuildFilterClause(
         FilterCriterion filter,
         DynamicParameters parameters,
@@ -28,7 +58,7 @@ public static class DapperQueryBuilder
 
         var paramName = $"p{parameters.ParameterNames.Count()}";
         var sqlOperator = string.Empty;
-        object? value = filter.Value;
+        object? value = GetValueForSql(filter.Value);
 
         switch (filter.Operator)
         {

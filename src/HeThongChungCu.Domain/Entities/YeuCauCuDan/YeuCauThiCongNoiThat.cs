@@ -28,7 +28,7 @@ public class YeuCauThiCongNoiThat : YeuCau
     private readonly List<NhanSuThiCong> _nhanSuThiCongs = [];
     public IReadOnlyCollection<NhanSuThiCong> NhanSuThiCongs => _nhanSuThiCongs.AsReadOnly();
 
-    private YeuCauThiCongNoiThat() { } // EF Core
+    private YeuCauThiCongNoiThat() : base() { } // EF Core
 
     private YeuCauThiCongNoiThat(
         int canHoId,
@@ -40,7 +40,7 @@ public class YeuCauThiCongNoiThat : YeuCau
         string? nguoiDaiDien,
         string? soDienThoaiDaiDien,
         TrangThaiYeuCau? trangThaiBanDau = null)
-        : base(canHoId, noiDung, trangThaiBanDau)
+        : base(canHoId, LoaiYeuCauCuDan.ThiCongNoiThat, noiDung, trangThaiBanDau)
     {
         if (string.IsNullOrWhiteSpace(hangMucThiCong))
             throw new BusinessException("Cần cung cấp hạng mục thi công.");

@@ -43,7 +43,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
 
         var tepDuLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "LoaiTepTaiLieu", "tp.LoaiTepTaiLieu" },
+            { "LoaiTepTaiLieu", "tp.LoaiTepId" },
             { "TepDuLieuIsDeleted", "tp.IsDeleted" }
         };
 
@@ -142,7 +142,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
 
         var tepDuLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            { "LoaiTepTaiLieu", "tp.LoaiTepTaiLieu" },
+            { "LoaiTepTaiLieu", "tp.LoaiTepId" },
             { "TepDuLieuIsDeleted", "tp.IsDeleted" }
         };
 

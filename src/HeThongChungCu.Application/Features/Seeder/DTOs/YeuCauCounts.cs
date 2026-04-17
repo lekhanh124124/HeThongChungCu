@@ -1,6 +1,6 @@
 namespace HeThongChungCu.Application.Features.Seeder.DTOs;
 
 public record YeuCauCounts(
-    int SoLuongThem = 40,
-    int SoLuongSua = 40,
-    int SoLuongXoa = 20);
+    int SoLuongThem = 30,
+    int SoLuongSua = 30,
+    int SoLuongXoa = 10);

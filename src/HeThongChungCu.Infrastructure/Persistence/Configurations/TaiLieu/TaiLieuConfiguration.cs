@@ -13,9 +13,15 @@ public class TaiLieuConfiguration : IEntityTypeConfiguration<TaiLieu>
 
         builder.HasKey(x => x.Id);
 
-        builder.HasDiscriminator<string>("LoaiTaiLieu")
-            .HasValue<TaiLieuNguoiDung>(nameof(TaiLieuNguoiDung))
-            .HasValue<YeuCauTaiLieuCuTru>(nameof(YeuCauTaiLieuCuTru));
+        builder.HasDiscriminator(x => x.LoaiTaiLieuId)
+            .HasValue<TaiLieuNguoiDung>(LoaiTaiLieu.NguoiDung)
+            .HasValue<YeuCauTaiLieuCuTru>(LoaiTaiLieu.YeuCauCuTru);
+
+        builder.Property(x => x.LoaiTaiLieuId)
+            .HasConversion(
+                v => v.Value,
+                v => LoaiTaiLieu.FromValue(v, null)!)
+            .IsRequired();
 
         builder.Property(x => x.SoGiayTo)
             .IsRequired()

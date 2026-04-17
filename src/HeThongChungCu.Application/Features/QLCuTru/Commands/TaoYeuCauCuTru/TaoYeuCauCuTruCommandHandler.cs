@@ -44,7 +44,7 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         if (userId == null)
             return Result.Failure<YeuCauCuTruResponse>(UserErrors.NotFound);
 
-        var loaiYeuCau = LoaiYeuCau.FromValue(request.LoaiYeuCauId, null);
+        var loaiYeuCau = LoaiHanhDongYeuCau.FromValue(request.LoaiYeuCauId, null);
         // Validate permissions via Domain Service
         var requesterRelation = await _quanHeRepository.GetByUserAndCanHoAsync(userId.Value, request.CanHoId, cancellationToken);
         var permissionResult = _residencyService.CheckHeadPermission(requesterRelation);
@@ -76,7 +76,7 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         var initialStatus = request.IsSubmit ? TrangThaiYeuCau.Pending : TrangThaiYeuCau.Saved;
 
         YeuCauCuTru yeuCau;
-        if (loaiYeuCau == LoaiYeuCau.Them)
+        if (loaiYeuCau == LoaiHanhDongYeuCau.Them)
         {
             yeuCau = YeuCauCuTru.CreateAddMemberRequest(
                 request.CanHoId,
@@ -93,7 +93,7 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
                 requestDocuments,
                 initialStatus);
         }
-        else if (loaiYeuCau == LoaiYeuCau.Sua)
+        else if (loaiYeuCau == LoaiHanhDongYeuCau.Sua)
         {
             yeuCau = YeuCauCuTru.CreateUpdateMemberRequest(
                 request.CanHoId,
@@ -126,8 +126,8 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         {
             Id = yeuCau.Id,
             CanHoId = yeuCau.CanHoId,
-            LoaiYeuCauId = yeuCau.LoaiYeuCauId.Value,
-            TenLoaiYeuCau = yeuCau.LoaiYeuCauId.Name,
+            LoaiYeuCauId = yeuCau.LoaiHanhDongYeuCauId.Value,
+            TenLoaiYeuCau = yeuCau.LoaiHanhDongYeuCauId.Name,
             TrangThaiId = yeuCau.TrangThaiId.Value,
             TenTrangThai = yeuCau.TrangThaiId.Name,
             LyDo = yeuCau.LyDo,

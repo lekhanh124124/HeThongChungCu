@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Common.Models;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSYeuCauPhuongTien;
 
@@ -22,7 +23,7 @@ public class LayDSYeuCauPhuongTienQuerySpecification : BaseSpecification
         int? pageSize) : base(sortCol, isAsc, pageNumber, pageSize)
     {
         AddFilter("IsDeleted", FilterOperator.Equal, false);
-        AddFilter("LoaiYeuCauCuDan", FilterOperator.Equal, "YeuCauPhuongTien");
+        AddFilter("LoaiYeuCauCuDan", FilterOperator.Equal, LoaiYeuCauCuDan.PhuongTien.Value);
         AddFilter("CanHoIsDeleted", FilterOperator.Equal, false);
         AddFilter("TangIsDeleted", FilterOperator.Equal, false);
         AddFilter("ToaNhaIsDeleted", FilterOperator.Equal, false);
@@ -31,16 +32,16 @@ public class LayDSYeuCauPhuongTienQuerySpecification : BaseSpecification
 
         if (toaNhaId != null)
             AddFilter("ToaNhaId", FilterOperator.Equal, toaNhaId);
-        
+
         if (tangId != null)
             AddFilter("TangId", FilterOperator.Equal, tangId);
 
         if (canHoId != null)
             AddFilter("CanHoId", FilterOperator.Equal, canHoId);
-        
+
         if (loaiYeuCauId != null)
             AddFilter("LoaiYeuCauId", FilterOperator.Equal, loaiYeuCauId);
-        
+
         if (trangThaiId != null)
             AddFilter("TrangThaiId", FilterOperator.Equal, trangThaiId);
 

@@ -36,7 +36,7 @@ public class YeuCauSuaChua : YeuCau
     private readonly List<TepYeuCauSuaChua> _tepYeuCauSuaChuas = [];
     public IReadOnlyCollection<TepYeuCauSuaChua> TepYeuCauSuaChuas => _tepYeuCauSuaChuas.AsReadOnly();
 
-    private YeuCauSuaChua() { } // EF Core
+    private YeuCauSuaChua() : base() { } // EF Core
 
     private YeuCauSuaChua(
         int canHoId,
@@ -46,7 +46,7 @@ public class YeuCauSuaChua : YeuCau
         string? noiDung,
         string? moTaViTri,
         TrangThaiSuaChua? trangThaiBanDau = null)
-        : base(canHoId, noiDung, TrangThaiYeuCau.Approved)
+        : base(canHoId, LoaiYeuCauCuDan.SuaChua, noiDung, TrangThaiYeuCau.Approved)
     {
         PhamViId = phamVi;
         LoaiSuCoId = loaiSuCo;

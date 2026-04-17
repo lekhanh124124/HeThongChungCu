@@ -13,10 +13,10 @@ public class TaoYeuCauPhuongTienCommandValidator : AbstractValidator<TaoYeuCauPh
 
         RuleFor(x => x.LoaiYeuCauId)
             .NotEmpty().WithMessage("Loại yêu cầu không được để trống.")
-            .Must(id => LoaiYeuCau.GetAll().Any(g => g.Value == id))
-            .WithMessage($"Loại yêu cầu không hợp lệ. Các giá trị hợp lệ: {string.Join(", ", LoaiYeuCau.GetAll().Select(l => $"{l.Value} ({l.Name})"))}.");
+            .Must(id => LoaiHanhDongYeuCau.GetAll().Any(g => g.Value == id))
+            .WithMessage($"Loại yêu cầu không hợp lệ. Các giá trị hợp lệ: {string.Join(", ", LoaiHanhDongYeuCau.GetAll().Select(l => $"{l.Value} ({l.Name})"))}.");
 
-        When(x => x.LoaiYeuCauId == LoaiYeuCau.Them.Value, () => // AddVehicle
+        When(x => x.LoaiYeuCauId == LoaiHanhDongYeuCau.Them.Value, () => // AddVehicle
         {
             RuleFor(x => x.YeuCauLoaiPhuongTienId)
                 .NotEmpty().WithMessage("Giá trị Loại xe phải nằm trong khoảng từ 1 đến 2147483647.")
@@ -35,7 +35,7 @@ public class TaoYeuCauPhuongTienCommandValidator : AbstractValidator<TaoYeuCauPh
                 .MaximumLength(50).WithMessage("Màu xe không được vượt quá 50 ký tự.");
         });
 
-        When(x => x.LoaiYeuCauId == LoaiYeuCau.Sua.Value || x.LoaiYeuCauId == LoaiYeuCau.Xoa.Value, () => // Update/Delete
+        When(x => x.LoaiYeuCauId == LoaiHanhDongYeuCau.Sua.Value || x.LoaiYeuCauId == LoaiHanhDongYeuCau.Xoa.Value, () => // Update/Delete
         {
             RuleFor(x => x.YeuCauPhuongTienId)
                 .NotEmpty().WithMessage("Giá trị Yêu cầu phương tiện phải nằm trong khoảng từ 1 đến 2147483647.")

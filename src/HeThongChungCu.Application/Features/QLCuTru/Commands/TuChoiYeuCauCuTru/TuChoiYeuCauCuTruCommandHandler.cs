@@ -46,8 +46,8 @@ public class TuChoiYeuCauCuTruCommandHandler : ICommandHandler<TuChoiYeuCauCuTru
         {
             Id = yeuCau.Id,
             CanHoId = yeuCau.CanHoId,
-            LoaiYeuCauId = yeuCau.LoaiYeuCauId.Value,
-            TenLoaiYeuCau = yeuCau.LoaiYeuCauId.Name,
+            LoaiYeuCauId = yeuCau.LoaiHanhDongYeuCauId.Value,
+            TenLoaiYeuCau = yeuCau.LoaiHanhDongYeuCauId.Name,
             TargetQuanHeCuTruId = yeuCau.YeuCauQuanHeCuTruId,
             YeuCauTen = yeuCau.YeuCauTen,
             YeuCauHo = yeuCau.YeuCauHo,

@@ -59,7 +59,7 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
         if (requesterRelation.LoaiQuanHeCuTruId != LoaiQuanHeCuTru.ChuHo)
             return Result.Failure<YeuCauPhuongTienResponse>(YeuCauPhuongTienErrors.Forbidden);
 
-        var loaiYeuCau = LoaiYeuCau.FromValue(request.LoaiYeuCauId, null);
+        var loaiYeuCau = LoaiHanhDongYeuCau.FromValue(request.LoaiYeuCauId, null);
 
         // Fetch all TepTaiLieus at once
         var tepTaiLieus = await _tepTaiLieuRepository.GetByIdsAsync(request.FileIds ?? new List<int>(), cancellationToken);
@@ -69,7 +69,7 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
         YeuCauPhuongTien yeuCau;
         var now = _dateTimeProvider.Now;
 
-        if (loaiYeuCau == LoaiYeuCau.Them)
+        if (loaiYeuCau == LoaiHanhDongYeuCau.Them)
         {
             var loaiPhuongTien = LoaiPhuongTien.FromValue(request.YeuCauLoaiPhuongTienId!.Value, null);
             yeuCau = YeuCauPhuongTien.CreateAddRequest(
@@ -88,7 +88,7 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
             if (phuongTien == null || phuongTien.CanHoId != request.CanHoId)
                 return Result.Failure<YeuCauPhuongTienResponse>(PhuongTienErrors.NotFound);
 
-            if (loaiYeuCau == LoaiYeuCau.Sua)
+            if (loaiYeuCau == LoaiHanhDongYeuCau.Sua)
             {
                 var loaiPhuongTien = request.YeuCauLoaiPhuongTienId.HasValue
                     ? LoaiPhuongTien.FromValue(request.YeuCauLoaiPhuongTienId.Value, null)!
@@ -138,8 +138,8 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
             TenTang = tang.MaTang,
             TenToaNha = toaNha.MaToaNha,
             PhuongTienId = yeuCau.YeuCauPhuongTienId,
-            LoaiYeuCauId = yeuCau.LoaiYeuCauId.Value,
-            TenLoaiYeuCau = yeuCau.LoaiYeuCauId.Name,
+            LoaiYeuCauId = yeuCau.LoaiHanhDongYeuCauId.Value,
+            TenLoaiYeuCau = yeuCau.LoaiHanhDongYeuCauId.Name,
             TrangThaiId = yeuCau.TrangThaiId.Value,
             TenTrangThai = yeuCau.TrangThaiId.Name,
             NoiDung = yeuCau.NoiDung,

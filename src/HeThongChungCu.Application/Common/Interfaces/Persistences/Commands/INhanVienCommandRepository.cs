@@ -10,4 +10,5 @@ public interface INhanVienCommandRepository
     Task<NhanVien?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<IEnumerable<NhanVien>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
     Task<bool> MaNhanVienExistsAsync(string maNhanVien, CancellationToken cancellationToken = default);
+    Task<NhanVien?> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default);
 }

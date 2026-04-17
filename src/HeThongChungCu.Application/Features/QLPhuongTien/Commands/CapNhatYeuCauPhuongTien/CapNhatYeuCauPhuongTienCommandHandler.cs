@@ -66,8 +66,8 @@ public class CapNhatYeuCauPhuongTienCommandHandler : ICommandHandler<CapNhatYeuC
                 images = tepTaiLieus.Select(f => f is TepYeuCauPhuongTien tp ? tp : new TepYeuCauPhuongTien(f.FileName, f.FileUrl, f.Size, f.ContentType)).ToList();
             }
 
-            var loaiPhuongTien = request.LoaiPhuongTienId.HasValue 
-                ? LoaiPhuongTien.FromValue(request.LoaiPhuongTienId.Value, null) 
+            var loaiPhuongTien = request.LoaiPhuongTienId.HasValue
+                ? LoaiPhuongTien.FromValue(request.LoaiPhuongTienId.Value, null)
                 : null;
 
             yeuCau.Update(
@@ -91,12 +91,12 @@ public class CapNhatYeuCauPhuongTienCommandHandler : ICommandHandler<CapNhatYeuC
         var canHo = await _canHoCommandRepository.GetByIdAsync(yeuCau.CanHoId, cancellationToken);
         var toaNha = await _toaNhaCommandRepository.GetToaNhaByTangIdAsync(canHo!.TangId, cancellationToken);
         var tang = toaNha!.Tangs.First(t => t.Id == canHo.TangId);
-        
+
         string? processorName = null;
         if (yeuCau.NguoiXuLyId.HasValue)
         {
             var processor = await _nguoiDungRepository.GetByIdAsync(yeuCau.NguoiXuLyId.Value, cancellationToken);
-             processorName = processor != null ? $"{processor.Ho} {processor.Ten}".Trim() : null;
+            processorName = processor != null ? $"{processor.Ho} {processor.Ten}".Trim() : null;
         }
 
         return new YeuCauPhuongTienResponse
@@ -110,8 +110,8 @@ public class CapNhatYeuCauPhuongTienCommandHandler : ICommandHandler<CapNhatYeuC
             TenTang = tang.MaTang,
             TenToaNha = toaNha.MaToaNha,
             PhuongTienId = yeuCau.YeuCauPhuongTienId,
-            LoaiYeuCauId = yeuCau.LoaiYeuCauId.Value,
-            TenLoaiYeuCau = yeuCau.LoaiYeuCauId.Name,
+            LoaiYeuCauId = yeuCau.LoaiHanhDongYeuCauId.Value,
+            TenLoaiYeuCau = yeuCau.LoaiHanhDongYeuCauId.Name,
             TrangThaiId = yeuCau.TrangThaiId.Value,
             TenTrangThai = yeuCau.TrangThaiId.Name,
             NoiDung = yeuCau.NoiDung,

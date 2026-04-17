@@ -48,4 +48,10 @@ public class NhanVienCommandRepository : INhanVienCommandRepository
         return await _dbContext.NhanViens
             .AnyAsync(x => x.MaNhanVien == maNhanVien, cancellationToken);
     }
+
+    public async Task<NhanVien?> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.NhanViens
+            .FirstOrDefaultAsync(x => x.NguoiDungId == userId, cancellationToken);
+    }
 }

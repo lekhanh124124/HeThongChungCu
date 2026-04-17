@@ -10,6 +10,7 @@ public interface IDatabaseSeeder
         int soLuongPhuongTien,
         int soLuongTaiKhoanKhach,
         int soLuongNhanVien,
+        int soLuongYeuCauSuaChua,
         YeuCauCounts? soLuongYeuCauCuTru = null,
         YeuCauCounts? soLuongYeuCauPhuongTien = null);
 }

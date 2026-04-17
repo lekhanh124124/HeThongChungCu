@@ -107,6 +107,7 @@ public static class DichVuSeeder
             "Phí quản lý vận hành, bảo trì hạ tầng chung của tòa nhà.",
             null,
             true);
+        dvVanHanh.Activate();
 
         if (adminId != 0) dvVanHanh.SetCreated(adminId, DateTimeOffset.Now);
 
@@ -125,6 +126,7 @@ public static class DichVuSeeder
 
         // 2.2. Dịch vụ Điện lực (Nội bộ quản lý - Có đối tác nguồn)
         var dvDien = new DichVu("DV_DIEN", "Dịch vụ điện lực", LoaiDichVu.VanHanh, "kWh", "Điện năng sinh hoạt cư dân.", null, true);
+        dvDien.Activate();
         if (adminId != 0) dvDien.SetCreated(adminId, DateTimeOffset.Now);
         await context.DichVus.AddAsync(dvDien);
         await context.SaveChangesAsync();
@@ -145,6 +147,7 @@ public static class DichVuSeeder
 
         // 2.3. Dịch vụ Nước sinh hoạt (Nội bộ quản lý - Có đối tác nguồn)
         var dvNuoc = new DichVu("DV_NUOC", "Dịch vụ nước sinh hoạt", LoaiDichVu.VanHanh, "m3", "Nước sạch sinh hoạt cư dân.", null, true);
+        dvNuoc.Activate();
         if (adminId != 0) dvNuoc.SetCreated(adminId, DateTimeOffset.Now);
         await context.DichVus.AddAsync(dvNuoc);
         await context.SaveChangesAsync();
@@ -164,24 +167,26 @@ public static class DichVuSeeder
         // 2.4. Dịch vụ Trông giữ phương tiện (Nội bộ)
         var parkingServices = new[]
         {
-            (Code: LoaiPhuongTien.XeMay.DefaultServiceCode, Name: "Dịch vụ trông xe máy", Price: 120000m),
-            (Code: LoaiPhuongTien.Oto.DefaultServiceCode, Name: "Dịch vụ trông xe ô tô", Price: 1200000m),
-            (Code: LoaiPhuongTien.XeDap.DefaultServiceCode, Name: "Dịch vụ trông xe đạp", Price: 30000m)
+            (Code: LoaiPhuongTien.XeMay.DefaultServiceCode, Name: "Dịch vụ giữ xe máy", Price: 120000m),
+            (Code: LoaiPhuongTien.Oto.DefaultServiceCode, Name: "Dịch vụ giữ xe ô tô", Price: 1200000m),
+            (Code: LoaiPhuongTien.XeDap.DefaultServiceCode, Name: "Dịch vụ giữ xe đạp", Price: 30000m)
         };
 
         foreach (var (Code, Name, Price) in parkingServices)
         {
             var dvParking = new DichVu(Code, Name, LoaiDichVu.VanHanh, "Xe", Name, null, true);
+            dvParking.Activate();
             if (adminId != 0) dvParking.SetCreated(adminId, DateTimeOffset.Now);
             await context.DichVus.AddAsync(dvParking);
             await context.SaveChangesAsync();
-            var bgParking = new BangGiaCoDinh(dvParking.Id, "Giá gửi xe tháng 2026", DateTimeOffset.Now, Price);
+            var bgParking = new BangGiaCoDinh(dvParking.Id, "Giá giữ xe tháng 2026", DateTimeOffset.Now, Price);
             if (adminId != 0) bgParking.SetCreated(adminId, DateTimeOffset.Now);
             await context.BangGias.AddAsync(bgParking);
         }
 
         // 2.5. Dịch vụ Thu gom rác thải (Thuê ngoài trọn gói)
         var dvRac = new DichVu("DV_RAC", "Dịch vụ thu gom rác thải", LoaiDichVu.VanHanh, "Hộ", "Phí vệ sinh định kỳ hàng tháng.", null, true);
+        dvRac.Activate();
         if (adminId != 0) dvRac.SetCreated(adminId, DateTimeOffset.Now);
         await context.DichVus.AddAsync(dvRac);
         await context.SaveChangesAsync();
@@ -198,6 +203,7 @@ public static class DichVuSeeder
 
         // 3.1. Gói tập Gym tháng
         var dvGym = new DichVu("DV_GYM", "Dịch vụ Gym", LoaiDichVu.TienIch, "Tháng", "Gói tập Gym đầy đủ trang thiết bị tại tầng tiện ích.", null, false);
+        dvGym.Activate();
         if (adminId != 0) dvGym.SetCreated(adminId, DateTimeOffset.Now);
         await context.DichVus.AddAsync(dvGym);
         await context.SaveChangesAsync();
@@ -212,6 +218,7 @@ public static class DichVuSeeder
 
         // 3.2. Vé hồ bơi theo lượt
         var dvPool = new DichVu("DV_POOL", "Vé hồ bơi", LoaiDichVu.TienIch, "Lượt", "Sử dụng hồ bơi vô cực tại tầng thượng.", null, false);
+        dvPool.Activate();
         if (adminId != 0) dvPool.SetCreated(adminId, DateTimeOffset.Now);
         await context.DichVus.AddAsync(dvPool);
         await context.SaveChangesAsync();
@@ -222,6 +229,7 @@ public static class DichVuSeeder
 
         // 3.3. Khu vực BBQ (Đặt theo khung giờ)
         var dvBbq = new DichVu("DV_BBQ", "Khu vực BBQ", LoaiDichVu.TienIch, "Slot", "Đặt chỗ tổ chức tiệc BBQ ngoài trời.", null, false);
+        dvBbq.Activate();
         if (adminId != 0) dvBbq.SetCreated(adminId, DateTimeOffset.Now);
 
         dvBbq.AddKhungGio(new TimeSpan(8, 0, 0), new TimeSpan(12, 0, 0), "Sáng (08:00 - 12:00)");
@@ -242,6 +250,7 @@ public static class DichVuSeeder
 
         // 3.4. Phòng sinh hoạt cộng đồng
         var dvCommon = new DichVu("DV_COMMUNITY", "Phòng sinh hoạt cộng đồng", LoaiDichVu.TienIch, "Slot", "Sử dụng phòng sinh hoạt cho các sự kiện cá nhân.", null, false);
+        dvCommon.Activate();
         if (adminId != 0) dvCommon.SetCreated(adminId, DateTimeOffset.Now);
 
         dvCommon.AddKhungGio(new TimeSpan(8, 0, 0), new TimeSpan(12, 0, 0), "Ca Sáng");
@@ -262,6 +271,7 @@ public static class DichVuSeeder
 
         // 3.5. Dịch vụ Giặt ủi
         var dvLaundry = new DichVu("DV_LAUNDRY", "Dịch vụ giặt ủi", LoaiDichVu.TienIch, "Kg", "Giặt sấy quần áo tận tâm.", null, false);
+        dvLaundry.Activate();
         if (adminId != 0) dvLaundry.SetCreated(adminId, DateTimeOffset.Now);
         await context.DichVus.AddAsync(dvLaundry);
         await context.SaveChangesAsync();
@@ -276,6 +286,7 @@ public static class DichVuSeeder
 
         // 3.6. Dịch vụ giúp việc theo giờ
         var dvCleaning = new DichVu("DV_CLEANING", "Dịch vụ dọn dẹp", LoaiDichVu.TienIch, "Giờ", "Vệ sinh căn hộ theo yêu cầu.", null, false);
+        dvCleaning.Activate();
         if (adminId != 0) dvCleaning.SetCreated(adminId, DateTimeOffset.Now);
         await context.DichVus.AddAsync(dvCleaning);
         await context.SaveChangesAsync();
@@ -296,6 +307,7 @@ public static class DichVuSeeder
         await context.DoiTacs.AddAsync(schindler);
 
         var dvThangMay = new DichVu("DV_BT_THANGMAY", "Bảo trì thang máy", LoaiDichVu.SuaChua, "Lần", "Dịch vụ bảo trì và sửa chữa thang máy định kỳ.", null, true);
+        dvThangMay.Activate();
         if (adminId != 0) dvThangMay.SetCreated(adminId, DateTimeOffset.Now);
         await context.DichVus.AddAsync(dvThangMay);
         await context.SaveChangesAsync();
@@ -309,12 +321,33 @@ public static class DichVuSeeder
         await context.DoiTacs.AddAsync(daikin);
 
         var dvDieuHoa = new DichVu("DV_SC_DIEUHOA", "Sửa chữa điều hòa", LoaiDichVu.SuaChua, "Máy", "Dịch vụ kiểm tra và sửa chữa điều hòa cho cư dân và khu vực chung.", null, false);
+        dvDieuHoa.Activate();
         if (adminId != 0) dvDieuHoa.SetCreated(adminId, DateTimeOffset.Now);
         await context.DichVus.AddAsync(dvDieuHoa);
         await context.SaveChangesAsync();
 
         var hdDieuHoa = daikin.KyHopDongMoi("HD-DAIKIN-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(1), 50000000, dvDieuHoa.Id, "Hợp đồng sửa chữa và cung cấp linh kiện điều hòa.");
         if (adminId != 0) hdDieuHoa.SetCreated(adminId, DateTimeOffset.Now);
+
+        // 4.3. Dịch vụ sửa chữa điện (Đối tác nguồn cung ứng - Thêm hợp đồng sửa chữa)
+        var dvSuaDien = new DichVu("DV_SC_DIEN", "Sửa chữa hệ thống điện", LoaiDichVu.SuaChua, "Lần", "Dịch vụ kiểm tra khẩn cấp và khắc phục sự cố điện lưới.", null, false);
+        dvSuaDien.Activate();
+        if (adminId != 0) dvSuaDien.SetCreated(adminId, DateTimeOffset.Now);
+        await context.DichVus.AddAsync(dvSuaDien);
+        await context.SaveChangesAsync();
+
+        var hdSuaDien = evn.KyHopDongMoi("HD-EVN-REPAIR-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(2), 100000000, dvSuaDien.Id, "Hợp đồng cung cấp thợ kỹ thuật xử lý sự cố điện hộ dân.");
+        if (adminId != 0) hdSuaDien.SetCreated(adminId, DateTimeOffset.Now);
+
+        // 4.4. Dịch vụ sửa chữa nước (Đối tác nguồn cung ứng - Thêm hợp đồng sửa chữa)
+        var dvSuaNuoc = new DichVu("DV_SC_NUOC", "Sửa chữa hệ thống nước", LoaiDichVu.SuaChua, "Lần", "Dịch vụ xử lý rò rỉ và thông tắc hệ thống cấp thoát nước.", null, false);
+        dvSuaNuoc.Activate();
+        if (adminId != 0) dvSuaNuoc.SetCreated(adminId, DateTimeOffset.Now);
+        await context.DichVus.AddAsync(dvSuaNuoc);
+        await context.SaveChangesAsync();
+
+        var hdSuaNuoc = sawaco.KyHopDongMoi("HD-SW-REPAIR-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(2), 80000000, dvSuaNuoc.Id, "Hợp đồng cung cấp thợ kỹ thuật xử lý sự cố cấp thoát nước.");
+        if (adminId != 0) hdSuaNuoc.SetCreated(adminId, DateTimeOffset.Now);
 
         DatabaseSeeder.ClearAllDomainEvents(context);
         await context.SaveChangesAsync();

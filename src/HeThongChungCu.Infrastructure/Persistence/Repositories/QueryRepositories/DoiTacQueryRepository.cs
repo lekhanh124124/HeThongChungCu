@@ -100,7 +100,7 @@ public class DoiTacQueryRepository : IDoiTacQueryRepository
         var tepTaiLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "TepIsDeleted", "tp.IsDeleted" },
-            { "LoaiTepTaiLieu", "tp.LoaiTepTaiLieu" }
+            { "LoaiTepTaiLieu", "tp.LoaiTepId" }
         };
 
         var dichVuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

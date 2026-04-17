@@ -7,7 +7,7 @@ namespace HeThongChungCu.Domain.Entities;
 
 public class YeuCauPhuongTien : YeuCau
 {
-    public LoaiYeuCau LoaiYeuCauId { get; private set; } = null!;
+    public LoaiHanhDongYeuCau LoaiHanhDongYeuCauId { get; private set; } = null!;
 
     // Proposed changes to Vehicle Info (used for 'Them' or 'Sua')
     public int? YeuCauPhuongTienId { get; private set; }
@@ -19,11 +19,11 @@ public class YeuCauPhuongTien : YeuCau
     private readonly List<TepYeuCauPhuongTien> _yeuCauHinhAnhPhuongTiens = [];
     public IReadOnlyCollection<TepYeuCauPhuongTien> YeuCauHinhAnhPhuongTiens => _yeuCauHinhAnhPhuongTiens.AsReadOnly();
 
-    private YeuCauPhuongTien() { } // EF Core
+    private YeuCauPhuongTien() : base() { } // EF Core
 
     private YeuCauPhuongTien(
         int canHoId,
-        LoaiYeuCau loaiYeuCau,
+        LoaiHanhDongYeuCau loaiYeuCau,
         TrangThaiYeuCau trangThaiId,
         LoaiPhuongTien loaiPhuongTien,
         string tenPhuongTien,
@@ -31,9 +31,9 @@ public class YeuCauPhuongTien : YeuCau
         string mauXe,
         string? noiDung = null,
         int? phuongTienId = null)
-        : base(canHoId, noiDung, trangThaiId)
+        : base(canHoId, LoaiYeuCauCuDan.PhuongTien, noiDung, trangThaiId)
     {
-        LoaiYeuCauId = loaiYeuCau;
+        LoaiHanhDongYeuCauId = loaiYeuCau;
         YeuCauLoaiPhuongTienId = loaiPhuongTien;
         YeuCauTenPhuongTien = tenPhuongTien;
         YeuCauBienSo = bienSo;
@@ -51,7 +51,7 @@ public class YeuCauPhuongTien : YeuCau
         IEnumerable<TepYeuCauPhuongTien>? images,
         TrangThaiYeuCau trangThaiId)
     {
-        var request = new YeuCauPhuongTien(canHoId, LoaiYeuCau.Them, trangThaiId, loaiPhuongTien, tenPhuongTien, bienSo, mauXe, noiDung);
+        var request = new YeuCauPhuongTien(canHoId, LoaiHanhDongYeuCau.Them, trangThaiId, loaiPhuongTien, tenPhuongTien, bienSo, mauXe, noiDung);
 
         if (images != null)
         {
@@ -81,7 +81,7 @@ public class YeuCauPhuongTien : YeuCau
         IEnumerable<TepYeuCauPhuongTien>? images,
         TrangThaiYeuCau trangThaiId)
     {
-        var request = new YeuCauPhuongTien(canHoId, LoaiYeuCau.Sua, trangThaiId, loaiPhuongTien, tenPhuongTien, bienSo, mauXe, noiDung, phuongTienId);
+        var request = new YeuCauPhuongTien(canHoId, LoaiHanhDongYeuCau.Sua, trangThaiId, loaiPhuongTien, tenPhuongTien, bienSo, mauXe, noiDung, phuongTienId);
 
         if (images != null)
         {
@@ -110,7 +110,7 @@ public class YeuCauPhuongTien : YeuCau
         string? noiDung,
         TrangThaiYeuCau trangThaiId)
     {
-        var request = new YeuCauPhuongTien(canHoId, LoaiYeuCau.Xoa, trangThaiId, loaiPhuongTien, tenPhuongTien, bienSo, mauXe, noiDung, phuongTienId);
+        var request = new YeuCauPhuongTien(canHoId, LoaiHanhDongYeuCau.Xoa, trangThaiId, loaiPhuongTien, tenPhuongTien, bienSo, mauXe, noiDung, phuongTienId);
 
         if (request.TrangThaiId == TrangThaiYeuCau.Pending)
         {

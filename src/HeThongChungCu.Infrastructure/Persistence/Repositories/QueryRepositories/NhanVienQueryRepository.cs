@@ -42,19 +42,19 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
         var tepTaiLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "TepIsDeleted", "atl.IsDeleted" },
-            { "LoaiTepTaiLieu", "atl.LoaiTepTaiLieu" }
+            { "LoaiTepTaiLieu", "atl.LoaiTepId" }
         };
 
         var taiLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "TaiLieuIsDeleted", "t.IsDeleted" },
-            { "LoaiTaiLieu", "t.LoaiTaiLieu" }
+            { "LoaiTaiLieu", "t.LoaiTaiLieuId" }
         };
 
         var tepTaiLieuNguoiDungMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "TepIsDeleted", "f.IsDeleted" },
-            { "LoaiTepTaiLieuNguoiDung", "f.LoaiTepTaiLieu" }
+            { "LoaiTepTaiLieuNguoiDung", "f.LoaiTepId" }
         };
 
         var sqlMainJoins = DapperQueryBuilder.BuildJoin(spec, [
@@ -221,7 +221,7 @@ public class NhanVienQueryRepository : INhanVienQueryRepository
         var tepTaiLieuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "TepIsDeleted", "atl.IsDeleted" },
-            { "LoaiTepTaiLieu", "atl.LoaiTepTaiLieu" }
+            { "LoaiTepTaiLieu", "atl.LoaiTepId" }
         };
 
         var sqlJoins = DapperQueryBuilder.BuildJoin(spec, [

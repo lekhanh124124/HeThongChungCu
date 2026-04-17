@@ -11,11 +11,10 @@ public class YeuCauPhuongTienConfiguration : IEntityTypeConfiguration<YeuCauPhuo
     {
         // TPH: Inherits table from YeuCau
 
-        builder.Property(x => x.LoaiYeuCauId)
-            .HasColumnName("LoaiYeuCauId")
+        builder.Property(x => x.LoaiHanhDongYeuCauId)
             .HasConversion(
                 v => v.Value,
-                v => LoaiYeuCau.FromValue(v, null)!)
+                v => LoaiHanhDongYeuCau.FromValue(v, null)!)
             .IsRequired(false);
 
         builder.Property(e => e.YeuCauTenPhuongTien).HasMaxLength(100);

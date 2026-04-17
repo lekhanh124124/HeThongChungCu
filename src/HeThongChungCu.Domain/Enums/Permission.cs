@@ -8,6 +8,10 @@ public class Permission : BaseEnum<Permission, string>
     public static readonly Permission UsersWrite = new("users:write", nameof(UsersWrite));
     public static readonly Permission UsersDelete = new("users:delete", nameof(UsersDelete));
     public static readonly Permission UsersManageRoles = new("users:manage_roles", nameof(UsersManageRoles));
+    
+    public static readonly Permission YeuCauSuaChuaRead = new("yeu-cau-sua-chua:read", nameof(YeuCauSuaChuaRead));
+    public static readonly Permission YeuCauSuaChuaCreate = new("yeu-cau-sua-chua:create", nameof(YeuCauSuaChuaCreate));
+    public static readonly Permission YeuCauSuaChuaManage = new("yeu-cau-sua-chua:manage", nameof(YeuCauSuaChuaManage));
 
     private Permission(string value, string name) : base(value, name)
     {

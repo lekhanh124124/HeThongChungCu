@@ -6,6 +6,7 @@ namespace HeThongChungCu.Domain.Entities;
 
 public abstract class YeuCau : AggregateRoot
 {
+    public LoaiYeuCauCuDan LoaiYeuCauCuDanId { get; protected set; } = null!;
     public int CanHoId { get; protected set; }
     public TrangThaiYeuCau TrangThaiId { get; protected set; } = null!;
     public string? NoiDung { get; protected set; }
@@ -15,9 +16,10 @@ public abstract class YeuCau : AggregateRoot
 
     protected YeuCau() { } // EF Core
 
-    protected YeuCau(int canHoId, string? noiDung = null, TrangThaiYeuCau? initialStatus = null)
+    protected YeuCau(int canHoId, LoaiYeuCauCuDan loaiYeuCauCuDan, string? noiDung = null, TrangThaiYeuCau? initialStatus = null)
     {
         CanHoId = canHoId;
+        LoaiYeuCauCuDanId = loaiYeuCauCuDan;
         NoiDung = noiDung;
         TrangThaiId = initialStatus ?? TrangThaiYeuCau.Pending;
     }

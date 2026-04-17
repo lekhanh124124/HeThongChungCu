@@ -81,7 +81,7 @@ public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuT
                 request.PhoneNumber,
                 request.CCCD,
                 request.DiaChi,
-                request.LoaiQuanHeId, 
+                request.LoaiQuanHeId,
                 request.NoiDung,
                 requestDocuments);
 
@@ -98,8 +98,8 @@ public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuT
         {
             Id = yeuCau.Id,
             CanHoId = yeuCau.CanHoId,
-            LoaiYeuCauId = yeuCau.LoaiYeuCauId.Value,
-            TenLoaiYeuCau = yeuCau.LoaiYeuCauId.Name,
+            LoaiYeuCauId = yeuCau.LoaiHanhDongYeuCauId.Value,
+            TenLoaiYeuCau = yeuCau.LoaiHanhDongYeuCauId.Name,
             TrangThaiId = yeuCau.TrangThaiId.Value,
             TenTrangThai = yeuCau.TrangThaiId.Name,
             LyDo = yeuCau.LyDo,

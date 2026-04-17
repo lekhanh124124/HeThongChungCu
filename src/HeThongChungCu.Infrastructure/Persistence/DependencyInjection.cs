@@ -82,7 +82,12 @@ public static class DependencyInjection
 
         services.AddScoped<IDichVuCommandRepository, DichVuCommandRepository>();
         services.AddScoped<IDichVuQueryRepository, DichVuQueryRepository>();
+
         services.AddScoped<IDangKyDichVuCommandRepository, DangKyDichVuCommandRepository>();
+
+        services.AddScoped<IYeuCauSuaChuaCommandRepository, YeuCauSuaChuaCommandRepository>();
+        services.AddScoped<IYeuCauSuaChuaQueryRepository, YeuCauSuaChuaQueryRepository>();
+
 
         return services;
     }

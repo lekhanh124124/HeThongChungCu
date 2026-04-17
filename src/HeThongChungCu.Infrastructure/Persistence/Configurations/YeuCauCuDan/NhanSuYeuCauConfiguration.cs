@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,9 +13,15 @@ public class NhanSuYeuCauConfiguration : IEntityTypeConfiguration<NhanSuYeuCau>
 
         builder.HasKey(e => e.Id);
 
-        builder.HasDiscriminator<string>("LoaiNhanSu")
-            .HasValue<NhanSuThiCong>("ThiCong")
-            .HasValue<NhanSuSuaChua>("SuaChua");
+        builder.HasDiscriminator(x => x.LoaiNhanSuId)
+            .HasValue<NhanSuThiCong>(LoaiNhanSuYeuCau.ThiCong)
+            .HasValue<NhanSuSuaChua>(LoaiNhanSuYeuCau.SuaChua);
+
+        builder.Property(x => x.LoaiNhanSuId)
+            .HasConversion(
+                v => v.Value,
+                v => LoaiNhanSuYeuCau.FromValue(v, null)!)
+            .IsRequired();
 
         builder.Property(e => e.HoTen).HasMaxLength(100);
         builder.Property(e => e.SoCCCD).HasMaxLength(20);

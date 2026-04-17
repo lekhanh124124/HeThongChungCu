@@ -1,4 +1,4 @@
-namespace HeThongChungCu.Application.Features.QLCuTru.DTOs
+namespace HeThongChungCu.Application.Common.Models
 {
     public record TepTaiLieuResponse(
         int Id,

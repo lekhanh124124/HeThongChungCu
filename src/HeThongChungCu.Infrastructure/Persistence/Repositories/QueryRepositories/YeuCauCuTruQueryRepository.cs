@@ -26,13 +26,14 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
         {
             { "Id", "y.Id" },
             { "CanHoId", "y.CanHoId" },
-            { "LoaiYeuCauId", "y.LoaiYeuCauId" },
+            { "LoaiYeuCauId", "y.LoaiHanhDongYeuCauId" },
             { "TrangThaiId", "y.TrangThaiId" },
             { "CreatedAt", "y.CreatedAt" },
             { "ToaNhaId", "tg.ToaNhaId" },
             { "TangId", "ch.TangId" },
             { "TenNguoiGui", "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))" },
             { "TenNguoiXuLy", "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))" },
+            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDanId" },
             { "IsDeleted", "y.IsDeleted" }
         };
 
@@ -57,7 +58,7 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
                 COUNT(*) OVER() AS TotalCount,
                 y.Id,
                 y.CanHoId,
-                y.LoaiYeuCauId,
+                y.LoaiHanhDongYeuCauId,
                 y.TrangThaiId,
                 y.LyDo,
                 y.NoiDung,
@@ -94,7 +95,7 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
         var rows = (await connection.QueryAsync<YeuCauCuTruReadModel>(sql, parameters, transaction: transaction)).ToList();
         var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
 
-        var loaiYeuCauMap = LoaiYeuCau.ToDictionary();
+        var loaiYeuCauMap = LoaiHanhDongYeuCau.ToDictionary();
         var trangThaiMap = TrangThaiYeuCau.ToDictionary();
 
         var items = rows.Select(r => new DSYeuCauCuTruResponse
@@ -104,8 +105,8 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
             TenCanHo = r.TenCanHo,
             TenTang = r.TenTang,
             TenToaNha = r.TenToaNha,
-            LoaiYeuCauId = r.LoaiYeuCauId,
-            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(r.LoaiYeuCauId, string.Empty),
+            LoaiYeuCauId = r.LoaiHanhDongYeuCauId,
+            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(r.LoaiHanhDongYeuCauId, string.Empty),
             TrangThaiId = r.TrangThaiId,
             TenTrangThai = trangThaiMap.GetValueOrDefault(r.TrangThaiId, string.Empty),
             LyDo = r.LyDo,
@@ -142,6 +143,8 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
             { "Id", "y.Id" },
             { "TenNguoiGui", "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))" },
             { "TenNguoiXuLy", "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))" },
+            { "LoaiYeuCauId", "y.LoaiHanhDongYeuCauId" },
+            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDanId" },
             { "IsDeleted", "y.IsDeleted" }
         };
 
@@ -159,18 +162,18 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
         ], parameters);
 
         var sqlJoinsTl = DapperQueryBuilder.BuildJoin(spec, [
-            new JoinDefinition("TaiLieu", "tl", "tl.YeuCauCuTruId = y.Id", JoinType.Inner, Mapping: new() { { "TaiLieuIsDeleted", "tl.IsDeleted" }, { "LoaiTaiLieuYeuCau", "tl.LoaiTaiLieu" } })
+            new JoinDefinition("TaiLieu", "tl", "tl.YeuCauCuTruId = y.Id", JoinType.Inner, Mapping: new() { { "TaiLieuIsDeleted", "tl.IsDeleted" }, { "LoaiTaiLieuYeuCau", "tl.LoaiTaiLieuId" } })
         ], parameters);
 
         var sqlJoinsTtl = DapperQueryBuilder.BuildJoin(spec, [
-            new JoinDefinition("TaiLieu", "tl", "tl.YeuCauCuTruId = y.Id", JoinType.Inner, Mapping: new() { { "TaiLieuIsDeleted", "tl.IsDeleted" }, { "LoaiTaiLieuYeuCau", "tl.LoaiTaiLieu" } }),
-            new JoinDefinition("TepTaiLieu", "ttl", "ttl.TaiLieuId = tl.Id", JoinType.Inner, Mapping: new() { { "TepIsDeleted", "ttl.IsDeleted" }, { "LoaiTepYeuCau", "ttl.LoaiTepTaiLieu" } })
+            new JoinDefinition("TaiLieu", "tl", "tl.YeuCauCuTruId = y.Id", JoinType.Inner, Mapping: new() { { "TaiLieuIsDeleted", "tl.IsDeleted" }, { "LoaiTaiLieuYeuCau", "tl.LoaiTaiLieuId" } }),
+            new JoinDefinition("TepTaiLieu", "ttl", "ttl.TaiLieuId = tl.Id", JoinType.Inner, Mapping: new() { { "TepIsDeleted", "ttl.IsDeleted" }, { "LoaiTepYeuCau", "ttl.LoaiTepId" } })
         ], parameters);
 
         var sql = $"""
             -- 1. Main Info
             SELECT
-                y.Id, y.CanHoId, y.LoaiYeuCauId, y.TrangThaiId, y.LyDo, y.NoiDung, 
+                y.Id, y.CanHoId, y.LoaiHanhDongYeuCauId, y.TrangThaiId, y.LyDo, y.NoiDung, 
                 y.CreatedAt, y.NgayXuLy, y.NguoiXuLyId, y.CreatedBy,
                 y.YeuCauTen, y.YeuCauHo, y.YeuCauNgaySinh, y.YeuCauGioiTinhId,
                 y.YeuCauSoDienThoai, y.YeuCauCCCD, y.YeuCauDiaChi,
@@ -206,7 +209,7 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
         var readModel = await multi.ReadFirstOrDefaultAsync<YeuCauCuTruReadModel>();
         if (readModel == null) return null;
 
-        var loaiYeuCauMap = LoaiYeuCau.ToDictionary();
+        var loaiYeuCauMap = LoaiHanhDongYeuCau.ToDictionary();
         var trangThaiMap = TrangThaiYeuCau.ToDictionary();
         var loaiGiayToMap = LoaiGiayTo.ToDictionary();
         var gioiTinhMap = GioiTinh.ToDictionary();
@@ -217,8 +220,8 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
         {
             Id = readModel.Id,
             CanHoId = readModel.CanHoId,
-            LoaiYeuCauId = readModel.LoaiYeuCauId,
-            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(readModel.LoaiYeuCauId, string.Empty),
+            LoaiYeuCauId = readModel.LoaiHanhDongYeuCauId,
+            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(readModel.LoaiHanhDongYeuCauId, string.Empty),
             TrangThaiId = readModel.TrangThaiId,
             TenTrangThai = trangThaiMap.GetValueOrDefault(readModel.TrangThaiId, string.Empty),
             LyDo = readModel.LyDo,
@@ -277,6 +280,7 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
             { "Id", "y.Id" },
             { "TenNguoiGui", "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))" },
             { "TenNguoiXuLy", "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))" },
+            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDanId" },
             { "IsDeleted", "y.IsDeleted" }
         };
 
@@ -297,7 +301,7 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
             SELECT
                 y.Id,
                 y.CanHoId,
-                y.LoaiYeuCauId,
+                y.LoaiHanhDongYeuCauId,
                 y.TrangThaiId,
                 y.LyDo,
                 y.NoiDung,
@@ -322,7 +326,7 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
         var row = await connection.QueryFirstOrDefaultAsync<YeuCauCuTruReadModel>(sql, parameters, transaction: transaction);
         if (row == null) return null;
 
-        var loaiYeuCauMap = LoaiYeuCau.ToDictionary();
+        var loaiYeuCauMap = LoaiHanhDongYeuCau.ToDictionary();
         var trangThaiMap = TrangThaiYeuCau.ToDictionary();
 
         return new DSYeuCauCuTruResponse
@@ -332,8 +336,8 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
             TenCanHo = row.TenCanHo,
             TenTang = row.TenTang,
             TenToaNha = row.TenToaNha,
-            LoaiYeuCauId = row.LoaiYeuCauId,
-            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(row.LoaiYeuCauId, string.Empty),
+            LoaiYeuCauId = row.LoaiHanhDongYeuCauId,
+            TenLoaiYeuCau = loaiYeuCauMap.GetValueOrDefault(row.LoaiHanhDongYeuCauId, string.Empty),
             TrangThaiId = row.TrangThaiId,
             TenTrangThai = trangThaiMap.GetValueOrDefault(row.TrangThaiId, string.Empty),
             LyDo = row.LyDo,

@@ -15,8 +15,8 @@ public class UserSeeder
     private static readonly HashSet<string> _usedIdCards = [];
     private static readonly HashSet<string> _usedUsernames = new(StringComparer.OrdinalIgnoreCase);
 
-    public static readonly string[] VietnamAddresses = new[]
-    {
+    public static readonly string[] VietnamAddresses =
+    [
         "15 Lê Thánh Tôn, Bến Nghé, Quận 1, TP. Hồ Chí Minh",
         "200 Nguyễn Thị Minh Khai, Võ Thị Sáu, Quận 3, TP. Hồ Chí Minh",
         "456 Trần Hưng Đạo, Cầu Kho, Quận 1, TP. Hồ Chí Minh",
@@ -35,7 +35,7 @@ public class UserSeeder
         "210 Điện Biên Phủ, Võ Thị Sáu, Quận 3, TP. Hồ Chí Minh",
         "45 Thảo Điền, Tháp Mười, TP. Thủ Đức, TP. Hồ Chí Minh",
         "123 Lê Văn Sỹ, Phường 13, Quận Phú Nhuận, TP. Hồ Chí Minh"
-    };
+    ];
 
     public static string GetRandomVietnamAddress()
     {

@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Common.Models;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Queries.LayDSYeuCauCuTru;
 
@@ -37,7 +38,7 @@ public class LayDSYeuCauCuTruQuerySpecification : BaseSpecification
             AddFilter("TrangThaiId", FilterOperator.Equal, trangThaiId);
 
         AddFilter("IsDeleted", FilterOperator.Equal, false);
-        AddFilter("LoaiYeuCauCuDan", FilterOperator.Equal, "YeuCauCuTru");
+        AddFilter("LoaiYeuCauCuDan", FilterOperator.Equal, LoaiYeuCauCuDan.CuTru.Value);
         AddFilter("CanHoIsDeleted", FilterOperator.Equal, false);
         AddFilter("TangIsDeleted", FilterOperator.Equal, false);
         AddFilter("ToaNhaIsDeleted", FilterOperator.Equal, false);

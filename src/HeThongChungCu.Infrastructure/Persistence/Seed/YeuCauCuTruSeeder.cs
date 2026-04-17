@@ -22,30 +22,38 @@ public class YeuCauCuTruSeeder
         var adminAccount = await context.TaiKhoan
             .FirstOrDefaultAsync(a => a.TenDangNhap == "admin@gmail.com");
 
-        // Get householders (both active and moved out) with their TaiKhoanId
-        var householders = await (from qh in context.QuanHeCuTrus
-                                  where qh.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo
-                                  join tk in context.TaiKhoan on qh.NguoiDungId equals tk.NguoiDungId
+        // Get all residents grouped by apartment
+        var allResidents = await (from qh in context.QuanHeCuTrus
+                                  join tk in context.TaiKhoan on qh.NguoiDungId equals tk.NguoiDungId into tkGroup
+                                  from tk in tkGroup.DefaultIfEmpty()
                                   join u in context.NguoiDung on qh.NguoiDungId equals u.Id
-                                  select new HouseholderData
+                                  select new ResidentData
                                   {
                                       Id = qh.Id,
                                       CanHoId = qh.CanHoId,
-                                      TaiKhoanId = tk.Id,
+                                      TaiKhoanId = tk != null ? tk.Id : (int?)null,
                                       TrangThaiCuTruId = qh.TrangThaiCuTruId,
                                       LoaiQuanHeCuTruId = qh.LoaiQuanHeCuTruId.Value,
                                       GioiTinhId = u.GioiTinhId.Value
                                   }).ToListAsync();
 
-        if (householders.Count == 0)
+        var residentsByApartment = allResidents
+            .GroupBy(r => r.CanHoId)
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        var apartmentsWithChuHo = residentsByApartment
+            .Where(g => g.Value.Any(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo.Value && r.TaiKhoanId.HasValue))
+            .ToList();
+
+        if (apartmentsWithChuHo.Count == 0)
         {
-            logger.LogWarning("No householders found. Skipping YeuCauCuTru seeding.");
+            logger.LogWarning("No apartments with active ChuHo found. Skipping YeuCauCuTru seeding.");
             return;
         }
 
-        await SeedResidencyRequestsByType(context, householders, LoaiYeuCau.Them, counts.SoLuongThem, faker, adminAccount);
-        await SeedResidencyRequestsByType(context, householders, LoaiYeuCau.Sua, counts.SoLuongSua, faker, adminAccount);
-        await SeedResidencyRequestsByType(context, householders, LoaiYeuCau.Xoa, counts.SoLuongXoa, faker, adminAccount);
+        await SeedResidencyRequestsByType(context, apartmentsWithChuHo, LoaiHanhDongYeuCau.Them, counts.SoLuongThem, faker, adminAccount);
+        await SeedResidencyRequestsByType(context, apartmentsWithChuHo, LoaiHanhDongYeuCau.Sua, counts.SoLuongSua, faker, adminAccount);
+        await SeedResidencyRequestsByType(context, apartmentsWithChuHo, LoaiHanhDongYeuCau.Xoa, counts.SoLuongXoa, faker, adminAccount);
 
         DatabaseSeeder.ClearAllDomainEvents(context);
         await context.SaveChangesAsync();
@@ -54,19 +62,22 @@ public class YeuCauCuTruSeeder
 
     private static async Task SeedResidencyRequestsByType(
         AppDbContext context,
-        List<HouseholderData> householders,
-        LoaiYeuCau loaiYeuCau,
+        List<KeyValuePair<int, List<ResidentData>>> apartments,
+        LoaiHanhDongYeuCau loaiYeuCau,
         int count,
         Faker faker,
         TaiKhoan? admin)
     {
         for (int i = 0; i < count; i++)
         {
-            var householder = faker.PickRandom(householders);
-            var initialStatus = DetermineInitialStatus(householder, faker, out var targetStatus);
+            var aptEntry = faker.PickRandom(apartments);
+            var residents = aptEntry.Value;
+            var chuHo = residents.First(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo.Value);
+            
+            var initialStatus = DetermineInitialStatus(chuHo, faker, out var targetStatus);
 
             YeuCauCuTru request;
-            if (loaiYeuCau == LoaiYeuCau.Them)
+            if (loaiYeuCau == LoaiHanhDongYeuCau.Them)
             {
                 var addContents = new[]
                 {
@@ -80,7 +91,7 @@ public class YeuCauCuTruSeeder
                 var dob = faker.Date.Past(30, DateTime.Now.AddYears(-20));
                 var genderId = faker.PickRandom(new[] { 1, 2 });
                 request = YeuCauCuTru.CreateAddMemberRequest(
-                    householder.CanHoId,
+                    aptEntry.Key,
                     null,
                     LoaiQuanHeCuTru.NguoiOCung.Value,
                     faker.Name.FirstName(),
@@ -94,8 +105,10 @@ public class YeuCauCuTruSeeder
                 null,
                 initialStatus);
             }
-            else if (loaiYeuCau == LoaiYeuCau.Sua)
+            else if (loaiYeuCau == LoaiHanhDongYeuCau.Sua)
             {
+                // Pick any resident in this apartment to update
+                var target = faker.PickRandom(residents);
                 var updateContents = new[]
                 {
                     "Cập nhật lại số điện thoại liên lạc chính xác do thay đổi SIM.",
@@ -106,15 +119,15 @@ public class YeuCauCuTruSeeder
                 };
                 var dobUpdate = faker.Date.Past(25, DateTime.Now.AddYears(-18));
                 request = YeuCauCuTru.CreateUpdateMemberRequest(
-                    householder.CanHoId,
-                    householder.Id,
-                    householder.LoaiQuanHeCuTruId, // Keep same relationship
+                    aptEntry.Key,
+                    target.Id,
+                    target.LoaiQuanHeCuTruId, 
                     faker.Name.FirstName(),
                     faker.Name.LastName(),
                     dobUpdate,
-                    householder.GioiTinhId,
+                    target.GioiTinhId,
                     UserSeeder.GetUniquePhoneNumber(),
-                    UserSeeder.GetUniqueIdCard(householder.GioiTinhId, dobUpdate.Year),
+                    UserSeeder.GetUniqueIdCard(target.GioiTinhId, dobUpdate.Year),
                     UserSeeder.GetRandomVietnamAddress(),
                     faker.PickRandom(updateContents),
                 null,
@@ -122,6 +135,11 @@ public class YeuCauCuTruSeeder
             }
             else // Xoa
             {
+                // Try to find a non-ChuHo member to remove
+                var nonChuHoMembers = residents.Where(r => r.LoaiQuanHeCuTruId != LoaiQuanHeCuTru.ChuHo.Value).ToList();
+                if (nonChuHoMembers.Count == 0) continue; // Skip if only ChuHo exists
+
+                var targetToRemove = faker.PickRandom(nonChuHoMembers);
                 var removeContents = new[]
                 {
                     "Thành viên gia đình đã chuyển đi nơi khác sinh sống.",
@@ -131,13 +149,14 @@ public class YeuCauCuTruSeeder
                     "Thành viên chuyển đi du học nước ngoài dài hạn."
                 };
                 request = YeuCauCuTru.CreateRemoveMemberRequest(
-                    householder.CanHoId,
-                    householder.Id,
+                    aptEntry.Key,
+                    targetToRemove.Id,
                     faker.PickRandom(removeContents),
                     initialStatus);
             }
 
-            request.SetCreated(householder.TaiKhoanId, DateTimeOffset.Now.AddDays(-faker.Random.Number(5, 10)));
+            // Requester is the Chu Ho
+            request.SetCreated(chuHo.TaiKhoanId!.Value, DateTimeOffset.Now.AddDays(-faker.Random.Number(5, 10)));
 
             // Apply Approval/Rejection if needed
             if (targetStatus == TrangThaiYeuCau.Approved && admin != null)
@@ -160,9 +179,9 @@ public class YeuCauCuTruSeeder
         }
     }
 
-    private static TrangThaiYeuCau DetermineInitialStatus(HouseholderData householder, Faker faker, out TrangThaiYeuCau targetStatus)
+    private static TrangThaiYeuCau DetermineInitialStatus(ResidentData resident, Faker faker, out TrangThaiYeuCau targetStatus)
     {
-        if (householder.TrangThaiCuTruId == TrangThaiCuTru.DaKetThuc)
+        if (resident.TrangThaiCuTruId == TrangThaiCuTru.DaKetThuc)
         {
             targetStatus = TrangThaiYeuCau.Invalidated;
             return TrangThaiYeuCau.Invalidated;
@@ -198,11 +217,11 @@ public class YeuCauCuTruSeeder
         targetStatus = TrangThaiYeuCau.Withdrawn;
         return TrangThaiYeuCau.Saved; // Can be withdrawn from Saved
     }
-    private class HouseholderData
+    private class ResidentData
     {
         public int Id { get; set; }
         public int CanHoId { get; set; }
-        public int TaiKhoanId { get; set; }
+        public int? TaiKhoanId { get; set; }
         public TrangThaiCuTru TrangThaiCuTruId { get; set; } = null!;
         public int LoaiQuanHeCuTruId { get; set; }
         public int GioiTinhId { get; set; }
