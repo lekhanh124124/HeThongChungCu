@@ -35,6 +35,12 @@ public class DoiTacCommandRepository : IDoiTacCommandRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<HopDongDoiTac?> GetHopDongByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.HopDongDoiTacs
+            .FirstOrDefaultAsync(h => h.Id == id, cancellationToken);
+    }
+
     public async Task AddAsync(DoiTac doiTac, CancellationToken cancellationToken = default)
     {
         await _dbContext.DoiTacs.AddAsync(doiTac, cancellationToken);

@@ -12,13 +12,13 @@ public class UploadFileCommandHandler : ICommandHandler<UploadFileCommand, List<
 {
     private readonly IFileStorageService _fileStorageService;
     private readonly IDateTimeProvider _dateTimeProvider;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public UploadFileCommandHandler(
         IFileStorageService fileStorageService,
         IDateTimeProvider dateTimeProvider,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         IUnitOfWork unitOfWork)
     {
         _fileStorageService = fileStorageService;

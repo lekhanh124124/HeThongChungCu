@@ -5,14 +5,14 @@ namespace HeThongChungCu.Application.Features.UploadMedia.Commands.CleanupUnused
 public class CleanupUnusedFilesCommandHandler : IRequestHandler<CleanupUnusedFilesCommand, Result<int>>
 {
     private readonly IDateTimeProvider _dateTimeProvider;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly IFileStorageService _fileStorageService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CleanupUnusedFilesCommandHandler> _logger;
 
     public CleanupUnusedFilesCommandHandler(
         IDateTimeProvider dateTimeProvider,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         IFileStorageService fileStorageService,
         IUnitOfWork unitOfWork,
         ILogger<CleanupUnusedFilesCommandHandler> _logger)

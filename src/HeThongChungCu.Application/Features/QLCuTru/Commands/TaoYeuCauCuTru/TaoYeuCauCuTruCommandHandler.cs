@@ -15,7 +15,7 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
     private readonly IYeuCauCuTruCommandRepository _yeuCauRepository;
     private readonly INguoiDungCommandRepository _userRepository;
     private readonly IQuanHeCuTruCommandRepository _quanHeRepository;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IResidencyService _residencyService;
     private readonly IUnitOfWork _unitOfWork;
@@ -24,7 +24,7 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         IYeuCauCuTruCommandRepository yeuCauRepository,
         INguoiDungCommandRepository userRepository,
         IQuanHeCuTruCommandRepository quanHeRepository,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         ICurrentUserService currentUserService,
         IResidencyService residencyService,
         IUnitOfWork unitOfWork)

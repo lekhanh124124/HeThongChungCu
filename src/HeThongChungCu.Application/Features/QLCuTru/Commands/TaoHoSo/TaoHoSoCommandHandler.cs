@@ -11,12 +11,12 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Commands.TaoHoSo;
 public class TaoHoSoCommandHandler : ICommandHandler<TaoHoSoCommand, UserInfoResponse>
 {
     private readonly INguoiDungCommandRepository _userRepository;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public TaoHoSoCommandHandler(
         INguoiDungCommandRepository userRepository,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;

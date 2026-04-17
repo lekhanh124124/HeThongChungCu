@@ -16,7 +16,7 @@ public class CreateYeuCauSuaChuaCommandHandler : ICommandHandler<CreateYeuCauSua
     private readonly IYeuCauSuaChuaCommandRepository _ycscRepository;
     private readonly ICanHoCommandRepository _canHoRepository;
     private readonly IToaNhaCommandRepository _toaNhaRepository;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly INguoiDungCommandRepository _nguoiDungRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTimeProvider _dateTimeProvider;
@@ -26,7 +26,7 @@ public class CreateYeuCauSuaChuaCommandHandler : ICommandHandler<CreateYeuCauSua
         IYeuCauSuaChuaCommandRepository ycscRepository,
         ICanHoCommandRepository canHoRepository,
         IToaNhaCommandRepository toaNhaRepository,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         INguoiDungCommandRepository nguoiDungRepository,
         ICurrentUserService currentUserService,
         IDateTimeProvider dateTimeProvider,

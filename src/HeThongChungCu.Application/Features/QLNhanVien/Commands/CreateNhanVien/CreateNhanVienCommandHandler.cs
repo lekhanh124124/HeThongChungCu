@@ -19,7 +19,7 @@ public class CreateNhanVienCommandHandler : ICommandHandler<CreateNhanVienComman
     private readonly INhanVienQueryRepository _nhanVienQueryRepository;
     private readonly INguoiDungCommandRepository _nguoiDungRepository;
     private readonly ITaiKhoanCommandRepository _taiKhoanRepository;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly IHasherService _hasherService;
     private readonly ICodeGeneratorService _codeGeneratorService;
     private readonly IUnitOfWork _unitOfWork;
@@ -29,7 +29,7 @@ public class CreateNhanVienCommandHandler : ICommandHandler<CreateNhanVienComman
         INhanVienQueryRepository nhanVienQueryRepository,
         INguoiDungCommandRepository nguoiDungRepository,
         ITaiKhoanCommandRepository taiKhoanRepository,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         IHasherService hasherService,
         ICodeGeneratorService codeGeneratorService,
         IUnitOfWork unitOfWork)

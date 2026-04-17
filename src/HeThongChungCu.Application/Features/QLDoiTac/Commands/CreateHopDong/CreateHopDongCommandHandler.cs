@@ -14,14 +14,14 @@ public class CreateHopDongCommandHandler : ICommandHandler<CreateHopDongCommand,
     private readonly IDoiTacCommandRepository _doiTacCommandRepository;
     private readonly IDichVuCommandRepository _dichVuCommandRepository;
     private readonly IDocumentReconciliationService _documentReconciliationService;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateHopDongCommandHandler(
         IDoiTacCommandRepository doiTacCommandRepository,
         IDichVuCommandRepository dichVuCommandRepository,
         IDocumentReconciliationService documentReconciliationService,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         IUnitOfWork unitOfWork)
     {
         _doiTacCommandRepository = doiTacCommandRepository;

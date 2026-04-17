@@ -17,7 +17,7 @@ public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
         var isCommand = request.GetType().GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommand<>));
         if (!isCommand)
         {
-            return await next();
+            return await next(cancellationToken);
         }
 
         return await _unitOfWork.ExecuteAsync(async () =>
@@ -26,7 +26,7 @@ public class TransactionBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
 
             try
             {
-                var response = await next();
+                var response = await next(cancellationToken);
 
                 if (response is Result { IsFailure: true })
                 {

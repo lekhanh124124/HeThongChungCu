@@ -13,14 +13,14 @@ public class ChinhSuaHoSoCommandHandler : ICommandHandler<ChinhSuaHoSoCommand, U
 {
     private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
     private readonly INguoiDungCommandRepository _userRepository;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly IDocumentReconciliationService _documentReconciliationService;
     private readonly IUnitOfWork _unitOfWork;
 
     public ChinhSuaHoSoCommandHandler(
         IQuanHeCuTruCommandRepository quanHeCuTruRepository,
         INguoiDungCommandRepository userRepository,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         IDocumentReconciliationService documentReconciliationService,
         IUnitOfWork unitOfWork)
     {

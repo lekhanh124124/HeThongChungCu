@@ -11,7 +11,7 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.CapNhatYeuCa
 public class CapNhatYeuCauPhuongTienCommandHandler : ICommandHandler<CapNhatYeuCauPhuongTienCommand, YeuCauPhuongTienResponse>
 {
     private readonly IYeuCauPhuongTienCommandRepository _yeuCauRepository;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly INguoiDungCommandRepository _nguoiDungRepository;
     private readonly ICanHoCommandRepository _canHoCommandRepository;
     private readonly IToaNhaCommandRepository _toaNhaCommandRepository;
@@ -21,7 +21,7 @@ public class CapNhatYeuCauPhuongTienCommandHandler : ICommandHandler<CapNhatYeuC
 
     public CapNhatYeuCauPhuongTienCommandHandler(
         IYeuCauPhuongTienCommandRepository yeuCauRepository,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         INguoiDungCommandRepository nguoiDungRepository,
         ICanHoCommandRepository canHoCommandRepository,
         IToaNhaCommandRepository toaNhaCommandRepository,

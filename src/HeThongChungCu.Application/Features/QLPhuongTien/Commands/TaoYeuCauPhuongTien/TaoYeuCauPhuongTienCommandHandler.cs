@@ -13,7 +13,7 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
     private readonly IYeuCauPhuongTienCommandRepository _yeuCauRepository;
     private readonly IPhuongTienCommandRepository _phuongTienRepository;
     private readonly IQuanHeCuTruCommandRepository _quanHeRepository;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly INguoiDungCommandRepository _nguoiDungRepository;
     private readonly ICanHoCommandRepository _canHoCommandRepository;
     private readonly IToaNhaCommandRepository _toaNhaCommandRepository;
@@ -25,7 +25,7 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
         IYeuCauPhuongTienCommandRepository yeuCauRepository,
         IPhuongTienCommandRepository phuongTienRepository,
         IQuanHeCuTruCommandRepository quanHeRepository,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         INguoiDungCommandRepository nguoiDungRepository,
         ICanHoCommandRepository canHoCommandRepository,
         IToaNhaCommandRepository toaNhaCommandRepository,

@@ -9,7 +9,7 @@ internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<
     private readonly ICanHoCommandRepository _canHoRepository;
     private readonly IToaNhaCommandRepository _toaNhaCommandRepository;
     private readonly IPhuongTienCommandRepository _phuongTienCommandRepository;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly IDocumentReconciliationService _documentReconciliationService;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -17,7 +17,7 @@ internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<
         ICanHoCommandRepository canHoRepository,
         IToaNhaCommandRepository toaNhaCommandRepository,
         IPhuongTienCommandRepository phuongTienCommandRepository,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         IDocumentReconciliationService documentReconciliationService,
         IUnitOfWork unitOfWork)
     {

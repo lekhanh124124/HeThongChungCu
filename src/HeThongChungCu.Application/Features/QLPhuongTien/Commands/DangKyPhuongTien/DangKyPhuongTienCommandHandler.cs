@@ -13,7 +13,7 @@ internal sealed class DangKyPhuongTienCommandHandler : ICommandHandler<DangKyPhu
     private readonly IPhuongTienCommandRepository _phuongTienCommandRepository;
     private readonly ICanHoCommandRepository _canHoCommandRepository;
     private readonly IToaNhaCommandRepository _toaNhaCommandRepository;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly IVehicleRegistryService _vehicleRegistryService;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -21,7 +21,7 @@ internal sealed class DangKyPhuongTienCommandHandler : ICommandHandler<DangKyPhu
         IPhuongTienCommandRepository phuongTienCommandRepository,
         ICanHoCommandRepository canHoCommandRepository,
         IToaNhaCommandRepository toaNhaCommandRepository,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         IVehicleRegistryService vehicleRegistryService,
         IUnitOfWork unitOfWork)
     {

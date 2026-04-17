@@ -2,7 +2,7 @@ using HeThongChungCu.Domain.Entities;
 
 namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 
-public interface ITepTaiLieuRepository
+public interface ITepTaiLieuCommandRepository
 {
     Task<TepTaiLieu?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<IEnumerable<TepTaiLieu>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);

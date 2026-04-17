@@ -12,13 +12,13 @@ namespace HeThongChungCu.Application.Features.QLCuTru.Commands.CapNhatYeuCauCuTr
 public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuTruCommand, YeuCauCuTruResponse>
 {
     private readonly IYeuCauCuTruCommandRepository _yeuCauRepository;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
 
     public CapNhatYeuCauCuTruCommandHandler(
         IYeuCauCuTruCommandRepository yeuCauRepository,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         ICurrentUserService currentUserService,
         IUnitOfWork unitOfWork)
     {

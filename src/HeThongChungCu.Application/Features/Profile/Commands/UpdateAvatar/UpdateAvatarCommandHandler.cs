@@ -10,7 +10,7 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
 {
     private readonly INguoiDungCommandRepository _userRepository;
     private readonly ITaiKhoanCommandRepository _accountRepository;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IFileStorageService _fileStorageService;
     private readonly IUnitOfWork _unitOfWork;
@@ -19,7 +19,7 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
     public UpdateAvatarCommandHandler(
         INguoiDungCommandRepository userRepository,
         ITaiKhoanCommandRepository accountRepository,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         ICurrentUserService currentUserService,
         IFileStorageService fileStorageService,
         IUnitOfWork unitOfWork,

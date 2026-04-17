@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.CommandRepositories;
 
-public class TepTaiLieuRepository : ITepTaiLieuRepository
+public class TepTaiLieuCommandRepository : ITepTaiLieuCommandRepository
 {
     private readonly AppDbContext _context;
 
-    public TepTaiLieuRepository(AppDbContext context)
+    public TepTaiLieuCommandRepository(AppDbContext context)
     {
         _context = context;
     }

@@ -1,6 +1,9 @@
 using HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.CreateYeuCauSuaChua;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.TiepNhanYeuCauSuaChua;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.ChotUuTienYeuCauSuaChua;
+using HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.GiaoViecNoiBo;
+using HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.GiaoViecDoiTac;
+using HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.BoSungNhanSuDoiTac;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.Queries.GetListYeuCauSuaChua;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.Queries.GetYeuCauSuaChuaById;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.DTOs;
@@ -77,7 +80,7 @@ public class YeuCauSuaChuaController : ApiControllerBase
     /// - **Hoàn cảnh sử dụng**: Nhân viên BQL hoặc tổ kỹ thuật xác nhận đã thấy yêu cầu và bắt đầu xử lý/điều phối.
     /// - **Hệ thống xử lý**: Chuyển trạng thái sang "DaTiepNhan", ghi nhận người thụ lý và ngày giờ tiếp nhận.
     /// </remarks>
-    [HttpPost("tiep-nhan")]
+    [HttpPut("tiep-nhan")]
     [ProducesResponseType(typeof(ApiResponse<YeuCauSuaChuaResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> TiepNhan([FromBody] TiepNhanYeuCauSuaChuaCommand command, CancellationToken cancellationToken)
     {
@@ -91,9 +94,51 @@ public class YeuCauSuaChuaController : ApiControllerBase
     /// - **Hoàn cảnh sử dụng**: BQL sau khi xem xét mức độ nghiêm trọng sẽ chốt lại mức độ ưu tiên thực tế (có thể khác với đề xuất của cư dân).
     /// - **Hệ thống xử lý**: Cập nhật `MucDoUuTienChotId` và ghi nhận người chốt.
     /// </remarks>
-    [HttpPost("chot-uu-tien")]
+    [HttpPut("chot-uu-tien")]
     [ProducesResponseType(typeof(ApiResponse<YeuCauSuaChuaResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ChotUuTien([FromBody] ChotUuTienYeuCauSuaChuaCommand command, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(command, cancellationToken));
+    }
+
+    /// <summary>
+    /// Giao việc cho nhân sự nội bộ (Web)
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Phân công kỹ thuật viên của tòa nhà xử lý sự cố.
+    /// - **Hệ thống xử lý**: Chuyển trạng thái sang "DaDieuPhoi", ghi nhận nhân sự thực hiện.
+    /// </remarks>
+    [HttpPut("giao-viec-noi-bo")]
+    [ProducesResponseType(typeof(ApiResponse<YeuCauSuaChuaResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GiaoViecNoiBo([FromBody] GiaoViecNoiBoCommand command, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(command, cancellationToken));
+    }
+
+    /// <summary>
+    /// Giao việc cho đối tác (Web)
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Phân công cho đơn vị cung cấp dịch vụ sửa chữa theo hợp đồng.
+    /// - **Hệ thống xử lý**: Gán hợp đồng đối tác, chuyển trạng thái sang "DaDieuPhoi", ghi nhận danh sách thợ thực hiện.
+    /// </remarks>
+    [HttpPut("giao-viec-doi-tac")]
+    [ProducesResponseType(typeof(ApiResponse<YeuCauSuaChuaResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GiaoViecDoiTac([FromBody] GiaoViecDoiTacCommand command, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(command, cancellationToken));
+    }
+
+    /// <summary>
+    /// Bổ sung nhân sự đối tác (Web)
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Khi thợ của đối tác thay đổi hoặc tăng cường thêm người tại hiện trường.
+    /// - **Hệ thống xử lý**: Thêm thông tin nhân sự vào danh sách thụ lý của yêu cầu.
+    /// </remarks>
+    [HttpPut("bo-sung-nhan-su-doi-tac")]
+    [ProducesResponseType(typeof(ApiResponse<YeuCauSuaChuaResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> BoSungNhanSuDoiTac([FromBody] BoSungNhanSuDoiTacCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
     }

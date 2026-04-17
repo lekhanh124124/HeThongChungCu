@@ -19,7 +19,7 @@ public class UpdateNhanVienCommandHandler : ICommandHandler<UpdateNhanVienComman
     private readonly INhanVienQueryRepository _nhanVienQueryRepository;
     private readonly INguoiDungCommandRepository _nguoiDungRepository;
     private readonly ITaiKhoanCommandRepository _taiKhoanRepository;
-    private readonly ITepTaiLieuRepository _tepTaiLieuRepository;
+    private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly IDocumentReconciliationService _documentReconciliationService;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -29,7 +29,7 @@ public class UpdateNhanVienCommandHandler : ICommandHandler<UpdateNhanVienComman
         INhanVienQueryRepository nhanVienQueryRepository,
         INguoiDungCommandRepository nguoiDungRepository,
         ITaiKhoanCommandRepository taiKhoanRepository,
-        ITepTaiLieuRepository tepTaiLieuRepository,
+        ITepTaiLieuCommandRepository tepTaiLieuRepository,
         IDocumentReconciliationService documentReconciliationService,
         IUnitOfWork unitOfWork)
     {
