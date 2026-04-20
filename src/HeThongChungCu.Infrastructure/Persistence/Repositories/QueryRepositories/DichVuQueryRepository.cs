@@ -3,6 +3,7 @@ using HeThongChungCu.Application.Features.QLDichVu.Queries.GetBangGiaById;
 using HeThongChungCu.Application.Features.QLDichVu.Queries.GetDichVuById;
 using HeThongChungCu.Application.Features.QLDichVu.Queries.GetKhungGioDichVuById;
 using HeThongChungCu.Application.Features.QLDichVu.Queries.GetListBangGia;
+using HeThongChungCu.Application.Features.QLDichVu.Queries.GetListDangKyDichVu;
 using HeThongChungCu.Application.Features.QLDichVu.Queries.GetListDichVu;
 using HeThongChungCu.Application.Features.QLDichVu.Queries.GetListKhungGioDichVu;
 
@@ -86,18 +87,18 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             MaDichVu = r.MaDichVu,
             TenDichVu = r.TenDichVu,
             LoaiDichVuId = r.LoaiDichVuId,
-            LoaiDichVuTen = LoaiDichVu.FromValue(r.LoaiDichVuId)!.Name,
+            LoaiDichVuTen = LoaiDichVu.FromValue(r.LoaiDichVuId)?.Name ?? string.Empty,
             DonViTinh = r.DonViTinh,
             MoTa = r.MoTa,
             IsBatBuoc = r.IsBatBuoc,
             TrangThaiDichVuId = r.TrangThaiId,
-            TrangThaiDichVuTen = TrangThaiDichVu.FromValue(r.TrangThaiId)!.Name,
+            TrangThaiDichVuTen = TrangThaiDichVu.FromValue(r.TrangThaiId)?.Name ?? string.Empty,
             IconUrl = r.IconUrl,
             HopDongDoiTacId = r.HopDongDoiTacId,
             SoHopDong = r.SoHopDong,
             TenDoiTac = r.TenDoiTac,
             TrangThaiHopDongId = r.TrangThaiHopDongId,
-            TrangThaiHopDongTen = r.TrangThaiHopDongId.HasValue ? TrangThaiHopDong.FromValue(r.TrangThaiHopDongId.Value)!.Name : null
+            TrangThaiHopDongTen = r.TrangThaiHopDongId.HasValue ? TrangThaiHopDong.FromValue(r.TrangThaiHopDongId.Value)?.Name : null
         }).ToList();
 
         return new PagedResult<DichVuResponse>
@@ -171,26 +172,26 @@ public class DichVuQueryRepository : IDichVuQueryRepository
         ], parameters);
 
         var sqlJoinsKg = DapperQueryBuilder.BuildJoin(spec, [
-            new JoinDefinition("KhungGioDichVu", "kg", "kg.DichVuId = dv.Id", Mapping: khungGioMapping)
+            new JoinDefinition("KhungGioDichVu", "kg", "kg.DichVuId = dv.Id", Type: JoinType.Inner, Mapping: khungGioMapping)
         ], parameters);
 
         var sqlJoinsBg = DapperQueryBuilder.BuildJoin(spec, [
-            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id", Mapping: bangGiaMapping)
+            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id", Type: JoinType.Inner, Mapping: bangGiaMapping)
         ], parameters);
 
         var sqlJoinsCtLuyTien = DapperQueryBuilder.BuildJoin(spec, [
-            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id", Mapping: bangGiaMapping),
+            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id", Type: JoinType.Inner, Mapping: bangGiaMapping),
             new JoinDefinition("ChiTietGiaLuyTien", "ct", "ct.BangGiaId = bg.Id")
         ], parameters);
 
         var sqlJoinsCtKhungGio = DapperQueryBuilder.BuildJoin(spec, [
-            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id", Mapping: bangGiaMapping),
-            new JoinDefinition("KhungGioDichVu", "kg", "kg.DichVuId = dv.Id", Mapping: khungGioMapping),
+            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id", Type: JoinType.Inner, Mapping: bangGiaMapping),
+            new JoinDefinition("KhungGioDichVu", "kg", "kg.DichVuId = dv.Id", Type: JoinType.Inner, Mapping: khungGioMapping),
             new JoinDefinition("ChiTietGiaKhungGio", "ct", "ct.BangGiaId = bg.Id AND ct.KhungGioId = kg.Id")
         ], parameters);
 
         var sqlJoinsCtLoaiCanHo = DapperQueryBuilder.BuildJoin(spec, [
-            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id", Mapping: bangGiaMapping),
+            new JoinDefinition("BangGia", "bg", "bg.DichVuId = dv.Id", Type: JoinType.Inner, Mapping: bangGiaMapping),
             new JoinDefinition("ChiTietGiaLoaiCanHo", "ct", "ct.BangGiaId = bg.Id")
         ], parameters);
 
@@ -252,29 +253,30 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             MaDichVu = first.MaDichVu,
             TenDichVu = first.TenDichVu,
             LoaiDichVuId = first.LoaiDichVuId,
-            LoaiDichVuTen = LoaiDichVu.FromValue(first.LoaiDichVuId)!.Name,
+            LoaiDichVuTen = LoaiDichVu.FromValue(first.LoaiDichVuId)?.Name ?? string.Empty,
             DonViTinh = first.DonViTinh,
             MoTa = first.MoTa,
             IsBatBuoc = first.IsBatBuoc,
             SoLuongToiDa = first.SoLuongToiDa,
             TrangThaiDichVuId = first.TrangThaiId,
-            TrangThaiDichVuTen = TrangThaiDichVu.FromValue(first.TrangThaiId)!.Name,
+            TrangThaiDichVuTen = TrangThaiDichVu.FromValue(first.TrangThaiId)?.Name ?? string.Empty,
             IconUrl = first.IconUrl,
             HopDongDoiTacId = first.HopDongDoiTacId,
             SoHopDong = first.SoHopDong,
             TenDoiTac = first.TenDoiTac,
             TrangThaiHopDongId = first.TrangThaiHopDongId,
-            TrangThaiHopDongTen = first.TrangThaiHopDongId.HasValue ? TrangThaiHopDong.FromValue(first.TrangThaiHopDongId.Value)!.Name : null,
-            KhungGioDichVu = kgDetails.Select(kg => new KhungGioDichVuResponse
-            {
-                Id = kg.Id,
-                DichVuId = kg.DichVuId,
-                GioBatDau = kg.GioBatDau,
-                GioKetThuc = kg.GioKetThuc,
-                TenKhungGio = kg.TenKhungGio,
-                NgayTrongTuan = kg.NgayTrongTuan,
-                IsActive = kg.IsActive
-            }).ToList()
+            TrangThaiHopDongTen = first.TrangThaiHopDongId.HasValue ? TrangThaiHopDong.FromValue(first.TrangThaiHopDongId.Value)?.Name : null,
+            KhungGioDichVu = kgDetails
+                .Select(kg => new KhungGioDichVuResponse
+                {
+                    Id = kg.Id,
+                    DichVuId = kg.DichVuId,
+                    GioBatDau = kg.GioBatDau,
+                    GioKetThuc = kg.GioKetThuc,
+                    TenKhungGio = kg.TenKhungGio,
+                    NgayTrongTuan = kg.NgayTrongTuan,
+                    IsActive = kg.IsActive
+                }).ToList()
         };
 
         var bgRow = bgRows.FirstOrDefault();
@@ -634,5 +636,84 @@ public class DichVuQueryRepository : IDichVuQueryRepository
         }
 
         return bangGia;
+    }
+
+    public async Task<PagedResult<DangKyDichVuResponse>> GetListDangKyAsync(
+        GetListDangKyDichVuSpecification spec,
+        CancellationToken cancellationToken = default)
+    {
+        var connection = _dbContext.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync(cancellationToken);
+
+        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Id", "dk.Id" },
+            { "NguoiDungId", "dk.CreatedBy" },
+            { "DichVuId", "dk.DichVuId" },
+            { "TrangThaiDangKyId", "dk.TrangThaiDangKyId" },
+            { "TuNgay", "dk.NgayBatDau" },
+            { "DenNgay", "dk.NgayBatDau" },
+            { "SoLuong", "dk.SoLuong" },
+            { "IsDeleted", "dk.IsDeleted" },
+            { "NgayBatDau", "dk.NgayBatDau" },
+            { "LoaiDichVuId", "dv.LoaiDichVuId" },
+            { "MaDichVu", "dv.MaDichVu" },
+            { "TenDichVu", "dv.TenDichVu" }
+        };
+
+        var parameters = new DynamicParameters();
+
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
+        var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
+
+        var sqlJoinsDv = DapperQueryBuilder.BuildJoin(spec, [
+            new JoinDefinition("DichVu", "dv", "dv.Id = dk.DichVuId", Type: JoinType.Inner)
+        ], parameters);
+
+        var sql = $"""
+            SELECT COUNT(*) OVER() AS TotalCount, 
+                   dk.Id, dk.CanHoId, dk.DichVuId, dk.SoLuong, dk.NgayBatDau, dk.NgayKetThuc, dk.TrangThaiDangKyId,
+                   dv.MaDichVu, dv.TenDichVu, dv.LoaiDichVuId
+            FROM DangKyDichVu dk
+            {sqlJoinsDv}
+            {sqlWhere}
+            {sqlOrderBy}
+            {sqlPagination};
+            """;
+
+        var transaction = _dbContext.GetDbTransaction();
+
+        var rows = (await connection.QueryAsync<DangKyDichVuReadModel>(sql, parameters, transaction)).ToList();
+        var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
+
+        var items = rows.Select(r => new DangKyDichVuResponse
+        {
+            Id = r.Id,
+            CanHoId = r.CanHoId,
+            DichVuId = r.DichVuId,
+            MaDichVu = r.MaDichVu,
+            TenDichVu = r.TenDichVu,
+            LoaiDichVuId = r.LoaiDichVuId,
+            LoaiDichVuTen = LoaiDichVu.FromValue(r.LoaiDichVuId)?.Name ?? string.Empty,
+            SoLuong = r.SoLuong,
+            NgayBatDau = r.NgayBatDau,
+            NgayKetThuc = r.NgayKetThuc,
+            TrangThaiDangKyId = r.TrangThaiDangKyId,
+            TrangThaiDangKyTen = TrangThaiDangKy.FromValue(r.TrangThaiDangKyId)?.Name ?? string.Empty
+        }).ToList();
+
+        return new PagedResult<DangKyDichVuResponse>
+        {
+            Items = items,
+            PagingInfo = new PagingInfo
+            {
+                PageNumber = spec.PageNumber ?? 1,
+                PageSize = spec.PageSize ?? items.Count,
+                TotalItems = totalCount
+            }
+        };
     }
 }

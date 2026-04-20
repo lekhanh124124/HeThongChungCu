@@ -14,6 +14,6 @@ public class GetProfileSpecification : BaseSpecification
 
         // File filters
         AddFilter("TepIsDeleted", FilterOperator.Equal, false);
-        AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, "TepTaiLieu");
+        AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, LoaiTepTaiLieu.NguoiDung.Value);
     }
 }

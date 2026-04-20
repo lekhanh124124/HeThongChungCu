@@ -111,9 +111,6 @@ public class DichVuCommandRepository : IDichVuCommandRepository
 
     public void RemoveBangGia(BangGia bangGia)
     {
-        // When removing a BangGia, we also want to remove its details if they exist in the context
-        // EF should handle details if they are loaded and configured for cascade.
-        // Or we might need to load and remove them explicitly if they have NoAction.
         _dbContext.BangGias.Remove(bangGia);
     }
 

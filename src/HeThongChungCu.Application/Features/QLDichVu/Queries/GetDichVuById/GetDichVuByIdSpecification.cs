@@ -22,7 +22,7 @@ public class GetDichVuByIdSpecification : BaseSpecification
         AddFilter("BangGiaIsDeleted", FilterOperator.Equal, false);
 
         // Bộ lọc cho Tệp dữ liệu
-        AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, "TepTaiLieu");
+        AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, LoaiTepTaiLieu.MacDinh.Value);
         AddFilter("TepDuLieuIsDeleted", FilterOperator.Equal, false);
 
         // Bộ lọc cho Hợp đồng

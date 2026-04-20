@@ -327,4 +327,21 @@ public class DichVuController : ApiControllerBase
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
     }
+
+    /// <summary>
+    /// Lấy danh sách dịch vụ cư dân đã đăng ký
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cư dân xem các dịch vụ mình đã đăng ký.
+    /// - **Yêu cầu dữ liệu**: 
+    ///     - **Bắt buộc**: System sẽ lấy NguoiDungId từ token.
+    ///     - **Tùy chọn**: `LoaiDichVuId`, `DichVuId`, `TrangThaiDangKyId`, `TuNgay`, `DenNgay`, `Keyword`.
+    /// </remarks>
+    [HttpPost("dang-ky/get-list")]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<DangKyDichVuResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetListDangKy([FromBody] HeThongChungCu.Application.Features.QLDichVu.Queries.GetListDangKyDichVu.GetListDangKyDichVuQuery query, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(query, cancellationToken));
+    }
 }

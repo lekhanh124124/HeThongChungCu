@@ -1,5 +1,6 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Models;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Application.Features.QLDoiTac.Queries.GetDoiTacById;
 
@@ -16,7 +17,8 @@ public class GetDoiTacByIdSpecification : BaseSpecification
 
         // Filters for related TepTaiLieu
         AddFilter("TepIsDeleted", FilterOperator.Equal, false);
-        AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, "TepHopDongDoiTac");
+        AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, LoaiTepTaiLieu.HopDongDoiTac.Value);
+
 
         // Filters for related DichVu
         AddFilter("DichVuIsDeleted", FilterOperator.Equal, false);

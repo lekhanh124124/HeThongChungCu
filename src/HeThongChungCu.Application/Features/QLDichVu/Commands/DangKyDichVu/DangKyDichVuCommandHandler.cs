@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
@@ -30,7 +30,7 @@ internal sealed class DangKyDichVuCommandHandler : ICommandHandler<DangKyDichVuC
     public async Task<Result<int>> Handle(DangKyDichVuCommand request, CancellationToken cancellationToken)
     {
         // 1. Lấy thông tin dịch vụ (đã include KhungGios từ Repo)
-        var dichVu = await _dichVuRepository.GetByIdAsync(request.DichVuId, cancellationToken);
+        var dichVu = await _dichVuRepository.GetByIdWithAllAsync(request.DichVuId, cancellationToken);
         if (dichVu == null)
         {
             return DichVuErrors.NotFoundById(request.DichVuId);

@@ -1,3 +1,6 @@
+using HeThongChungCu.Application.Common.Models;
+using HeThongChungCu.Domain.Enums;
+
 namespace HeThongChungCu.Application.Features.CuDan.Queries.LayThongTinCuDan;
 
 public class LayThongTinCuDanSpecification : BaseSpecification
@@ -11,8 +14,9 @@ public class LayThongTinCuDanSpecification : BaseSpecification
         AddFilter("TaiKhoanIsActive", FilterOperator.Equal, true);
         AddFilter("TaiKhoanIsDeleted", FilterOperator.Equal, false);
         AddFilter("TepIsDeleted", FilterOperator.Equal, false);
-        AddFilter("LoaiTepNguoiDung", FilterOperator.Equal, "TepTaiLieuNguoiDung");
+        AddFilter("LoaiTepNguoiDung", FilterOperator.Equal, LoaiTepTaiLieu.NguoiDung.Value);
         AddFilter("TaiLieuIsDeleted", FilterOperator.Equal, false);
-        AddFilter("LoaiTaiLieuNguoiDung", FilterOperator.Equal, "TaiLieuNguoiDung");
+        AddFilter("LoaiTaiLieuNguoiDung", FilterOperator.Equal, LoaiTaiLieu.NguoiDung.Value);
     }
 }
+

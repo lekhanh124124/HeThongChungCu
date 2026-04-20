@@ -21,11 +21,11 @@ public class GetNhanVienByIdSpecification : BaseSpecification
 
         // File filters
         AddFilter("TepIsDeleted", FilterOperator.Equal, false);
-        AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, "TepTaiLieu");
+        AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, LoaiTepTaiLieu.NguoiDung.Value);
 
         // Document filters
         AddFilter("TaiLieuIsDeleted", FilterOperator.Equal, false);
-        AddFilter("LoaiTaiLieu", FilterOperator.Equal, "TaiLieuNguoiDung");
-        AddFilter("LoaiTepTaiLieuNguoiDung", FilterOperator.Equal, "TepTaiLieuNguoiDung");
+        AddFilter("LoaiTaiLieu", FilterOperator.Equal, LoaiTaiLieu.NguoiDung.Value);
+        AddFilter("LoaiTepTaiLieuNguoiDung", FilterOperator.Equal, LoaiTepTaiLieu.NguoiDung.Value);
     }
 }

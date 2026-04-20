@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Common.Models;
+using HeThongChungCu.Domain.Enums;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Queries.GetPhuongTienById;
 
@@ -15,7 +16,8 @@ public class GetPhuongTienByIdSpecification : BaseSpecification
         AddFilter("ThePhuongTienIsDeleted", FilterOperator.Equal, false);
 
         // Related files filters
-        AddFilter("LoaiTepPhuongTien", FilterOperator.Equal, "TepPhuongTien");
+        AddFilter("LoaiTepPhuongTien", FilterOperator.Equal, LoaiTepTaiLieu.PhuongTien.Value);
         AddFilter("TepIsDeleted", FilterOperator.Equal, false);
     }
 }
+
