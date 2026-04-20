@@ -61,7 +61,6 @@ public class YeuCauSuaChuaQueryRepository : IYeuCauSuaChuaQueryRepository
                 y.NoiDung,
                 y.TrangThaiSuaChuaId,
                 y.LoaiSuCoId,
-                y.MucDoUuTienChotId,
                 y.TrangThaiId AS TrangThaiYeuCauId,
                 y.CreatedAt,
                 y.CreatedBy,
@@ -80,7 +79,6 @@ public class YeuCauSuaChuaQueryRepository : IYeuCauSuaChuaQueryRepository
 
         var trangThaiSuaChuaMap = TrangThaiSuaChua.ToDictionary();
         var loaiSuCoMap = LoaiSuCoKyThuat.ToDictionary();
-        var mucDoUuTienMap = MucDoUuTien.ToDictionary();
         var trangThaiYeuCauMap = TrangThaiYeuCau.ToDictionary();
         var loaiYeuCauMap = LoaiYeuCauCuDan.ToDictionary();
 
@@ -91,11 +89,9 @@ public class YeuCauSuaChuaQueryRepository : IYeuCauSuaChuaQueryRepository
             TenCanHo = r.TenCanHo,
             NoiDung = r.NoiDung,
             TrangThaiSuaChuaId = r.TrangThaiSuaChuaId,
-            TrangThaiSuaChuaTen = trangThaiSuaChuaMap.GetValueOrDefault(r.TrangThaiSuaChuaId, string.Empty),
+            TrangThaiSuaChuaTen = r.TrangThaiSuaChuaId.HasValue ? trangThaiSuaChuaMap.GetValueOrDefault(r.TrangThaiSuaChuaId.Value, string.Empty) : null,
             LoaiSuCoId = r.LoaiSuCoId,
             LoaiSuCoTen = loaiSuCoMap.GetValueOrDefault(r.LoaiSuCoId, string.Empty),
-            MucDoUuTienChotId = r.MucDoUuTienChotId,
-            MucDoUuTienChotTen = r.MucDoUuTienChotId.HasValue ? mucDoUuTienMap.GetValueOrDefault(r.MucDoUuTienChotId.Value, string.Empty) : null,
             TrangThaiYeuCauId = r.TrangThaiYeuCauId,
             TrangThaiYeuCauTen = trangThaiYeuCauMap.GetValueOrDefault(r.TrangThaiYeuCauId, string.Empty),
             LoaiYeuCauCuDanId = r.LoaiYeuCauCuDanId,
@@ -147,7 +143,9 @@ public class YeuCauSuaChuaQueryRepository : IYeuCauSuaChuaQueryRepository
 
         // Sub-query for Personnel
         var sqlJoinNs = DapperQueryBuilder.BuildJoin(spec, [
-            new JoinDefinition("NhanSuYeuCau", "ns", "ns.YeuCauId = y.Id", JoinType.Inner, Mapping: new() { { "NhanSuIsDeleted", "ns.IsDeleted" }, { "NhanSuLoai", "ns.LoaiNhanSuId" } })
+            new JoinDefinition("NhanSuYeuCau", "ns", "ns.YeuCauId = y.Id", JoinType.Inner, Mapping: new() { { "NhanSuIsDeleted", "ns.IsDeleted" }, { "NhanSuLoai", "ns.LoaiNhanSuId" } }),
+            new JoinDefinition("NhanVien", "nv_ns", "ns.NhanVienId = nv_ns.Id", JoinType.Left),
+            new JoinDefinition("NguoiDung", "nd_ns", "nv_ns.NguoiDungId = nd_ns.Id", JoinType.Left)
         ], parameters);
 
         // Sub-query for Files
@@ -164,7 +162,6 @@ public class YeuCauSuaChuaQueryRepository : IYeuCauSuaChuaQueryRepository
                 y.NoiDung,
                 y.TrangThaiSuaChuaId,
                 y.LoaiSuCoId,
-                y.MucDoUuTienChotId,
                 y.TrangThaiId AS TrangThaiYeuCauId,
                 y.CreatedAt,
                 y.CreatedBy,
@@ -192,7 +189,8 @@ public class YeuCauSuaChuaQueryRepository : IYeuCauSuaChuaQueryRepository
 
             -- 2. Personnel
             SELECT
-                ns.Id, ns.NhanVienId, ns.HoTen, ns.SoCCCD, ns.SoDienThoai, ns.VaiTro, ns.GhiChu
+                ns.Id, ns.NhanVienId, ns.HoTen, ns.SoCCCD, ns.SoDienThoai, ns.VaiTro, ns.GhiChu,
+                nd_ns.Ho AS StaffHo, nd_ns.Ten AS StaffTen, nd_ns.CCCD AS StaffCCCD, nd_ns.SoDienThoai AS StaffPhone
             FROM YeuCau y
             {sqlJoinNs}
             {sqlWhere};
@@ -216,7 +214,6 @@ public class YeuCauSuaChuaQueryRepository : IYeuCauSuaChuaQueryRepository
 
         var trangThaiSuaChuaMap = TrangThaiSuaChua.ToDictionary();
         var loaiSuCoMap = LoaiSuCoKyThuat.ToDictionary();
-        var mucDoUuTienMap = MucDoUuTien.ToDictionary();
         var trangThaiYeuCauMap = TrangThaiYeuCau.ToDictionary();
         var phamViMap = PhamViSuaChua.ToDictionary();
         var loaiYeuCauMap = LoaiYeuCauCuDan.ToDictionary();
@@ -228,11 +225,9 @@ public class YeuCauSuaChuaQueryRepository : IYeuCauSuaChuaQueryRepository
             TenCanHo = mainReadModel.TenCanHo,
             NoiDung = mainReadModel.NoiDung,
             TrangThaiSuaChuaId = mainReadModel.TrangThaiSuaChuaId,
-            TrangThaiSuaChuaTen = trangThaiSuaChuaMap.GetValueOrDefault(mainReadModel.TrangThaiSuaChuaId, string.Empty),
+            TrangThaiSuaChuaTen = mainReadModel.TrangThaiSuaChuaId.HasValue ? trangThaiSuaChuaMap.GetValueOrDefault(mainReadModel.TrangThaiSuaChuaId.Value, string.Empty) : null,
             LoaiSuCoId = mainReadModel.LoaiSuCoId,
             LoaiSuCoTen = loaiSuCoMap.GetValueOrDefault(mainReadModel.LoaiSuCoId, string.Empty),
-            MucDoUuTienChotId = mainReadModel.MucDoUuTienChotId,
-            MucDoUuTienChotTen = mainReadModel.MucDoUuTienChotId.HasValue ? mucDoUuTienMap.GetValueOrDefault(mainReadModel.MucDoUuTienChotId.Value, string.Empty) : null,
             TrangThaiYeuCauId = mainReadModel.TrangThaiYeuCauId,
             TrangThaiYeuCauTen = trangThaiYeuCauMap.GetValueOrDefault(mainReadModel.TrangThaiYeuCauId, string.Empty),
             LoaiYeuCauCuDanId = mainReadModel.LoaiYeuCauCuDanId,
@@ -240,7 +235,7 @@ public class YeuCauSuaChuaQueryRepository : IYeuCauSuaChuaQueryRepository
             CreatedAt = mainReadModel.CreatedAt,
             CreatedBy = mainReadModel.CreatedBy,
             TenNguoiGui = mainReadModel.TenNguoiGui,
-            
+
             LyDo = mainReadModel.LyDo,
             NguoiXuLyId = mainReadModel.NguoiXuLyId,
             TenNguoiXuLy = mainReadModel.TenNguoiXuLy,
@@ -262,9 +257,9 @@ public class YeuCauSuaChuaQueryRepository : IYeuCauSuaChuaQueryRepository
             {
                 Id = p.Id,
                 NhanVienId = p.NhanVienId,
-                HoTen = p.HoTen,
-                SoCCCD = p.SoCCCD,
-                SoDienThoai = p.SoDienThoai,
+                HoTen = p.NhanVienId.HasValue ? $"{p.StaffHo} {p.StaffTen}".Trim() : p.HoTen,
+                SoCCCD = p.NhanVienId.HasValue ? p.StaffCCCD ?? string.Empty : p.SoCCCD,
+                SoDienThoai = p.NhanVienId.HasValue ? p.StaffPhone : p.SoDienThoai,
                 VaiTro = p.VaiTro,
                 GhiChu = p.GhiChu
             }).ToList(),

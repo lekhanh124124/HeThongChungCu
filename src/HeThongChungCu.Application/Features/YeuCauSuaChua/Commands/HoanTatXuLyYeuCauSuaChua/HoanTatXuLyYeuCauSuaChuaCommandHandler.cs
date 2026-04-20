@@ -1,0 +1,55 @@
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Services;
+using HeThongChungCu.Application.Common.Messaging;
+using HeThongChungCu.Application.Features.YeuCauSuaChua.DTOs;
+using HeThongChungCu.Application.Features.YeuCauSuaChua.Queries.GetYeuCauSuaChuaById;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Errors;
+
+namespace HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.HoanTatXuLyYeuCauSuaChua;
+
+public class HoanTatXuLyYeuCauSuaChuaCommandHandler : ICommandHandler<HoanTatXuLyYeuCauSuaChuaCommand, YeuCauSuaChuaDetailResponse>
+{
+    private readonly IYeuCauSuaChuaCommandRepository _ycscRepository;
+    private readonly IYeuCauSuaChuaQueryRepository _queryRepository;
+    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public HoanTatXuLyYeuCauSuaChuaCommandHandler(
+        IYeuCauSuaChuaCommandRepository ycscRepository,
+        IYeuCauSuaChuaQueryRepository queryRepository,
+        IDateTimeProvider dateTimeProvider,
+        IUnitOfWork unitOfWork)
+    {
+        _ycscRepository = ycscRepository;
+        _queryRepository = queryRepository;
+        _dateTimeProvider = dateTimeProvider;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<Result<YeuCauSuaChuaDetailResponse>> Handle(HoanTatXuLyYeuCauSuaChuaCommand request, CancellationToken cancellationToken)
+    {
+        // 1. Fetch Request
+        var ycsc = await _ycscRepository.GetByIdAsync(request.Id, cancellationToken);
+        if (ycsc == null)
+            return Result.Failure<YeuCauSuaChuaDetailResponse>(YeuCauSuaChuaErrors.NotFoundById(request.Id));
+
+        // 2. Logic
+        ycsc.HoanTatXuLy(
+            request.KetQuaXuLy,
+            request.ChiPhiThucTe ?? ycsc.ChiPhiDuKien,
+            _dateTimeProvider.Now);
+
+        // 3. Persistence
+        _ycscRepository.Update(ycsc);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // 4. Build Response using Query Repository
+        var result = await _queryRepository.GetByIdAsync(new GetYeuCauSuaChuaByIdSpecification(ycsc.Id), cancellationToken);
+
+        return result != null
+            ? Result.Success(result)
+            : Result.Failure<YeuCauSuaChuaDetailResponse>(YeuCauSuaChuaErrors.NotFoundById(ycsc.Id));
+    }
+}

@@ -12,6 +12,10 @@ public static class YeuCauSuaChuaErrors
         "YeuCauSuaChua.Forbidden",
         "Bạn không có quyền thực hiện hành động này.");
 
+    public static readonly Error HuyForbidden = new(
+        "YeuCauSuaChua.Forbidden",
+        "Yêu cầu đã được xác nhận hoặc đang triển khai, vui lòng liên hệ BQL để được hỗ trợ hủy trực tiếp.");
+
     public static Error NotFoundById(int id) => new(
         "YeuCauSuaChua.NotFound",
         $"Không tìm thấy yêu cầu sửa chữa với ID '{id}'.");

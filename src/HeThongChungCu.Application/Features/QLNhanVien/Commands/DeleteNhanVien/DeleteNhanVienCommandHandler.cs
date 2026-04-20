@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
@@ -9,13 +10,16 @@ namespace HeThongChungCu.Application.Features.QLNhanVien.Commands.DeleteNhanVien
 public class DeleteNhanVienCommandHandler : ICommandHandler<DeleteNhanVienCommand, IReadOnlyList<int>>
 {
     private readonly INhanVienCommandRepository _nhanVienRepository;
+    private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteNhanVienCommandHandler(
         INhanVienCommandRepository nhanVienRepository,
+        IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)
     {
         _nhanVienRepository = nhanVienRepository;
+        _dateTimeProvider = dateTimeProvider;
         _unitOfWork = unitOfWork;
     }
 
@@ -29,11 +33,9 @@ public class DeleteNhanVienCommandHandler : ICommandHandler<DeleteNhanVienComman
 
         foreach (var nhanVien in nhanViens)
         {
-            // Soft delete: Update status to "Resigned" and mark as deleted
-            nhanVien.CapNhatTrangThai(TrangThaiNhanVien.DaNghiViec, DateTime.Now);
-            nhanVien.MarkAsDeleted(DateTimeOffset.Now);
-
+            nhanVien.CapNhatTrangThai(TrangThaiNhanVien.DaNghiViec, _dateTimeProvider.Now.DateTime);
             await _nhanVienRepository.UpdateAsync(nhanVien, cancellationToken);
+            await _nhanVienRepository.DeleteAsync(nhanVien, cancellationToken);
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);

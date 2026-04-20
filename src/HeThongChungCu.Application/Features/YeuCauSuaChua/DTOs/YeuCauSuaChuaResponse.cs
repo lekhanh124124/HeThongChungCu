@@ -19,14 +19,8 @@ public class YeuCauSuaChuaResponse
     public int LoaiSuCoId { get; set; }
     public string LoaiSuCoTen { get; set; } = null!;
 
-    public int TrangThaiSuaChuaId { get; set; }
-    public string TrangThaiSuaChuaTen { get; set; } = null!;
-
-    public int MucDoUuTienDeXuatId { get; set; }
-    public string MucDoUuTienDeXuatTen { get; set; } = null!;
-
-    public int? MucDoUuTienChotId { get; set; }
-    public string? MucDoUuTienChotTen { get; set; }
+    public int? TrangThaiSuaChuaId { get; set; }
+    public string? TrangThaiSuaChuaTen { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
     public int CreatedBy { get; set; }

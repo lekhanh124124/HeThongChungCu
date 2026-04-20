@@ -464,25 +464,7 @@ public class CatalogController : ApiControllerBase
         return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
 
-    /// <remarks>
-    /// - **Hoàn cảnh sử dụng**: Cung cấp các mức độ ưu tiên (Thấp, Trung bình, Cao, Khẩn cấp) cho các yêu cầu xử lý.
-    /// - **Hệ thống xử lý**: Trả về danh sách mức độ ưu tiên từ cấu hình Enums.
-    /// - **Yêu cầu dữ liệu**: Không có.
-    /// </remarks>
-    [HttpPost("muc-do-uu-tien-for-selector")]
-    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
-    public IActionResult GetMucDoUuTienForSelector()
-    {
-        var result = MucDoUuTien.GetAll()
-            .Select(x => new ItemForSelectorResponse
-            {
-                Id = x.Value,
-                Name = x.Name
-            })
-            .ToList();
 
-        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
-    }
 
     /// <remarks>
     /// - **Hoàn cảnh sử dụng**: Phân loại các loại sự cố kỹ thuật (Điện, Nước, PCCC, ...) trong yêu cầu sửa chữa.

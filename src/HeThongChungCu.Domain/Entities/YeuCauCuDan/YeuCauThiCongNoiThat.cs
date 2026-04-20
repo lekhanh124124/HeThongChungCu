@@ -94,8 +94,8 @@ public class YeuCauThiCongNoiThat : YeuCau
 
     public void AddNhanSu(string hoTen, string soCCCD, string? soDienThoai, string? vaiTro, string? ghiChu = null)
     {
-        if (TrangThaiThiCongId == TrangThaiThiCong.DaDong || TrangThaiThiCongId == TrangThaiThiCong.DaHuy)
-            throw new BusinessException("Không thể bổ sung nhân sự cho yêu cầu đã đóng hoặc đã hủy.");
+        if (TrangThaiId == TrangThaiYeuCau.Completed || TrangThaiId == TrangThaiYeuCau.Cancelled)
+            throw new BusinessException("Không thể bổ sung nhân sự cho yêu cầu đã kết thúc.");
 
         // Root trực tiếp khởi tạo con
         var staff = NhanSuThiCong.Create(hoTen, soCCCD, soDienThoai, vaiTro, ghiChu);
@@ -104,8 +104,8 @@ public class YeuCauThiCongNoiThat : YeuCau
 
     public void UpdateNhanSu(int nhanSuId, string hoTen, string soCCCD, string? soDienThoai, string? vaiTro, string? ghiChu = null)
     {
-        if (TrangThaiThiCongId == TrangThaiThiCong.DaDong || TrangThaiThiCongId == TrangThaiThiCong.DaHuy)
-            throw new BusinessException("Không thể cập nhật nhân sự cho yêu cầu đã đóng hoặc đã hủy.");
+        if (TrangThaiId == TrangThaiYeuCau.Completed || TrangThaiId == TrangThaiYeuCau.Cancelled)
+            throw new BusinessException("Không thể cập nhật nhân sự cho yêu cầu đã kết thúc.");
 
         var staff = _nhanSuThiCongs.FirstOrDefault(x => x.Id == nhanSuId);
         if (staff == null)
@@ -116,8 +116,8 @@ public class YeuCauThiCongNoiThat : YeuCau
 
     public void RemoveNhanSu(int nhanSuId)
     {
-        if (TrangThaiThiCongId == TrangThaiThiCong.DaDong || TrangThaiThiCongId == TrangThaiThiCong.DaHuy)
-            throw new BusinessException("Không thể xóa nhân sự cho yêu cầu đã đóng hoặc đã hủy.");
+        if (TrangThaiId == TrangThaiYeuCau.Completed || TrangThaiId == TrangThaiYeuCau.Cancelled)
+            throw new BusinessException("Không thể xóa nhân sự cho yêu cầu đã kết thúc.");
 
         var staff = _nhanSuThiCongs.FirstOrDefault(x => x.Id == nhanSuId);
         if (staff != null)
@@ -215,20 +215,31 @@ public class YeuCauThiCongNoiThat : YeuCau
         TrangThaiThiCongId = TrangThaiThiCong.DaHoanTat;
     }
 
+    /// <summary>
+    /// Đóng yêu cầu thi công sau khi hoàn tất.
+    /// Terminal: chuyển TrangThaiId sang Completed.
+    /// </summary>
     public void DongYeuCauThiCong()
     {
         if (TrangThaiThiCongId != TrangThaiThiCong.DaHoanTat)
             throw new BusinessException("Chỉ có thể đóng khi đã hoàn tất thi công.");
 
-        TrangThaiThiCongId = TrangThaiThiCong.DaDong;
+        TrangThaiId = TrangThaiYeuCau.Completed;
+        TrangThaiThiCongId = null!; // Clear sub-state
     }
 
+    /// <summary>
+    /// Hủy yêu cầu thi công.
+    /// Terminal: chuyển TrangThaiId sang Cancelled.
+    /// </summary>
     public void HuyThiCong(string lyDo)
     {
         if (string.IsNullOrWhiteSpace(lyDo))
             throw new BusinessException("Cần cung cấp lý do hủy.");
 
         LyDo = string.IsNullOrWhiteSpace(LyDo) ? lyDo : $"{LyDo} | {lyDo}";
-        TrangThaiThiCongId = TrangThaiThiCong.DaHuy;
+
+        TrangThaiId = TrangThaiYeuCau.Cancelled;
+        TrangThaiThiCongId = null!; // Clear sub-state
     }
 }

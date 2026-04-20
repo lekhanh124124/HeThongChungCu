@@ -11,8 +11,6 @@ public class TrangThaiThiCong : BaseEnum<TrangThaiThiCong, int>
     public static readonly TrangThaiThiCong DaCapPhep = new(13, "Đã cấp phép");
     public static readonly TrangThaiThiCong DangThiCong = new(2, "Đang thi công");
     public static readonly TrangThaiThiCong DaHoanTat = new(3, "Đã hoàn tất");
-    public static readonly TrangThaiThiCong DaDong = new(4, "Đã đóng");
-    public static readonly TrangThaiThiCong DaHuy = new(5, "Đã hủy");
 
     private TrangThaiThiCong(int value, string name) : base(value, name)
     {

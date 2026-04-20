@@ -91,6 +91,9 @@ public class AppDbContext : DbContext, IUnitOfWork
                 method?.Invoke(this, [builder]);
             }
         }
+
+        // Force for YeuCau if automated logic missed it
+        builder.Entity<YeuCau>().HasQueryFilter(x => !x.IsDeleted);
     }
 
     private static void ApplySoftDeleteFilter<T>(ModelBuilder builder) where T : AuditableEntity

@@ -1754,22 +1754,10 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int?>("MucDoUuTienChotId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MucDoUuTienDeXuatId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset?>("NgayChotUuTien")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int?>("NguoiChotUuTienId")
-                        .HasColumnType("int");
-
                     b.Property<int>("PhamViId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TrangThaiSuaChuaId")
+                    b.Property<int?>("TrangThaiSuaChuaId")
                         .HasColumnType("int");
 
                     b.HasIndex("HopDongDoiTacId");

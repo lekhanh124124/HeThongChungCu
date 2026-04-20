@@ -21,10 +21,6 @@ public class CreateYeuCauSuaChuaCommandValidator : AbstractValidator<CreateYeuCa
             .Must(id => LoaiSuCoKyThuat.GetAll().Any(v => v.Value == id))
             .WithMessage(x => $"Loại sự cố không hợp lệ. Các giá trị hợp lệ: {string.Join(", ", LoaiSuCoKyThuat.GetAll().Select(v => $"{v.Value} ({v.Name})"))}.");
 
-        RuleFor(x => x.MucDoUuTienDeXuatId)
-            .NotEmpty().WithMessage("Mức độ ưu tiên đề xuất không được để trống.")
-            .Must(id => MucDoUuTien.GetAll().Any(v => v.Value == id))
-            .WithMessage(x => $"Mức độ ưu tiên không hợp lệ. Các giá trị hợp lệ: {string.Join(", ", MucDoUuTien.GetAll().Select(v => $"{v.Value} ({v.Name})"))}.");
 
         RuleFor(x => x.NoiDung)
             .NotEmpty().WithMessage("Nội dung yêu cầu không được để trống.")

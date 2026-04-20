@@ -9,4 +9,10 @@ public class NhanSuSuaChuaReadModel
     public string? SoDienThoai { get; set; }
     public string? VaiTro { get; set; }
     public string? GhiChu { get; set; }
+
+    // Join fields for internal staff
+    public string? StaffHo { get; set; }
+    public string? StaffTen { get; set; }
+    public string? StaffCCCD { get; set; }
+    public string? StaffPhone { get; set; }
 }

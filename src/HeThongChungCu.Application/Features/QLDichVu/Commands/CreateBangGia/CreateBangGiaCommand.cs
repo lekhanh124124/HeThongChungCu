@@ -1,10 +1,10 @@
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Common;
-using MediatR;
+using HeThongChungCu.Application.Common.Messaging;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.CreateBangGia;
 
-public record CreateBangGiaCommand : IRequest<Result<BangGiaResponse>>
+public record CreateBangGiaCommand : ICommand<BangGiaResponse>
 {
     public int DichVuId { get; init; }
     public string TenBangGia { get; init; } = string.Empty;

@@ -20,17 +20,11 @@ public class YeuCauSuaChuaConfiguration : IEntityTypeConfiguration<YeuCauSuaChua
             .IsRequired();
 
         builder.Property(x => x.TrangThaiSuaChuaId)
-            .HasConversion(v => v.Value, v => TrangThaiSuaChua.FromValue(v, null)!)
-            .IsRequired();
-
-        builder.Property(x => x.MucDoUuTienDeXuatId)
-            .HasConversion(v => v.Value, v => MucDoUuTien.FromValue(v, null)!)
-            .IsRequired();
-
-        builder.Property(x => x.MucDoUuTienChotId)
             .HasConversion(
                 v => v != null ? v.Value : (int?)null,
-                v => v != null ? MucDoUuTien.FromValue(v.Value, null) : null);
+                v => v != null ? TrangThaiSuaChua.FromValue(v.Value, null) : null);
+
+
 
         builder.Property(x => x.MoTaViTri)
             .HasMaxLength(500);

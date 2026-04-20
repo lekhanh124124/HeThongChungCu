@@ -11,4 +11,8 @@ public static class DoiTacErrors
     public static Error NotFoundById(int id) => new(
         "DoiTac.NotFound",
         $"Không tìm thấy đơn vị cung cấp với ID '{id}'.");
+
+    public static readonly Error InvalidLoaiDichVu = new(
+        "DoiTac.InvalidLoaiDichVu",
+        "Loại dịch vụ không hợp lệ.");
 }

@@ -5,11 +5,11 @@ using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
-using MediatR;
+using HeThongChungCu.Application.Common.Messaging;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.CreateBangGia;
 
-public class CreateBangGiaCommandHandler : IRequestHandler<CreateBangGiaCommand, Result<BangGiaResponse>>
+public class CreateBangGiaCommandHandler : ICommandHandler<CreateBangGiaCommand, BangGiaResponse>
 {
     private readonly IDichVuCommandRepository _commandRepository;
     private readonly IDichVuQueryRepository _queryRepository;

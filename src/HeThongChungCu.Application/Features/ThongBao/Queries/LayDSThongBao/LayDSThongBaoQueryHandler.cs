@@ -2,11 +2,11 @@ using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.ThongBao.DTOs;
-using MediatR;
+using HeThongChungCu.Application.Common.Messaging;
 
 namespace HeThongChungCu.Application.Features.ThongBao.Queries.LayDSThongBao;
 
-public class LayDSThongBaoQueryHandler : IRequestHandler<LayDSThongBaoQuery, Result<PagedResult<ThongBaoResponse>>>
+public class LayDSThongBaoQueryHandler : IQueryHandler<LayDSThongBaoQuery, PagedResult<ThongBaoResponse>>
 {
     private readonly IThongBaoQueryRepository _thongBaoRepository;
     private readonly ICurrentUserService _currentUserService;

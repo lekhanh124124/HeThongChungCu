@@ -7,9 +7,8 @@ public class YeuCauSuaChuaReadModel
     public int CanHoId { get; set; }
     public string? TenCanHo { get; set; }
     public string? NoiDung { get; set; }
-    public int TrangThaiSuaChuaId { get; set; }
+    public int? TrangThaiSuaChuaId { get; set; }
     public int LoaiSuCoId { get; set; }
-    public int? MucDoUuTienChotId { get; set; }
     public int TrangThaiYeuCauId { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public int CreatedBy { get; set; }

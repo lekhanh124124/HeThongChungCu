@@ -50,16 +50,16 @@ public abstract class YeuCau : AggregateRoot
 
     public virtual void Withdraw()
     {
-        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Pending)
-            throw new BusinessException("Chỉ có thể thu hồi yêu cầu đang ở trạng thái đã lưu hoặc đang chờ duyệt.");
+        if (TrangThaiId != TrangThaiYeuCau.Saved)
+            throw new BusinessException("Chỉ có thể thu hồi yêu cầu đang ở trạng thái nháp (Saved).");
 
         TrangThaiId = TrangThaiYeuCau.Withdrawn;
     }
 
     public virtual void Submit()
     {
-        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Withdrawn)
-            throw new BusinessException("Chỉ có thể gửi yêu cầu đang ở trạng thái đã lưu hoặc đã thu hồi.");
+        if (TrangThaiId != TrangThaiYeuCau.Saved)
+            throw new BusinessException("Chỉ có thể gửi yêu cầu đang ở trạng thái nháp (Saved).");
 
         TrangThaiId = TrangThaiYeuCau.Pending;
     }

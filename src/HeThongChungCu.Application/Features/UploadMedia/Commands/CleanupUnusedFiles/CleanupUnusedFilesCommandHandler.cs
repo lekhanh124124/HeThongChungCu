@@ -1,8 +1,11 @@
 using Microsoft.Extensions.Logging;
+using HeThongChungCu.Application.Common.Messaging;
+using HeThongChungCu.Domain.Common;
+using MediatR;
 
 namespace HeThongChungCu.Application.Features.UploadMedia.Commands.CleanupUnusedFiles;
 
-public class CleanupUnusedFilesCommandHandler : IRequestHandler<CleanupUnusedFilesCommand, Result<int>>
+public class CleanupUnusedFilesCommandHandler : ICommandHandler<CleanupUnusedFilesCommand, int>
 {
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;

@@ -1,12 +1,12 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Domain.Common;
-using MediatR;
+using HeThongChungCu.Application.Common.Messaging;
 
 using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLDichVu.Commands.RevokeKhungGioDichVu;
 
-public class RevokeKhungGioDichVuCommandHandler : IRequestHandler<RevokeKhungGioDichVuCommand, Result<bool>>
+public class RevokeKhungGioDichVuCommandHandler : ICommandHandler<RevokeKhungGioDichVuCommand, bool>
 {
     private readonly IDichVuCommandRepository _commandRepository;
     private readonly IUnitOfWork _unitOfWork;

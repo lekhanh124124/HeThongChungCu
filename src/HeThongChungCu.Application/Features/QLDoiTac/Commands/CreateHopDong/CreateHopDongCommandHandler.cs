@@ -40,8 +40,9 @@ public class CreateHopDongCommandHandler : ICommandHandler<CreateHopDongCommand,
         var h = request.HopDong;
 
         // 1. Create a new Service (DichVu)
-        var loaiDichVu = HeThongChungCu.Domain.Enums.LoaiDichVu.FromValue(h.LoaiDichVuId)
-            ?? throw new Domain.Exceptions.BusinessException($"Loại dịch vụ không hợp lệ.");
+        var loaiDichVu = HeThongChungCu.Domain.Enums.LoaiDichVu.FromValue(h.LoaiDichVuId);
+        if (loaiDichVu == null)
+            return Result.Failure<DoiTacDetailResponse>(DoiTacErrors.InvalidLoaiDichVu);
 
         var dichVu = new DichVu(
             h.MaDichVu,

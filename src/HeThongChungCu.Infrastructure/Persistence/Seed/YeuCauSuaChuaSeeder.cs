@@ -62,31 +62,29 @@ public static class YeuCauSuaChuaSeeder
             var aptId = faker.PickRandom(validApartmentIds);
             var phamVi = faker.PickRandom(PhamViSuaChua.GetAll().ToList());
             var loaiSuCo = faker.PickRandom(LoaiSuCoKyThuat.GetAll().ToList());
-            var uuTien = faker.PickRandom(MucDoUuTien.GetAll().ToList());
 
             var noiDung = GenerateIssueDescription(loaiSuCo, faker);
             var moTaViTri = faker.PickRandom(new[] { "Phòng khách", "Phòng ngủ chính", "Nhà vệ sinh", "Ban công", "Khu vực bếp", "Trần nhà" });
 
             // Khởi tạo request
-            var request = YeuCauSuaChua.Create(aptId, phamVi, loaiSuCo, uuTien, noiDung, moTaViTri);
+            var request = YeuCauSuaChua.Create(aptId, phamVi, loaiSuCo, noiDung, moTaViTri);
 
             var requesterId = apartmentRequesters[aptId];
             var createdDate = DateTimeOffset.Now.AddDays(-faker.Random.Int(10, 30));
             request.SetCreated(requesterId, createdDate);
 
-            // Quyết định trạng thái mục tiêu
-            var targetStatus = faker.Random.WeightedRandom(
-                [
-                    TrangThaiSuaChua.MoiTao,
-                    TrangThaiSuaChua.DaTiepNhan,
-                    TrangThaiSuaChua.DaDieuPhoi,
-                    TrangThaiSuaChua.DangXuLy,
-                    TrangThaiSuaChua.DaXuLy,
-                    TrangThaiSuaChua.DaDong,
-                    TrangThaiSuaChua.DaHuy
-                ],
-                [0.1f, 0.1f, 0.1f, 0.2f, 0.3f, 0.1f, 0.1f]
-            );
+            // Quyết định trạng thái mục tiêu (mix TrangThaiYeuCau và TrangThaiSuaChua)
+            object[] targetOptions =
+            [
+                TrangThaiYeuCau.Pending,
+                TrangThaiYeuCau.Approved,
+                TrangThaiSuaChua.DaDieuPhoi,
+                TrangThaiSuaChua.DaHenLich,
+                TrangThaiYeuCau.Completed,
+                TrangThaiYeuCau.Cancelled
+            ];
+            float[] targetWeights = [0.1f, 0.15f, 0.15f, 0.2f, 0.3f, 0.1f];
+            var targetStatus = faker.Random.WeightedRandom(targetOptions, targetWeights);
 
             try
             {
@@ -95,7 +93,7 @@ public static class YeuCauSuaChuaSeeder
             }
             catch (Exception ex)
             {
-                logger.LogWarning($"Failed to apply workflow state {targetStatus.Name} for request {i}: {ex.Message}");
+                logger.LogWarning($"Failed to apply workflow state {targetStatus} for request {i}: {ex.Message}");
             }
 
             requests.Add(request);
@@ -126,7 +124,7 @@ public static class YeuCauSuaChuaSeeder
 
     private static void ApplyWorkflowState(
         YeuCauSuaChua request,
-        TrangThaiSuaChua target,
+        object target,  // can be TrangThaiYeuCau or TrangThaiSuaChua
         List<NhanVien> technicians,
         NhanVien? manager,
         List<HopDongDoiTac> contracts,
@@ -136,16 +134,25 @@ public static class YeuCauSuaChuaSeeder
         var createdDate = request.CreatedAt;
         var handlerId = manager?.Id ?? 1;
 
-        // Step 1: Tiếp nhận
-        if (target.Value >= TrangThaiSuaChua.DaTiepNhan.Value && target != TrangThaiSuaChua.DaHuy)
+        bool isCancelled = target == TrangThaiYeuCau.Cancelled;
+
+        // Step 1: Tiếp nhận — Approved + chưa điều phối thì dừng ở đây
+        bool needsTiepNhan = target is TrangThaiSuaChua
+            || target == TrangThaiYeuCau.Completed
+            || target == TrangThaiYeuCau.Cancelled;
+
+        if (needsTiepNhan)
         {
             var tiepNhanDate = createdDate.AddHours(faker.Random.Int(1, 24));
             request.TiepNhan(handlerId, tiepNhanDate);
-            request.ChotUuTien(handlerId, request.MucDoUuTienDeXuatId, tiepNhanDate.AddHours(1));
         }
 
-        // Step 2: Điều phối
-        if (target.Value >= TrangThaiSuaChua.DaDieuPhoi.Value && target != TrangThaiSuaChua.DaHuy)
+        // Step 2: Điều phối — xảy ra khi target là DaDieuPhoi trở lên
+        bool needsDieuPhoi = (target is TrangThaiSuaChua sc && sc.Value >= TrangThaiSuaChua.DaDieuPhoi.Value)
+            || target == TrangThaiYeuCau.Completed
+            || target == TrangThaiYeuCau.Cancelled;
+
+        if (needsDieuPhoi)
         {
             var dieuPhoiDate = (request.ModifiedAt ?? request.CreatedAt).AddHours(faker.Random.Int(2, 12));
             bool usePartner = faker.Random.Bool() && contracts.Any();
@@ -153,63 +160,54 @@ public static class YeuCauSuaChuaSeeder
             {
                 var contract = faker.PickRandom(contracts);
                 request.AssignPartner(contract.Id);
-                request.AddNhanSuPartner(faker.Name.FullName(), "079" + faker.Random.Number(1000000, 9999999), faker.Phone.PhoneNumber(), "Thợ chính", "Nhân sự từ đối tác " + contract.DoiTac.TenDoiTac);
+                request.AddNhanSuPartner(faker.Name.FullName(), "079" + faker.Random.Number(1000000, 9999999), faker.Phone.PhoneNumber(), "Ợ chính", "Nhân sự từ đối tác " + contract.DoiTac.TenDoiTac);
             }
             else if (technicians.Any())
             {
                 var tech = faker.PickRandom(technicians);
-                request.AssignInternalStaff(tech.Id);
+                request.AssignInternalStaff([tech.Id]);
             }
-
-            request.XacNhanKiemTra();
-            // Simulating internal state update for date progression
             request.SetModified(handlerId, dieuPhoiDate);
         }
 
         // Step 3: Báo giá
-        if (target.Value >= TrangThaiSuaChua.DaDuyetBaoGia.Value && target != TrangThaiSuaChua.DaHuy)
+        bool needsBaoGia = (target is TrangThaiSuaChua sc2 && sc2.Value >= TrangThaiSuaChua.DaDuyetBaoGia.Value)
+            || target == TrangThaiYeuCau.Completed;
+
+        if (needsBaoGia && !isCancelled)
         {
             var baoGiaDate = (request.ModifiedAt ?? request.CreatedAt).AddHours(faker.Random.Int(4, 24));
             bool isFree = request.HopDongDoiTacId != null || faker.Random.Bool(0.3f);
             decimal cost = isFree ? 0 : faker.Finance.Amount(50000, 500000, 0);
+            string ghiChu = isFree
+                ? "Hạng mục nằm trong gói bảo trì."
+                : $"Cư dân đồng ý qua điện thoại ngày {baoGiaDate:dd/MM/yyyy}. Chi phí thay thế linh kiện chính hãng.";
 
-            request.NhapBaoGia(cost, isFree, isFree ? "Hạng mục nằm trong gói bảo trì." : "Chi phí thay thế linh kiện chính hãng.");
+            request.NhapBaoGia(cost, isFree, ghiChu);
             request.SetModified(handlerId, baoGiaDate);
-
-            if (!isFree)
-            {
-                request.CuDanDuyetBaoGia();
-                request.SetModified(request.CreatedBy, baoGiaDate.AddHours(faker.Random.Int(1, 12)));
-            }
         }
 
-        // Step 4: Thực hiện
-        if (target.Value >= TrangThaiSuaChua.DangXuLy.Value && target != TrangThaiSuaChua.DaHuy)
+        // Step 4: Hẹn lịch
+        bool needsHenLich = (target is TrangThaiSuaChua sc3 && sc3.Value >= TrangThaiSuaChua.DaHenLich.Value)
+            || target == TrangThaiYeuCau.Completed;
+
+        if (needsHenLich && !isCancelled)
         {
             var scheduleDate = (request.ModifiedAt ?? request.CreatedAt).AddDays(faker.Random.Int(1, 3));
             request.HenLich(scheduleDate, scheduleDate.AddHours(2));
-            request.BatDauXuLy();
-            request.SetModified(handlerId, scheduleDate.AddMinutes(30));
+            request.SetModified(handlerId, scheduleDate);
         }
 
-        // Step 5: Hoàn tất
-        if (target.Value >= TrangThaiSuaChua.DaXuLy.Value && target != TrangThaiSuaChua.DaHuy)
+        // Step 5: Hoàn tất (Completed)
+        if (target == TrangThaiYeuCau.Completed)
         {
             var hoanTatDate = (request.ModifiedAt ?? request.CreatedAt).AddHours(faker.Random.Int(1, 4));
-            var actualCost = request.ChiPhiDuKien;
-            request.HoanTatXuLy("Đã xử lý dứt điểm sự cố, khách hàng hài lòng.", actualCost, hoanTatDate);
+            request.HoanTatXuLy("Đã xử lý dứt điểm sự cố, khách hàng hài lòng.", request.ChiPhiDuKien, hoanTatDate);
+            request.SetModified(handlerId, hoanTatDate);
         }
 
-        // Step 6: Đóng
-        if (target == TrangThaiSuaChua.DaDong)
-        {
-            var dongDate = (request.ModifiedAt ?? request.CreatedAt).AddDays(faker.Random.Int(1, 2));
-            request.DongYeuCau();
-            request.SetModified(request.CreatedBy, dongDate);
-        }
-
-        // Step 7: Hủy
-        if (target == TrangThaiSuaChua.DaHuy)
+        // Step 6: Hủy (Cancelled)
+        if (target == TrangThaiYeuCau.Cancelled)
         {
             request.Huy(faker.PickRandom(new[] { "Khách hàng đổi ý, tự sửa chữa.", "Không liên lạc được với khách hàng.", "Hạng mục không nằm trong phạm vi hỗ trợ." }));
             request.SetModified(handlerId, createdDate.AddHours(faker.Random.Int(1, 48)));

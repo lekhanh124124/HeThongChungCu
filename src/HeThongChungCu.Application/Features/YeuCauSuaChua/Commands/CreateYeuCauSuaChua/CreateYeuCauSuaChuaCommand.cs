@@ -7,8 +7,8 @@ public record CreateYeuCauSuaChuaCommand(
     int CanHoId,
     int PhamViId,
     int LoaiSuCoId,
-    int MucDoUuTienDeXuatId,
     string? NoiDung,
     string? MoTaViTri,
-    List<int>? DanhSachTepIds
-) : ICommand<YeuCauSuaChuaResponse>;
+    List<int>? DanhSachTepIds,
+    bool IsSubmit = true
+) : ICommand<YeuCauSuaChuaDetailResponse>;

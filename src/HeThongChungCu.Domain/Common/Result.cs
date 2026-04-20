@@ -15,8 +15,8 @@ public class Result
         }
 
         IsSuccess = isSuccess;
-        Errors = errors ?? Array.Empty<Error>();
-        Warnings = warnings ?? Array.Empty<string>();
+        Errors = errors ?? [];
+        Warnings = warnings ?? [];
     }
 
     public bool IsSuccess { get; }
@@ -35,7 +35,7 @@ public class Result
     public static Result<TValue> Success<TValue>(TValue value) => new(value, true);
     public static Result<TValue> Success<TValue>(TValue value, IEnumerable<string> warnings) => new(value, true, warnings: warnings.ToArray());
 
-    public static Result<TValue> Failure<TValue>(Error error) => new(default, false, new[] { error });
+    public static Result<TValue> Failure<TValue>(Error error) => new(default, false, [error]);
     public static Result<TValue> Failure<TValue>(IEnumerable<Error> errors) => new(default, false, errors.ToArray());
 }
 

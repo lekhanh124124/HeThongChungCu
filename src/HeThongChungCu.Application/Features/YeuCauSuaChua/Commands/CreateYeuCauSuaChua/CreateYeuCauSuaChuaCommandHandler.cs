@@ -3,6 +3,8 @@ using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Features.UploadMedia.DTOs;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.DTOs;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+using HeThongChungCu.Application.Features.YeuCauSuaChua.Queries.GetYeuCauSuaChuaById;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
@@ -11,43 +13,34 @@ using YeuCauSuaChuaEntity = HeThongChungCu.Domain.Entities.YeuCauSuaChua;
 
 namespace HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.CreateYeuCauSuaChua;
 
-public class CreateYeuCauSuaChuaCommandHandler : ICommandHandler<CreateYeuCauSuaChuaCommand, YeuCauSuaChuaResponse>
+public class CreateYeuCauSuaChuaCommandHandler : ICommandHandler<CreateYeuCauSuaChuaCommand, YeuCauSuaChuaDetailResponse>
 {
     private readonly IYeuCauSuaChuaCommandRepository _ycscRepository;
     private readonly ICanHoCommandRepository _canHoRepository;
-    private readonly IToaNhaCommandRepository _toaNhaRepository;
     private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
-    private readonly INguoiDungCommandRepository _nguoiDungRepository;
-    private readonly ICurrentUserService _currentUserService;
-    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IYeuCauSuaChuaQueryRepository _queryRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateYeuCauSuaChuaCommandHandler(
         IYeuCauSuaChuaCommandRepository ycscRepository,
         ICanHoCommandRepository canHoRepository,
-        IToaNhaCommandRepository toaNhaRepository,
         ITepTaiLieuCommandRepository tepTaiLieuRepository,
-        INguoiDungCommandRepository nguoiDungRepository,
-        ICurrentUserService currentUserService,
-        IDateTimeProvider dateTimeProvider,
+        IYeuCauSuaChuaQueryRepository queryRepository,
         IUnitOfWork unitOfWork)
     {
         _ycscRepository = ycscRepository;
         _canHoRepository = canHoRepository;
-        _toaNhaRepository = toaNhaRepository;
         _tepTaiLieuRepository = tepTaiLieuRepository;
-        _nguoiDungRepository = nguoiDungRepository;
-        _currentUserService = currentUserService;
-        _dateTimeProvider = dateTimeProvider;
+        _queryRepository = queryRepository;
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Result<YeuCauSuaChuaResponse>> Handle(CreateYeuCauSuaChuaCommand request, CancellationToken cancellationToken)
+    public async Task<Result<YeuCauSuaChuaDetailResponse>> Handle(CreateYeuCauSuaChuaCommand request, CancellationToken cancellationToken)
     {
         // 1. Domain Existence Validation
         var canHo = await _canHoRepository.GetByIdAsync(request.CanHoId, cancellationToken);
         if (canHo == null)
-            return Result.Failure<YeuCauSuaChuaResponse>(CanHoErrors.NotFoundById(request.CanHoId));
+            return Result.Failure<YeuCauSuaChuaDetailResponse>(CanHoErrors.NotFoundById(request.CanHoId));
 
         // 2. Fetch Files
         var tepTaiLieus = request.DanhSachTepIds != null && request.DanhSachTepIds.Count != 0
@@ -58,49 +51,25 @@ public class CreateYeuCauSuaChuaCommandHandler : ICommandHandler<CreateYeuCauSua
             f is TepYeuCauSuaChua tysc ? tysc : new TepYeuCauSuaChua(f.FileName, f.FileUrl, f.Size, f.ContentType)).ToList();
 
         // 3. Create Entity
+        var initialStatus = request.IsSubmit ? TrangThaiYeuCau.Pending : TrangThaiYeuCau.Saved;
         var ycsc = YeuCauSuaChuaEntity.Create(
             request.CanHoId,
             PhamViSuaChua.FromValue(request.PhamViId)!,
             LoaiSuCoKyThuat.FromValue(request.LoaiSuCoId)!,
-            MucDoUuTien.FromValue(request.MucDoUuTienDeXuatId)!,
             request.NoiDung!,
             request.MoTaViTri,
-            tepYeuCauSuaChuas);
+            tepYeuCauSuaChuas,
+            initialStatus);
 
         // 4. Persistence
         await _ycscRepository.AddAsync(ycsc, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // 5. Build Response
-        var toaNha = await _toaNhaRepository.GetToaNhaByTangIdAsync(canHo.TangId, cancellationToken);
-        var tang = toaNha?.Tangs.FirstOrDefault(t => t.Id == canHo.TangId);
+        // 5. Build Response using Query Repository
+        var result = await _queryRepository.GetByIdAsync(new GetYeuCauSuaChuaByIdSpecification(ycsc.Id), cancellationToken);
 
-        var senderId = _currentUserService.UserId;
-        var sender = senderId.HasValue ? await _nguoiDungRepository.GetByIdAsync(senderId.Value, cancellationToken) : null;
-
-        return Result.Success(new YeuCauSuaChuaResponse
-        {
-            Id = ycsc.Id,
-            CanHoId = ycsc.CanHoId,
-            TenCanHo = canHo.MaCanHo,
-            TenTang = tang?.MaTang,
-            TenToaNha = toaNha?.MaToaNha,
-            LoaiYeuCauCuDanId = ycsc.LoaiYeuCauCuDanId.Value,
-            LoaiYeuCauCuDanTen = ycsc.LoaiYeuCauCuDanId.Name,
-            TrangThaiYeuCauId = ycsc.TrangThaiId.Value,
-            TrangThaiYeuCauTen = ycsc.TrangThaiId.Name,
-            NoiDung = ycsc.NoiDung,
-            LoaiSuCoId = ycsc.LoaiSuCoId.Value,
-            LoaiSuCoTen = ycsc.LoaiSuCoId.Name,
-            TrangThaiSuaChuaId = ycsc.TrangThaiSuaChuaId.Value,
-            TrangThaiSuaChuaTen = ycsc.TrangThaiSuaChuaId.Name,
-            MucDoUuTienDeXuatId = ycsc.MucDoUuTienDeXuatId.Value,
-            MucDoUuTienDeXuatTen = ycsc.MucDoUuTienDeXuatId.Name,
-            MucDoUuTienChotId = ycsc.MucDoUuTienChotId?.Value,
-            MucDoUuTienChotTen = ycsc.MucDoUuTienChotId?.Name,
-            CreatedAt = ycsc.CreatedAt,
-            CreatedBy = ycsc.CreatedBy,
-            TenNguoiGui = sender != null ? sender.HoTen : null!
-        });
+        return result != null
+            ? Result.Success(result)
+            : Result.Failure<YeuCauSuaChuaDetailResponse>(YeuCauSuaChuaErrors.NotFoundById(ycsc.Id));
     }
 }

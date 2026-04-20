@@ -1,5 +1,5 @@
-using MediatR;
+using HeThongChungCu.Application.Common.Messaging;
 
 namespace HeThongChungCu.Application.Features.ThongBao.Commands.DanhDauDaDoc;
 
-public record DanhDauDaDocCommand(int PhanBoThongBaoId) : IRequest<Result<bool>>;
+public record DanhDauDaDocCommand(int PhanBoThongBaoId) : ICommand<bool>;

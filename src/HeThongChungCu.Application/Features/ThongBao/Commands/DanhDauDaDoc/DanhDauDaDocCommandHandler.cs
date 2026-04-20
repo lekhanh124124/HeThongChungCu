@@ -2,11 +2,11 @@ using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Errors;
-using MediatR;
+using HeThongChungCu.Application.Common.Messaging;
 
 namespace HeThongChungCu.Application.Features.ThongBao.Commands.DanhDauDaDoc;
 
-public class DanhDauDaDocCommandHandler : IRequestHandler<DanhDauDaDocCommand, Result<bool>>
+public class DanhDauDaDocCommandHandler : ICommandHandler<DanhDauDaDocCommand, bool>
 {
     private readonly IThongBaoCommandRepository _thongBaoCommandRepository;
     private readonly IUnitOfWork _unitOfWork;

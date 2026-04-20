@@ -15,6 +15,7 @@ public abstract class NhanSuYeuCau : AuditableEntity
     public SoDienThoai? SoDienThoai { get; private set; }
     public string? VaiTro { get; private set; }
     public string? GhiChu { get; private set; }
+    public string? LyDoXoa { get; private set; }
 
     protected NhanSuYeuCau() { } // EF Core
 
@@ -55,5 +56,10 @@ public abstract class NhanSuYeuCau : AuditableEntity
         VaiTro = vaiTro;
         GhiChu = ghiChu;
         NhanVienId = nhanVienId;
+    }
+    
+    internal void SetReasonForRemoval(string lyDo)
+    {
+        LyDoXoa = lyDo;
     }
 }
