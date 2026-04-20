@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDoiTac.DTOs;
 using HeThongChungCu.Domain.Common;
 
@@ -25,7 +25,7 @@ public class DeleteDoiTacsCommandHandler : ICommandHandler<DeleteDoiTacsCommand,
         {
             var foundIds = doiTacs.Select(x => x.Id).ToList();
             var missingIds = request.Ids.Except(foundIds).ToList();
-            return Result.Failure<IReadOnlyList<DoiTacResponse>>(new Error("DoiTac.SomeNotFound", $"Không tìm thấy một số đơn vị cung cấp: {string.Join(", ", missingIds)}"));
+            return new Error("DoiTac.SomeNotFound", $"Không tìm thấy một số đơn vị cung cấp: {string.Join(", ", missingIds)}");
         }
 
         var response = doiTacs.Select(t => new DoiTacResponse

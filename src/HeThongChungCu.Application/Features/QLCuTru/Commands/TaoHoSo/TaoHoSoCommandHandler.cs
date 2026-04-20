@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Entities;
@@ -32,7 +32,7 @@ public class TaoHoSoCommandHandler : ICommandHandler<TaoHoSoCommand, UserInfoRes
             var IdCardExists = await _userRepository.AnyAsync(u => u.CCCD == request.IdCard, cancellationToken);
             if (IdCardExists)
             {
-                return Result.Failure<UserInfoResponse>(UserErrors.IdCardAlreadyExists);
+                return UserErrors.IdCardAlreadyExists;
             }
         }
 
@@ -41,7 +41,7 @@ public class TaoHoSoCommandHandler : ICommandHandler<TaoHoSoCommand, UserInfoRes
             var phoneExists = await _userRepository.AnyAsync(u => u.SoDienThoai!.Value == request.PhoneNumber, cancellationToken);
             if (phoneExists)
             {
-                return Result.Failure<UserInfoResponse>(UserErrors.PhoneNumberAlreadyExists);
+                return UserErrors.PhoneNumberAlreadyExists;
             }
         }
 

@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.QLDoiTac.DTOs;
+﻿using HeThongChungCu.Application.Features.QLDoiTac.DTOs;
 using HeThongChungCu.Application.Features.UploadMedia.DTOs;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
@@ -35,14 +35,14 @@ public class CreateHopDongCommandHandler : ICommandHandler<CreateHopDongCommand,
     {
         var doiTac = await _doiTacCommandRepository.GetByIdWithHopDongsAsync(request.DoiTacId, cancellationToken);
         if (doiTac == null)
-            return Result.Failure<DoiTacDetailResponse>(DoiTacErrors.NotFoundById(request.DoiTacId));
+            return DoiTacErrors.NotFoundById(request.DoiTacId);
 
         var h = request.HopDong;
 
         // 1. Create a new Service (DichVu)
         var loaiDichVu = HeThongChungCu.Domain.Enums.LoaiDichVu.FromValue(h.LoaiDichVuId);
         if (loaiDichVu == null)
-            return Result.Failure<DoiTacDetailResponse>(DoiTacErrors.InvalidLoaiDichVu);
+            return DoiTacErrors.InvalidLoaiDichVu;
 
         var dichVu = new DichVu(
             h.MaDichVu,
@@ -129,6 +129,6 @@ public class CreateHopDongCommandHandler : ICommandHandler<CreateHopDongCommand,
             }).OrderByDescending(h => h.NgayKy).ToList()
         };
 
-        return Result.Success(response);
+        return response;
     }
 }

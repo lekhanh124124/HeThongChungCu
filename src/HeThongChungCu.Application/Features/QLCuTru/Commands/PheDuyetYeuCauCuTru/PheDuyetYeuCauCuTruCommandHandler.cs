@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -45,15 +45,15 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
     {
         var adminId = _currentUserService.UserId;
         if (adminId == null)
-            return Result.Failure<YeuCauCuTruResponse>(UserErrors.NotFound);
+            return UserErrors.NotFound;
 
         var yeuCau = await _yeuCauRepository.GetByIdAsync(request.YeuCauCuTruId, cancellationToken);
         if (yeuCau == null)
-            return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.NotFound);
+            return YeuCauCuTruErrors.NotFound;
 
         var canHo = await _canHoRepository.GetByIdAsync(yeuCau.CanHoId, cancellationToken);
         if (canHo == null)
-            return Result.Failure<YeuCauCuTruResponse>(CanHoErrors.NotFound);
+            return CanHoErrors.NotFound;
 
         var now = _dateTimeProvider.Now;
         yeuCau.Approve(adminId.Value, now);
@@ -67,7 +67,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
 
             var uniquenessResult = _residencyService.CheckUniqueness(cccdExists, phoneExists);
             if (uniquenessResult.IsFailure)
-                return Result.Failure<YeuCauCuTruResponse>(uniquenessResult.Errors[0]);
+                return uniquenessResult.Errors[0];
 
             // 1. Create User via Domain Service
             var newUser = _residencyService.CreateUserFromRequest(yeuCau);
@@ -80,7 +80,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
 
             var relationResult = _residencyService.CreateRelation(yeuCau.CanHoId, newUser.Id, loaiQuanHe!, now.DateTime, existingRelations);
             if (relationResult.IsFailure)
-                return Result.Failure<YeuCauCuTruResponse>(relationResult.Errors[0]);
+                return relationResult.Errors[0];
 
             await _quanHeCuTruRepository.AddAsync(relationResult.Value, cancellationToken);
 
@@ -92,11 +92,11 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         {
             var relation = await _quanHeCuTruRepository.GetByIdAsync(yeuCau.YeuCauQuanHeCuTruId!.Value, cancellationToken);
             if (relation == null)
-                return Result.Failure<YeuCauCuTruResponse>(QuanHeCuTruErrors.NotFound);
+                return QuanHeCuTruErrors.NotFound;
 
             var user = await _userRepository.GetByIdWithDocumentsAsync(relation.NguoiDungId, cancellationToken);
             if (user == null)
-                return Result.Failure<YeuCauCuTruResponse>(UserErrors.NotFound);
+                return UserErrors.NotFound;
 
             if (yeuCau.YeuCauLoaiQuanHeId.HasValue)
             {

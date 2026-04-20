@@ -1,4 +1,4 @@
-namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.KhoaThePhuongTien
+﻿namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.KhoaThePhuongTien
 {
     public class KhoaThePhuongTienCommandHandler : ICommandHandler<KhoaThePhuongTienCommand, bool>
     {
@@ -19,7 +19,7 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.KhoaThePhuon
             var now = _dateTimeProvider.Now.DateTime;
 
             if (!phuongTiens.Any())
-                return Result.Failure<bool>(PhuongTienErrors.NotFound);
+                return PhuongTienErrors.NotFound;
 
             foreach (var theId in request.TheIds)
             {
@@ -33,7 +33,7 @@ namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.KhoaThePhuon
 
             // TransactionBehavior will automatically commit if no exception is thrown, otherwise it will rollback
 
-            return Result.Success(true);
+            return true;
         }
     }
 

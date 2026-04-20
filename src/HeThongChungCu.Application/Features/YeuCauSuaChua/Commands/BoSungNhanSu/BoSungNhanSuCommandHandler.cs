@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.DTOs;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.Queries.GetYeuCauSuaChuaById;
@@ -32,7 +32,7 @@ public class BoSungNhanSuCommandHandler : ICommandHandler<BoSungNhanSuCommand, Y
         // 1. Fetch Request
         var ycsc = await _ycscRepository.GetByIdWithPersonnelAsync(request.Id, cancellationToken);
         if (ycsc == null)
-            return Result.Failure<YeuCauSuaChuaDetailResponse>(YeuCauSuaChuaErrors.NotFoundById(request.Id));
+            return YeuCauSuaChuaErrors.NotFoundById(request.Id);
 
         // 2. Logic based on Current Assignment
         if (ycsc.HopDongDoiTacId != null)
@@ -58,7 +58,7 @@ public class BoSungNhanSuCommandHandler : ICommandHandler<BoSungNhanSuCommand, Y
 
                 var nhanVien = await _nhanVienRepository.GetByIdAsync(ns.NhanVienId.Value, cancellationToken);
                 if (nhanVien == null)
-                    return Result.Failure<YeuCauSuaChuaDetailResponse>(NhanVienErrors.NotFoundById(ns.NhanVienId.Value));
+                    return NhanVienErrors.NotFoundById(ns.NhanVienId.Value);
 
                 ycsc.AddNhanSuNoiBo(ns.NhanVienId.Value);
             }

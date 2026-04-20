@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.DTOs;
@@ -36,12 +36,12 @@ public class PheDuyetYeuCauSuaChuaCommandHandler : ICommandHandler<PheDuyetYeuCa
         // 1. Fetch Request
         var ycsc = await _ycscRepository.GetByIdAsync(request.Id, cancellationToken);
         if (ycsc == null)
-            return Result.Failure<YeuCauSuaChuaDetailResponse>(YeuCauSuaChuaErrors.NotFoundById(request.Id));
+            return YeuCauSuaChuaErrors.NotFoundById(request.Id);
 
         // 2. Fetch Current Employee/Admin
         var userId = _currentUserService.UserId;
         if (userId == null)
-            return Result.Failure<YeuCauSuaChuaDetailResponse>(UserErrors.NotFound);
+            return UserErrors.NotFound;
 
         // 3. Logic - Using Approve from base YeuCau class
         ycsc.Approve(userId.Value, _dateTimeProvider.Now);

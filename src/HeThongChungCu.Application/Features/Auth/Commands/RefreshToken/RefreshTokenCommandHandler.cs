@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.Auth.DTOs;
 using HeThongChungCu.Domain.Common;
 
@@ -30,14 +30,14 @@ public class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, A
 
         if (account is null)
         {
-            return Result.Failure<AuthResponse>(AuthErrors.InvalidRefreshToken);
+            return AuthErrors.InvalidRefreshToken;
         }
 
         var existingToken = account.Tokens.FirstOrDefault(rt => rt.TokenHash == refreshTokenHash);
 
         if (existingToken is null || !existingToken.IsActive)
         {
-            return Result.Failure<AuthResponse>(AuthErrors.InvalidRefreshToken);
+            return AuthErrors.InvalidRefreshToken;
         }
 
         var user = account.NguoiDungId.HasValue
@@ -46,7 +46,7 @@ public class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, A
 
         if (account.NguoiDungId.HasValue && user is null)
         {
-            return Result.Failure<AuthResponse>(UserErrors.NotFound);
+            return UserErrors.NotFound;
         }
 
         var roles = account.PhanQuyens.Select(pq => pq.RoleId.Name).ToList();

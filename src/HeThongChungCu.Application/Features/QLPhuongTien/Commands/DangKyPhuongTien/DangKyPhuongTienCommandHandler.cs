@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
+﻿using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 using HeThongChungCu.Application.Features.UploadMedia.DTOs;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
@@ -37,15 +37,15 @@ internal sealed class DangKyPhuongTienCommandHandler : ICommandHandler<DangKyPhu
     {
         var canHo = await _canHoCommandRepository.GetByIdAsync(request.CanHoId, cancellationToken);
         if (canHo == null)
-            return Result.Failure<PhuongTienResponse>(CanHoErrors.NotFoundById(request.CanHoId));
+            return CanHoErrors.NotFoundById(request.CanHoId);
 
         var toaNha = await _toaNhaCommandRepository.GetToaNhaByTangIdAsync(canHo.TangId, cancellationToken);
         if (toaNha == null)
-            return Result.Failure<PhuongTienResponse>(CanHoErrors.NotFoundById(request.CanHoId));
+            return CanHoErrors.NotFoundById(request.CanHoId);
 
         var tang = toaNha.Tangs.FirstOrDefault(t => t.Id == canHo.TangId);
         if (tang == null)
-            return Result.Failure<PhuongTienResponse>(CanHoErrors.NotFoundById(request.CanHoId));
+            return CanHoErrors.NotFoundById(request.CanHoId);
 
         var loaiPhuongTien = LoaiPhuongTien.FromValue(request.LoaiPhuongTienId)!;
         
@@ -61,7 +61,7 @@ internal sealed class DangKyPhuongTienCommandHandler : ICommandHandler<DangKyPhu
             isPlateDuplicate);
 
         if (validationResult.IsFailure)
-            return Result.Failure<PhuongTienResponse>(validationResult.Errors[0]);
+            return validationResult.Errors[0];
 
         IEnumerable<TepTaiLieu>? hinhAnhs = null;
         if (request.HinhAnhIds != null && request.HinhAnhIds.Any())

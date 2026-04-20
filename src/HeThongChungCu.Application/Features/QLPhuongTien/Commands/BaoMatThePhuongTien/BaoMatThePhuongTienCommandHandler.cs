@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Domain.Common;
@@ -25,7 +25,7 @@ public class BaoMatThePhuongTienCommandHandler : ICommandHandler<BaoMatThePhuong
         var now = _dateTimeProvider.Now.DateTime;
 
         if (!phuongTiens.Any())
-            return Result.Failure<bool>(PhuongTienErrors.NotFound);
+            return PhuongTienErrors.NotFound;
 
         foreach (var theId in request.TheIds)
         {
@@ -37,6 +37,6 @@ public class BaoMatThePhuongTienCommandHandler : ICommandHandler<BaoMatThePhuong
             }
         }
 
-        return Result.Success(true);
+        return true;
     }
 }

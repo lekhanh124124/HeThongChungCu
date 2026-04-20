@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.Auth.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -37,7 +37,7 @@ public class RegisterCommandHandler : ICommandHandler<RegisterCommand, AuthRespo
         var userExists = await _accountRepository.AnyAsync(a => a.Email.Value == request.Email || a.TenDangNhap == request.Email, cancellationToken);
         if (userExists)
         {
-            return Result.Failure<AuthResponse>(UserErrors.EmailAlreadyExists);
+            return UserErrors.EmailAlreadyExists;
         }
 
         // 1. Create Account (Auth)

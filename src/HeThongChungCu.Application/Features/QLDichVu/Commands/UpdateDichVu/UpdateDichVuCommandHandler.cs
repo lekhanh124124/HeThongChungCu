@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -23,7 +23,7 @@ public class UpdateDichVuCommandHandler : ICommandHandler<UpdateDichVuCommand, D
     {
         var dichVu = await _dichVuCommandRepository.GetByIdAsync(request.Id, cancellationToken);
         if (dichVu == null)
-            return Result.Failure<DichVuResponse>(DichVuErrors.NotFound);
+            return DichVuErrors.NotFound;
 
         dichVu.Update(
             dichVu.TenDichVu,

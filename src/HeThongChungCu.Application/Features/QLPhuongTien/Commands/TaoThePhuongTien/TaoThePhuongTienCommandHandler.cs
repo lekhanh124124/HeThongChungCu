@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
+﻿using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.TaoThePhuongTien;
 
@@ -22,11 +22,11 @@ internal sealed class TaoThePhuongTienCommandHandler : ICommandHandler<TaoThePhu
     {
         var phuongTien = await _phuongTienCommandRepository.GetPhuongTienByIdAsync(request.PhuongTienId, cancellationToken);
         if (phuongTien == null)
-            return Result.Failure<ThePhuongTienResponse>(PhuongTienErrors.NotFound);
+            return PhuongTienErrors.NotFound;
 
         var maTheExists = phuongTien.ThePhuongTiens.Any(t => t.MaThe == request.MaThe);
         if (maTheExists)
-            return Result.Failure<ThePhuongTienResponse>(PhuongTienErrors.MaTheExists);
+            return PhuongTienErrors.MaTheExists;
 
         var now = _dateTimeProvider.Now.DateTime;
         var thePhuongTien = phuongTien.AddThe(request.MaThe, now);

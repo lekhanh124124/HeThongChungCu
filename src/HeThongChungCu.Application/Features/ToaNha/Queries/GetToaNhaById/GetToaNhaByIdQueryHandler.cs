@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.ToaNha.DTOs;
+﻿using HeThongChungCu.Application.Features.ToaNha.DTOs;
 
 namespace HeThongChungCu.Application.Features.ToaNha.Queries.GetToaNhaById;
 
@@ -17,9 +17,9 @@ public class GetToaNhaByIdQueryHandler : IQueryHandler<GetToaNhaByIdQuery, ToaNh
         var toaNha = await _queryRepository.GetByIdAsync(spec, cancellationToken);
 
         if (toaNha is null)
-            return Result.Failure<ToaNhaResponse>(ToaNhaErrors.NotFoundById(request.Id));
+            return ToaNhaErrors.NotFoundById(request.Id);
 
-        return Result.Success(toaNha);
+        return toaNha;
     }
 }
 

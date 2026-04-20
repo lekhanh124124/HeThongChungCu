@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Errors;
@@ -20,8 +20,8 @@ public class GetYeuCauPhuongTienByIdQueryHandler : IQueryHandler<GetYeuCauPhuong
         var response = await _yeuCauRepository.GetByIdAsync(spec, cancellationToken);
 
         if (response == null)
-            return Result.Failure<YeuCauPhuongTienResponse>(YeuCauPhuongTienErrors.NotFound);
+            return YeuCauPhuongTienErrors.NotFound;
 
-        return Result.Success(response);
+        return response;
     }
 }

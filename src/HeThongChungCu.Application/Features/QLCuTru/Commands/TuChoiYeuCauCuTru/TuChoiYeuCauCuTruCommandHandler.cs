@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -30,11 +30,11 @@ public class TuChoiYeuCauCuTruCommandHandler : ICommandHandler<TuChoiYeuCauCuTru
     {
         var userId = _currentUserService.UserId;
         if (userId == null)
-            return Result.Failure<YeuCauCuTruResponse>(UserErrors.NotFound);
+            return UserErrors.NotFound;
 
         var yeuCau = await _yeuCauRepository.GetByIdAsync(request.YeuCauCuTruId, cancellationToken);
         if (yeuCau == null)
-            return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.NotFound);
+            return YeuCauCuTruErrors.NotFound;
 
         var now = _dateTimeProvider.Now;
         yeuCau.Reject(userId.Value, request.LyDo, now);

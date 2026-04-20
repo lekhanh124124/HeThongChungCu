@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Errors;
@@ -29,12 +29,12 @@ public class DanhDauDaDocCommandHandler : ICommandHandler<DanhDauDaDocCommand, b
     {
         var userId = _currentUserService.UserId;
         if (userId == null)
-            return Result.Failure<bool>(UserErrors.NotFound);
+            return UserErrors.NotFound;
 
         var phanBo = await _thongBaoCommandRepository.GetPhanBoByIdAsync(request.PhanBoThongBaoId, userId.Value, cancellationToken);
 
         if (phanBo == null)
-            return Result.Failure<bool>(new Error("ThongBao.NotFound", "Không tìm thấy thông báo hoặc bạn không có quyền truy cập."));
+            return new Error("ThongBao.NotFound", "Không tìm thấy thông báo hoặc bạn không có quyền truy cập.");
 
         phanBo.MarkAsRead(_dateTimeProvider.Now);
         _thongBaoCommandRepository.UpdatePhanBo(phanBo);

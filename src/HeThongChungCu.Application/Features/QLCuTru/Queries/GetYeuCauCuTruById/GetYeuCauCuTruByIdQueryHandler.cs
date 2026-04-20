@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Errors;
@@ -20,8 +20,8 @@ public class GetYeuCauCuTruByIdQueryHandler : IQueryHandler<GetYeuCauCuTruByIdQu
         var response = await _yeuCauQueryRepository.GetByIdAsync(spec, cancellationToken);
         
         if (response == null)
-            return Result.Failure<YeuCauCuTruResponse>(YeuCauCuTruErrors.NotFound);
+            return YeuCauCuTruErrors.NotFound;
 
-        return Result.Success(response);
+        return response;
     }
 }

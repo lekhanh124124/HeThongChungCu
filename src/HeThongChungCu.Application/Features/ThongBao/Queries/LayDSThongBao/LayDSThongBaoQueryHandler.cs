@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.ThongBao.DTOs;
@@ -21,7 +21,7 @@ public class LayDSThongBaoQueryHandler : IQueryHandler<LayDSThongBaoQuery, Paged
     {
         var userId = _currentUserService.UserId;
         if (userId == null)
-            return Result.Failure<PagedResult<ThongBaoResponse>>(Domain.Errors.UserErrors.NotFound);
+            return Domain.Errors.UserErrors.NotFound;
 
         var spec = new LayDSThongBaoSpecification(
             userId.Value,

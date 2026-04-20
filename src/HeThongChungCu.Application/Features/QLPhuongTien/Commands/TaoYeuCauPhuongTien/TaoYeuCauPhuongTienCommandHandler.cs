@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
@@ -49,15 +49,15 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
     {
         var userId = _currentUserService.UserId;
         if (userId == null)
-            return Result.Failure<YeuCauPhuongTienResponse>(UserErrors.NotFound);
+            return UserErrors.NotFound;
 
         // Fetch the relation of the current user for this apartment to validate ChuHo
         var requesterRelation = await _quanHeRepository.GetByUserAndCanHoAsync(userId.Value, request.CanHoId, cancellationToken);
         if (requesterRelation == null)
-            return Result.Failure<YeuCauPhuongTienResponse>(CanHoErrors.NotFoundById(request.CanHoId));
+            return CanHoErrors.NotFoundById(request.CanHoId);
 
         if (requesterRelation.LoaiQuanHeCuTruId != LoaiQuanHeCuTru.ChuHo)
-            return Result.Failure<YeuCauPhuongTienResponse>(YeuCauPhuongTienErrors.Forbidden);
+            return YeuCauPhuongTienErrors.Forbidden;
 
         var loaiYeuCau = LoaiHanhDongYeuCau.FromValue(request.LoaiYeuCauId, null);
 
@@ -86,7 +86,7 @@ public class TaoYeuCauPhuongTienCommandHandler : ICommandHandler<TaoYeuCauPhuong
         {
             var phuongTien = await _phuongTienRepository.GetPhuongTienByIdAsync(request.YeuCauPhuongTienId!.Value, cancellationToken);
             if (phuongTien == null || phuongTien.CanHoId != request.CanHoId)
-                return Result.Failure<YeuCauPhuongTienResponse>(PhuongTienErrors.NotFound);
+                return PhuongTienErrors.NotFound;
 
             if (loaiYeuCau == LoaiHanhDongYeuCau.Sua)
             {

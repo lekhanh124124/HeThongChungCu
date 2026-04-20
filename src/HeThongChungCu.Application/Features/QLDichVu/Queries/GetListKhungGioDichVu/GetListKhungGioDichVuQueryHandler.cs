@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Application.Common.Messaging;
@@ -27,6 +27,6 @@ public class GetListKhungGioDichVuQueryHandler : IQueryHandler<GetListKhungGioDi
             request.IsActive);
 
         var result = await _queryRepository.GetListKhungGioAsync(spec, cancellationToken);
-        return Result.Success(result);
+        return result;
     }
 }

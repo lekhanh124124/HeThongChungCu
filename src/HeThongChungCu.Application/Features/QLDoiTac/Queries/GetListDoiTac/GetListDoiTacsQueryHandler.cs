@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QLDoiTac.DTOs;
 
@@ -22,6 +22,6 @@ public class GetListDoiTacsQueryHandler : IQueryHandler<GetListDoiTacsQuery, Pag
             request.PageNumber,
             request.PageSize);
         var result = await _doiTacQueryRepository.GetAllAsync(spec, cancellationToken);
-        return Result.Success(result);
+        return result;
     }
 }

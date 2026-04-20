@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -34,7 +34,7 @@ public class LienKetTaiKhoanCommandHandler : ICommandHandler<LienKetTaiKhoanComm
         var account = await _accountRepository.GetByEmailAsync(request.Email, cancellationToken);
         if (account is null)
         {
-            return Result.Failure<UserInfoResponse>(AuthErrors.AccountNotFound);
+            return AuthErrors.AccountNotFound;
         }
 
         // 2. Link account and promote role via Domain Service
@@ -42,7 +42,7 @@ public class LienKetTaiKhoanCommandHandler : ICommandHandler<LienKetTaiKhoanComm
         
         var canLinkResult = _identityService.CanLinkAccountToResident(account, request.UserId, isResidentAlreadyLinked);
         if (canLinkResult.IsFailure)
-            return Result.Failure<UserInfoResponse>(canLinkResult.Errors[0]);
+            return canLinkResult.Errors[0];
 
         _identityService.LinkAccountToResident(account, request.UserId);
 
@@ -56,7 +56,7 @@ public class LienKetTaiKhoanCommandHandler : ICommandHandler<LienKetTaiKhoanComm
         var user = await _userRepository.GetByIdWithDocumentsAsync(request.UserId, cancellationToken);
         if (user is null)
         {
-            return Result.Failure<UserInfoResponse>(UserErrors.NotFoundById(request.UserId));
+            return UserErrors.NotFoundById(request.UserId);
         }
 
         return Result.Success(new UserInfoResponse

@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
@@ -26,10 +26,10 @@ public class CreateDichVuCommandHandler : ICommandHandler<CreateDichVuCommand, D
     {
         var loaiDichVu = LoaiDichVu.FromValue(request.LoaiDichVuId);
         if (loaiDichVu == null)
-            return Result.Failure<DichVuResponse>(DichVuErrors.InvalidType(LoaiDichVu.GetAll().Select(x => x.Name)));
+            return DichVuErrors.InvalidType(LoaiDichVu.GetAll().Select(x => x.Name));
 
         if (await _dichVuCommandRepository.MaDichVuExistsAsync(request.MaDichVu, cancellationToken))
-            return Result.Failure<DichVuResponse>(DichVuErrors.MaDichVuAlreadyExists(request.MaDichVu));
+            return DichVuErrors.MaDichVuAlreadyExists(request.MaDichVu);
 
         var dichVu = new Domain.Entities.DichVu(
             request.MaDichVu,

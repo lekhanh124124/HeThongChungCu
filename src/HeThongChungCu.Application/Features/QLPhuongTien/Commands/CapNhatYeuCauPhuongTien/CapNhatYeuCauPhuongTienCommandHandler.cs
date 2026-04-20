@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
@@ -43,14 +43,14 @@ public class CapNhatYeuCauPhuongTienCommandHandler : ICommandHandler<CapNhatYeuC
     {
         var userId = _currentUserService.UserId;
         if (userId == null)
-            return Result.Failure<YeuCauPhuongTienResponse>(UserErrors.NotFound);
+            return UserErrors.NotFound;
 
         var yeuCau = await _yeuCauRepository.GetByIdAsync(request.Id, cancellationToken);
         if (yeuCau == null)
-            return Result.Failure<YeuCauPhuongTienResponse>(YeuCauPhuongTienErrors.NotFound);
+            return YeuCauPhuongTienErrors.NotFound;
 
         if (yeuCau.CreatedBy != userId)
-            return Result.Failure<YeuCauPhuongTienResponse>(YeuCauPhuongTienErrors.Forbidden);
+            return YeuCauPhuongTienErrors.Forbidden;
 
         if (request.IsWithdraw)
         {

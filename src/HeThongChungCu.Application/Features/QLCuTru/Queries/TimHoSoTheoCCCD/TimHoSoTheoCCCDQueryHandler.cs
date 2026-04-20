@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Errors;
 
@@ -18,7 +18,7 @@ public class TimHoSoTheoCCCDQueryHandler : IQueryHandler<TimHoSoTheoCCCDQuery, U
         var user = await _userRepository.GetByCCCDAsync(request.IdCard, cancellationToken);
 
         if (user is null)
-            return Result.Failure<UserInfoResponse>(UserErrors.NotFoundByIdCard(request.IdCard));
+            return UserErrors.NotFoundByIdCard(request.IdCard);
 
         return Result.Success(new UserInfoResponse
         {

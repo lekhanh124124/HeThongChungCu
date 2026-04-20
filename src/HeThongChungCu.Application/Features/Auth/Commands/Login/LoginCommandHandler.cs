@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.Auth.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -39,13 +39,13 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, AuthResponse>
 
         if (account is null || !account.IsActive)
         {
-            return Result.Failure<AuthResponse>(AuthErrors.InvalidCredentials);
+            return AuthErrors.InvalidCredentials;
         }
 
         // Check Password
         if (!_hasherService.VerifyPassword(request.Password, account.MatKhauHash))
         {
-            return Result.Failure<AuthResponse>(AuthErrors.InvalidCredentials);
+            return AuthErrors.InvalidCredentials;
         }
 
         // Get User details

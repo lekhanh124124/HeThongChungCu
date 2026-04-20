@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Features.QLDoiTac.DTOs;
 
 namespace HeThongChungCu.Application.Features.QLDoiTac.Queries.GetDoiTacById;
@@ -18,8 +18,8 @@ public class GetDoiTacByIdQueryHandler : IQueryHandler<GetDoiTacByIdQuery, DoiTa
         var result = await _doiTacQueryRepository.GetByIdAsync(spec, cancellationToken);
         
         if (result == null)
-            return Result.Failure<DoiTacDetailResponse>(DoiTacErrors.NotFoundById(request.Id));
+            return DoiTacErrors.NotFoundById(request.Id);
 
-        return Result.Success(result);
+        return result;
     }
 }

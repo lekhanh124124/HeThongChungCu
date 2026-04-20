@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.Tang.DTOs;
+﻿using HeThongChungCu.Application.Features.Tang.DTOs;
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
 using HeThongChungCu.Domain.ValueObjects;
 
@@ -18,7 +18,7 @@ public class UpdateToaNhaCommandHandler : ICommandHandler<UpdateToaNhaCommand, T
     {
         var toaNha = await _toaNhaRepository.GetToaNhaByIdAsync(request.Id, cancellationToken);
         if (toaNha is null)
-            return Result.Failure<ToaNhaDetailResponse>(ToaNhaErrors.NotFoundById(request.Id));
+            return ToaNhaErrors.NotFoundById(request.Id);
 
         var trangThaiToaNha = TrangThaiToaNha.FromValue(request.TrangThaiToaNhaId);
 

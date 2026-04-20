@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.ToaNha.DTOs;
+﻿using HeThongChungCu.Application.Features.ToaNha.DTOs;
 
 namespace HeThongChungCu.Application.Features.ToaNha.Queries.GetListToaNha;
 
@@ -22,7 +22,7 @@ public class GetListToaNhaQueryHandler : IQueryHandler<GetListToaNhaQuery, Paged
 
         var result = await _queryRepository.GetAllAsync(spec, cancellationToken);
 
-        return Result.Success(result);
+        return result;
     }
 }
 

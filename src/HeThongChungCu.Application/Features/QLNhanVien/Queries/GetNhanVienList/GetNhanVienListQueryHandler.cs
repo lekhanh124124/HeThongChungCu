@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QLNhanVien.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -25,6 +25,6 @@ public class GetNhanVienListQueryHandler : IQueryHandler<GetNhanVienListQuery, P
             request.PageNumber,
             request.PageSize), cancellationToken);
 
-        return Result.Success(result);
+        return result;
     }
 }

@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
@@ -30,6 +30,6 @@ public class GetListDichVuQueryHandler : IQueryHandler<GetListDichVuQuery, Paged
 
         var result = await _dichVuQueryRepository.GetListAsync(spec, cancellationToken);
 
-        return Result.Success(result);
+        return result;
     }
 }

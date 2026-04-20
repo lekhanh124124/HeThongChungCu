@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Services;
+﻿using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Domain.Common;
 
@@ -16,6 +16,6 @@ public class GoiYMaTangQueryHandler : IQueryHandler<GoiYMaTangQuery, string>
     public async Task<Result<string>> Handle(GoiYMaTangQuery request, CancellationToken cancellationToken)
     {
         var maTang = await _codeGeneratorService.GenerateMaTangAsync(request.ToaNhaId, request.LoaiTangId, cancellationToken);
-        return Result.Success(maTang);
+        return maTang;
     }
 }

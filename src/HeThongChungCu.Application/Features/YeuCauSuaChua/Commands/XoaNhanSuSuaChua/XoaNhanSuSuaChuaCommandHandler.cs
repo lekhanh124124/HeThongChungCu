@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.DTOs;
@@ -29,7 +29,7 @@ public class XoaNhanSuSuaChuaCommandHandler : ICommandHandler<XoaNhanSuSuaChuaCo
         // 1. Fetch Aggregate
         var ycsc = await _ycscRepository.GetByIdWithPersonnelAsync(request.Id, cancellationToken);
         if (ycsc == null)
-            return Result.Failure<YeuCauSuaChuaDetailResponse>(YeuCauSuaChuaErrors.NotFoundById(request.Id));
+            return YeuCauSuaChuaErrors.NotFoundById(request.Id);
 
         // 2. Domain Logic
         ycsc.RemoveNhanSu(request.NhanSuId, request.LyDo);

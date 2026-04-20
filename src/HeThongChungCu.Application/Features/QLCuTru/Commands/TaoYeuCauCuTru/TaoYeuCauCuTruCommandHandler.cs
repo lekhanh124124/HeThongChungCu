@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -42,14 +42,14 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
     {
         var userId = _currentUserService.UserId;
         if (userId == null)
-            return Result.Failure<YeuCauCuTruResponse>(UserErrors.NotFound);
+            return UserErrors.NotFound;
 
         var loaiYeuCau = LoaiHanhDongYeuCau.FromValue(request.LoaiYeuCauId, null);
         // Validate permissions via Domain Service
         var requesterRelation = await _quanHeRepository.GetByUserAndCanHoAsync(userId.Value, request.CanHoId, cancellationToken);
         var permissionResult = _residencyService.CheckHeadPermission(requesterRelation);
         if (permissionResult.IsFailure)
-            return Result.Failure<YeuCauCuTruResponse>(permissionResult.Errors[0]);
+            return permissionResult.Errors[0];
 
 
         // Fetch all TepTaiLieus at once

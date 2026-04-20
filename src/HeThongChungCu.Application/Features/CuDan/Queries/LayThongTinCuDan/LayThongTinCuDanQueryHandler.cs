@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Features.CuDan.DTOs;
 
 namespace HeThongChungCu.Application.Features.CuDan.Queries.LayThongTinCuDan;
@@ -20,9 +20,9 @@ public class LayThongTinCuDanQueryHandler : IQueryHandler<LayThongTinCuDanQuery,
         
         if (result is null)
         {
-            return Result.Failure<LayThongTinCuDanResponse>(AuthErrors.InvalidCredentials);
+            return AuthErrors.InvalidCredentials;
         }
 
-        return Result.Success(result);
+        return result;
     }
 }

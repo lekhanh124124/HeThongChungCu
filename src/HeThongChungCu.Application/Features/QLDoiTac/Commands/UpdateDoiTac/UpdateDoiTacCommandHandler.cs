@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Features.QLDoiTac.DTOs;
 using HeThongChungCu.Application.Features.QLDoiTac.Queries.GetDoiTacById;
@@ -29,7 +29,7 @@ public class UpdateDoiTacCommandHandler : ICommandHandler<UpdateDoiTacCommand, D
     {
         var doiTac = await _doiTacCommandRepository.GetByIdAsync(request.Id, cancellationToken);
         if (doiTac == null)
-            return Result.Failure<DoiTacDetailResponse>(DoiTacErrors.NotFoundById(request.Id));
+            return DoiTacErrors.NotFoundById(request.Id);
 
         doiTac.UpdateInfo(
             request.TenDoiTac,
@@ -49,8 +49,8 @@ public class UpdateDoiTacCommandHandler : ICommandHandler<UpdateDoiTacCommand, D
         var result = await _doiTacQueryRepository.GetByIdAsync(spec, cancellationToken);
 
         if (result == null)
-            return Result.Failure<DoiTacDetailResponse>(DoiTacErrors.NotFound);
+            return DoiTacErrors.NotFound;
 
-        return Result.Success(result);
+        return result;
     }
 }

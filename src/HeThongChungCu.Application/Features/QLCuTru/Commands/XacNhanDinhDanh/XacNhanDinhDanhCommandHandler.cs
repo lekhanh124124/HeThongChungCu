@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -42,14 +42,14 @@ public class XacNhanDinhDanhCommandHandler : ICommandHandler<XacNhanDinhDanhComm
 
         if (accountId == null || userId == null)
         {
-            return Result.Failure<UserInfoResponse>(AuthErrors.InvalidToken);
+            return AuthErrors.InvalidToken;
         }
 
         // 2. Find account by Id (include tokens)
         var account = await _accountRepository.GetWithTokensAsync(accountId.Value, cancellationToken);
         if (account is null)
         {
-            return Result.Failure<UserInfoResponse>(AuthErrors.AccountNotFound);
+            return AuthErrors.AccountNotFound;
         }
 
         // 3. Verify token exists and is active inside account using jti
@@ -57,7 +57,7 @@ public class XacNhanDinhDanhCommandHandler : ICommandHandler<XacNhanDinhDanhComm
         var tokenEntity = account.Tokens.FirstOrDefault(t => t.TokenHash == jti && t.TokenType == TokenType.UserCode);
         if (tokenEntity == null || !tokenEntity.IsActive)
         {
-            return Result.Failure<UserInfoResponse>(AuthErrors.InvalidToken);
+            return AuthErrors.InvalidToken;
         }
 
         // 4. Validate business rules
@@ -65,7 +65,7 @@ public class XacNhanDinhDanhCommandHandler : ICommandHandler<XacNhanDinhDanhComm
         var canLinkResult = _identityService.CanLinkAccountToResident(account, userId.Value, isResidentAlreadyLinked);
         if (canLinkResult.IsFailure)
         {
-            return Result.Failure<UserInfoResponse>(canLinkResult.Errors[0]);
+            return canLinkResult.Errors[0];
         }
 
         // 5. Perform link and promote role
@@ -81,7 +81,7 @@ public class XacNhanDinhDanhCommandHandler : ICommandHandler<XacNhanDinhDanhComm
         var user = await _userRepository.GetByIdWithDocumentsAsync(userId.Value, cancellationToken);
         if (user is null)
         {
-            return Result.Failure<UserInfoResponse>(UserErrors.NotFoundById(userId.Value));
+            return UserErrors.NotFoundById(userId.Value);
         }
 
         return Result.Success(new UserInfoResponse

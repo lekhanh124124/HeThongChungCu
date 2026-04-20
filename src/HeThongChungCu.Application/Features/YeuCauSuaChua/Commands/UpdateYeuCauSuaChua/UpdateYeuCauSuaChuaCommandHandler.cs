@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.DTOs;
@@ -38,16 +38,16 @@ public class UpdateYeuCauSuaChuaCommandHandler : ICommandHandler<UpdateYeuCauSua
         // 1. Xác thực người dùng
         var userId = _currentUserService.UserId;
         if (userId == null)
-            return Result.Failure<YeuCauSuaChuaDetailResponse>(UserErrors.NotFound);
+            return UserErrors.NotFound;
 
         // 2. Fetch aggregate
         var ycsc = await _ycscRepository.GetByIdAsync(request.Id, cancellationToken);
         if (ycsc == null)
-            return Result.Failure<YeuCauSuaChuaDetailResponse>(YeuCauSuaChuaErrors.NotFoundById(request.Id));
+            return YeuCauSuaChuaErrors.NotFoundById(request.Id);
 
         // 3. Guard quyền: chỉ người tạo mới được sửa
         if (ycsc.CreatedBy != userId)
-            return Result.Failure<YeuCauSuaChuaDetailResponse>(YeuCauSuaChuaErrors.Forbidden);
+            return YeuCauSuaChuaErrors.Forbidden;
 
         if (request.IsWithdraw)
         {

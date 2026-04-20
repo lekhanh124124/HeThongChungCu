@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
@@ -31,7 +31,7 @@ internal sealed class KichHoatPhuongTienCommandHandler : ICommandHandler<KichHoa
         
         if (phuongTiens.Count == 0)
         {
-            return Result.Failure<bool>(PhuongTienErrors.NotFound);
+            return PhuongTienErrors.NotFound;
         }
 
         // Nhóm theo căn hộ để tối ưu query hạn mức
@@ -51,7 +51,7 @@ internal sealed class KichHoatPhuongTienCommandHandler : ICommandHandler<KichHoa
             {
                 var result = _vehicleRegistryService.KichHoatPhuongTien(phuongTien, canHo, existingVehicles.Where(v => v.TrangThaiPhuongTienId == TrangThaiPhuongTien.Active));
                 if (result.IsFailure)
-                    return Result.Failure<bool>(result.Errors);
+                    return result.Errors;
 
                 _phuongTienCommandRepository.Update(phuongTien);
             }
@@ -59,6 +59,6 @@ internal sealed class KichHoatPhuongTienCommandHandler : ICommandHandler<KichHoa
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(true);
+        return true;
     }
 }

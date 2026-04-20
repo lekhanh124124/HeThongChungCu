@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
@@ -25,6 +25,6 @@ public class GetListBangGiaQueryHandler : IQueryHandler<GetListBangGiaQuery, Pag
             request.SortBy,
             request.IsAsc);
 
-        return Result.Success(await _queryRepository.GetListBangGiaAsync(spec, cancellationToken));
+        return await _queryRepository.GetListBangGiaAsync(spec, cancellationToken);
     }
 }

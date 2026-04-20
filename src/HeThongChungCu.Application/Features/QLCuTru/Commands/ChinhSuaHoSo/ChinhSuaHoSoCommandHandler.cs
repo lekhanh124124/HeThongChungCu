@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Entities;
@@ -35,11 +35,11 @@ public class ChinhSuaHoSoCommandHandler : ICommandHandler<ChinhSuaHoSoCommand, U
     {
         var relation = await _quanHeCuTruRepository.GetByIdAsync(request.QuanHeCuTruId, cancellationToken);
         if (relation == null)
-            return Result.Failure<UserInfoResponse>(QuanHeCuTruErrors.NotFound);
+            return QuanHeCuTruErrors.NotFound;
 
         var user = await _userRepository.GetByIdWithDocumentsAsync(relation.NguoiDungId, cancellationToken);
         if (user == null)
-            return Result.Failure<UserInfoResponse>(UserErrors.NotFound);
+            return UserErrors.NotFound;
 
         // 1. Update personal info
         user.UpdateProfile(

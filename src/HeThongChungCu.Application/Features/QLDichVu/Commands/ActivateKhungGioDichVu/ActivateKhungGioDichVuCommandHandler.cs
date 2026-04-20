@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Domain.Common;
 
@@ -22,18 +22,18 @@ public class ActivateKhungGioDichVuCommandHandler : ICommandHandler<ActivateKhun
     {
         var dichVu = await _dichVuCommandRepository.GetByIdWithKhungGiosAsync(request.DichVuId, cancellationToken);
         if (dichVu == null)
-            return Result.Failure<bool>(DichVuErrors.NotFoundById(request.DichVuId));
+            return DichVuErrors.NotFoundById(request.DichVuId);
 
         foreach (var id in request.Ids)
         {
             var result = dichVu.ActivateKhungGio(id);
             if (result.IsFailure)
             {
-                return Result.Failure<bool>(result.Errors);
+                return result.Errors;
             }
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result.Success(true);
+        return true;
     }
 }

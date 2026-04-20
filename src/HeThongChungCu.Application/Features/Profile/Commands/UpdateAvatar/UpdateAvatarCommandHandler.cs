@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
@@ -39,13 +39,13 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
         var accountId = _currentUserService.AccountId;
         if (accountId == null)
         {
-            return Result.Failure<string>(AuthErrors.InvalidCredentials);
+            return AuthErrors.InvalidCredentials;
         }
 
         var account = await _accountRepository.GetWithAvatarAsync(accountId.Value, cancellationToken);
         if (account == null)
         {
-            return Result.Failure<string>(AuthErrors.InvalidCredentials);
+            return AuthErrors.InvalidCredentials;
         }
 
         var identifier = account.TenDangNhap;
@@ -68,7 +68,7 @@ public class UpdateAvatarCommandHandler : ICommandHandler<UpdateAvatarCommand, s
 
         if (uploadResult.IsFailure)
         {
-            return Result.Failure<string>(uploadResult.Errors);
+            return uploadResult.Errors;
         }
 
         var avatarUrl = uploadResult.Value;

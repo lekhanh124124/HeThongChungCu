@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Domain.Common;
 using MediatR;
@@ -36,7 +36,7 @@ public class CleanupUnusedFilesCommandHandler : ICommandHandler<CleanupUnusedFil
 
         if (unusedFiles.Count == 0)
         {
-            return Result.Success(0);
+            return 0;
         }
 
         foreach (var file in unusedFiles)
@@ -54,6 +54,6 @@ public class CleanupUnusedFilesCommandHandler : ICommandHandler<CleanupUnusedFil
         _tepTaiLieuRepository.DeleteRange(unusedFiles);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(unusedFiles.Count);
+        return unusedFiles.Count;
     }
 }

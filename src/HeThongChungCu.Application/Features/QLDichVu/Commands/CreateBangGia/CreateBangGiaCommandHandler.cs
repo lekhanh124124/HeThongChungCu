@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Application.Features.QLDichVu.Queries.GetBangGiaById;
 using HeThongChungCu.Domain.Common;
@@ -29,7 +29,7 @@ public class CreateBangGiaCommandHandler : ICommandHandler<CreateBangGiaCommand,
     {
         var dichVu = await _commandRepository.GetByIdWithBangGiasAsync(request.DichVuId, cancellationToken);
         if (dichVu == null)
-            return Result.Failure<BangGiaResponse>(DichVuErrors.NotFoundById(request.DichVuId));
+            return DichVuErrors.NotFoundById(request.DichVuId);
 
         var loaiDinhGia = LoaiDinhGia.FromValue(request.LoaiDinhGiaId)!;
 
@@ -68,7 +68,7 @@ public class CreateBangGiaCommandHandler : ICommandHandler<CreateBangGiaCommand,
         }
         else
         {
-            return Result.Failure<BangGiaResponse>(DichVuErrors.LoaiDinhGiaNotSupported);
+            return DichVuErrors.LoaiDinhGiaNotSupported;
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -80,9 +80,9 @@ public class CreateBangGiaCommandHandler : ICommandHandler<CreateBangGiaCommand,
 
         if (result == null)
         {
-            return Result.Failure<BangGiaResponse>(DichVuErrors.GetBangGiaAfterActionFailed);
+            return DichVuErrors.GetBangGiaAfterActionFailed;
         }
 
-        return Result.Success(result);
+        return result;
     }
 }

@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Errors;
@@ -20,7 +20,7 @@ public class RevokeHopDongCommandHandler : ICommandHandler<RevokeHopDongCommand,
     {
         var doiTac = await _doiTacCommandRepository.GetByIdWithHopDongsAsync(request.DoiTacId, cancellationToken);
         if (doiTac == null)
-            return Result.Failure<bool>(DoiTacErrors.NotFoundById(request.DoiTacId));
+            return DoiTacErrors.NotFoundById(request.DoiTacId);
 
         foreach (var id in request.Ids)
         {
@@ -33,6 +33,6 @@ public class RevokeHopDongCommandHandler : ICommandHandler<RevokeHopDongCommand,
 
         _doiTacCommandRepository.Update(doiTac);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result.Success(true);
+        return true;
     }
 }

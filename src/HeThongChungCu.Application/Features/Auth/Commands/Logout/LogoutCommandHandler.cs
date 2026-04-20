@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
@@ -29,14 +29,14 @@ public class LogoutCommandHandler : ICommandHandler<LogoutCommand, bool>
         var accountId = _currentUserService.AccountId;
         if (accountId is null)
         {
-            return Result.Failure<bool>(AuthErrors.InvalidToken);
+            return AuthErrors.InvalidToken;
         }
 
         var account = await _accountRepository.GetWithTokensAsync(accountId.Value, cancellationToken);
 
         if (account is null)
         {
-            return Result.Failure<bool>(AuthErrors.InvalidToken);
+            return AuthErrors.InvalidToken;
         }
 
         var activeTokens = account.Tokens.Where(t => t.IsActive).ToList();
@@ -48,6 +48,6 @@ public class LogoutCommandHandler : ICommandHandler<LogoutCommand, bool>
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(true);
+        return true;
     }
 }

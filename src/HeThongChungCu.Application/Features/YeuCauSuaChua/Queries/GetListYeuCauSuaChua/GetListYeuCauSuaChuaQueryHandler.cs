@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.YeuCauSuaChua.DTOs;
+﻿using HeThongChungCu.Application.Features.YeuCauSuaChua.DTOs;
 
 namespace HeThongChungCu.Application.Features.YeuCauSuaChua.Queries.GetListYeuCauSuaChua;
 
@@ -26,6 +26,6 @@ public class GetListYeuCauSuaChuaQueryHandler : IQueryHandler<GetListYeuCauSuaCh
             request.NgayTaoDen);
 
         var result = await _queryRepository.GetAllAsync(spec, cancellationToken);
-        return Result.Success(result);
+        return result;
     }
 }

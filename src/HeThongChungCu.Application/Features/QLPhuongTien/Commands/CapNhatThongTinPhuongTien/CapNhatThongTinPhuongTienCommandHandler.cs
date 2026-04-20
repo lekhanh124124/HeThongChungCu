@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
+﻿using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 using HeThongChungCu.Application.Features.UploadMedia.DTOs;
 using HeThongChungCu.Domain.Interfaces;
 
@@ -34,26 +34,26 @@ internal sealed class CapNhatThongTinPhuongTienCommandHandler : ICommandHandler<
 
         var phuongTien = await _phuongTienCommandRepository.GetPhuongTienByIdAsync(request.PhuongTienId, cancellationToken);
         if (phuongTien == null)
-            return Result.Failure<PhuongTienResponse>(PhuongTienErrors.NotFound);
+            return PhuongTienErrors.NotFound;
 
         if (phuongTien.BienSo != request.BienSo)
         {
             var bienSoExists = await _phuongTienCommandRepository.BienSoExistsAsync(request.BienSo, cancellationToken);
             if (bienSoExists)
-                return Result.Failure<PhuongTienResponse>(PhuongTienErrors.BienSoExists);
+                return PhuongTienErrors.BienSoExists;
         }
 
         var canHo = await _canHoRepository.GetByIdAsync(phuongTien.CanHoId, cancellationToken);
         if (canHo == null)
-            return Result.Failure<PhuongTienResponse>(CanHoErrors.NotFoundById(phuongTien.CanHoId));
+            return CanHoErrors.NotFoundById(phuongTien.CanHoId);
 
         var toaNha = await _toaNhaCommandRepository.GetToaNhaByTangIdAsync(canHo.TangId, cancellationToken);
         if (toaNha == null)
-            return Result.Failure<PhuongTienResponse>(CanHoErrors.NotFoundById(phuongTien.CanHoId));
+            return CanHoErrors.NotFoundById(phuongTien.CanHoId);
 
         var tang = toaNha.Tangs.FirstOrDefault(t => t.Id == canHo.TangId);
         if (tang == null)
-            return Result.Failure<PhuongTienResponse>(CanHoErrors.NotFoundById(phuongTien.CanHoId));
+            return CanHoErrors.NotFoundById(phuongTien.CanHoId);
 
         phuongTien.CapNhat(
             request.TenPhuongTien,

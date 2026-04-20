@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Services;
+﻿using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Domain.Common;
 
@@ -16,6 +16,6 @@ public class GoiYMaCanHoQueryHandler : IQueryHandler<GoiYMaCanHoQuery, string>
     public async Task<Result<string>> Handle(GoiYMaCanHoQuery request, CancellationToken cancellationToken)
     {
         var maCanHo = await _codeGeneratorService.GenerateMaCanHoAsync(request.TangId, cancellationToken);
-        return Result.Success(maCanHo);
+        return maCanHo;
     }
 }

@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -45,21 +45,21 @@ public class TaoMaDinhDanhCommandHandler : ICommandHandler<TaoMaDinhDanhCommand,
     {
         var cuTru = await _cuTruRepository.GetByIdAsync(request.QuanHeCuTruId, cancellationToken);
         if (cuTru is null)
-            return Result.Failure<string>(QuanHeCuTruErrors.NotFoundById(request.QuanHeCuTruId));
+            return QuanHeCuTruErrors.NotFoundById(request.QuanHeCuTruId);
 
         var user = await _userRepository.GetByIdAsync(cuTru.NguoiDungId, cancellationToken);
         if (user is null)
-            return Result.Failure<string>(UserErrors.NotFoundById(cuTru.NguoiDungId));
+            return UserErrors.NotFoundById(cuTru.NguoiDungId);
 
         var account = await _accountRepository.GetByEmailAsync(request.Email, cancellationToken);
         if (account is null)
-            return Result.Failure<string>(AuthErrors.AccountNotFound);
+            return AuthErrors.AccountNotFound;
 
         // Kiểm tra điều kiện định danh
         var isResidentAlreadyLinked = await _accountRepository.AnyAsync(a => a.NguoiDungId == user.Id && a.Id != account.Id, cancellationToken);
         var canLinkResult = _identityService.CanLinkAccountToResident(account, user.Id, isResidentAlreadyLinked);
         if (canLinkResult.IsFailure)
-            return Result.Failure<string>(canLinkResult.Errors[0]);
+            return canLinkResult.Errors[0];
 
         // Generate JWT token encoding the UserId and AccountId
         var roles = account.PhanQuyens.Select(pq => pq.RoleId.Name).ToList();
@@ -78,6 +78,6 @@ public class TaoMaDinhDanhCommandHandler : ICommandHandler<TaoMaDinhDanhCommand,
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success("Yêu cầu định danh đã được gửi đến email của người dùng thành công.");
+        return "Yêu cầu định danh đã được gửi đến email của người dùng thành công.";
     }
 }

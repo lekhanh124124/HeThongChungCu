@@ -2,7 +2,7 @@ using HeThongChungCu.Application.Features.CuDan.DTOs;
 
 namespace HeThongChungCu.Application.Features.CuDan.Queries.LayDSCuTruCuaNguoiDung;
 
-public class LayDSCuTruCuaNguoiDungQueryHandler : IQueryHandler<LayDSCuTruCuaNguoiDungQuery, IReadOnlyList<QuanHeCuTruResponse>>
+public class LayDSCuTruCuaNguoiDungQueryHandler : IQueryHandler<LayDSCuTruCuaNguoiDungQuery, List<QuanHeCuTruResponse>>
 {
     private readonly IQuanHeCuTruQueryRepository _repository;
     private readonly ICurrentUserService _currentUserService;
@@ -13,16 +13,16 @@ public class LayDSCuTruCuaNguoiDungQueryHandler : IQueryHandler<LayDSCuTruCuaNgu
         _currentUserService = currentUserService;
     }
 
-    public async Task<Result<IReadOnlyList<QuanHeCuTruResponse>>> Handle(LayDSCuTruCuaNguoiDungQuery request, CancellationToken cancellationToken)
+    public async Task<Result<List<QuanHeCuTruResponse>>> Handle(LayDSCuTruCuaNguoiDungQuery request, CancellationToken cancellationToken)
     {
         var userId = _currentUserService.UserId;
         if (userId == null)
         {
-            return Result.Failure<IReadOnlyList<QuanHeCuTruResponse>>(UserErrors.NotFound);
+            return UserErrors.NotFound;
         }
 
         var spec = new LayDSCuTruCuaNguoiDungSpecification(userId.Value);
         var result = await _repository.LayDSCuTruByUserId(spec, cancellationToken);
-        return Result.Success(result);
+        return result.ToList();
     }
 }

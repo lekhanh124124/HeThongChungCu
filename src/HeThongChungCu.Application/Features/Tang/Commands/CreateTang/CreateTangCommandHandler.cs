@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.Tang.DTOs;
+﻿using HeThongChungCu.Application.Features.Tang.DTOs;
 
 namespace HeThongChungCu.Application.Features.Tang.Commands.CreateTang;
 
@@ -16,7 +16,7 @@ public class CreateTangCommandHandler : ICommandHandler<CreateTangCommand, TangD
     {
         var toaNha = await _toaNhaRepository.GetToaNhaByIdAsync(request.ToaNhaId, cancellationToken);
         if (toaNha == null)
-            return Result.Failure<TangDetailResponse>(TangErrors.ToaNhaNotFound);
+            return TangErrors.ToaNhaNotFound;
             
         var loaiTang = LoaiTang.FromValue(request.LoaiTangId);
 

@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.Profile.DTOs;
+﻿using HeThongChungCu.Application.Features.Profile.DTOs;
 
 namespace HeThongChungCu.Application.Features.Profile.Queries.GetProfile;
 
@@ -17,16 +17,16 @@ public class GetProfileQueryHandler : IQueryHandler<GetProfileQuery, UserProfile
     {
         if (_currentUserService.UserId is null)
         {
-            return Result.Failure<UserProfileDetailResponse>(AuthErrors.InvalidCredentials);
+            return AuthErrors.InvalidCredentials;
         }
 
         var spec = new GetProfileSpecification(_currentUserService.UserId.Value);
         var profile = await _userRepository.GetByIdAsync(spec, cancellationToken);
         if (profile is null)
         {
-            return Result.Failure<UserProfileDetailResponse>(AuthErrors.InvalidCredentials);
+            return AuthErrors.InvalidCredentials;
         }
 
-        return Result.Success(profile);
+        return profile;
     }
 }

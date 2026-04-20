@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.QLCuTru.DTOs;
+﻿using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
@@ -42,20 +42,20 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
     {
         var canHo = await _canHoRepository.GetByIdAsync(request.CanHoId, cancellationToken);
         if (canHo is null)
-            return Result.Failure<CuDanResponse>(CanHoErrors.NotFoundById(request.CanHoId));
+            return CanHoErrors.NotFoundById(request.CanHoId);
 
         var toaNha = await _toaNhaCommandRepository.GetToaNhaByTangIdAsync(canHo.TangId, cancellationToken);
         if (toaNha == null)
-            return Result.Failure<CuDanResponse>(ToaNhaErrors.NotFoundById(canHo.TangId));
+            return ToaNhaErrors.NotFoundById(canHo.TangId);
 
         var tang = toaNha.Tangs.FirstOrDefault(t => t.Id == canHo.TangId);
         if (tang == null)
-            return Result.Failure<CuDanResponse>(TangErrors.NotFoundById(canHo.TangId));
+            return TangErrors.NotFoundById(canHo.TangId);
 
         // 1. Resolve User
         var user = await _userRepository.GetByIdWithDocumentsAsync(request.UserId, cancellationToken);
         if (user is null)
-            return Result.Failure<CuDanResponse>(UserErrors.NotFoundById(request.UserId));
+            return UserErrors.NotFoundById(request.UserId);
 
         // 2. Setup Residency via Domain Service
         var loaiQuanHe = LoaiQuanHeCuTru.FromValue(request.LoaiQuanHeCuTruId);
@@ -64,7 +64,7 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
 
         var relationResult = _residencyService.CreateRelation(canHo.Id, user.Id, loaiQuanHe!, now, existingRelations);
         if (relationResult.IsFailure)
-            return Result.Failure<CuDanResponse>(relationResult.Errors);
+            return relationResult.Errors;
 
         var quanHe = relationResult.Value;
 

@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Application.Common.Messaging;
 
@@ -21,7 +21,7 @@ public class RevokeBangGiaCommandHandler : ICommandHandler<RevokeBangGiaCommand,
     {
         var dichVu = await _commandRepository.GetByIdWithBangGiasAsync(request.DichVuId, cancellationToken);
         if (dichVu == null)
-            return Result.Failure<bool>(DichVuErrors.NotFoundById(request.DichVuId));
+            return DichVuErrors.NotFoundById(request.DichVuId);
 
         foreach (var id in request.Ids)
         {
@@ -29,6 +29,6 @@ public class RevokeBangGiaCommandHandler : ICommandHandler<RevokeBangGiaCommand,
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result.Success(true);
+        return true;
     }
 }

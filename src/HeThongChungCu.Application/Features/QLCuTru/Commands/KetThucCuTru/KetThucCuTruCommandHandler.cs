@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -41,7 +41,7 @@ public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, C
     {
         var quanHe = await _quanHeCuTruRepository.GetByIdAsync(request.QuanHeCuTruId, cancellationToken);
         if (quanHe is null)
-            return Result.Failure<CuDanResponse>(QuanHeCuTruErrors.NotFoundById(request.QuanHeCuTruId));
+            return QuanHeCuTruErrors.NotFoundById(request.QuanHeCuTruId);
 
         var now = _dateTimeProvider.Now.DateTime;
         quanHe.KetThucCuTru(now);

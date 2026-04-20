@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 
@@ -27,18 +27,18 @@ public class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordComman
     {
         if (_currentUserService.AccountId is null)
         {
-            return Result.Failure<string>(AuthErrors.InvalidCredentials);
+            return AuthErrors.InvalidCredentials;
         }
 
         var account = await _accountRepository.GetByIdAsync(_currentUserService.AccountId.Value, cancellationToken);
         if (account is null)
         {
-            return Result.Failure<string>(AuthErrors.InvalidCredentials);
+            return AuthErrors.InvalidCredentials;
         }
 
         if (!_hasherService.VerifyPassword(request.OldPassword, account.MatKhauHash))
         {
-            return Result.Failure<string>(AuthErrors.InvalidOldPassword);
+            return AuthErrors.InvalidOldPassword;
         }
 
         var newPasswordHash = _hasherService.HashPassword(request.NewPassword);
@@ -47,6 +47,6 @@ public class ChangePasswordCommandHandler : ICommandHandler<ChangePasswordComman
         _accountRepository.Update(account);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success("Thay đổi mật khẩu thành công.");
+        return "Thay đổi mật khẩu thành công.";
     }
 }

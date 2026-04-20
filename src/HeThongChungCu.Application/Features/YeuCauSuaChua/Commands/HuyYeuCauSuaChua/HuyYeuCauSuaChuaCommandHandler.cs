@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.DTOs;
@@ -34,13 +34,13 @@ public class HuyYeuCauSuaChuaCommandHandler : ICommandHandler<HuyYeuCauSuaChuaCo
         // 1. Fetch Request
         var ycsc = await _ycscRepository.GetByIdAsync(request.Id, cancellationToken);
         if (ycsc == null)
-            return Result.Failure<YeuCauSuaChuaDetailResponse>(YeuCauSuaChuaErrors.NotFoundById(request.Id));
+            return YeuCauSuaChuaErrors.NotFoundById(request.Id);
 
         // 2. Logic Check (Role-based state restriction)
         var isResident = _currentUserService.Roles.Contains(Role.Resident.Name);
         if (isResident)
         {
-            return Result.Failure<YeuCauSuaChuaDetailResponse>(YeuCauSuaChuaErrors.HuyForbidden);
+            return YeuCauSuaChuaErrors.HuyForbidden;
         }
 
         // 3. Perform Cancel

@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Errors;
@@ -34,7 +34,7 @@ public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordComman
 
         if (account is null)
         {
-            return Result.Failure<string>(UserErrors.NotFound);
+            return UserErrors.NotFound;
         }
 
         var resetCode = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
@@ -49,6 +49,6 @@ public class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordComman
 
         var maskedEmail = _emailService.MaskEmail(account.Email);
 
-        return Result.Success($"Mã khôi phục đã được gửi thành công đến email {maskedEmail}");
+        return $"Mã khôi phục đã được gửi thành công đến email {maskedEmail}";
     }
 }

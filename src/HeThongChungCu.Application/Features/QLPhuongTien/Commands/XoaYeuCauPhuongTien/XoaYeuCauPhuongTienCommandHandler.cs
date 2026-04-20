@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Domain.Errors;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Commands.XoaYeuCauPhuongTien;
@@ -22,12 +22,12 @@ public class XoaYeuCauPhuongTienCommandHandler : ICommandHandler<XoaYeuCauPhuong
         {
             var foundIds = yeuCaus.Select(y => y.Id).ToList();
             var missingIds = request.Ids.Except(foundIds).ToList();
-            return Result.Failure<bool>(YeuCauPhuongTienErrors.NotFoundByIds(missingIds));
+            return YeuCauPhuongTienErrors.NotFoundByIds(missingIds);
         }
 
         _yeuCauRepository.DeleteRange(yeuCaus);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result.Success(true);
+        return true;
     }
 }

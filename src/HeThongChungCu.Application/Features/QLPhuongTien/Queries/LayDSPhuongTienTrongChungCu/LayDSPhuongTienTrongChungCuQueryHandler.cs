@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
+﻿using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Queries.LayDSPhuongTienTrongChungCu;
 
@@ -31,6 +31,6 @@ public class LayDSPhuongTienTrongChungCuQueryHandler : IQueryHandler<LayDSPhuong
         );
 
         var result = await _queryRepository.LayDSPhuongTienTrongChungCu(spec, cancellationToken);
-        return Result.Success(result);
+        return result;
     }
 }

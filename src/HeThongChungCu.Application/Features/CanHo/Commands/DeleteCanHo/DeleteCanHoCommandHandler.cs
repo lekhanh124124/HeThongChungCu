@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.CanHo.DTOs;
+﻿using HeThongChungCu.Application.Features.CanHo.DTOs;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.Interfaces;
@@ -34,7 +34,7 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
         var notFoundIds = request.Ids.Except(canHos.Select(c => c.Id)).ToList();
         if (notFoundIds.Count > 0)
         {
-            return Result.Failure<IReadOnlyList<CanHoDetailResponse>>(CanHoErrors.NotFoundByIds(notFoundIds));
+            return CanHoErrors.NotFoundByIds(notFoundIds);
         }
 
         var tangIds = canHos.Select(c => c.TangId).Distinct().ToList();
@@ -63,7 +63,7 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
             
             var residencyCheck = _residencyService.CheckCanUpdateOrDeleteCanHo(canHo, relations);
             if (residencyCheck.IsFailure)
-                return Result.Failure<IReadOnlyList<CanHoDetailResponse>>(residencyCheck.Errors);
+                return residencyCheck.Errors;
 
             canHo.Delete();
             _canHoRepository.Remove(canHo);

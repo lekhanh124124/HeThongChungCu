@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Common.Models;
@@ -25,7 +25,7 @@ public class CreateKhungGioDichVuCommandHandler : ICommandHandler<CreateKhungGio
     {
         var dichVu = await _dichVuCommandRepository.GetByIdWithKhungGiosAsync(request.DichVuId, cancellationToken);
         if (dichVu == null)
-            return Result.Failure<KhungGioDichVuResponse>(DichVuErrors.NotFoundById(request.DichVuId));
+            return DichVuErrors.NotFoundById(request.DichVuId);
 
         var addResult = dichVu.AddKhungGio(
             request.GioBatDau,
@@ -35,7 +35,7 @@ public class CreateKhungGioDichVuCommandHandler : ICommandHandler<CreateKhungGio
 
         if (addResult.IsFailure)
         {
-            return Result.Failure<KhungGioDichVuResponse>(addResult.Errors);
+            return addResult.Errors;
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -53,6 +53,6 @@ public class CreateKhungGioDichVuCommandHandler : ICommandHandler<CreateKhungGio
             NgayTrongTuan = newKhungGio.NgayTrongTuan?.Value
         };
 
-        return Result.Success(response);
+        return response;
     }
 }

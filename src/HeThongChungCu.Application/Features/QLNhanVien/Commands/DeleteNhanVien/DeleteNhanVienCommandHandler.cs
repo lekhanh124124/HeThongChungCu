@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
@@ -29,7 +29,7 @@ public class DeleteNhanVienCommandHandler : ICommandHandler<DeleteNhanVienComman
 
         var notFoundIds = request.Ids.Except(nhanViens.Select(x => x.Id)).ToList();
         if (notFoundIds.Count != 0)
-            return Result.Failure<IReadOnlyList<int>>(NhanVienErrors.NotFoundByIds(notFoundIds));
+            return NhanVienErrors.NotFoundByIds(notFoundIds);
 
         foreach (var nhanVien in nhanViens)
         {

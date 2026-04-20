@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.Tang.DTOs;
+﻿using HeThongChungCu.Application.Features.Tang.DTOs;
 
 namespace HeThongChungCu.Application.Features.Tang.Queries.GetListTang;
 
@@ -23,6 +23,6 @@ public class GetListTangQueryHandler : IQueryHandler<GetListTangQuery, PagedResu
 
         var result = await _queryRepository.GetTangsAllAsync(spec, cancellationToken);
         
-        return Result.Success(result);
+        return result;
     }
 }

@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLNhanVien.DTOs;
@@ -49,30 +49,30 @@ public class CreateNhanVienCommandHandler : ICommandHandler<CreateNhanVienComman
         // 1. Check account existence
         var emailExists = await _taiKhoanRepository.AnyAsync(a => a.Email.Value == request.Email || a.TenDangNhap == request.Email, cancellationToken);
         if (emailExists)
-            return Result.Failure<NhanVienDetailResponse>(UserErrors.EmailAlreadyExists);
+            return UserErrors.EmailAlreadyExists;
 
         // 2. Check personal info existence
         if (!string.IsNullOrEmpty(request.CCCD))
         {
             var cccdExists = await _nguoiDungRepository.AnyAsync(u => u.CCCD == request.CCCD, cancellationToken);
             if (cccdExists)
-                return Result.Failure<NhanVienDetailResponse>(UserErrors.IdCardAlreadyExists);
+                return UserErrors.IdCardAlreadyExists;
         }
 
         if (!string.IsNullOrEmpty(request.SoDienThoai))
         {
             var phoneExists = await _nguoiDungRepository.AnyAsync(u => u.SoDienThoai!.Value == request.SoDienThoai, cancellationToken);
             if (phoneExists)
-                return Result.Failure<NhanVienDetailResponse>(UserErrors.PhoneNumberAlreadyExists);
+                return UserErrors.PhoneNumberAlreadyExists;
         }
 
         var loaiNhanVien = LoaiNhanVien.FromValue(request.LoaiNhanVienId);
         if (loaiNhanVien == null)
-            return Result.Failure<NhanVienDetailResponse>(NhanVienErrors.LoaiNhanVienInvalid(LoaiNhanVien.GetAll().Select(l => l.Name)));
+            return NhanVienErrors.LoaiNhanVienInvalid(LoaiNhanVien.GetAll().Select(l => l.Name));
 
         var gioiTinh = GioiTinh.FromValue(request.GioiTinhId);
         if (gioiTinh == null)
-            return Result.Failure<NhanVienDetailResponse>(UserErrors.InvalidGender(GioiTinh.GetAll().Select(g => g.Name)));
+            return UserErrors.InvalidGender(GioiTinh.GetAll().Select(g => g.Name));
 
         // 3. Process Documents (TaiLieuNguoiDung)
         var documents = new List<TaiLieuNguoiDung>();

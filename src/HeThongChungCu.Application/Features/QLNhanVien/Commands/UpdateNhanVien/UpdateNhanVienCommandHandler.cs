@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Features.QLNhanVien.DTOs;
 using HeThongChungCu.Application.Features.QLNhanVien.Queries.GetNhanVienById;
@@ -49,35 +49,35 @@ public class UpdateNhanVienCommandHandler : ICommandHandler<UpdateNhanVienComman
         // 1. Fetch Staff and linked User Profile with documents
         var nhanVien = await _nhanVienRepository.GetByIdAsync(request.Id, cancellationToken);
         if (nhanVien == null)
-            return Result.Failure<NhanVienDetailResponse>(NhanVienErrors.NotFoundById(request.Id));
+            return NhanVienErrors.NotFoundById(request.Id);
 
         var nguoiDung = await _nguoiDungRepository.GetByIdWithDocumentsAsync(nhanVien.NguoiDungId, cancellationToken);
         if (nguoiDung == null)
-            return Result.Failure<NhanVienDetailResponse>(UserErrors.NotFoundById(nhanVien.NguoiDungId));
+            return UserErrors.NotFoundById(nhanVien.NguoiDungId);
 
         var taiKhoan = await _taiKhoanRepository.GetByNguoiDungIdAsync(nguoiDung.Id, cancellationToken);
         if (taiKhoan == null)
-            return Result.Failure<NhanVienDetailResponse>(UserErrors.AccountNotFound);
+            return UserErrors.AccountNotFound;
 
         // 2. Validate CCCD/Phone unique if changed
         if (!string.IsNullOrEmpty(request.CCCD) && request.CCCD != nguoiDung.CCCD)
         {
             var exists = await _nguoiDungRepository.AnyAsync(u => u.CCCD == request.CCCD, cancellationToken);
             if (exists)
-                return Result.Failure<NhanVienDetailResponse>(UserErrors.IdCardAlreadyExists);
+                return UserErrors.IdCardAlreadyExists;
         }
 
         if (!string.IsNullOrEmpty(request.SoDienThoai) && request.SoDienThoai != nguoiDung.SoDienThoai?.Value)
         {
             var exists = await _nguoiDungRepository.AnyAsync(u => u.SoDienThoai!.Value == request.SoDienThoai, cancellationToken);
             if (exists)
-                return Result.Failure<NhanVienDetailResponse>(UserErrors.PhoneNumberAlreadyExists);
+                return UserErrors.PhoneNumberAlreadyExists;
         }
 
         // 3. Update User Profile
         var gioiTinh = GioiTinh.FromValue(request.GioiTinhId);
         if (gioiTinh == null)
-            return Result.Failure<NhanVienDetailResponse>(UserErrors.InvalidGender(GioiTinh.GetAll().Select(g => g.Name)));
+            return UserErrors.InvalidGender(GioiTinh.GetAll().Select(g => g.Name));
 
         nguoiDung.UpdateProfile(
             request.Ten,
@@ -114,7 +114,7 @@ public class UpdateNhanVienCommandHandler : ICommandHandler<UpdateNhanVienComman
         // 6. Update Staff Details
         var loaiNhanVien = LoaiNhanVien.FromValue(request.LoaiNhanVienId);
         if (loaiNhanVien == null)
-            return Result.Failure<NhanVienDetailResponse>(NhanVienErrors.LoaiNhanVienInvalid(LoaiNhanVien.GetAll().Select(l => l.Name)));
+            return NhanVienErrors.LoaiNhanVienInvalid(LoaiNhanVien.GetAll().Select(l => l.Name));
 
         var trangThai = TrangThaiNhanVien.FromValue(request.TrangThaiNhanVienId)!;
 

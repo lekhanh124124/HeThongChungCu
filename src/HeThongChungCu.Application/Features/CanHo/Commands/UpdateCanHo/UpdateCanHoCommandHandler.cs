@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
 using HeThongChungCu.Application.Features.Tang.DTOs;
 using HeThongChungCu.Domain.Enums;
@@ -33,7 +33,7 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
     {
         var canHo = await _canHoRepository.GetByIdAsync(request.Id, cancellationToken);
         if (canHo is null)
-            return Result.Failure<CanHoDetailResponse>(CanHoErrors.NotFoundById(request.Id));
+            return CanHoErrors.NotFoundById(request.Id);
 
         var loaiCanHo = LoaiCanHo.FromValue(request.LoaiCanHoId);
         var tinhTrangCanHo = TrangThaiCanHo.FromValue(request.TinhTrangCanHoId);
@@ -51,7 +51,7 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
         {
             var residencyCheck = _residencyService.CheckCanUpdateOrDeleteCanHo(canHo, relations);
             if (residencyCheck.IsFailure)
-                return Result.Failure<CanHoDetailResponse>(residencyCheck.Errors);
+                return residencyCheck.Errors;
         }
 
         // 2. Kiểm tra logic cấu trúc (Mã căn hộ trùng lặp)
@@ -63,7 +63,7 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
 
         var structureCheck = _canHoDomainService.CanUpdateStructure(canHo, request.MaCanHo, maExists, false); // hasActiveResidents truyền false vì đã check ở bước 1
         if (structureCheck.IsFailure)
-            return Result.Failure<CanHoDetailResponse>(structureCheck.Errors);
+            return structureCheck.Errors;
 
         canHo.UpdateInfo(
             request.TenCanHo, 

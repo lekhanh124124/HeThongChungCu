@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
@@ -28,7 +28,7 @@ internal sealed class HuyPhuongTienCommandHandler : ICommandHandler<HuyPhuongTie
 
         if (phuongTiens.Count == 0)
         {
-            return Result.Failure<bool>(PhuongTienErrors.NotFound);
+            return PhuongTienErrors.NotFound;
         }
 
         foreach (var phuongTien in phuongTiens)
@@ -39,6 +39,6 @@ internal sealed class HuyPhuongTienCommandHandler : ICommandHandler<HuyPhuongTie
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(true);
+        return true;
     }
 }

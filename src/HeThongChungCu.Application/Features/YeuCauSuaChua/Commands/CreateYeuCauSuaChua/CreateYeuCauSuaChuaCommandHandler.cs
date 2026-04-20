@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Features.UploadMedia.DTOs;
@@ -40,7 +40,7 @@ public class CreateYeuCauSuaChuaCommandHandler : ICommandHandler<CreateYeuCauSua
         // 1. Domain Existence Validation
         var canHo = await _canHoRepository.GetByIdAsync(request.CanHoId, cancellationToken);
         if (canHo == null)
-            return Result.Failure<YeuCauSuaChuaDetailResponse>(CanHoErrors.NotFoundById(request.CanHoId));
+            return CanHoErrors.NotFoundById(request.CanHoId);
 
         // 2. Fetch Files
         var tepTaiLieus = request.DanhSachTepIds != null && request.DanhSachTepIds.Count != 0

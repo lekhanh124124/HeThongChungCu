@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.CanHo.DTOs;
+﻿using HeThongChungCu.Application.Features.CanHo.DTOs;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.Interfaces;
@@ -24,17 +24,17 @@ public class CreateCanHoCommandHandler : ICommandHandler<CreateCanHoCommand, Can
     {
         var toaNha = await _toaNhaRepository.GetToaNhaByTangIdAsync(request.TangId, cancellationToken);
         if (toaNha == null)
-            return Result.Failure<CanHoDetailResponse>(ToaNhaErrors.NotFound);
+            return ToaNhaErrors.NotFound;
 
         var tang = toaNha.Tangs.FirstOrDefault(t => t.Id == request.TangId);
         if (tang == null)
-            return Result.Failure<CanHoDetailResponse>(TangErrors.NotFound);
+            return TangErrors.NotFound;
 
         var maExists = await _canHoRepository.MaCanHoExistsAsync(request.MaCanHo, cancellationToken);
         
         var canCreateResult = _canHoDomainService.CanCreateCanHo(tang, request.MaCanHo, maExists);
         if (canCreateResult.IsFailure)
-            return Result.Failure<CanHoDetailResponse>(canCreateResult.Errors);
+            return canCreateResult.Errors;
 
         var loaiCanHo = LoaiCanHo.FromValue(request.LoaiCanHoId);
         var tinhTrangCanHo = TrangThaiCanHo.DangTrong;

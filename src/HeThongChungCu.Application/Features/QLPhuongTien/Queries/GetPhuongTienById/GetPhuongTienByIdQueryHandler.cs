@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
+﻿using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
 
 namespace HeThongChungCu.Application.Features.QLPhuongTien.Queries.GetPhuongTienById;
 
@@ -17,8 +17,8 @@ public class GetPhuongTienByIdQueryHandler : IQueryHandler<GetPhuongTienByIdQuer
         var phuongTien = await _phuongTienQueryRepository.GetByIdAsync(spec, cancellationToken);
 
         if (phuongTien == null)
-            return Result.Failure<PhuongTienResponse>(PhuongTienErrors.NotFound);
+            return PhuongTienErrors.NotFound;
 
-        return Result.Success(phuongTien);
+        return phuongTien;
     }
 }

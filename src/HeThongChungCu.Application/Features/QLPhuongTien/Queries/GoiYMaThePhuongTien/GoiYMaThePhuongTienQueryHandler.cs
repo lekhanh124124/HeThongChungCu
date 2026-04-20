@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Errors;
@@ -18,7 +18,7 @@ public class GoiYMaThePhuongTienQueryHandler : IQueryHandler<GoiYMaThePhuongTien
     {
         var phuongTien = await _phuongTienRepository.GetPhuongTienByIdAsync(request.PhuongTienId, cancellationToken);
         if (phuongTien == null)
-            return Result.Failure<string>(PhuongTienErrors.NotFound);
+            return PhuongTienErrors.NotFound;
 
         var lastTheId = await _phuongTienRepository.GetMaxThePhuongTienIdAsync(cancellationToken);
         int nextTheId = lastTheId + 1;
@@ -28,7 +28,7 @@ public class GoiYMaThePhuongTienQueryHandler : IQueryHandler<GoiYMaThePhuongTien
 
         string suggestMaThe = $"CARD-V-{formattedPhuongTienId}{formattedNextTheId}";
 
-        return Result.Success(suggestMaThe);
+        return suggestMaThe;
     }
 
     private string FormatWithRandom(int id)

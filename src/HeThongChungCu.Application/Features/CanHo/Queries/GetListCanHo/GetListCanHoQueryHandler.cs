@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.CanHo.DTOs;
+﻿using HeThongChungCu.Application.Features.CanHo.DTOs;
 
 namespace HeThongChungCu.Application.Features.CanHo.Queries.GetListCanHo;
 
@@ -23,6 +23,6 @@ public class GetListCanHoQueryHandler : IQueryHandler<GetListCanHoQuery, PagedRe
 
         var result = await _queryRepository.GetAllAsync(spec, cancellationToken);
 
-        return Result.Success(result);
+        return result;
     }
 }

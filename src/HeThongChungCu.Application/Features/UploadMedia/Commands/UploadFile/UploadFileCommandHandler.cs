@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.UploadMedia.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -32,7 +32,7 @@ public class UploadFileCommandHandler : ICommandHandler<UploadFileCommand, List<
         var category = FileCategory.FromTargetContainer(request.TargetContainer ?? string.Empty);
         if (category == null)
         {
-            return Result.Failure<List<UploadFileResponse>>(FileErrors.UnrecognizedCategory);
+            return FileErrors.UnrecognizedCategory;
         }
 
         var uploadData = new List<(Stream Stream, string FileName, string ContentType)>();
@@ -63,7 +63,7 @@ public class UploadFileCommandHandler : ICommandHandler<UploadFileCommand, List<
 
         if (uploadResult.IsFailure)
         {
-            return Result.Failure<List<UploadFileResponse>>(uploadResult.Errors);
+            return uploadResult.Errors;
         }
 
         var fileUrls = uploadResult.Value;
@@ -95,6 +95,6 @@ public class UploadFileCommandHandler : ICommandHandler<UploadFileCommand, List<
                 entity.ContentType));
         }
 
-        return Result.Success(responses);
+        return responses;
     }
 }

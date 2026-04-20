@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.QLDoiTac.DTOs;
+﻿using HeThongChungCu.Application.Features.QLDoiTac.DTOs;
 using HeThongChungCu.Application.Features.UploadMedia.DTOs;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
@@ -134,6 +134,6 @@ public class CreateDoiTacCommandHandler : ICommandHandler<CreateDoiTacCommand, D
             }).ToList()
         };
 
-        return Result.Success(response);
+        return response;
     }
 }

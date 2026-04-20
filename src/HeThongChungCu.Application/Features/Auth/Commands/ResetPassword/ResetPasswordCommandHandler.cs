@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
@@ -30,12 +30,12 @@ public class ResetPasswordCommandHandler : ICommandHandler<ResetPasswordCommand,
         var account = await _accountRepository.GetByTenDangNhapAsync(request.Username, cancellationToken);
         if (account is null)
         {
-            return Result.Failure<string>(UserErrors.NotFound);
+            return UserErrors.NotFound;
         }
 
         if (_hasherService.VerifyPassword(request.NewPassword, account.MatKhauHash))
         {
-            return Result.Failure<string>(AuthErrors.PasswordNotChanged);
+            return AuthErrors.PasswordNotChanged;
         }
 
         var resetCodeHash = _hasherService.HashToken(request.ResetCode);
@@ -46,7 +46,7 @@ public class ResetPasswordCommandHandler : ICommandHandler<ResetPasswordCommand,
 
         if (token is null)
         {
-            return Result.Failure<string>(AuthErrors.InvalidResetToken);
+            return AuthErrors.InvalidResetToken;
         }
 
         var hashedPassword = _hasherService.HashPassword(request.NewPassword);
@@ -56,6 +56,6 @@ public class ResetPasswordCommandHandler : ICommandHandler<ResetPasswordCommand,
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success("Đổi mật khẩu thành công.");
+        return "Đổi mật khẩu thành công.";
     }
 }

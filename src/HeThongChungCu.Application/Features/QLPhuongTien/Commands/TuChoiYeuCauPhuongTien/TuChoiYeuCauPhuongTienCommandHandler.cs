@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
@@ -40,14 +40,14 @@ public class TuChoiYeuCauPhuongTienCommandHandler : ICommandHandler<TuChoiYeuCau
     {
         var userId = _currentUserService.UserId;
         if (userId == null)
-            return Result.Failure<YeuCauPhuongTienResponse>(UserErrors.NotFound);
+            return UserErrors.NotFound;
 
         var yeuCau = await _yeuCauRepository.GetByIdAsync(request.YeuCauPhuongTienId, cancellationToken);
         if (yeuCau == null)
-            return Result.Failure<YeuCauPhuongTienResponse>(YeuCauPhuongTienErrors.NotFound);
+            return YeuCauPhuongTienErrors.NotFound;
 
         if (yeuCau.TrangThaiId != TrangThaiYeuCau.Pending)
-            return Result.Failure<YeuCauPhuongTienResponse>(new Error("YeuCauPhuongTien.InvalidStatus", "Chỉ có thể từ chối yêu cầu đang chờ duyệt."));
+            return new Error("YeuCauPhuongTien.InvalidStatus", "Chỉ có thể từ chối yêu cầu đang chờ duyệt.");
 
         var now = _dateTimeProvider.Now;
         yeuCau.Reject(userId.Value, request.LyDo, now);

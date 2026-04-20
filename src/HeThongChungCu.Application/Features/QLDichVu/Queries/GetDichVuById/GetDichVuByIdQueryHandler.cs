@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -19,8 +19,8 @@ public class GetDichVuByIdQueryHandler : IQueryHandler<GetDichVuByIdQuery, DichV
         var spec = new GetDichVuByIdSpecification(request.Id);
         var result = await _dichVuQueryRepository.GetByIdAsync(spec, cancellationToken);
         if (result == null)
-            return Result.Failure<DichVuDetailResponse>(DichVuErrors.NotFoundById(request.Id));
+            return DichVuErrors.NotFoundById(request.Id);
 
-        return Result.Success(result);
+        return result;
     }
 }

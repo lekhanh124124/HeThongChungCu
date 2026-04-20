@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.QLCuTru.DTOs;
+﻿using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 
 namespace HeThongChungCu.Application.Features.QLCuTru.Queries.LayDSCuDanTrongChungCu;
 
@@ -37,6 +37,6 @@ public class LayDSCuDanTrongChungCuQueryHandler : IQueryHandler<LayDSCuDanTrongC
             request.PageSize);
 
         var cuDans = await _queryRepository.LayDSCuDanTrongChungCu(spec, cancellationToken);
-        return Result.Success(cuDans);
+        return cuDans;
     }
 }

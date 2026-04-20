@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.Tang.DTOs;
+﻿using HeThongChungCu.Application.Features.Tang.DTOs;
 
 namespace HeThongChungCu.Application.Features.Tang.Commands.UpdateTang;
 
@@ -16,7 +16,7 @@ public class UpdateTangCommandHandler : ICommandHandler<UpdateTangCommand, TangD
     {
         var toaNha = await _toaNhaRepository.GetToaNhaByIdAsync(request.ToaNhaId, cancellationToken);
         if (toaNha == null)
-            return Result.Failure<TangDetailResponse>(TangErrors.NotFound);
+            return TangErrors.NotFound;
 
         var loaiTang = LoaiTang.FromValue(request.LoaiTangId);
         toaNha.UpdateTang(request.Id, request.MaTang, request.TenTang, loaiTang!);

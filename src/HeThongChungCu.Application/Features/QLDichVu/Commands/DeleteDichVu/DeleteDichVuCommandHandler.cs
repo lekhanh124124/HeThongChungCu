@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
@@ -24,7 +24,7 @@ public class DeleteDichVuCommandHandler : ICommandHandler<DeleteDichVuCommand, b
 
         if (missingIds.Count != 0)
         {
-            return Result.Failure<bool>(DichVuErrors.NotFoundByIds(missingIds));
+            return DichVuErrors.NotFoundByIds(missingIds);
         }
 
         foreach (var dichVu in dichVus)
@@ -43,6 +43,6 @@ public class DeleteDichVuCommandHandler : ICommandHandler<DeleteDichVuCommand, b
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result.Success(true);
+        return true;
     }
 }

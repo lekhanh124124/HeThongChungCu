@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.Tang.DTOs;
+﻿using HeThongChungCu.Application.Features.Tang.DTOs;
 
 namespace HeThongChungCu.Application.Features.Tang.Commands.DeleteTang;
 
@@ -16,7 +16,7 @@ public class DeleteTangCommandHandler : ICommandHandler<DeleteTangCommand, IRead
         var tangs = await _toaNhaRepository.GetTangByIdsAsync(request.Ids, cancellationToken);
         
         if (!tangs.Any())
-            return Result.Failure<IReadOnlyList<TangDetailResponse>>(TangErrors.NotFound);
+            return TangErrors.NotFound;
 
         var deletedTangs = new List<TangDetailResponse>();
 

@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
@@ -52,14 +52,14 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
     {
         var adminId = _currentUserService.UserId;
         if (adminId == null)
-            return Result.Failure<YeuCauPhuongTienResponse>(UserErrors.NotFound);
+            return UserErrors.NotFound;
 
         var yeuCau = await _yeuCauRepository.GetByIdAsync(request.YeuCauPhuongTienId, cancellationToken);
         if (yeuCau == null)
-            return Result.Failure<YeuCauPhuongTienResponse>(YeuCauPhuongTienErrors.NotFound);
+            return YeuCauPhuongTienErrors.NotFound;
 
         if (yeuCau.TrangThaiId != TrangThaiYeuCau.Pending)
-            return Result.Failure<YeuCauPhuongTienResponse>(new Error("YeuCauPhuongTien.InvalidStatus", "Chỉ có thể duyệt yêu cầu đang chờ duyệt."));
+            return new Error("YeuCauPhuongTien.InvalidStatus", "Chỉ có thể duyệt yêu cầu đang chờ duyệt.");
 
         var now = _dateTimeProvider.Now;
         yeuCau.Approve(adminId.Value, now);
@@ -68,7 +68,7 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
         {
             var canHo = await _canHoRepository.GetByIdAsync(yeuCau.CanHoId, cancellationToken);
             if (canHo == null)
-                return Result.Failure<YeuCauPhuongTienResponse>(CanHoErrors.NotFoundById(yeuCau.CanHoId));
+                return CanHoErrors.NotFoundById(yeuCau.CanHoId);
 
             // Gather data for Domain Service
             var activeVehicles = await _phuongTienRepository.GetPhuongTiensByCanHoIdAsync(yeuCau.CanHoId, cancellationToken);
@@ -82,7 +82,7 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
                 isPlateDuplicate);
 
             if (validationResult.IsFailure)
-                return Result.Failure<YeuCauPhuongTienResponse>(validationResult.Errors[0]);
+                return validationResult.Errors[0];
 
             var phuongTien = new PhuongTien(
                 yeuCau.CanHoId,
@@ -99,7 +99,7 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
         {
             var phuongTien = await _phuongTienRepository.GetPhuongTienByIdAsync(yeuCau.YeuCauPhuongTienId!.Value, cancellationToken);
             if (phuongTien == null)
-                return Result.Failure<YeuCauPhuongTienResponse>(PhuongTienErrors.NotFound);
+                return PhuongTienErrors.NotFound;
 
             // Gather data for Domain Service
             var canHo = await _canHoRepository.GetByIdAsync(yeuCau.CanHoId, cancellationToken);
@@ -120,7 +120,7 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
                 phuongTien.Id);
 
             if (validationResult.IsFailure)
-                return Result.Failure<YeuCauPhuongTienResponse>(validationResult.Errors[0]);
+                return validationResult.Errors[0];
 
             phuongTien.CapNhat(
                 yeuCau.YeuCauTenPhuongTien,

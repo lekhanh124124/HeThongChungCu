@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Features.CanHo.DTOs;
+﻿using HeThongChungCu.Application.Features.CanHo.DTOs;
 
 namespace HeThongChungCu.Application.Features.CanHo.Queries.GetCanHoById;
 
@@ -17,8 +17,8 @@ public class GetCanHoByIdQueryHandler : IQueryHandler<GetCanHoByIdQuery, CanHoRe
         var canHo = await _queryRepository.GetByIdAsync(spec, cancellationToken);
 
         if (canHo is null)
-            return Result.Failure<CanHoResponse>(CanHoErrors.NotFoundById(request.Id));
+            return CanHoErrors.NotFoundById(request.Id);
 
-        return Result.Success(canHo);
+        return canHo;
     }
 }

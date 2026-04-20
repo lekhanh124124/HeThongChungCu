@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -29,6 +29,6 @@ public class LayDSYeuCauCuTruQueryHandler : IQueryHandler<LayDSYeuCauCuTruQuery,
             request.PageSize);
 
         var result = await _QueryRepository.GetPagedListAsync(spec, cancellationToken);
-        return Result.Success(result);
+        return result;
     }
 }

@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.ToaNha.DTOs;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
@@ -19,7 +19,7 @@ public class CreateToaNhaCommandHandler : ICommandHandler<CreateToaNhaCommand, T
     {
         var exists = await _toaNhaRepository.MaToaNhaExistsAsync(request.MaToaNha, cancellationToken);
         if (exists)
-            return Result.Failure<ToaNhaDetailResponse>(ToaNhaErrors.MaToaNhaAlreadyExists);
+            return ToaNhaErrors.MaToaNhaAlreadyExists;
 
         var trangThaiToaNha = TrangThaiToaNha.DangHoatDong;
         var toaNha = new Domain.Entities.ToaNha(

@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Application.Common.Messaging;
@@ -21,8 +21,8 @@ public class GetKhungGioDichVuByIdQueryHandler : IQueryHandler<GetKhungGioDichVu
         var result = await _queryRepository.GetKhungGioByIdAsync(spec, cancellationToken);
         
         if (result == null)
-            return Result.Failure<KhungGioDichVuResponse>(DichVuErrors.NotFoundById(request.Id));
+            return DichVuErrors.NotFoundById(request.Id);
 
-        return Result.Success(result);
+        return result;
     }
 }

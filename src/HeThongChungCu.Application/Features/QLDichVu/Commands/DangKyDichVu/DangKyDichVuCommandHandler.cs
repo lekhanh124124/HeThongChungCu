@@ -1,4 +1,4 @@
-using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
@@ -33,7 +33,7 @@ internal sealed class DangKyDichVuCommandHandler : ICommandHandler<DangKyDichVuC
         var dichVu = await _dichVuRepository.GetByIdAsync(request.DichVuId, cancellationToken);
         if (dichVu == null)
         {
-            return Result.Failure<int>(DichVuErrors.NotFoundById(request.DichVuId));
+            return DichVuErrors.NotFoundById(request.DichVuId);
         }
 
         // 2. Xử lý thông tin khung giờ (nếu có)
@@ -43,7 +43,7 @@ internal sealed class DangKyDichVuCommandHandler : ICommandHandler<DangKyDichVuC
             khungGio = dichVu.KhungGios.FirstOrDefault(x => x.Id == request.KhungGioId.Value);
             if (khungGio == null)
             {
-                return Result.Failure<int>(DichVuErrors.KhungGioNotFound);
+                return DichVuErrors.KhungGioNotFound;
             }
         }
 
@@ -78,7 +78,7 @@ internal sealed class DangKyDichVuCommandHandler : ICommandHandler<DangKyDichVuC
 
         if (validationResult.IsFailure)
         {
-            return Result.Failure<int>(validationResult.Errors);
+            return validationResult.Errors;
         }
 
         // 5. Tạo bản ghi đăng ký mới
@@ -95,7 +95,7 @@ internal sealed class DangKyDichVuCommandHandler : ICommandHandler<DangKyDichVuC
         await _dangKyDichVuRepository.AddAsync(dangKy, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(dangKy.Id);
+        return dangKy.Id;
     }
 }
 
