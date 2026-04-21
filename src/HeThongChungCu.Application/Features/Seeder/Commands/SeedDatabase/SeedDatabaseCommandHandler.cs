@@ -28,6 +28,7 @@ public class SeedDatabaseCommandHandler : ICommandHandler<SeedDatabaseCommand, s
                 request.SoLuongTaiKhoanKhach,
                 request.SoLuongNhanVien,
                 request.SoLuongYeuCauSuaChua,
+                request.SoLuongYeuCauThiCong,
                 request.SoLuongYeuCauCuTru ?? new YeuCauCounts(),
                 request.SoLuongYeuCauPhuongTien ?? new YeuCauCounts());
 

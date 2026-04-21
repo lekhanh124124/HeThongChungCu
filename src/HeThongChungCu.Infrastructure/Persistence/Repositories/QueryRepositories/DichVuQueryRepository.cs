@@ -291,6 +291,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
                 NgayKetThuc = bgRow.NgayKetThuc?.DateTime,
                 LoaiDinhGiaId = bgRow.LoaiDinhGiaId,
                 LoaiDinhGiaTen = LoaiDinhGia.FromValue(bgRow.LoaiDinhGiaId)?.Name ?? string.Empty,
+                LoaiDinhGiaCode = LoaiDinhGia.FromValue(bgRow.LoaiDinhGiaId)?.Code ?? string.Empty,
                 DonGia = bgRow.DonGia,
                 IsActive = bgRow.IsActive
             };
@@ -492,6 +493,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             NgayKetThuc = r.NgayKetThuc?.DateTime,
             LoaiDinhGiaId = r.LoaiDinhGiaId,
             LoaiDinhGiaTen = LoaiDinhGia.FromValue(r.LoaiDinhGiaId)?.Name ?? string.Empty,
+            LoaiDinhGiaCode = LoaiDinhGia.FromValue(r.LoaiDinhGiaId)?.Code ?? string.Empty,
             DonGia = r.DonGia,
             IsActive = r.IsActive
         }).ToList();
@@ -591,6 +593,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             NgayKetThuc = row.NgayKetThuc?.DateTime,
             LoaiDinhGiaId = row.LoaiDinhGiaId,
             LoaiDinhGiaTen = LoaiDinhGia.FromValue(row.LoaiDinhGiaId)?.Name ?? string.Empty,
+            LoaiDinhGiaCode = LoaiDinhGia.FromValue(row.LoaiDinhGiaId)?.Code ?? string.Empty,
             DonGia = row.DonGia,
             IsActive = row.IsActive
         };

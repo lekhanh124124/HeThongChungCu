@@ -88,6 +88,8 @@ public static class DependencyInjection
         services.AddScoped<IYeuCauSuaChuaCommandRepository, YeuCauSuaChuaCommandRepository>();
         services.AddScoped<IYeuCauSuaChuaQueryRepository, YeuCauSuaChuaQueryRepository>();
 
+        services.AddScoped<IYeuCauThiCongQueryRepository, YeuCauThiCongQueryRepository>();
+
 
         return services;
     }

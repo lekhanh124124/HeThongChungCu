@@ -47,9 +47,9 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         var loaiYeuCau = LoaiHanhDongYeuCau.FromValue(request.LoaiYeuCauId, null);
         // Validate permissions via Domain Service
         var requesterRelation = await _quanHeRepository.GetByUserAndCanHoAsync(userId.Value, request.CanHoId, cancellationToken);
-        var permissionResult = _residencyService.CheckHeadPermission(requesterRelation);
-        if (permissionResult.IsFailure)
-            return permissionResult.Errors[0];
+        // var permissionResult = _residencyService.CheckHeadPermission(requesterRelation);
+        // if (permissionResult.IsFailure)
+        //     return permissionResult.Errors[0];
 
 
         // Fetch all TepTaiLieus at once

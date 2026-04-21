@@ -38,7 +38,7 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<YeuCau> YeuCaus => Set<YeuCau>();
     public DbSet<YeuCauCuTru> YeuCauCuTrus => Set<YeuCauCuTru>();
     public DbSet<YeuCauSuaChua> YeuCauSuaChuas => Set<YeuCauSuaChua>();
-    public DbSet<YeuCauThiCongNoiThat> YeuCauThiCongNoiThats => Set<YeuCauThiCongNoiThat>();
+    public DbSet<YeuCauThiCong> YeuCauThiCongs => Set<YeuCauThiCong>();
     public DbSet<YeuCauTaiLieuCuTru> YeuCauTaiLieuCuTrus => Set<YeuCauTaiLieuCuTru>();
     public DbSet<YeuCauPhuongTien> YeuCauPhuongTiens => Set<YeuCauPhuongTien>();
     public DbSet<ThongBao> ThongBaos => Set<ThongBao>();

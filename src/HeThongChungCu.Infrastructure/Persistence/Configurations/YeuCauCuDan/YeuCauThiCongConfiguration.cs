@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Configurations;
 
-public class YeuCauThiCongNoiThatConfiguration : IEntityTypeConfiguration<YeuCauThiCongNoiThat>
+public class YeuCauThiCongConfiguration : IEntityTypeConfiguration<YeuCauThiCong>
 {
-    public void Configure(EntityTypeBuilder<YeuCauThiCongNoiThat> builder)
+    public void Configure(EntityTypeBuilder<YeuCauThiCong> builder)
     {
         // TPH: Inherits table from YeuCau
 
@@ -20,6 +20,12 @@ public class YeuCauThiCongNoiThatConfiguration : IEntityTypeConfiguration<YeuCau
 
         builder.Property(x => x.NguoiDaiDien)
             .HasMaxLength(100);
+
+        builder.Property(x => x.DuKienBatDau)
+            .IsRequired();
+
+        builder.Property(x => x.DuKienKetThuc)
+            .IsRequired();
 
         builder.OwnsOne(e => e.SoDienThoaiDaiDien, sd =>
         {
@@ -37,19 +43,30 @@ public class YeuCauThiCongNoiThatConfiguration : IEntityTypeConfiguration<YeuCau
         builder.Property(x => x.IsDaThuCoc)
             .IsRequired();
 
+        builder.Property(x => x.TienKhauTru)
+            .HasPrecision(18, 2);
+
+        builder.Property(x => x.LyDoKhauTru)
+            .HasMaxLength(500);
+
+        builder.Property(x => x.IsDaHoanCoc)
+            .IsRequired();
+
         builder.Property(x => x.NgayDuyetSoBo);
 
         builder.Property(x => x.TrangThaiThiCongId)
-            .HasConversion(v => v.Value, v => TrangThaiThiCong.FromValue(v, null)!)
-            .IsRequired();
+            .HasConversion(
+                v => v != null ? v.Value : (int?)null,
+                v => v == null ? null : TrangThaiThiCong.FromValue(v.Value, null)!)
+            .IsRequired(false);
 
-        builder.HasMany(x => x.TepYeuCauThiCongNoiThats)
-            .WithOne(x => x.YeuCauThiCongNoiThat)
-            .HasForeignKey(x => x.YeuCauThiCongNoiThatId)
+        builder.HasMany(x => x.TepYeuCauThiCongs)
+            .WithOne(x => x.YeuCauThiCong)
+            .HasForeignKey(x => x.YeuCauThiCongId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Navigation(x => x.TepYeuCauThiCongNoiThats)
-            .HasField("_tepYeuCauThiCongNoiThats")
+        builder.Navigation(x => x.TepYeuCauThiCongs)
+            .HasField("_tepYeuCauThiCongs")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         // Personnel mapping

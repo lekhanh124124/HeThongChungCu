@@ -9,6 +9,7 @@ public record BangGiaResponse
     public DateTime? NgayKetThuc { get; init; }
     public int LoaiDinhGiaId { get; init; }
     public string LoaiDinhGiaTen { get; init; } = string.Empty;
+    public string LoaiDinhGiaCode { get; init; } = string.Empty;
     public decimal? DonGia { get; init; }
     public bool IsActive { get; init; }
     public List<ChiTietGiaLuyTienResponse> GiaLuyTiens { get; init; } = [];

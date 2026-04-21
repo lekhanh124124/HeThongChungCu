@@ -36,7 +36,7 @@ public class ResidencyService : IResidencyService
     {
         if (requesterRelation == null)
         {
-            return Result.Failure(CanHoErrors.NotFound);
+            return Result.Failure(QuanHeCuTruErrors.NotFound);
         }
 
         if (requesterRelation.TrangThaiCuTruId != TrangThaiCuTru.DangCuTru ||

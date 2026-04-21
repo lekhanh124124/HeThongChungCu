@@ -5,9 +5,9 @@ namespace HeThongChungCu.Domain.Events;
 
 public class YeuCauThiCongDaCapPhepEvent : BaseEvent
 {
-    public YeuCauThiCongNoiThat YeuCauThiCong { get; }
+    public YeuCauThiCong YeuCauThiCong { get; }
 
-    public YeuCauThiCongDaCapPhepEvent(YeuCauThiCongNoiThat yeuCauThiCong)
+    public YeuCauThiCongDaCapPhepEvent(YeuCauThiCong yeuCauThiCong)
     {
         YeuCauThiCong = yeuCauThiCong;
     }

@@ -9,7 +9,7 @@ public class LoaiTepTaiLieu : BaseEnum<LoaiTepTaiLieu, int>
     public static readonly LoaiTepTaiLieu YeuCauCuTru = new(3, "Yêu cầu cư trú");
     public static readonly LoaiTepTaiLieu YeuCauPhuongTien = new(4, "Yêu cầu phương tiện");
     public static readonly LoaiTepTaiLieu YeuCauSuaChua = new(5, "Yêu cầu sửa chữa");
-    public static readonly LoaiTepTaiLieu YeuCauThiCongNoiThat = new(6, "Yêu cầu thi công nội thất");
+    public static readonly LoaiTepTaiLieu YeuCauThiCong = new(6, "Yêu cầu thi công");
     public static readonly LoaiTepTaiLieu PhuongTien = new(7, "Phương tiện");
     public static readonly LoaiTepTaiLieu HopDongDoiTac = new(8, "Hợp đồng đối tác");
 

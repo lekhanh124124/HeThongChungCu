@@ -9,5 +9,6 @@ public record SeedDatabaseCommand(
     int SoLuongTaiKhoanKhach = 50,
     int SoLuongNhanVien = 50,
     int SoLuongYeuCauSuaChua = 50,
+    int SoLuongYeuCauThiCong = 30,
     YeuCauCounts? SoLuongYeuCauCuTru = null,
     YeuCauCounts? SoLuongYeuCauPhuongTien = null) : ICommand<string>;

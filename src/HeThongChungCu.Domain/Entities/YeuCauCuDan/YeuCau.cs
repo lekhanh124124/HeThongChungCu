@@ -66,31 +66,65 @@ public abstract class YeuCau : AggregateRoot
         return Result.Success();
     }
 
-    public virtual void Invalidate(int adminId, string? lyDo, DateTimeOffset processedAt)
+    public virtual Result Invalidate(int adminId, string? lyDo, DateTimeOffset processedAt)
     {
         if (TrangThaiId != TrangThaiYeuCau.Pending && TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Returned)
-            return;
+            throw new BusinessException("Không thể vô hiệu hóa yêu cầu ở trạng thái hiện tại.");
 
         TrangThaiId = TrangThaiYeuCau.Invalidated;
         LyDo = string.IsNullOrWhiteSpace(LyDo) ? lyDo : $"{LyDo} | {lyDo}";
         NguoiXuLyId = adminId;
         NgayXuLy = processedAt;
+
+        return Result.Success();
     }
 
-    public virtual void Withdraw()
+    public virtual Result Withdraw()
     {
         if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Returned)
             throw new BusinessException("Chỉ có thể thu hồi yêu cầu đang ở trạng thái nháp (Saved) hoặc yêu cầu bổ sung (Returned).");
 
         TrangThaiId = TrangThaiYeuCau.Withdrawn;
+
+        return Result.Success();
     }
 
-    public virtual void Submit()
+    public virtual Result Submit()
     {
         if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Returned)
             throw new BusinessException("Chỉ có thể gửi yêu cầu đang ở trạng thái nháp (Saved) hoặc được yêu cầu bổ sung (Returned).");
 
         TrangThaiId = TrangThaiYeuCau.Pending;
+
+        return Result.Success();
+    }
+
+    public virtual Result Cancel(int adminId, string lyDo, DateTimeOffset processedAt)
+    {
+        if (TrangThaiId == TrangThaiYeuCau.Completed || TrangThaiId == TrangThaiYeuCau.Cancelled)
+            throw new BusinessException("Không thể hủy yêu cầu đã hoàn tất hoặc đã bị hủy trước đó.");
+
+        if (string.IsNullOrWhiteSpace(lyDo))
+            throw new BusinessException("Cần cung cấp lý do hủy.");
+
+        TrangThaiId = TrangThaiYeuCau.Cancelled;
+        LyDo = string.IsNullOrWhiteSpace(LyDo) ? lyDo : $"{LyDo} | {lyDo}";
+        NguoiXuLyId = adminId;
+        NgayXuLy = processedAt;
+
+        return Result.Success();
+    }
+
+    public virtual Result Complete(int adminId, DateTimeOffset processedAt)
+    {
+        if (TrangThaiId != TrangThaiYeuCau.Approved)
+            throw new BusinessException("Chỉ có thể đóng yêu cầu đã được duyệt.");
+
+        TrangThaiId = TrangThaiYeuCau.Completed;
+        NguoiXuLyId = adminId;
+        NgayXuLy = processedAt;
+
+        return Result.Success();
     }
 
 }

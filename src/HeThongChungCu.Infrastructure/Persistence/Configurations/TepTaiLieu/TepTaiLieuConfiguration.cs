@@ -19,7 +19,7 @@ public class TepTaiLieuConfiguration : IEntityTypeConfiguration<TepTaiLieu>
             .HasValue<TepYeuCauTaiLieuCuTru>(LoaiTepTaiLieu.YeuCauCuTru)
             .HasValue<TepYeuCauPhuongTien>(LoaiTepTaiLieu.YeuCauPhuongTien)
             .HasValue<TepYeuCauSuaChua>(LoaiTepTaiLieu.YeuCauSuaChua)
-            .HasValue<TepYeuCauThiCongNoiThat>(LoaiTepTaiLieu.YeuCauThiCongNoiThat)
+            .HasValue<TepYeuCauThiCong>(LoaiTepTaiLieu.YeuCauThiCong)
             .HasValue<TepPhuongTien>(LoaiTepTaiLieu.PhuongTien)
             .HasValue<TepHopDongDoiTac>(LoaiTepTaiLieu.HopDongDoiTac);
 

@@ -17,7 +17,7 @@ public class YeuCauConfiguration : IEntityTypeConfiguration<YeuCau>
             .HasValue<YeuCauCuTru>(LoaiYeuCauCuDan.CuTru)
             .HasValue<YeuCauPhuongTien>(LoaiYeuCauCuDan.PhuongTien)
             .HasValue<YeuCauSuaChua>(LoaiYeuCauCuDan.SuaChua)
-            .HasValue<YeuCauThiCongNoiThat>(LoaiYeuCauCuDan.ThiCongNoiThat);
+            .HasValue<YeuCauThiCong>(LoaiYeuCauCuDan.ThiCong);
 
         builder.Property(x => x.LoaiYeuCauCuDanId)
             .HasConversion(

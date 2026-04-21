@@ -191,14 +191,18 @@ public class YeuCauCuTru : YeuCau
         return new YeuCauTaiLieuCuTru(loaiGiayTo, soGiayTo, ngayPhatHanh, files, taiLieuCuTruId);
     }
 
-    public override void Submit()
+    public override Result Submit()
     {
         base.Submit();
         AddDomainEvent(new YeuCauCuTruCreatedEvent(this));
+
+        return Result.Success();
     }
 
-    public override void Withdraw()
+    public override Result Withdraw()
     {
         base.Withdraw();
+
+        return Result.Success();
     }
 }

@@ -153,14 +153,18 @@ public class YeuCauPhuongTien : YeuCau
         }
     }
 
-    public override void Submit()
+    public override Result Submit()
     {
         base.Submit();
         AddDomainEvent(new YeuCauPhuongTienCreatedEvent(this));
+
+        return Result.Success();
     }
 
-    public override void Withdraw()
+    public override Result Withdraw()
     {
         base.Withdraw();
+
+        return Result.Success();
     }
 }

@@ -417,6 +417,7 @@ public class CatalogController : ApiControllerBase
             .Select(x => new ItemForSelectorResponse
             {
                 Id = x.Value,
+                Code = x.Code,
                 Name = x.Name
             })
             .ToList();
