@@ -31,8 +31,8 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
             { "CreatedAt", "y.CreatedAt" },
             { "ToaNhaId", "tg.ToaNhaId" },
             { "TangId", "ch.TangId" },
-            { "TenNguoiGui", "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))" },
-            { "TenNguoiXuLy", "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))" },
+            { "TenNguoiGui", "ISNULL(nd1.Ho + ' ' + nd1.Ten, '')" },
+            { "TenNguoiXuLy", "ISNULL(nd2.Ho + ' ' + nd2.Ten, '')" },
             { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDanId" },
             { "IsDeleted", "y.IsDeleted" }
         };
@@ -141,8 +141,8 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "y.Id" },
-            { "TenNguoiGui", "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))" },
-            { "TenNguoiXuLy", "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))" },
+            { "TenNguoiGui", "ISNULL(nd1.Ho + ' ' + nd1.Ten, '')" },
+            { "TenNguoiXuLy", "ISNULL(nd2.Ho + ' ' + nd2.Ten, '')" },
             { "LoaiYeuCauId", "y.LoaiHanhDongYeuCauId" },
             { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDanId" },
             { "IsDeleted", "y.IsDeleted" }
@@ -278,8 +278,8 @@ public class YeuCauCuTruQueryRepository : IYeuCauCuTruQueryRepository
         var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "y.Id" },
-            { "TenNguoiGui", "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))" },
-            { "TenNguoiXuLy", "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))" },
+            { "TenNguoiGui", "ISNULL(nd1.Ho + ' ' + nd1.Ten, '')" },
+            { "TenNguoiXuLy", "ISNULL(nd2.Ho + ' ' + nd2.Ten, '')" },
             { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDanId" },
             { "IsDeleted", "y.IsDeleted" }
         };

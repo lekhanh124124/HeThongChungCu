@@ -201,13 +201,4 @@ public class YeuCauCuTru : YeuCau
     {
         base.Withdraw();
     }
-
-    public void Invalidate(string? lyDo)
-    {
-        if (TrangThaiId != TrangThaiYeuCau.Pending && TrangThaiId != TrangThaiYeuCau.Saved)
-            return;
-
-        TrangThaiId = TrangThaiYeuCau.Invalidated;
-        LyDo = string.IsNullOrWhiteSpace(LyDo) ? lyDo : $"{LyDo} | {lyDo}";
-    }
 }

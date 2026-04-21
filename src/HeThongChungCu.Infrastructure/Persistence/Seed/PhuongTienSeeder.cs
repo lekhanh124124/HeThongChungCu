@@ -104,7 +104,7 @@ public class PhuongTienSeeder
         logger.LogInformation("Finished seeding PhuongTiens.");
     }
 
-    private static string GenerateBienSo(Faker faker)
+    public static string GenerateBienSo(Faker faker)
     {
         string bienSo;
         lock (_lock)
@@ -151,7 +151,7 @@ public class PhuongTienSeeder
         return maThe;
     }
 
-    private static string GenerateUniqueMaThe(Faker faker, string prefix = "CARD-")
+    public static string GenerateUniqueMaThe(Faker faker, string prefix = "CARD-")
     {
         string maThe;
         lock (_lock)

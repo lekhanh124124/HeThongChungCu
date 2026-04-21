@@ -6,6 +6,7 @@ using HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.DieuPhoiNhanSu;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.BoSungNhanSu;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.NhapBaoGiaYeuCauSuaChua;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.HenLichYeuCauSuaChua;
+using HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.TraLaiYeuCauSuaChua;
 
 using HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.HoanTatXuLyYeuCauSuaChua;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.Commands.HuyYeuCauSuaChua;
@@ -117,6 +118,20 @@ public class YeuCauSuaChuaController : ApiControllerBase
     [HttpPut("tu-choi")]
     [ProducesResponseType(typeof(ApiResponse<YeuCauSuaChuaDetailResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> TuChoi([FromBody] TuChoiYeuCauSuaChuaCommand command, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(command, cancellationToken));
+    }
+
+    /// <summary>
+    /// BQL yêu cầu cư dân bổ sung thông tin
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: BQL thấy thông tin cư dân cung cấp chưa đầy đủ (thiếu ảnh, mô tả chưa rõ) và muốn cư dân cập nhật lại thay vì từ chối thẳng.
+    /// - **Hệ thống xử lý**: Chuyển trạng thái sang "Returned" (Yêu cầu bổ sung), cư dân sẽ có quyền sửa lại yêu cầu này.
+    /// </remarks>
+    [HttpPut("tra-lai")]
+    [ProducesResponseType(typeof(ApiResponse<YeuCauSuaChuaDetailResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> TraLai([FromBody] TraLaiYeuCauSuaChuaCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
     }

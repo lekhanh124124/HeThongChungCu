@@ -24,7 +24,7 @@ public abstract class YeuCau : AggregateRoot
         TrangThaiId = initialStatus ?? TrangThaiYeuCau.Pending;
     }
 
-    public virtual void Approve(int adminId, DateTimeOffset processedAt)
+    public virtual Result Approve(int adminId, DateTimeOffset processedAt)
     {
         if (TrangThaiId != TrangThaiYeuCau.Pending)
             throw new BusinessException("Chỉ có thể duyệt yêu cầu đang ở trạng thái chờ duyệt.");
@@ -32,6 +32,8 @@ public abstract class YeuCau : AggregateRoot
         TrangThaiId = TrangThaiYeuCau.Approved;
         NguoiXuLyId = adminId;
         NgayXuLy = processedAt;
+
+        return Result.Success();
     }
 
     public virtual void Reject(int adminId, string lyDo, DateTimeOffset processedAt)
@@ -48,18 +50,45 @@ public abstract class YeuCau : AggregateRoot
         NgayXuLy = processedAt;
     }
 
+    public virtual Result Return(int adminId, string lyDo, DateTimeOffset processedAt)
+    {
+        if (TrangThaiId != TrangThaiYeuCau.Pending)
+            throw new BusinessException("Chỉ có thể yêu cầu bổ sung thông tin cho yêu cầu đang chờ duyệt.");
+
+        if (string.IsNullOrWhiteSpace(lyDo))
+            throw new BusinessException("Cần cung cấp lý do yêu cầu bổ sung.");
+
+        TrangThaiId = TrangThaiYeuCau.Returned;
+        LyDo = lyDo;
+        NguoiXuLyId = adminId;
+        NgayXuLy = processedAt;
+
+        return Result.Success();
+    }
+
+    public virtual void Invalidate(int adminId, string? lyDo, DateTimeOffset processedAt)
+    {
+        if (TrangThaiId != TrangThaiYeuCau.Pending && TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Returned)
+            return;
+
+        TrangThaiId = TrangThaiYeuCau.Invalidated;
+        LyDo = string.IsNullOrWhiteSpace(LyDo) ? lyDo : $"{LyDo} | {lyDo}";
+        NguoiXuLyId = adminId;
+        NgayXuLy = processedAt;
+    }
+
     public virtual void Withdraw()
     {
-        if (TrangThaiId != TrangThaiYeuCau.Saved)
-            throw new BusinessException("Chỉ có thể thu hồi yêu cầu đang ở trạng thái nháp (Saved).");
+        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Returned)
+            throw new BusinessException("Chỉ có thể thu hồi yêu cầu đang ở trạng thái nháp (Saved) hoặc yêu cầu bổ sung (Returned).");
 
         TrangThaiId = TrangThaiYeuCau.Withdrawn;
     }
 
     public virtual void Submit()
     {
-        if (TrangThaiId != TrangThaiYeuCau.Saved)
-            throw new BusinessException("Chỉ có thể gửi yêu cầu đang ở trạng thái nháp (Saved).");
+        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Returned)
+            throw new BusinessException("Chỉ có thể gửi yêu cầu đang ở trạng thái nháp (Saved) hoặc được yêu cầu bổ sung (Returned).");
 
         TrangThaiId = TrangThaiYeuCau.Pending;
     }

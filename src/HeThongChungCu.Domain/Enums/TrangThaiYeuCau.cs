@@ -12,6 +12,7 @@ public class TrangThaiYeuCau : BaseEnum<TrangThaiYeuCau, int>
     public static readonly TrangThaiYeuCau Invalidated = new(6, "Hết hiệu lực");
     public static readonly TrangThaiYeuCau Completed = new(7, "Hoàn tất");
     public static readonly TrangThaiYeuCau Cancelled = new(8, "Đã hủy");
+    public static readonly TrangThaiYeuCau Returned = new(9, "Yêu cầu bổ sung");
 
     private TrangThaiYeuCau(int value, string name) : base(value, name)
     {

@@ -82,8 +82,8 @@ public class YeuCauSuaChua : YeuCau
         string? moTaViTri,
         IEnumerable<TepYeuCauSuaChua>? danhSachTep = null)
     {
-        if (TrangThaiId != TrangThaiYeuCau.Saved)
-            throw new BusinessException("Chỉ có thể chỉnh sửa yêu cầu đang ở trạng thái nháp.");
+        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Returned)
+            throw new BusinessException("Chỉ có thể chỉnh sửa yêu cầu đang ở trạng thái nháp hoặc yêu cầu bổ sung.");
 
         if (phamVi != null) PhamViId = phamVi;
         if (loaiSuCo != null) LoaiSuCoId = loaiSuCo;
@@ -224,7 +224,7 @@ public class YeuCauSuaChua : YeuCau
     /// Không cần qua bước BatDauXuLy vì không có giao diện cho nhân sự tại hiện trường.
     /// Terminal state: chuyển TrangThaiId sang Completed.
     /// </summary>
-    public void HoanTatXuLy(string ketQua, decimal? chiPhiThucTe, DateTimeOffset ngayHoanThanh)
+    public void HoanTatXuLy(int adminId, string ketQua, decimal? chiPhiThucTe, DateTimeOffset ngayHoanThanh)
     {
         if (TrangThaiSuaChuaId != TrangThaiSuaChua.DaDuyetBaoGia && TrangThaiSuaChuaId != TrangThaiSuaChua.DaHenLich)
             throw new BusinessException("Chỉ có thể hoàn tất khi đã duyệt báo giá hoặc đã hẹn lịch.");
@@ -234,6 +234,7 @@ public class YeuCauSuaChua : YeuCau
 
         KetQuaXuLy = ketQua;
         ChiPhiThucTe = chiPhiThucTe;
+        NguoiXuLyId = adminId;
         NgayXuLy = ngayHoanThanh;
 
         // Terminal: chuyển sang Completed ở TrangThaiYeuCau, clear sub-state
@@ -244,7 +245,7 @@ public class YeuCauSuaChua : YeuCau
         AddDomainEvent(new YeuCauSuaChuaHoanTatEvent(this));
     }
 
-    public void Huy(string lyDo)
+    public void Huy(int adminId, string lyDo, DateTimeOffset processedAt)
     {
         if (TrangThaiId == TrangThaiYeuCau.Completed)
             throw new BusinessException("Không thể hủy yêu cầu đã hoàn tất.");
@@ -253,6 +254,8 @@ public class YeuCauSuaChua : YeuCau
             throw new BusinessException("Cần cung cấp lý do hủy.");
 
         LyDoHuy = lyDo;
+        NguoiXuLyId = adminId;
+        NgayXuLy = processedAt;
 
         // Terminal: chuyển sang Cancelled ở TrangThaiYeuCau, clear sub-state
         TrangThaiId = TrangThaiYeuCau.Cancelled;

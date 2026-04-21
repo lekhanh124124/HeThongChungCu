@@ -32,8 +32,8 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             { "CreatedAt", "y.CreatedAt" },
             { "ToaNhaId", "tg.ToaNhaId" },
             { "TangId", "ch.TangId" },
-            { "TenNguoiGui", "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))" },
-            { "TenNguoiXuLy", "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))" },
+            { "TenNguoiGui", "ISNULL(nd1.Ho + ' ' + nd1.Ten, '')" },
+            { "TenNguoiXuLy", "ISNULL(nd2.Ho + ' ' + nd2.Ten, '')" },
             { "YeuCauBienSo", "y.YeuCauBienSo" },
             { "IsDeleted", "y.IsDeleted" },
             { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDanId" }
@@ -151,7 +151,9 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             { "Id", "y.Id" },
             { "IsDeleted", "y.IsDeleted" },
             { "LoaiYeuCauId", "y.LoaiHanhDongYeuCauId" },
-            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDanId" }
+            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDanId" },
+            { "TenNguoiGui", "ISNULL(nd1.Ho + ' ' + nd1.Ten, '')" },
+            { "TenNguoiXuLy", "ISNULL(nd2.Ho + ' ' + nd2.Ten, '')" }
         };
 
         var parameters = new DynamicParameters();
@@ -175,8 +177,8 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             })
         ], parameters);
 
-        var tenNguoiGuiSql = "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))";
-        var tenNguoiXuLySql = "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))";
+        var tenNguoiGuiSql = columnMapping["TenNguoiGui"];
+        var tenNguoiXuLySql = columnMapping["TenNguoiXuLy"];
 
         var sql = $"""
             -- 1. Main Info
@@ -251,7 +253,10 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
         {
             { "Id", "y.Id" },
             { "IsDeleted", "y.IsDeleted" },
-            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDanId" }
+            { "LoaiYeuCauId", "y.LoaiHanhDongYeuCauId" },
+            { "LoaiYeuCauCuDan", "y.LoaiYeuCauCuDanId" },
+            { "TenNguoiGui", "ISNULL(nd1.Ho + ' ' + nd1.Ten, '')" },
+            { "TenNguoiXuLy", "ISNULL(nd2.Ho + ' ' + nd2.Ten, '')" }
         };
 
         var parameters = new DynamicParameters();
@@ -267,8 +272,8 @@ public class YeuCauPhuongTienQueryRepository : IYeuCauPhuongTienQueryRepository
             new JoinDefinition("TaiKhoan", "tk2", "tk2.NguoiDungId = nd2.Id", JoinType.Left, Mapping: new() { { "TaiKhoanIsActive", "tk2.IsActive" }, { "TaiKhoanIsDeleted", "tk2.IsDeleted" } })
         ], parameters);
 
-        var tenNguoiGuiSql = "COALESCE(NULLIF(LTRIM(RTRIM(nd1.Ho + ' ' + nd1.Ten)), ''), tk1.TenDangNhap, 'User #' + CAST(y.CreatedBy AS NVARCHAR(10)))";
-        var tenNguoiXuLySql = "COALESCE(NULLIF(LTRIM(RTRIM(nd2.Ho + ' ' + nd2.Ten)), ''), tk2.TenDangNhap, 'User #' + CAST(y.NguoiXuLyId AS NVARCHAR(10)))";
+        var tenNguoiGuiSql = columnMapping["TenNguoiGui"];
+        var tenNguoiXuLySql = columnMapping["TenNguoiXuLy"];
 
         var sql = $"""
             SELECT

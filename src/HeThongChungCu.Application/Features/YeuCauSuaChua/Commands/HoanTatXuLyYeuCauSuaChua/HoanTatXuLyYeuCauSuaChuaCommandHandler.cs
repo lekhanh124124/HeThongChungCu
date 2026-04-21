@@ -13,23 +13,32 @@ public class HoanTatXuLyYeuCauSuaChuaCommandHandler : ICommandHandler<HoanTatXuL
 {
     private readonly IYeuCauSuaChuaCommandRepository _ycscRepository;
     private readonly IYeuCauSuaChuaQueryRepository _queryRepository;
+    private readonly ICurrentUserService _currentUserService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
 
     public HoanTatXuLyYeuCauSuaChuaCommandHandler(
         IYeuCauSuaChuaCommandRepository ycscRepository,
         IYeuCauSuaChuaQueryRepository queryRepository,
+        ICurrentUserService currentUserService,
         IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)
     {
         _ycscRepository = ycscRepository;
         _queryRepository = queryRepository;
+        _currentUserService = currentUserService;
         _dateTimeProvider = dateTimeProvider;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<YeuCauSuaChuaDetailResponse>> Handle(HoanTatXuLyYeuCauSuaChuaCommand request, CancellationToken cancellationToken)
     {
+        var userId = _currentUserService.UserId;
+        if (userId == null)
+            return UserErrors.NotFound;
+
+        var processedAt = _dateTimeProvider.Now;
+
         // 1. Fetch Request
         var ycsc = await _ycscRepository.GetByIdAsync(request.Id, cancellationToken);
         if (ycsc == null)
@@ -37,9 +46,10 @@ public class HoanTatXuLyYeuCauSuaChuaCommandHandler : ICommandHandler<HoanTatXuL
 
         // 2. Logic
         ycsc.HoanTatXuLy(
+            userId.Value,
             request.KetQuaXuLy,
             request.ChiPhiThucTe ?? ycsc.ChiPhiDuKien,
-            _dateTimeProvider.Now);
+            processedAt);
 
         // 3. Persistence
         _ycscRepository.Update(ycsc);
@@ -49,7 +59,7 @@ public class HoanTatXuLyYeuCauSuaChuaCommandHandler : ICommandHandler<HoanTatXuL
         var result = await _queryRepository.GetByIdAsync(new GetYeuCauSuaChuaByIdSpecification(ycsc.Id), cancellationToken);
 
         return result != null
-            ? Result.Success(result)
-            : Result.Failure<YeuCauSuaChuaDetailResponse>(YeuCauSuaChuaErrors.NotFoundById(ycsc.Id));
+            ? result
+            : YeuCauSuaChuaErrors.NotFoundById(ycsc.Id);
     }
 }

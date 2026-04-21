@@ -160,21 +160,86 @@ public class YeuCauPhuongTienSeeder
             // Set the requester (CreatedBy) manually for seed data
             request.SetCreated(householder.TaiKhoanId, DateTimeOffset.Now.AddDays(-faker.Random.Number(5, 10)));
 
-            if (targetStatus == TrangThaiYeuCau.Approved && admin != null)
+            // Apply Approval/Rejection/Return/Invalidation if needed
+            if (admin != null)
             {
-                request.Approve(admin.Id, DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 4)));
-            }
-            else if (targetStatus == TrangThaiYeuCau.Rejected && admin != null)
-            {
-                var rejectionReasons = new[]
+                if (targetStatus == TrangThaiYeuCau.Approved)
                 {
-                    "Biển số xe không rõ ràng hoặc hình ảnh cung cấp bị lóa mờ.",
-                    "Vượt quá số lượng phương tiện tối đa cho phép của một căn hộ.",
-                    "Loại xe không được phép gửi trong hầm tòa nhà theo quy định.",
-                    "Giấy tờ xe (Cavet) không chính chủ hoặc thiếu thông tin hợp lệ.",
-                    "Biển số xe đã được đăng ký cho một căn hộ khác trong hệ thống."
-                };
-                request.Reject(admin.Id, faker.PickRandom(rejectionReasons), DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 4)));
+                    request.Approve(admin.Id, DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 4)));
+
+                    // PHYSICAL SIDE EFFECTS for Approved Requests
+                    if (loaiYeuCau == LoaiHanhDongYeuCau.Them)
+                    {
+                        var pt = new PhuongTien(
+                            request.CanHoId,
+                            request.YeuCauTenPhuongTien,
+                            request.YeuCauLoaiPhuongTienId,
+                            PhuongTienSeeder.RegisterBienSo(request.YeuCauBienSo),
+                            request.YeuCauMauXe
+                        );
+                        pt.SetCreated(admin.Id, request.NgayXuLy ?? DateTimeOffset.Now);
+                        await context.PhuongTiens.AddAsync(pt);
+                        await context.SaveChangesAsync(); // Need ID
+
+                        // Set the resulting PT ID back to the request
+                        var ptIdField = typeof(YeuCauPhuongTien).GetProperty("YeuCauPhuongTienId");
+                        ptIdField?.SetValue(request, pt.Id);
+
+                        // Add a card for the new vehicle
+                        var the = pt.AddThe(PhuongTienSeeder.GenerateUniqueMaThe(faker), pt.CreatedAt);
+                        the.SetCreated(admin.Id, pt.CreatedAt);
+                    }
+                    else if (loaiYeuCau == LoaiHanhDongYeuCau.Sua && request.YeuCauPhuongTienId.HasValue)
+                    {
+                        var pt = await context.PhuongTiens.FindAsync(request.YeuCauPhuongTienId.Value);
+                        if (pt != null)
+                        {
+                            pt.CapNhat(
+                                request.YeuCauTenPhuongTien,
+                                request.YeuCauLoaiPhuongTienId,
+                                PhuongTienSeeder.RegisterBienSo(request.YeuCauBienSo),
+                                request.YeuCauMauXe
+                            );
+                            pt.SetModified(admin.Id, request.NgayXuLy ?? DateTimeOffset.Now);
+                        }
+                    }
+                    else if (loaiYeuCau == LoaiHanhDongYeuCau.Xoa && request.YeuCauPhuongTienId.HasValue)
+                    {
+                        var pt = await context.PhuongTiens.FindAsync(request.YeuCauPhuongTienId.Value);
+                        if (pt != null)
+                        {
+                            pt.Huy(request.NgayXuLy ?? DateTimeOffset.Now);
+                            pt.SetModified(admin.Id, request.NgayXuLy ?? DateTimeOffset.Now);
+                        }
+                    }
+                }
+                else if (targetStatus == TrangThaiYeuCau.Rejected)
+                {
+                    var rejectionReasons = new[]
+                    {
+                        "Biển số xe không rõ ràng hoặc hình ảnh cung cấp bị lóa mờ.",
+                        "Vượt quá số lượng phương tiện tối đa cho phép của một căn hộ.",
+                        "Loại xe không được phép gửi trong hầm tòa nhà theo quy định.",
+                        "Giấy tờ xe (Cavet) không chính chủ hoặc thiếu thông tin hợp lệ.",
+                        "Biển số xe đã được đăng ký cho một căn hộ khác trong hệ thống."
+                    };
+                    request.Reject(admin.Id, faker.PickRandom(rejectionReasons), DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 4)));
+                }
+                else if (targetStatus == TrangThaiYeuCau.Returned)
+                {
+                    var returnReasons = new[]
+                    {
+                        "Vui lòng bổ sung ảnh chụp giấy đăng ký xe (Cavet) rõ nét.",
+                        "Cần cung cấp ảnh chụp mặt trước và mặt sau của phương tiện.",
+                        "Thông tin biển số xe không khớp với hình ảnh đính kèm.",
+                        "Vui lòng đính chính lại số khung/số máy theo đúng giấy tờ."
+                    };
+                    request.Return(admin.Id, faker.PickRandom(returnReasons), DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 4)));
+                }
+                else if (targetStatus == TrangThaiYeuCau.Invalidated)
+                {
+                    request.Invalidate(admin.Id, "Cư dân đã kết thúc cư trú hoặc không còn sử dụng phương tiện này.", DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 4)));
+                }
             }
 
             await context.YeuCauPhuongTiens.AddAsync(request);
@@ -186,28 +251,34 @@ public class YeuCauPhuongTienSeeder
         if (householder.TrangThaiCuTruId == TrangThaiCuTru.DaKetThuc)
         {
             targetStatus = TrangThaiYeuCau.Invalidated;
-            return TrangThaiYeuCau.Invalidated;
+            return TrangThaiYeuCau.Pending;
         }
 
-        // 60% Approved, 20% Pending, 10% Rejected, 5% Saved, 5% Withdrawn
+        // 55% Approved, 15% Pending, 10% Rejected, 10% Returned, 5% Saved, 5% Withdrawn
         var rand = faker.Random.Number(1, 100);
 
-        if (rand <= 60)
+        if (rand <= 55)
         {
             targetStatus = TrangThaiYeuCau.Approved;
-            return TrangThaiYeuCau.Pending; // Needs to be Pending to call Approve()
+            return TrangThaiYeuCau.Pending;
         }
 
-        if (rand <= 80)
+        if (rand <= 70)
         {
             targetStatus = TrangThaiYeuCau.Pending;
             return TrangThaiYeuCau.Pending;
         }
 
-        if (rand <= 90)
+        if (rand <= 80)
         {
             targetStatus = TrangThaiYeuCau.Rejected;
-            return TrangThaiYeuCau.Pending; // Needs to be Pending to call Reject()
+            return TrangThaiYeuCau.Pending;
+        }
+
+        if (rand <= 90)
+        {
+            targetStatus = TrangThaiYeuCau.Returned;
+            return TrangThaiYeuCau.Pending;
         }
 
         if (rand <= 95)
@@ -217,7 +288,7 @@ public class YeuCauPhuongTienSeeder
         }
 
         targetStatus = TrangThaiYeuCau.Withdrawn;
-        return TrangThaiYeuCau.Saved; // Can be withdrawn from Saved
+        return TrangThaiYeuCau.Saved;
     }
     private class HouseholderData
     {

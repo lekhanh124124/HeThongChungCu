@@ -13,6 +13,7 @@ public class YeuCauCuTruConfiguration : IEntityTypeConfiguration<YeuCauCuTru>
         // TPH: Inherits table from YeuCau
 
         builder.Property(x => x.LoaiHanhDongYeuCauId)
+            .HasColumnName("LoaiHanhDongYeuCauId")
             .HasConversion(
                 v => v.Value,
                 v => LoaiHanhDongYeuCau.FromValue(v, null)!)

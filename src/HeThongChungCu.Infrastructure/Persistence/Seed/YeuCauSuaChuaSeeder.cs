@@ -242,18 +242,18 @@ public static class YeuCauSuaChuaSeeder
             }
         }
 
-        // Step 5: Hoàn tất
+        // Step 5: Hoan tat
         if (target == SeedTargetState.Completed)
         {
             var hoanTatDate = (request.ModifiedAt ?? request.CreatedAt).AddHours(faker.Random.Int(1, 4));
-            request.HoanTatXuLy("Đã xử lý dứt điểm sự cố, khách hàng hài lòng.", request.ChiPhiDuKien, hoanTatDate);
+            request.HoanTatXuLy(handlerId, "Đã xử lý dứt điểm sự cố, khách hàng hài lòng.", request.ChiPhiDuKien, hoanTatDate);
             request.SetModified(handlerId, hoanTatDate);
         }
     }
 
     private static void CancelRequest(YeuCauSuaChua request, int handlerId, DateTimeOffset baseDate, Faker faker)
     {
-        request.Huy(faker.PickRandom(new[] { "Khách hàng đổi ý, tự sửa chữa.", "Không liên lạc được với khách hàng.", "Chi phí quá cao, khách hàng không đồng ý." }));
-        request.SetModified(handlerId, baseDate.AddHours(faker.Random.Int(1, 48)));
+        request.Huy(handlerId, faker.PickRandom(new[] { "Khách hàng đổi ý, tự sửa chữa.", "Không liên lạc được với khách hàng.", "Chi phí quá cao, khách hàng không đồng ý." }), baseDate.AddHours(faker.Random.Int(1, 48)));
+        request.SetModified(handlerId, request.NgayXuLy!.Value);
     }
 }

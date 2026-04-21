@@ -22,21 +22,21 @@ public class ToaNhaSeeder
             {
                 new {
                     Ma = "SKR",
-                    Ten = "Skyline Residence (Block A)",
+                    Ten = "Skyline Residence",
                     Block = "A",
                     DiaChi = "156 Tôn Đức Thắng, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh",
                     MoTa = "Là tòa tháp mặt tiền hướng trực diện ra sông Sài Gòn. Skyline Residence sở hữu vị trí đắc địa nhất khu phức hợp với hệ thống kính Low-E tràn viền. Tòa tháp này tập trung các căn hộ Penthouse sang trọng, hồ bơi vô cực trên tầng thượng và sảnh đón tiếp chuẩn 5 sao dành riêng cho giới thượng lưu."
                 },
                 new {
                     Ma = "HRP",
-                    Ten = "Harmony Point (Block B)",
+                    Ten = "Harmony Point",
                     Block = "B",
                     DiaChi = "156 Tôn Đức Thắng, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh",
                     MoTa = "Nằm tại trung tâm nội khu, Harmony Point kết nối trực tiếp với khối đế thương mại và quảng trường nhạc nước. Đây là tòa tháp sôi động nhất, phù hợp cho các gia đình trẻ nhờ ưu thế sát cạnh khu vui chơi trẻ em, rạp chiếu phim và hệ thống nhà hàng cao cấp ngay dưới chân tòa nhà."
                 },
                 new {
                     Ma = "EMG",
-                    Ten = "Emerald Garden (Block C)",
+                    Ten = "Emerald Garden",
                     Block = "C",
                     DiaChi = "156 Tôn Đức Thắng, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh",
                     MoTa = "Tòa tháp nằm ở góc yên tĩnh nhất của dự án, được bao bọc bởi hệ thống vườn treo và công viên nội khu. Emerald Garden chú trọng vào không gian sống xanh và chăm sóc sức khỏe với khu vực Yoga ngoài trời, phòng Gym chuyên nghiệp và hồ bơi khoáng mặn nội khu, mang lại sự riêng tư tuyệt đối cho cư dân."

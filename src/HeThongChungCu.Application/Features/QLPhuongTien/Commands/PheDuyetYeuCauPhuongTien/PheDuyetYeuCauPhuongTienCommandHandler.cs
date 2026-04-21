@@ -54,24 +54,33 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
         if (adminId == null)
             return UserErrors.NotFound;
 
-        var yeuCau = await _yeuCauRepository.GetByIdAsync(request.YeuCauPhuongTienId, cancellationToken);
+        var yeuCau = await _yeuCauRepository.GetByIdAsync(
+            request.YeuCauPhuongTienId,
+            cancellationToken
+        );
+
         if (yeuCau == null)
             return YeuCauPhuongTienErrors.NotFound;
 
-        if (yeuCau.TrangThaiId != TrangThaiYeuCau.Pending)
-            return new Error("YeuCauPhuongTien.InvalidStatus", "Chỉ có thể duyệt yêu cầu đang chờ duyệt.");
-
         var now = _dateTimeProvider.Now;
-        yeuCau.Approve(adminId.Value, now);
+        var approveResult = yeuCau.Approve(adminId.Value, now);
+        if (approveResult.IsFailure)
+            return approveResult.Errors;
 
         if (yeuCau.LoaiHanhDongYeuCauId == LoaiHanhDongYeuCau.Them)
         {
-            var canHo = await _canHoRepository.GetByIdAsync(yeuCau.CanHoId, cancellationToken);
+            var canHo = await _canHoRepository.GetByIdAsync(
+                yeuCau.CanHoId,
+                cancellationToken
+            );
             if (canHo == null)
                 return CanHoErrors.NotFoundById(yeuCau.CanHoId);
 
             // Gather data for Domain Service
-            var activeVehicles = await _phuongTienRepository.GetPhuongTiensByCanHoIdAsync(yeuCau.CanHoId, cancellationToken);
+            var activeVehicles = await _phuongTienRepository.GetPhuongTiensByCanHoIdAsync(
+                yeuCau.CanHoId,
+                cancellationToken
+            );
             var isPlateDuplicate = await _phuongTienRepository.BienSoExistsAsync(yeuCau.YeuCauBienSo, cancellationToken);
 
             // Delegate to Domain Service
@@ -90,19 +99,31 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
                 yeuCau.YeuCauLoaiPhuongTienId,
                 yeuCau.YeuCauBienSo,
                 yeuCau.YeuCauMauXe,
-                yeuCau.YeuCauHinhAnhPhuongTiens.Select(f => new TepPhuongTien(f.FileName, f.FileUrl, f.Size, f.ContentType)).ToList());
+                yeuCau.YeuCauHinhAnhPhuongTiens.Select(f => new TepPhuongTien(
+                    f.FileName,
+                    f.FileUrl,
+                    f.Size,
+                    f.ContentType
+                )).ToList()
+            );
 
             await _phuongTienRepository.AddAsync(phuongTien, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
         else if (yeuCau.LoaiHanhDongYeuCauId == LoaiHanhDongYeuCau.Sua)
         {
-            var phuongTien = await _phuongTienRepository.GetPhuongTienByIdAsync(yeuCau.YeuCauPhuongTienId!.Value, cancellationToken);
+            var phuongTien = await _phuongTienRepository.GetPhuongTienByIdAsync(
+                yeuCau.YeuCauPhuongTienId!.Value,
+                cancellationToken
+            );
             if (phuongTien == null)
                 return PhuongTienErrors.NotFound;
 
             // Gather data for Domain Service
-            var canHo = await _canHoRepository.GetByIdAsync(yeuCau.CanHoId, cancellationToken);
+            var canHo = await _canHoRepository.GetByIdAsync(
+                yeuCau.CanHoId,
+                cancellationToken
+            );
             var activeVehicles = await _phuongTienRepository.GetPhuongTiensByCanHoIdAsync(yeuCau.CanHoId, cancellationToken);
 
             bool isPlateDuplicate = false;

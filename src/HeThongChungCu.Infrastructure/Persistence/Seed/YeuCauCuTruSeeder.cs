@@ -73,7 +73,7 @@ public class YeuCauCuTruSeeder
             var aptEntry = faker.PickRandom(apartments);
             var residents = aptEntry.Value;
             var chuHo = residents.First(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo.Value);
-            
+
             var initialStatus = DetermineInitialStatus(chuHo, faker, out var targetStatus);
 
             YeuCauCuTru request;
@@ -121,7 +121,7 @@ public class YeuCauCuTruSeeder
                 request = YeuCauCuTru.CreateUpdateMemberRequest(
                     aptEntry.Key,
                     target.Id,
-                    target.LoaiQuanHeCuTruId, 
+                    target.LoaiQuanHeCuTruId,
                     faker.Name.FirstName(),
                     faker.Name.LastName(),
                     dobUpdate,
@@ -158,21 +158,99 @@ public class YeuCauCuTruSeeder
             // Requester is the Chu Ho
             request.SetCreated(chuHo.TaiKhoanId!.Value, DateTimeOffset.Now.AddDays(-faker.Random.Number(5, 10)));
 
-            // Apply Approval/Rejection if needed
-            if (targetStatus == TrangThaiYeuCau.Approved && admin != null)
+            // Apply Approval/Rejection/Return/Invalidation if needed
+            if (admin != null)
             {
-                request.Approve(admin.Id, DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 5)));
-            }
-            else if (targetStatus == TrangThaiYeuCau.Rejected && admin != null)
-            {
-                var rejectionReasons = new[]
+                if (targetStatus == TrangThaiYeuCau.Approved)
                 {
-                    "Hồ sơ đính kèm không đủ cơ sở pháp lý (thiếu giấy tạm trú).",
-                    "Ảnh chụp giấy tờ tùy thân bị mờ, không nhìn rõ thông tin.",
-                    "Căn hộ đã đạt số lượng cư dân tối đa theo diện tích.",
-                    "Thông tin khai báo không khớp với dữ liệu dân cư phường."
-                };
-                request.Reject(admin.Id, faker.PickRandom(rejectionReasons), DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 5)));
+                    request.Approve(admin.Id, DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 5)));
+
+                    // PHYSICAL SIDE EFFECTS for Approved Requests
+                    if (loaiYeuCau == LoaiHanhDongYeuCau.Them)
+                    {
+                        var user = new NguoiDung(
+                            request.YeuCauTen ?? faker.Name.FirstName(),
+                            request.YeuCauHo ?? faker.Name.LastName(),
+                            request.YeuCauNgaySinh ?? faker.Date.Past(30),
+                            GioiTinh.FromValue(request.YeuCauGioiTinhId ?? 1)!,
+                            request.YeuCauDiaChi.ToString(),
+                            UserSeeder.RegisterIdCard(request.YeuCauCCCD ?? UserSeeder.GetUniqueIdCard()),
+                            UserSeeder.RegisterPhoneNumber(request.YeuCauSoDienThoai?.ToString() ?? UserSeeder.GetUniquePhoneNumber())
+                        );
+                        user.SetCreated(admin.Id, request.NgayXuLy ?? DateTimeOffset.Now);
+                        await context.NguoiDung.AddAsync(user);
+                        await context.SaveChangesAsync(); // Need ID
+
+                        var qh = new QuanHeCuTru(
+                            request.CanHoId,
+                            user.Id,
+                            LoaiQuanHeCuTru.FromValue(request.YeuCauLoaiQuanHeId ?? LoaiQuanHeCuTru.NguoiOCung.Value)!,
+                            request.NgayXuLy ?? DateTimeOffset.Now);
+                        qh.SetCreated(admin.Id, request.NgayXuLy ?? DateTimeOffset.Now);
+                        await context.QuanHeCuTrus.AddAsync(qh);
+
+                        // Link request to resulting relationship
+                        var qhIdField = typeof(YeuCauCuTru).GetProperty("YeuCauQuanHeCuTruId");
+                        qhIdField?.SetValue(request, qh.Id);
+                    }
+                    else if (loaiYeuCau == LoaiHanhDongYeuCau.Sua && request.YeuCauQuanHeCuTruId.HasValue)
+                    {
+                        var qh = await context.QuanHeCuTrus.FirstOrDefaultAsync(x => x.Id == request.YeuCauQuanHeCuTruId.Value);
+                        if (qh != null)
+                        {
+                            var user = await context.NguoiDung.FindAsync(qh.NguoiDungId);
+                            if (user != null)
+                            {
+                                user.UpdateProfile(
+                                    request.YeuCauTen ?? user.Ten,
+                                    request.YeuCauHo ?? user.Ho,
+                                    request.YeuCauNgaySinh ?? user.NgaySinh,
+                                    GioiTinh.FromValue(request.YeuCauGioiTinhId ?? user.GioiTinhId.Value)!,
+                                    request.YeuCauDiaChi.ToString(),
+                                    UserSeeder.RegisterIdCard(request.YeuCauCCCD ?? user.CCCD!),
+                                    UserSeeder.RegisterPhoneNumber(request.YeuCauSoDienThoai?.ToString() ?? user.SoDienThoai)
+                                );
+                                qh.ThayDoiLoaiQuanHe(LoaiQuanHeCuTru.FromValue(request.YeuCauLoaiQuanHeId ?? qh.LoaiQuanHeCuTruId.Value)!);
+                                qh.SetModified(admin.Id, request.NgayXuLy ?? DateTimeOffset.Now);
+                            }
+                        }
+                    }
+                    else if (loaiYeuCau == LoaiHanhDongYeuCau.Xoa && request.YeuCauQuanHeCuTruId.HasValue)
+                    {
+                        var qh = await context.QuanHeCuTrus.FindAsync(request.YeuCauQuanHeCuTruId.Value);
+                        if (qh != null)
+                        {
+                            qh.KetThucCuTru(request.NgayXuLy ?? DateTimeOffset.Now);
+                            qh.SetModified(admin.Id, request.NgayXuLy ?? DateTimeOffset.Now);
+                        }
+                    }
+                }
+                else if (targetStatus == TrangThaiYeuCau.Rejected)
+                {
+                    var rejectionReasons = new[]
+                    {
+                        "Hồ sơ đính kèm không đủ cơ sở pháp lý (thiếu giấy tạm trú).",
+                        "Ảnh chụp giấy tờ tùy thân bị mờ, không nhìn rõ thông tin.",
+                        "Căn hộ đã đạt số lượng cư dân tối đa theo diện tích.",
+                        "Thông tin khai báo không khớp với dữ liệu dân cư phường."
+                    };
+                    request.Reject(admin.Id, faker.PickRandom(rejectionReasons), DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 5)));
+                }
+                else if (targetStatus == TrangThaiYeuCau.Returned)
+                {
+                    var returnReasons = new[]
+                    {
+                        "Vui lòng bổ sung ảnh chụp bản gốc CCCD mặt sau.",
+                        "Thông tin địa chỉ thường trú cần ghi chi tiết số nhà, tên đường.",
+                        "Thiếu giấy tờ chứng minh quan hệ nhân thân (giấy khai sinh/hộ khẩu).",
+                        "Ảnh chân dung không đúng quy cách, vui lòng chụp lại rõ nét."
+                    };
+                    request.Return(admin.Id, faker.PickRandom(returnReasons), DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 5)));
+                }
+                else if (targetStatus == TrangThaiYeuCau.Invalidated)
+                {
+                    request.Invalidate(admin.Id, "Cư dân đã kết thúc cư trú tại căn hộ.", DateTimeOffset.Now.AddDays(-faker.Random.Number(1, 5)));
+                }
             }
 
             await context.YeuCauCuTrus.AddAsync(request);
@@ -184,28 +262,34 @@ public class YeuCauCuTruSeeder
         if (resident.TrangThaiCuTruId == TrangThaiCuTru.DaKetThuc)
         {
             targetStatus = TrangThaiYeuCau.Invalidated;
-            return TrangThaiYeuCau.Invalidated;
+            return TrangThaiYeuCau.Pending;
         }
 
-        // 60% Approved, 20% Pending, 10% Rejected, 5% Saved, 5% Withdrawn
+        // 55% Approved, 15% Pending, 10% Rejected, 10% Returned, 5% Saved, 5% Withdrawn
         var rand = faker.Random.Number(1, 100);
 
-        if (rand <= 60)
+        if (rand <= 55)
         {
             targetStatus = TrangThaiYeuCau.Approved;
-            return TrangThaiYeuCau.Pending; // Needs to be Pending to call Approve()
+            return TrangThaiYeuCau.Pending;
         }
 
-        if (rand <= 80)
+        if (rand <= 70)
         {
             targetStatus = TrangThaiYeuCau.Pending;
             return TrangThaiYeuCau.Pending;
         }
 
-        if (rand <= 90)
+        if (rand <= 80)
         {
             targetStatus = TrangThaiYeuCau.Rejected;
-            return TrangThaiYeuCau.Pending; // Needs to be Pending to call Reject()
+            return TrangThaiYeuCau.Pending;
+        }
+
+        if (rand <= 90)
+        {
+            targetStatus = TrangThaiYeuCau.Returned;
+            return TrangThaiYeuCau.Pending;
         }
 
         if (rand <= 95)
@@ -215,7 +299,7 @@ public class YeuCauCuTruSeeder
         }
 
         targetStatus = TrangThaiYeuCau.Withdrawn;
-        return TrangThaiYeuCau.Saved; // Can be withdrawn from Saved
+        return TrangThaiYeuCau.Saved;
     }
     private class ResidentData
     {
