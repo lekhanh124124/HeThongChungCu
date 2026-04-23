@@ -14,7 +14,7 @@ public class NhanSuThiCong : NhanSuYeuCau
     {
     }
 
-    internal static NhanSuThiCong Create(string hoTen, string soCCCD, string? soDienThoai, string? vaiTro, string? ghiChu = null, int? nhanVienId = null)
+    public static NhanSuThiCong Create(string hoTen, string soCCCD, string? soDienThoai, string? vaiTro, string? ghiChu = null, int? nhanVienId = null)
     {
         return new NhanSuThiCong(hoTen, soCCCD, soDienThoai, vaiTro, ghiChu, nhanVienId);
     }

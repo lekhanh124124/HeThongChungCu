@@ -1,5 +1,6 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.Events;
 using HeThongChungCu.Domain.Exceptions;
 using HeThongChungCu.Domain.ValueObjects;
@@ -23,6 +24,7 @@ public class YeuCauThiCong : YeuCau
     public string? LyDoKhauTru { get; private set; }
     public bool IsDaHoanCoc { get; private set; }
     public bool IsYeuCauCoc => (TienDatCoc ?? 0) > 0;
+    public decimal TienThucHoan => (TienDatCoc ?? 0) - (TienKhauTru ?? 0);
     public DateTimeOffset? NgayDuyetSoBo { get; private set; }
 
     public TrangThaiThiCong? TrangThaiThiCongId { get; private set; }
@@ -71,7 +73,6 @@ public class YeuCauThiCong : YeuCau
         string? tenDonViThiCong,
         string? nguoiDaiDien,
         string? soDienThoaiDaiDien,
-        IEnumerable<TepYeuCauThiCong>? danhSachTep = null,
         TrangThaiYeuCau? trangThaiBanDau = null)
     {
         var request = new YeuCauThiCong(
@@ -85,25 +86,30 @@ public class YeuCauThiCong : YeuCau
             soDienThoaiDaiDien,
             trangThaiBanDau);
 
-        if (danhSachTep != null)
-        {
-            foreach (var file in danhSachTep)
-            {
-                file.MarkAsUsed();
-                request._tepYeuCauThiCongs.Add(file);
-            }
-        }
-
         return request;
     }
 
     public Result AddNhanSu(string hoTen, string soCCCD, string? soDienThoai, string? vaiTro, string? ghiChu = null)
     {
-        if (TrangThaiId == TrangThaiYeuCau.Completed || TrangThaiId == TrangThaiYeuCau.Cancelled)
-            throw new BusinessException("Không thể bổ sung nhân sự cho yêu cầu đã kết thúc.");
+        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Returned && TrangThaiId != TrangThaiYeuCau.Pending)
+            throw new BusinessException("Chỉ có thể bổ sung nhân sự khi yêu cầu đang ở trạng thái đã lưu, chờ duyệt hoặc yêu cầu bổ sung hồ sơ.");
 
         var staff = NhanSuThiCong.Create(hoTen, soCCCD, soDienThoai, vaiTro, ghiChu);
         _nhanSuThiCongs.Add(staff);
+
+        return Result.Success();
+    }
+
+    public Result UpdateNhanSu(int id, string hoTen, string soCCCD, string? soDienThoai, string? vaiTro, string? ghiChu = null)
+    {
+        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Returned && TrangThaiId != TrangThaiYeuCau.Pending)
+            throw new BusinessException("Chỉ có thể cập nhật nhân sự khi yêu cầu đang ở trạng thái đã lưu, chờ duyệt hoặc yêu cầu bổ sung hồ sơ.");
+
+        var staff = _nhanSuThiCongs.FirstOrDefault(x => x.Id == id);
+        if (staff == null)
+            throw new BusinessException("Không tìm thấy nhân sự cần cập nhật.");
+
+        staff.UpdateInfo(hoTen, soCCCD, soDienThoai, vaiTro, ghiChu);
 
         return Result.Success();
     }
@@ -112,6 +118,9 @@ public class YeuCauThiCong : YeuCau
     {
         if (TrangThaiId == TrangThaiYeuCau.Completed || TrangThaiId == TrangThaiYeuCau.Cancelled)
             throw new BusinessException("Không thể xóa nhân sự cho yêu cầu đã kết thúc.");
+
+        if (TrangThaiThiCongId == TrangThaiThiCong.DaCapPhep || TrangThaiThiCongId == TrangThaiThiCong.DaHoanTat)
+            throw new BusinessException("Không thể xóa nhân sự khi đã cấp phép thi công hoặc đã hoàn tất. Vui lòng giữ lịch sử nhân sự để đối soát ra vào.");
 
         if (string.IsNullOrWhiteSpace(lyDo))
             throw new BusinessException("Cần cung cấp lý do xóa nhân sự để lưu lịch sử.");
@@ -138,20 +147,34 @@ public class YeuCauThiCong : YeuCau
         if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Returned)
             throw new BusinessException("Chỉ có thể chỉnh sửa khi yêu cầu đang ở trạng thái đã lưu hoặc yêu cầu bổ sung hồ sơ.");
 
-        if (!string.IsNullOrWhiteSpace(hangMucThiCong))
-            HangMucThiCong = hangMucThiCong;
+        if (TrangThaiId == TrangThaiYeuCau.Returned)
+        {
+            if (!string.IsNullOrWhiteSpace(hangMucThiCong) && hangMucThiCong != HangMucThiCong)
+                throw new BusinessException("Không được phép sửa hạng mục thi công khi đang bổ sung hồ sơ.");
 
-        if (duKienBatDau != null)
-            DuKienBatDau = duKienBatDau.Value;
+            if (duKienBatDau != null && duKienBatDau != DuKienBatDau)
+                throw new BusinessException("Không được phép sửa thời gian bắt đầu khi đang bổ sung hồ sơ.");
 
-        if (duKienKetThuc != null)
-            DuKienKetThuc = duKienKetThuc.Value;
+            if (duKienKetThuc != null && duKienKetThuc != DuKienKetThuc)
+                throw new BusinessException("Không được phép sửa thời gian kết thúc khi đang bổ sung hồ sơ.");
+        }
+        else
+        {
+            if (!string.IsNullOrWhiteSpace(hangMucThiCong))
+                HangMucThiCong = hangMucThiCong;
 
-        if (DuKienKetThuc <= DuKienBatDau)
-            throw new BusinessException("Thời gian dự kiến thi công không hợp lệ.");
+            if (duKienBatDau != null)
+                DuKienBatDau = duKienBatDau.Value;
 
-        if (!string.IsNullOrWhiteSpace(noiDung))
-            NoiDung = noiDung;
+            if (duKienKetThuc != null)
+                DuKienKetThuc = duKienKetThuc.Value;
+
+            if (DuKienKetThuc <= DuKienBatDau)
+                throw new BusinessException("Thời gian dự kiến thi công không hợp lệ.");
+
+            if (!string.IsNullOrWhiteSpace(noiDung))
+                NoiDung = noiDung;
+        }
 
         TenDonViThiCong = tenDonViThiCong;
         NguoiDaiDien = nguoiDaiDien;
@@ -168,8 +191,19 @@ public class YeuCauThiCong : YeuCau
     /// </summary>
     public override Result Return(int adminId, string lyDo, DateTimeOffset processedAt)
     {
-        var result = base.Return(adminId, lyDo, processedAt);
-        if (result.IsFailure) return result;
+        if (TrangThaiId != TrangThaiYeuCau.Pending && TrangThaiId != TrangThaiYeuCau.Approved)
+            throw new BusinessException("Chỉ có thể yêu cầu bổ sung thông tin cho yêu cầu đang chờ duyệt hoặc đã duyệt (chưa thi công).");
+
+        if (IsDaThuCoc)
+            throw new BusinessException("Không thể yêu cầu bổ sung hồ sơ sau khi đã xác nhận thu tiền ký quỹ.");
+
+        if (string.IsNullOrWhiteSpace(lyDo))
+            throw new BusinessException("Cần cung cấp lý do yêu cầu bổ sung.");
+
+        TrangThaiId = TrangThaiYeuCau.Returned;
+        LyDo = lyDo;
+        NguoiXuLyId = adminId;
+        NgayXuLy = processedAt;
 
         NgayDuyetSoBo = processedAt;
         TrangThaiThiCongId = TrangThaiThiCong.ChuaThiCong;
@@ -183,11 +217,15 @@ public class YeuCauThiCong : YeuCau
     /// </summary>
     public override Result Approve(int adminId, DateTimeOffset processedAt)
     {
-        // Lưu ý: tienDatCoc cần được set trước hoặc thông qua một overload? 
-        // Tuy nhiên, base.Approve không nhận decimal. 
-        // Ta sẽ dùng lỗi BusinessException nếu TienDatCoc chưa được gán.
-        if (TienDatCoc == null || TienDatCoc <= 0)
+        var isChuaDatCoc = TienDatCoc == null || TienDatCoc <= 0;
+        if (isChuaDatCoc)
             throw new BusinessException("Cần xác định số tiền đặt cọc trước khi duyệt chính thức.");
+
+        if (_nhanSuThiCongs.Count == 0)
+            throw new BusinessException("Cần đăng ký ít nhất một nhân sự thi công trước khi duyệt.");
+
+        if (_tepYeuCauThiCongs.Count == 0)
+            throw new BusinessException("Cần cung cấp ít nhất một tệp hồ sơ kỹ thuật/bản vẽ trước khi duyệt.");
 
         var result = base.Approve(adminId, processedAt);
         if (result.IsFailure) return result;
@@ -200,17 +238,20 @@ public class YeuCauThiCong : YeuCau
     /// <summary>
     /// Thiết lập tiền cọc trước khi duyệt.
     /// </summary>
-    public void SetTienDatCoc(decimal amount)
+    public Result SetTienDatCoc(decimal amount)
     {
-        if (TrangThaiId != TrangThaiYeuCau.Pending && TrangThaiId != TrangThaiYeuCau.Approved)
-            throw new BusinessException("Chỉ có thể thiết lập tiền cọc khi yêu cầu đang chờ duyệt hoặc đã duyệt (chưa thu tiền).");
+        if (TrangThaiId == TrangThaiYeuCau.Completed || TrangThaiId == TrangThaiYeuCau.Cancelled || TrangThaiId == TrangThaiYeuCau.Rejected)
+            throw new BusinessException("Không thể thiết lập tiền cọc cho yêu cầu đã kết thúc, bị từ chối hoặc bị hủy.");
 
-        if (IsDaThuCoc)
-            throw new BusinessException("Không thể điều chỉnh tiền cọc sau khi đã xác nhận thu tiền.");
+        if (TrangThaiThiCongId == TrangThaiThiCong.DaCapPhep || TrangThaiThiCongId == TrangThaiThiCong.DaHoanTat || IsDaThuCoc)
+            throw new BusinessException("Không thể điều chỉnh tiền cọc khi đã xác nhận thu tiền hoặc đã cấp phép thi công.");
 
         if (amount < 0)
             throw new BusinessException("Tiền cọc không được âm.");
+
         TienDatCoc = amount;
+
+        return Result.Success();
     }
 
     public Result XacNhanThuCoc(string? ghiChu)
@@ -231,6 +272,7 @@ public class YeuCauThiCong : YeuCau
 
     public Result HoanTatThiCong()
     {
+        // TODO: Cân nhắc bắt buộc upload biên bản nghiệm thu hoặc ảnh thực tế hiện trường tại đây
         if (TrangThaiThiCongId != TrangThaiThiCong.DaCapPhep)
             throw new BusinessException("Chỉ có thể hoàn tất khi đã được cấp phép thi công.");
 
@@ -282,6 +324,9 @@ public class YeuCauThiCong : YeuCau
     /// </summary>
     public override Result Cancel(int adminId, string lyDo, DateTimeOffset processedAt)
     {
+        if (IsDaThuCoc && !IsDaHoanCoc)
+            throw new BusinessException("Yêu cầu này đã thu tiền ký quỹ nhưng chưa thực hiện hoàn trả. Vui lòng thực hiện hoàn trả tiền cọc trước khi hủy hồ sơ.");
+
         var result = base.Cancel(adminId, lyDo, processedAt);
         if (result.IsFailure) return result;
 
@@ -293,8 +338,8 @@ public class YeuCauThiCong : YeuCau
 
     public Result AddTep(TepYeuCauThiCong tep)
     {
-        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Returned)
-            throw new BusinessException("Chỉ có thể bổ sung tài liệu khi yêu cầu đang ở trạng thái đã lưu hoặc yêu cầu bổ sung hồ sơ.");
+        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Returned && TrangThaiId != TrangThaiYeuCau.Pending)
+            throw new BusinessException("Chỉ có thể bổ sung tài liệu khi yêu cầu đang ở trạng thái đã lưu, chờ duyệt hoặc yêu cầu bổ sung hồ sơ.");
 
         tep.MarkAsUsed();
         _tepYeuCauThiCongs.Add(tep);
@@ -304,8 +349,8 @@ public class YeuCauThiCong : YeuCau
 
     public Result RemoveTep(int tepId)
     {
-        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Returned)
-            throw new BusinessException("Chỉ có thể xóa tài liệu khi yêu cầu đang ở trạng thái đã lưu hoặc yêu cầu bổ sung hồ sơ.");
+        if (TrangThaiId != TrangThaiYeuCau.Saved && TrangThaiId != TrangThaiYeuCau.Returned && TrangThaiId != TrangThaiYeuCau.Pending)
+            throw new BusinessException("Chỉ có thể xóa tài liệu khi yêu cầu đang ở trạng thái đã lưu, chờ duyệt hoặc yêu cầu bổ sung hồ sơ.");
 
         var tep = _tepYeuCauThiCongs.FirstOrDefault(x => x.Id == tepId);
         if (tep != null)

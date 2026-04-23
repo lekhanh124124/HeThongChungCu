@@ -241,7 +241,7 @@ public class YeuCauThiCongQueryRepository : IYeuCauThiCongQueryRepository
             TenNguoiXuLy = mainReadModel.TenNguoiXuLy,
             NgayXuLy = mainReadModel.NgayXuLy,
             LyDo = mainReadModel.LyDo,
-            
+
             NhanSuThiCongs = personnel.Select(p => new NhanSuThiCongResponse
             {
                 Id = p.Id,
@@ -253,8 +253,8 @@ public class YeuCauThiCongQueryRepository : IYeuCauThiCongQueryRepository
                 GhiChu = p.GhiChu,
                 LyDoXoa = p.LyDoXoa
             }).ToList(),
-            
-            DanhSachTep = files.Select(f => new TepYeuCauThiCongResponse(f.Id, f.FileUrl, f.FileName, f.ContentType)).ToList()
+
+            DanhSachTep = files.Select(f => new TepTaiLieuResponse(f.Id, f.FileUrl, f.FileName, f.ContentType)).ToList()
         };
     }
 }

@@ -1,5 +1,6 @@
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Application.Features.ThongBao.Commands.DanhDauDaDoc;
+using HeThongChungCu.Application.Features.ThongBao.Commands.SendDemoNotification;
 using HeThongChungCu.Application.Features.ThongBao.DTOs;
 using HeThongChungCu.Application.Features.ThongBao.Queries.LayDSThongBao;
 using HeThongChungCu.WebAPI.Common.Models;
@@ -39,6 +40,16 @@ public class ThongBaoController : ApiControllerBase
     [HttpPut("da-doc")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     public async Task<IActionResult> MarkAsRead([FromBody] DanhDauDaDocCommand command, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(command, cancellationToken));
+    }
+
+    /// <summary>
+    /// Gửi thông báo demo tới một người dùng cụ thể
+    /// </summary>
+    [HttpPost("send-demo")]
+    [ProducesResponseType(typeof(ApiResponse<ThongBaoResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SendDemo([FromBody] SendDemoNotificationCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
     }
