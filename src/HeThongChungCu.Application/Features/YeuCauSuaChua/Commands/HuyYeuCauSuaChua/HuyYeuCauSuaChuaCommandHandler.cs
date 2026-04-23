@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Features.YeuCauSuaChua.DTOs;
@@ -53,7 +53,7 @@ public class HuyYeuCauSuaChuaCommandHandler : ICommandHandler<HuyYeuCauSuaChuaCo
         // }
 
         // 3. Perform Cancel
-        ycsc.Huy(userId.Value, request.LyDoHuy, processedAt);
+        ycsc.Cancel(userId.Value, request.LyDoHuy, processedAt);
 
         // 4. Persistence
         _ycscRepository.Update(ycsc);

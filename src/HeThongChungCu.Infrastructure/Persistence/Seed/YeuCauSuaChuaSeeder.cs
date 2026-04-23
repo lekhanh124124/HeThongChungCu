@@ -253,7 +253,7 @@ public static class YeuCauSuaChuaSeeder
 
     private static void CancelRequest(YeuCauSuaChua request, int handlerId, DateTimeOffset baseDate, Faker faker)
     {
-        request.Huy(handlerId, faker.PickRandom(new[] { "Khách hàng đổi ý, tự sửa chữa.", "Không liên lạc được với khách hàng.", "Chi phí quá cao, khách hàng không đồng ý." }), baseDate.AddHours(faker.Random.Int(1, 48)));
+        request.Cancel(handlerId, faker.PickRandom(new[] { "Khách hàng đổi ý, tự sửa chữa.", "Không liên lạc được với khách hàng.", "Chi phí quá cao, khách hàng không đồng ý." }), baseDate.AddHours(faker.Random.Int(1, 48)));
         request.SetModified(handlerId, request.NgayXuLy!.Value);
     }
 }

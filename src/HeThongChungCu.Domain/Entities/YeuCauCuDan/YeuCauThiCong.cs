@@ -86,6 +86,11 @@ public class YeuCauThiCong : YeuCau
             soDienThoaiDaiDien,
             trangThaiBanDau);
 
+        if (request.TrangThaiId == TrangThaiYeuCau.Pending)
+        {
+            request.AddDomainEvent(new YeuCauThiCongCreatedEvent(request));
+        }
+
         return request;
     }
 
@@ -185,6 +190,16 @@ public class YeuCauThiCong : YeuCau
         return Result.Success();
     }
 
+    public override Result Submit()
+    {
+        var result = base.Submit();
+        if (result.IsFailure) return result;
+
+        AddDomainEvent(new YeuCauThiCongCreatedEvent(this));
+
+        return Result.Success();
+    }
+
     /// <summary>
     /// Trả lại yêu cầu - Giai đoạn 1.
     /// BQL yêu cầu cư dân bổ sung thông tin hoặc hồ sơ kỹ thuật.
@@ -205,8 +220,9 @@ public class YeuCauThiCong : YeuCau
         NguoiXuLyId = adminId;
         NgayXuLy = processedAt;
 
-        NgayDuyetSoBo = processedAt;
         TrangThaiThiCongId = TrangThaiThiCong.ChuaThiCong;
+
+        AddDomainEvent(new YeuCauThiCongReturnedEvent(this));
 
         return Result.Success();
     }
@@ -231,6 +247,8 @@ public class YeuCauThiCong : YeuCau
         if (result.IsFailure) return result;
 
         TrangThaiThiCongId = TrangThaiThiCong.ChoThuCoc;
+
+        AddDomainEvent(new YeuCauThiCongApprovedEvent(this));
 
         return Result.Success();
     }
@@ -278,6 +296,8 @@ public class YeuCauThiCong : YeuCau
 
         TrangThaiThiCongId = TrangThaiThiCong.DaHoanTat;
 
+        AddDomainEvent(new YeuCauThiCongHoanTatThiCongEvent(this));
+
         return Result.Success();
     }
 
@@ -299,6 +319,8 @@ public class YeuCauThiCong : YeuCau
         LyDoKhauTru = lyDo;
         IsDaHoanCoc = true;
 
+        AddDomainEvent(new YeuCauThiCongHoanCocEvent(this));
+
         return Result.Success();
     }
 
@@ -315,6 +337,8 @@ public class YeuCauThiCong : YeuCau
         if (result.IsFailure) return result;
 
         // Giữ lại trạng thái DaHoanTat để lưu lịch sử nghiệm thu
+        AddDomainEvent(new YeuCauThiCongCompletedEvent(this));
+
         return Result.Success();
     }
 
@@ -331,6 +355,8 @@ public class YeuCauThiCong : YeuCau
         if (result.IsFailure) return result;
 
         TrangThaiThiCongId = null;
+
+        AddDomainEvent(new YeuCauThiCongCancelledEvent(this));
 
         return Result.Success();
     }

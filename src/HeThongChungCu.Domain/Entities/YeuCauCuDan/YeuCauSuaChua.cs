@@ -1,3 +1,4 @@
+using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Events;
 using HeThongChungCu.Domain.Exceptions;
@@ -68,6 +69,11 @@ public class YeuCauSuaChua : YeuCau
             }
         }
 
+        if (status == TrangThaiYeuCau.Pending)
+        {
+            request.AddDomainEvent(new YeuCauSuaChuaCreatedEvent(request));
+        }
+
         return request;
     }
 
@@ -101,6 +107,42 @@ public class YeuCauSuaChua : YeuCau
         }
     }
 
+    public override Result Submit()
+    {
+        var result = base.Submit();
+        if (result.IsFailure) return result;
+
+        AddDomainEvent(new YeuCauSuaChuaCreatedEvent(this));
+
+        return Result.Success();
+    }
+
+    public override Result Approve(int adminId, DateTimeOffset processedAt)
+    {
+        var result = base.Approve(adminId, processedAt);
+        if (result.IsFailure) return result;
+
+        AddDomainEvent(new YeuCauSuaChuaApprovedEvent(this));
+
+        return Result.Success();
+    }
+
+    public override Result Return(int adminId, string lyDo, DateTimeOffset processedAt)
+    {
+        var result = base.Return(adminId, lyDo, processedAt);
+        if (result.IsFailure) return result;
+
+        AddDomainEvent(new YeuCauSuaChuaReturnedEvent(this));
+
+        return Result.Success();
+    }
+
+    public override void Reject(int adminId, string lyDo, DateTimeOffset processedAt)
+    {
+        base.Reject(adminId, lyDo, processedAt);
+        AddDomainEvent(new YeuCauSuaChuaRejectedEvent(this));
+    }
+
 
 
 
@@ -125,6 +167,8 @@ public class YeuCauSuaChua : YeuCau
         }
 
         TrangThaiSuaChuaId = TrangThaiSuaChua.DaDieuPhoi;
+
+        AddDomainEvent(new YeuCauSuaChuaAssignedEvent(this));
     }
 
     /// <summary>
@@ -160,6 +204,8 @@ public class YeuCauSuaChua : YeuCau
         // BQL chốt báo giá sau khi đã xác nhận trực tiếp với cư dân.
         // Không cần trạng thái chờ duyệt online.
         TrangThaiSuaChuaId = TrangThaiSuaChua.DaDuyetBaoGia;
+
+        AddDomainEvent(new YeuCauSuaChuaBaoGiaEvent(this));
     }
 
     public void AssignPartner(int hopDongId)
@@ -171,6 +217,8 @@ public class YeuCauSuaChua : YeuCau
         _nhanSuSuaChuas.Clear();
 
         TrangThaiSuaChuaId = TrangThaiSuaChua.DaDieuPhoi;
+
+        AddDomainEvent(new YeuCauSuaChuaAssignedEvent(this));
     }
 
     public void AddNhanSuPartner(string hoTen, string soCCCD, string? soDienThoai, string? vaiTro, string? ghiChu = null)
@@ -217,6 +265,8 @@ public class YeuCauSuaChua : YeuCau
         HenTu = tuNgay;
         HenDen = denNgay;
         TrangThaiSuaChuaId = TrangThaiSuaChua.DaHenLich;
+
+        AddDomainEvent(new YeuCauSuaChuaHenLichEvent(this));
     }
 
     /// <summary>
@@ -245,20 +295,16 @@ public class YeuCauSuaChua : YeuCau
         AddDomainEvent(new YeuCauSuaChuaHoanTatEvent(this));
     }
 
-    public void Huy(int adminId, string lyDo, DateTimeOffset processedAt)
+    public override Result Cancel(int adminId, string lyDo, DateTimeOffset processedAt)
     {
-        if (TrangThaiId == TrangThaiYeuCau.Completed)
-            throw new BusinessException("Không thể hủy yêu cầu đã hoàn tất.");
-
-        if (string.IsNullOrWhiteSpace(lyDo))
-            throw new BusinessException("Cần cung cấp lý do hủy.");
+        var result = base.Cancel(adminId, lyDo, processedAt);
+        if (result.IsFailure) return result;
 
         LyDoHuy = lyDo;
-        NguoiXuLyId = adminId;
-        NgayXuLy = processedAt;
-
-        // Terminal: chuyển sang Cancelled ở TrangThaiYeuCau, clear sub-state
-        TrangThaiId = TrangThaiYeuCau.Cancelled;
         TrangThaiSuaChuaId = null;
+
+        AddDomainEvent(new YeuCauSuaChuaCancelledEvent(this));
+
+        return Result.Success();
     }
 }
