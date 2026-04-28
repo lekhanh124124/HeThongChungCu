@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Features.QLCuTru.DTOs;
+using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
@@ -14,7 +14,6 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
     private readonly INguoiDungCommandRepository _userRepository;
     private readonly ITaiKhoanCommandRepository _accountRepository;
     private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
-    private readonly IResidencyService _residencyService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
 
@@ -24,7 +23,6 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
         INguoiDungCommandRepository userRepository,
         ITaiKhoanCommandRepository accountRepository,
         IQuanHeCuTruCommandRepository quanHeCuTruRepository,
-        IResidencyService residencyService,
         IUnitOfWork unitOfWork,
         IDateTimeProvider dateTimeProvider)
     {
@@ -33,7 +31,6 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
         _userRepository = userRepository;
         _accountRepository = accountRepository;
         _quanHeCuTruRepository = quanHeCuTruRepository;
-        _residencyService = residencyService;
         _unitOfWork = unitOfWork;
         _dateTimeProvider = dateTimeProvider;
     }
@@ -57,21 +54,48 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
         if (user is null)
             return UserErrors.NotFoundById(request.UserId);
 
-        // 2. Setup Residency via Domain Service
+        // 2. Setup Residency (Logic moved from ResidencyService)
         var loaiQuanHe = LoaiQuanHeCuTru.FromValue(request.LoaiQuanHeCuTruId);
-        var existingRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
+        var existingRelations = (await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken)).ToList();
         var now = _dateTimeProvider.Now;
 
-        var relationResult = _residencyService.CreateRelation(canHo.Id, user.Id, loaiQuanHe!, now, existingRelations);
-        if (relationResult.IsFailure)
-            return relationResult.Errors;
+        // Validation logic from CreateRelation
+        if (existingRelations.Any(x =>
+                x.NguoiDungId == user.Id &&
+                x.CanHoId == canHo.Id &&
+                x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
+        {
+            return QuanHeCuTruErrors.UserAlreadyResident;
+        }
 
-        var quanHe = relationResult.Value;
+        bool isHeadRole = loaiQuanHe == LoaiQuanHeCuTru.ChuHo || loaiQuanHe == LoaiQuanHeCuTru.NguoiThue;
+        bool hasActiveHead = existingRelations.Any(x =>
+            (x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo || x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue) &&
+            x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
 
+        if (isHeadRole && hasActiveHead)
+        {
+            return QuanHeCuTruErrors.HouseholderAlreadyExists;
+        }
+
+        if (!isHeadRole && !hasActiveHead)
+        {
+            return QuanHeCuTruErrors.HouseholderNotFound;
+        }
+
+        var quanHe = new QuanHeCuTru(canHo.Id, user.Id, loaiQuanHe!, now);
         await _quanHeCuTruRepository.AddAsync(quanHe, cancellationToken);
 
-        // 3. Update Apartment Status via Domain Service
-        _residencyService.StartResidency(canHo, quanHe, existingRelations.Append(quanHe));
+        // 3. Update Apartment Status
+        existingRelations.Add(quanHe);
+        if (existingRelations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
+        {
+            canHo.MarkAsOccupied();
+        }
+        else
+        {
+            canHo.MarkAsVacant();
+        }
         _canHoRepository.Update(canHo);
 
         // Update role if account exists

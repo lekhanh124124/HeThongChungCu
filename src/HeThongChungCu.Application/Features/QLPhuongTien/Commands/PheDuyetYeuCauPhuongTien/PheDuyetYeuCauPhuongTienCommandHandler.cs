@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Application.Features.QLPhuongTien.DTOs;
@@ -20,7 +20,6 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
     private readonly IToaNhaCommandRepository _toaNhaCommandRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTimeProvider _dateTimeProvider;
-    private readonly IVehicleRegistryService _vehicleRegistryService;
     private readonly IDocumentReconciliationService _documentReconciliationService;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -32,7 +31,6 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
         IToaNhaCommandRepository toaNhaCommandRepository,
         ICurrentUserService currentUserService,
         IDateTimeProvider dateTimeProvider,
-        IVehicleRegistryService vehicleRegistryService,
         IDocumentReconciliationService documentReconciliationService,
         IUnitOfWork unitOfWork)
     {
@@ -43,7 +41,6 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
         _toaNhaCommandRepository = toaNhaCommandRepository;
         _currentUserService = currentUserService;
         _dateTimeProvider = dateTimeProvider;
-        _vehicleRegistryService = vehicleRegistryService;
         _documentReconciliationService = documentReconciliationService;
         _unitOfWork = unitOfWork;
     }
@@ -76,22 +73,21 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
             if (canHo == null)
                 return CanHoErrors.NotFoundById(yeuCau.CanHoId);
 
-            // Gather data for Domain Service
-            var activeVehicles = await _phuongTienRepository.GetPhuongTiensByCanHoIdAsync(
-                yeuCau.CanHoId,
-                cancellationToken
-            );
+            // Validation logic moved from VehicleRegistryService
             var isPlateDuplicate = await _phuongTienRepository.BienSoExistsAsync(yeuCau.YeuCauBienSo, cancellationToken);
+            if (isPlateDuplicate)
+            {
+                return PhuongTienErrors.BienSoExists;
+            }
 
-            // Delegate to Domain Service
-            var validationResult = _vehicleRegistryService.CanRegisterOrUpdateVehicle(
-                canHo,
-                yeuCau.YeuCauLoaiPhuongTienId,
-                activeVehicles.Where(v => v.TrangThaiPhuongTienId == TrangThaiPhuongTien.Active),
-                isPlateDuplicate);
+            var activeVehicles = await _phuongTienRepository.GetPhuongTiensByCanHoIdAsync(yeuCau.CanHoId, cancellationToken);
+            var currentCount = activeVehicles.Count(v => v.TrangThaiPhuongTienId == TrangThaiPhuongTien.Active && v.LoaiPhuongTienId == yeuCau.YeuCauLoaiPhuongTienId);
+            var quota = PhuongTienPolicy.GetQuota(canHo.LoaiCanHoId, yeuCau.YeuCauLoaiPhuongTienId);
 
-            if (validationResult.IsFailure)
-                return validationResult.Errors[0];
+            if (currentCount >= quota)
+            {
+                return PhuongTienErrors.OverQuota(canHo.LoaiCanHoId, yeuCau.YeuCauLoaiPhuongTienId, quota);
+            }
 
             var phuongTien = new PhuongTien(
                 yeuCau.CanHoId,
@@ -119,29 +115,31 @@ public class PheDuyetYeuCauPhuongTienCommandHandler : ICommandHandler<PheDuyetYe
             if (phuongTien == null)
                 return PhuongTienErrors.NotFound;
 
-            // Gather data for Domain Service
             var canHo = await _canHoRepository.GetByIdAsync(
                 yeuCau.CanHoId,
                 cancellationToken
             );
-            var activeVehicles = await _phuongTienRepository.GetPhuongTiensByCanHoIdAsync(yeuCau.CanHoId, cancellationToken);
 
-            bool isPlateDuplicate = false;
+            // Validation logic moved from VehicleRegistryService
             if (phuongTien.BienSo != yeuCau.YeuCauBienSo)
             {
-                isPlateDuplicate = await _phuongTienRepository.BienSoExistsAsync(yeuCau.YeuCauBienSo, cancellationToken);
+                var isPlateDuplicate = await _phuongTienRepository.BienSoExistsAsync(yeuCau.YeuCauBienSo, cancellationToken);
+                if (isPlateDuplicate)
+                {
+                    return PhuongTienErrors.BienSoExists;
+                }
             }
 
-            // Delegate to Domain Service (handles both Quota and Uniqueness)
-            var validationResult = _vehicleRegistryService.CanRegisterOrUpdateVehicle(
-                canHo!,
-                yeuCau.YeuCauLoaiPhuongTienId,
-                activeVehicles.Where(v => v.TrangThaiPhuongTienId == TrangThaiPhuongTien.Active),
-                isPlateDuplicate,
-                phuongTien.Id);
+            var activeVehicles = await _phuongTienRepository.GetPhuongTiensByCanHoIdAsync(yeuCau.CanHoId, cancellationToken);
+            var currentCount = activeVehicles.Count(v => v.TrangThaiPhuongTienId == TrangThaiPhuongTien.Active 
+                                                        && v.LoaiPhuongTienId == yeuCau.YeuCauLoaiPhuongTienId
+                                                        && v.Id != phuongTien.Id);
+            var quota = PhuongTienPolicy.GetQuota(canHo!.LoaiCanHoId, yeuCau.YeuCauLoaiPhuongTienId);
 
-            if (validationResult.IsFailure)
-                return validationResult.Errors[0];
+            if (currentCount >= quota)
+            {
+                return PhuongTienErrors.OverQuota(canHo.LoaiCanHoId, yeuCau.YeuCauLoaiPhuongTienId, quota);
+            }
 
             phuongTien.CapNhat(
                 yeuCau.YeuCauTenPhuongTien,

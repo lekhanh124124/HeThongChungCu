@@ -10,6 +10,8 @@ public class DangKyDichVuResponse
     public int LoaiDichVuId { get; set; }
     public string LoaiDichVuTen { get; set; } = string.Empty;
     public int SoLuong { get; set; }
+    public int? KhungGioId { get; set; }
+    public string? TenKhungGio { get; set; }
     public DateTimeOffset NgayBatDau { get; set; }
     public DateTimeOffset? NgayKetThuc { get; set; }
     public int TrangThaiDangKyId { get; set; }

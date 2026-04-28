@@ -56,4 +56,11 @@ public abstract class BangGia : AuditableEntity
     }
 
     public void Activate() => IsActive = true;
+
+    /// <summary>
+    /// Tính toán số tiền dựa trên ngữ cảnh cung cấp.
+    /// </summary>
+    /// <param name="context">Ngữ cảnh chứa các thông số đầu vào (số lượng, diện tích, chỉ số...)</param>
+    /// <returns>Số tiền tính toán được</returns>
+    public abstract decimal CalculateAmount(PricingContext context);
 }

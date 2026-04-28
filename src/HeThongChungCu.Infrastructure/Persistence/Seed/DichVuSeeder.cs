@@ -1,3 +1,4 @@
+using HeThongChungCu.Domain.Constants;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -100,7 +101,7 @@ public static class DichVuSeeder
 
         // 2.1. Dịch vụ Vận hành (Nội bộ 100%)
         var dvVanHanh = new DichVu(
-            "DV_VANHANH",
+            ServiceCodeConstants.PHI_QUAN_LY,
             "Dịch vụ vận hành tòa nhà",
             LoaiDichVu.VanHanh,
             "m2",
@@ -127,7 +128,7 @@ public static class DichVuSeeder
         await context.SaveChangesAsync();
 
         // 2.2. Dịch vụ Điện lực (Nội bộ quản lý - Có đối tác nguồn)
-        var dvDien = new DichVu("DV_DIEN", "Dịch vụ điện lực", LoaiDichVu.VanHanh, "kWh", "Điện năng sinh hoạt cư dân.", null, true);
+        var dvDien = new DichVu(ServiceCodeConstants.DIEN, "Dịch vụ điện lực", LoaiDichVu.VanHanh, "kWh", "Điện năng sinh hoạt cư dân.", null, true);
         dvDien.Activate();
         if (adminId != 0) dvDien.SetCreated(adminId, DateTimeOffset.Now);
         await context.DichVus.AddAsync(dvDien);
@@ -150,7 +151,7 @@ public static class DichVuSeeder
         if (adminId != 0) hdDien.SetCreated(adminId, DateTimeOffset.Now);
 
         // 2.3. Dịch vụ Nước sinh hoạt (Nội bộ quản lý - Có đối tác nguồn)
-        var dvNuoc = new DichVu("DV_NUOC", "Dịch vụ nước sinh hoạt", LoaiDichVu.VanHanh, "m3", "Nước sạch sinh hoạt cư dân.", null, true);
+        var dvNuoc = new DichVu(ServiceCodeConstants.NUOC, "Dịch vụ nước sinh hoạt", LoaiDichVu.VanHanh, "m3", "Nước sạch sinh hoạt cư dân.", null, true);
         dvNuoc.Activate();
         if (adminId != 0) dvNuoc.SetCreated(adminId, DateTimeOffset.Now);
         await context.DichVus.AddAsync(dvNuoc);
@@ -370,6 +371,23 @@ public static class DichVuSeeder
 
         var hdSuaNuoc = sawaco.KyHopDongMoi("HD-SW-REPAIR-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(2), 80000000, dvSuaNuoc.Id, "Hợp đồng cung cấp thợ kỹ thuật xử lý sự cố cấp thoát nước.");
         if (adminId != 0) hdSuaNuoc.SetCreated(adminId, DateTimeOffset.Now);
+
+        // --- 5. Dịch vụ Tiền thuê nhà (Dùng BangGiaLoaiCanHo) ---
+        var dvThueNha = new DichVu(ServiceCodeConstants.TIEN_THUE_NHA, "Tiền thuê nhà", LoaiDichVu.VanHanh, "Tháng", "Tiền thuê căn hộ hàng tháng đối với người thuê.", null, false);
+        dvThueNha.Activate();
+        if (adminId != 0) dvThueNha.SetCreated(adminId, DateTimeOffset.Now);
+        await context.DichVus.AddAsync(dvThueNha);
+        await context.SaveChangesAsync();
+
+        var bgThueNha = new BangGiaLoaiCanHo(dvThueNha.Id, "Bảng giá thuê nhà 2026", DateTimeOffset.Now);
+        bgThueNha.Activate();
+        bgThueNha.AddGiaLoaiCanHo(LoaiCanHo.Standard, 12000000);
+        bgThueNha.AddGiaLoaiCanHo(LoaiCanHo.Studio, 7000000);
+        bgThueNha.AddGiaLoaiCanHo(LoaiCanHo.Penthouse, 45000000);
+        bgThueNha.AddGiaLoaiCanHo(LoaiCanHo.Shophouse, 35000000);
+        if (adminId != 0) bgThueNha.SetCreated(adminId, DateTimeOffset.Now);
+        await context.BangGias.AddAsync(bgThueNha);
+        await context.SaveChangesAsync();
 
         DatabaseSeeder.ClearAllDomainEvents(context);
         await context.SaveChangesAsync();

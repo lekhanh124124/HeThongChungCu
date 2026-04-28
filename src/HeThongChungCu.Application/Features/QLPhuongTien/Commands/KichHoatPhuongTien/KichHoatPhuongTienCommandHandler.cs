@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
@@ -10,18 +10,15 @@ internal sealed class KichHoatPhuongTienCommandHandler : ICommandHandler<KichHoa
 {
     private readonly IPhuongTienCommandRepository _phuongTienCommandRepository;
     private readonly ICanHoCommandRepository _canHoCommandRepository;
-    private readonly IVehicleRegistryService _vehicleRegistryService;
     private readonly IUnitOfWork _unitOfWork;
 
     public KichHoatPhuongTienCommandHandler(
         IPhuongTienCommandRepository phuongTienCommandRepository,
         ICanHoCommandRepository canHoCommandRepository,
-        IVehicleRegistryService vehicleRegistryService,
         IUnitOfWork unitOfWork)
     {
         _phuongTienCommandRepository = phuongTienCommandRepository;
         _canHoCommandRepository = canHoCommandRepository;
-        _vehicleRegistryService = vehicleRegistryService;
         _unitOfWork = unitOfWork;
     }
 
@@ -45,14 +42,21 @@ internal sealed class KichHoatPhuongTienCommandHandler : ICommandHandler<KichHoa
             if (canHo == null) continue;
 
             // Lấy tất cả phương tiện hiện có của căn hộ này (để check quota)
-            var existingVehicles = await _phuongTienCommandRepository.GetPhuongTiensByCanHoIdAsync(canHoId, cancellationToken);
+            var allVehicles = await _phuongTienCommandRepository.GetPhuongTiensByCanHoIdAsync(canHoId, cancellationToken);
+            var activeVehicles = allVehicles.Where(v => v.TrangThaiPhuongTienId == TrangThaiPhuongTien.Active);
             
             foreach (var phuongTien in group)
             {
-                var result = _vehicleRegistryService.KichHoatPhuongTien(phuongTien, canHo, existingVehicles.Where(v => v.TrangThaiPhuongTienId == TrangThaiPhuongTien.Active));
-                if (result.IsFailure)
-                    return result.Errors;
+                // Logic moved from VehicleRegistryService
+                var currentCount = activeVehicles.Count(v => v.LoaiPhuongTienId == phuongTien.LoaiPhuongTienId && v.Id != phuongTien.Id);
+                var quota = PhuongTienPolicy.GetQuota(canHo.LoaiCanHoId, phuongTien.LoaiPhuongTienId);
 
+                if (currentCount >= quota)
+                {
+                    return PhuongTienErrors.OverQuota(canHo.LoaiCanHoId, phuongTien.LoaiPhuongTienId, quota);
+                }
+
+                phuongTien.Activate();
                 _phuongTienCommandRepository.Update(phuongTien);
             }
         }

@@ -1,5 +1,6 @@
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
+using HeThongChungCu.Domain.ValueObjects;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -26,5 +27,13 @@ public class BangGiaKhungGio : BangGia
 
         var detail = new ChiTietGiaKhungGio(Id, khungGioId, donGia);
         _chiTietGias.Add(detail);
+    }
+
+    public override decimal CalculateAmount(PricingContext context)
+    {
+        var detail = _chiTietGias.FirstOrDefault(x => x.KhungGioId == context.KhungGioId);
+        if (detail == null) return 0;
+
+        return detail.DonGia.SoTien * context.SoLuong;
     }
 }

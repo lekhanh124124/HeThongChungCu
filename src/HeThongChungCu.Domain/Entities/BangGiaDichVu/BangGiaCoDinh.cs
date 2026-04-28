@@ -20,5 +20,8 @@ public class BangGiaCoDinh : BangGia
     {
         DonGia = new GiaTien(donGia);
     }
-
+    public override decimal CalculateAmount(PricingContext context)
+    {
+        return DonGia.SoTien * context.SoLuong;
+    }
 }

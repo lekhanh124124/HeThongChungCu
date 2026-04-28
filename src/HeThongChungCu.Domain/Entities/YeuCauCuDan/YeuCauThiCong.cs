@@ -28,6 +28,12 @@ public class YeuCauThiCong : YeuCau
     public DateTimeOffset? NgayDuyetSoBo { get; private set; }
 
     public TrangThaiThiCong? TrangThaiThiCongId { get; private set; }
+    public int? HoaDonId { get; private set; }
+
+    public void MarkAsBilled(int hoaDonId)
+    {
+        HoaDonId = hoaDonId;
+    }
 
     private readonly List<TepYeuCauThiCong> _tepYeuCauThiCongs = [];
     public IReadOnlyCollection<TepYeuCauThiCong> TepYeuCauThiCongs => _tepYeuCauThiCongs.AsReadOnly();

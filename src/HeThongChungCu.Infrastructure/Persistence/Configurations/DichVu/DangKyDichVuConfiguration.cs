@@ -39,5 +39,10 @@ public class DangKyDichVuConfiguration : IEntityTypeConfiguration<DangKyDichVu>
             .HasForeignKey(x => x.DichVuId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne<KhungGioDichVu>()
+            .WithMany()
+            .HasForeignKey(x => x.KhungGioId)
+            .OnDelete(DeleteBehavior.SetNull);
+
     }
 }

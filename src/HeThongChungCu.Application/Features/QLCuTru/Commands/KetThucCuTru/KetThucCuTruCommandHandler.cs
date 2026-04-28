@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -15,7 +15,6 @@ public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, C
     private readonly INguoiDungCommandRepository _userRepository;
     private readonly ICanHoCommandRepository _canHoRepository;
     private readonly IToaNhaCommandRepository _toaNhaRepository;
-    private readonly IResidencyService _residencyService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDateTimeProvider _dateTimeProvider;
 
@@ -24,7 +23,6 @@ public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, C
         INguoiDungCommandRepository userRepository,
         ICanHoCommandRepository canHoRepository,
         IToaNhaCommandRepository toaNhaRepository,
-        IResidencyService residencyService,
         IUnitOfWork unitOfWork,
         IDateTimeProvider dateTimeProvider)
     {
@@ -32,7 +30,6 @@ public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, C
         _userRepository = userRepository;
         _canHoRepository = canHoRepository;
         _toaNhaRepository = toaNhaRepository;
-        _residencyService = residencyService;
         _unitOfWork = unitOfWork;
         _dateTimeProvider = dateTimeProvider;
     }
@@ -54,8 +51,15 @@ public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, C
         {
             var activeRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
             
-            // Use Domain Service Orchestration
-            _residencyService.EndResidency(canHo, quanHe, activeRelations, now);
+            // Logic moved from ResidencyService.EndResidency & UpdateApartmentStatus
+            if (activeRelations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
+            {
+                canHo.MarkAsOccupied();
+            }
+            else
+            {
+                canHo.MarkAsVacant();
+            }
             
             _quanHeCuTruRepository.Update(quanHe);
             _canHoRepository.Update(canHo);

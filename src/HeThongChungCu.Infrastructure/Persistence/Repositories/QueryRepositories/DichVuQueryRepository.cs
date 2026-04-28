@@ -673,12 +673,14 @@ public class DichVuQueryRepository : IDichVuQueryRepository
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sqlJoinsDv = DapperQueryBuilder.BuildJoin(spec, [
-            new JoinDefinition("DichVu", "dv", "dv.Id = dk.DichVuId", Type: JoinType.Inner)
+            new JoinDefinition("DichVu", "dv", "dv.Id = dk.DichVuId", Type: JoinType.Inner),
+            new JoinDefinition("KhungGioDichVu", "kg", "kg.Id = dk.KhungGioId", Type: JoinType.Left)
         ], parameters);
 
         var sql = $"""
             SELECT COUNT(*) OVER() AS TotalCount, 
                    dk.Id, dk.CanHoId, dk.DichVuId, dk.SoLuong, dk.NgayBatDau, dk.NgayKetThuc, dk.TrangThaiDangKyId,
+                   dk.KhungGioId, kg.TenKhungGio,
                    dv.MaDichVu, dv.TenDichVu, dv.LoaiDichVuId
             FROM DangKyDichVu dk
             {sqlJoinsDv}
@@ -702,6 +704,8 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             LoaiDichVuId = r.LoaiDichVuId,
             LoaiDichVuTen = LoaiDichVu.FromValue(r.LoaiDichVuId)?.Name ?? string.Empty,
             SoLuong = r.SoLuong,
+            KhungGioId = r.KhungGioId,
+            TenKhungGio = r.TenKhungGio,
             NgayBatDau = r.NgayBatDau,
             NgayKetThuc = r.NgayKetThuc,
             TrangThaiDangKyId = r.TrangThaiDangKyId,

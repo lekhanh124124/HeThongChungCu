@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.CanHo.DTOs;
 using HeThongChungCu.Application.Features.Tang.DTOs;
 using HeThongChungCu.Domain.Enums;
@@ -13,20 +13,17 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
     private readonly IToaNhaCommandRepository _toaNhaRepository;
     private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
     private readonly ICanHoDomainService _canHoDomainService;
-    private readonly IResidencyService _residencyService;
 
     public UpdateCanHoCommandHandler(
         ICanHoCommandRepository canHoRepository,
         IToaNhaCommandRepository toaNhaRepository,
         IQuanHeCuTruCommandRepository quanHeCuTruRepository,
-        ICanHoDomainService canHoDomainService,
-        IResidencyService residencyService)
+        ICanHoDomainService canHoDomainService)
     {
         _canHoRepository = canHoRepository;
         _toaNhaRepository = toaNhaRepository;
         _quanHeCuTruRepository = quanHeCuTruRepository;
         _canHoDomainService = canHoDomainService;
-        _residencyService = residencyService;
     }
 
     public async Task<Result<CanHoDetailResponse>> Handle(UpdateCanHoCommand request, CancellationToken cancellationToken)
@@ -49,9 +46,11 @@ public class UpdateCanHoCommandHandler : ICommandHandler<UpdateCanHoCommand, Can
 
         if (isStructureChanged)
         {
-            var residencyCheck = _residencyService.CheckCanUpdateOrDeleteCanHo(canHo, relations);
-            if (residencyCheck.IsFailure)
-                return residencyCheck.Errors;
+            // Logic moved from ResidencyService.CheckCanUpdateOrDeleteCanHo
+            if (relations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
+            {
+                return new Error("CanHo.HasActiveResidents", "Không được thực hiện thao tác này khi đang có cư dân cư trú.");
+            }
         }
 
         // 2. Kiểm tra logic cấu trúc (Mã căn hộ trùng lặp)

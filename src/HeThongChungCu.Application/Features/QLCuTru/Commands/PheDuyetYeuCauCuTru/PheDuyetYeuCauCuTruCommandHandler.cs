@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -18,7 +18,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
     private readonly ICurrentUserService _currentUserService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly ICanHoCommandRepository _canHoRepository;
-    private readonly IResidencyService _residencyService;
+    private readonly IDocumentReconciliationService _documentReconciliationService;
     private readonly IUnitOfWork _unitOfWork;
 
     public PheDuyetYeuCauCuTruCommandHandler(
@@ -28,7 +28,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         ICurrentUserService currentUserService,
         IDateTimeProvider dateTimeProvider,
         ICanHoCommandRepository canHoRepository,
-        IResidencyService residencyService,
+        IDocumentReconciliationService documentReconciliationService,
         IUnitOfWork unitOfWork)
     {
         _yeuCauRepository = yeuCauRepository;
@@ -37,7 +37,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         _currentUserService = currentUserService;
         _dateTimeProvider = dateTimeProvider;
         _canHoRepository = canHoRepository;
-        _residencyService = residencyService;
+        _documentReconciliationService = documentReconciliationService;
         _unitOfWork = unitOfWork;
     }
 
@@ -67,27 +67,74 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
             var cccdExists = !string.IsNullOrEmpty(yeuCau.YeuCauCCCD) && await _userRepository.AnyAsync(u => u.CCCD == yeuCau.YeuCauCCCD, cancellationToken);
             var phoneExists = !string.IsNullOrEmpty(yeuCau.YeuCauSoDienThoai) && await _userRepository.AnyAsync(u => u.SoDienThoai!.Value == yeuCau.YeuCauSoDienThoai, cancellationToken);
 
-            var uniquenessResult = _residencyService.CheckUniqueness(cccdExists, phoneExists);
-            if (uniquenessResult.IsFailure)
-                return uniquenessResult.Errors[0];
+            // Logic moved from ResidencyService.CheckUniqueness
+            if (cccdExists) return UserErrors.IdCardAlreadyExists;
+            if (phoneExists) return UserErrors.PhoneNumberAlreadyExists;
 
-            // 1. Create User via Domain Service
-            var newUser = _residencyService.CreateUserFromRequest(yeuCau);
+            // 1. Create User (Logic moved from ResidencyService.CreateUserFromRequest)
+            var newUser = new NguoiDung(
+                yeuCau.YeuCauTen!,
+                yeuCau.YeuCauHo!,
+                yeuCau.YeuCauNgaySinh ?? DateTimeOffset.MinValue,
+                GioiTinh.FromValue(yeuCau.YeuCauGioiTinhId ?? 1, null)!,
+                yeuCau.YeuCauDiaChi.FullAddress,
+                cccd: yeuCau.YeuCauCCCD,
+                soDienThoai: yeuCau.YeuCauSoDienThoai);
+
+            foreach (var docReq in yeuCau.YeuCauTaiLieuCuTrus)
+            {
+                var newDoc = new TaiLieuNguoiDung(
+                    null,
+                    docReq.LoaiGiayToId,
+                    docReq.SoGiayTo,
+                    docReq.NgayPhatHanh,
+                    docReq.Files.Select(f => new TepTaiLieuNguoiDung(f.FileName, f.FileUrl, f.Size, f.ContentType)));
+                newUser.AddDocument(newDoc);
+            }
+
             await _userRepository.AddAsync(newUser, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // 2. Create Residency Relation via Domain Service
+            // 2. Create Residency Relation (Logic moved from ResidencyService.CreateRelation)
             var loaiQuanHe = LoaiQuanHeCuTru.FromValue(yeuCau.YeuCauLoaiQuanHeId!.Value, null);
-            var existingRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(yeuCau.CanHoId, cancellationToken);
+            var existingRelations = (await _quanHeCuTruRepository.GetByCanHoIdAsync(yeuCau.CanHoId, cancellationToken)).ToList();
 
-            var relationResult = _residencyService.CreateRelation(yeuCau.CanHoId, newUser.Id, loaiQuanHe!, now.DateTime, existingRelations);
-            if (relationResult.IsFailure)
-                return relationResult.Errors[0];
+            if (existingRelations.Any(x =>
+                    x.NguoiDungId == newUser.Id &&
+                    x.CanHoId == yeuCau.CanHoId &&
+                    x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
+            {
+                return QuanHeCuTruErrors.UserAlreadyResident;
+            }
 
-            await _quanHeCuTruRepository.AddAsync(relationResult.Value, cancellationToken);
+            bool isHeadRole = loaiQuanHe == LoaiQuanHeCuTru.ChuHo || loaiQuanHe == LoaiQuanHeCuTru.NguoiThue;
+            bool hasActiveHead = existingRelations.Any(x =>
+                (x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo || x.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue) &&
+                x.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
 
-            // 3. Update Apartment Status via Domain Service
-            _residencyService.StartResidency(canHo, relationResult.Value, existingRelations.Append(relationResult.Value));
+            if (isHeadRole && hasActiveHead)
+            {
+                return QuanHeCuTruErrors.HouseholderAlreadyExists;
+            }
+
+            if (!isHeadRole && !hasActiveHead)
+            {
+                return QuanHeCuTruErrors.HouseholderNotFound;
+            }
+
+            var relation = new QuanHeCuTru(yeuCau.CanHoId, newUser.Id, loaiQuanHe!, now);
+            await _quanHeCuTruRepository.AddAsync(relation, cancellationToken);
+
+            // 3. Update Apartment Status
+            existingRelations.Add(relation);
+            if (existingRelations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
+            {
+                canHo.MarkAsOccupied();
+            }
+            else
+            {
+                canHo.MarkAsVacant();
+            }
             _canHoRepository.Update(canHo);
         }
         else if (yeuCau.LoaiHanhDongYeuCauId == LoaiHanhDongYeuCau.Sua)
@@ -106,8 +153,27 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
                 _quanHeCuTruRepository.Update(relation);
             }
 
-            // --- Delegate to Domain Service for Update & Reconciliation ---
-            _residencyService.UpdateUserFromRequest(user, yeuCau);
+            // --- Update User Profile & Synchronize Documents ---
+            user.UpdateProfile(
+                yeuCau.YeuCauTen ?? user.Ten,
+                yeuCau.YeuCauHo ?? user.Ho,
+                yeuCau.YeuCauNgaySinh ?? user.NgaySinh,
+                yeuCau.YeuCauGioiTinhId.HasValue ? GioiTinh.FromValue(yeuCau.YeuCauGioiTinhId.Value, null)! : user.GioiTinhId,
+                yeuCau.YeuCauDiaChi?.FullAddress ?? user.DiaChi.FullAddress,
+                yeuCau.YeuCauCCCD ?? user.CCCD,
+                yeuCau.YeuCauSoDienThoai ?? user.SoDienThoai);
+
+            var proposedDocs = yeuCau.YeuCauTaiLieuCuTrus.Select(d => new DocumentSyncItem(
+                d.TaiLieuCuTruId,
+                d.LoaiGiayToId.Value,
+                d.SoGiayTo,
+                d.NgayPhatHanh,
+                d.Files.Select(f => f.Id).ToList()
+            ));
+
+            var fetchedFiles = yeuCau.YeuCauTaiLieuCuTrus.SelectMany(d => d.Files);
+
+            _documentReconciliationService.ReconcileNguoiDungDocuments(user, proposedDocs, fetchedFiles);
             _userRepository.Update(user);
         }
         else if (yeuCau.LoaiHanhDongYeuCauId == LoaiHanhDongYeuCau.Xoa)
@@ -115,9 +181,18 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
             var relation = await _quanHeCuTruRepository.GetByIdAsync(yeuCau.YeuCauQuanHeCuTruId!.Value, cancellationToken);
             if (relation != null)
             {
-                // Update Apartment Status via Domain Service
+                // End Residency & Update Apartment Status
+                relation.KetThucCuTru(now.DateTime);
+
                 var activeRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(yeuCau.CanHoId, cancellationToken);
-                _residencyService.EndResidency(canHo, relation, activeRelations, now.DateTime);
+                if (activeRelations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
+                {
+                    canHo.MarkAsOccupied();
+                }
+                else
+                {
+                    canHo.MarkAsVacant();
+                }
 
                 _quanHeCuTruRepository.Update(relation);
                 _canHoRepository.Update(canHo);
@@ -160,7 +235,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
                 Files = d.Files.Select(f => new TepTaiLieuResponse(f.Id, f.FileUrl, f.FileName, f.ContentType)).ToList()
             }).ToList(),
             YeuCauCCCD = yeuCau.YeuCauCCCD,
-            YeuCauDiaChi = yeuCau.YeuCauDiaChi.FullAddress
+            YeuCauDiaChi = yeuCau.YeuCauDiaChi!.FullAddress
         });
     }
 }

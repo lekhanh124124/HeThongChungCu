@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -17,7 +17,6 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
     private readonly IQuanHeCuTruCommandRepository _quanHeRepository;
     private readonly ITepTaiLieuCommandRepository _tepTaiLieuRepository;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IResidencyService _residencyService;
     private readonly IUnitOfWork _unitOfWork;
 
     public TaoYeuCauCuTruCommandHandler(
@@ -26,7 +25,6 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         IQuanHeCuTruCommandRepository quanHeRepository,
         ITepTaiLieuCommandRepository tepTaiLieuRepository,
         ICurrentUserService currentUserService,
-        IResidencyService residencyService,
         IUnitOfWork unitOfWork)
     {
         _yeuCauRepository = yeuCauRepository;
@@ -34,7 +32,6 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         _quanHeRepository = quanHeRepository;
         _tepTaiLieuRepository = tepTaiLieuRepository;
         _currentUserService = currentUserService;
-        _residencyService = residencyService;
         _unitOfWork = unitOfWork;
     }
 
@@ -47,9 +44,18 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
         var loaiYeuCau = LoaiHanhDongYeuCau.FromValue(request.LoaiYeuCauId, null);
         // Validate permissions via Domain Service
         var requesterRelation = await _quanHeRepository.GetByUserAndCanHoAsync(userId.Value, request.CanHoId, cancellationToken);
-        // var permissionResult = _residencyService.CheckHeadPermission(requesterRelation);
-        // if (permissionResult.IsFailure)
-        //     return permissionResult.Errors[0];
+        // Validate permissions
+        if (requesterRelation == null)
+        {
+            return QuanHeCuTruErrors.NotFound;
+        }
+
+        if (requesterRelation.TrangThaiCuTruId != TrangThaiCuTru.DangCuTru ||
+            (requesterRelation.LoaiQuanHeCuTruId != LoaiQuanHeCuTru.ChuHo &&
+             requesterRelation.LoaiQuanHeCuTruId != LoaiQuanHeCuTru.NguoiThue))
+        {
+            return YeuCauCuTruErrors.Forbidden;
+        }
 
 
         // Fetch all TepTaiLieus at once

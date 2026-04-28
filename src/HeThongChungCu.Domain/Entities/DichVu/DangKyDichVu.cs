@@ -9,6 +9,7 @@ public class DangKyDichVu : AggregateRoot
 {
     public int CanHoId { get; private set; }
     public int DichVuId { get; private set; }
+    public int? KhungGioId { get; private set; }
     public ThoiGianHieuLuc ThoiGian { get; private set; } = null!;
     public int SoLuong { get; private set; }
     public TrangThaiDangKy TrangThaiDangKyId { get; private set; } = null!;
@@ -19,6 +20,7 @@ public class DangKyDichVu : AggregateRoot
     {
         CanHoId = canHoId;
         DichVuId = dichVuId;
+        KhungGioId = khungGio?.Id;
         
         if (khungGio != null)
         {

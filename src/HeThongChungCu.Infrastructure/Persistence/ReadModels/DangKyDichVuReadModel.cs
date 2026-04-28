@@ -13,4 +13,6 @@ internal record DangKyDichVuReadModel
     public DateTimeOffset NgayBatDau { get; init; }
     public DateTimeOffset? NgayKetThuc { get; init; }
     public int TrangThaiDangKyId { get; init; }
+    public int? KhungGioId { get; init; }
+    public string? TenKhungGio { get; init; }
 }

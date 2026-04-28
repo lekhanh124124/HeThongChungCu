@@ -7,15 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Entities\HoaDon\**" />
-    <Compile Remove="Policies\**" />
-    <EmbeddedResource Remove="Entities\HoaDon\**" />
-    <EmbeddedResource Remove="Policies\**" />
-    <None Remove="Entities\HoaDon\**" />
-    <None Remove="Policies\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="MediatR.Contracts" Version="2.0.1" />
   </ItemGroup>
 

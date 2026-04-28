@@ -27,6 +27,12 @@ public class YeuCauSuaChua : YeuCau
     public decimal? ChiPhiThucTe { get; private set; }
     public bool? IsMienPhi { get; private set; }
     public string? GhiChuBaoGia { get; private set; }
+    public int? HoaDonId { get; private set; }
+
+    public void MarkAsBilled(int hoaDonId)
+    {
+        HoaDonId = hoaDonId;
+    }
 
     private readonly List<TepYeuCauSuaChua> _tepYeuCauSuaChuas = [];
     public IReadOnlyCollection<TepYeuCauSuaChua> TepYeuCauSuaChuas => _tepYeuCauSuaChuas.AsReadOnly();

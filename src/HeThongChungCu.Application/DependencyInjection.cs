@@ -24,13 +24,11 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(assembly);
 
         // Domain Services
-        services.AddScoped<IBillingService, BillingService>();
-        services.AddScoped<IVehicleRegistryService, VehicleRegistryService>();
         services.AddScoped<ICanHoDomainService, CanHoDomainService>();
-        services.AddScoped<IResidencyService, ResidencyService>();
         services.AddScoped<IIdentityDomainService, IdentityDomainService>();
         services.AddScoped<IDocumentReconciliationService, DocumentReconciliationService>();
         services.AddScoped<IDichVuDomainService, DichVuDomainService>();
+        services.AddScoped<IBillingDomainService, BillingDomainService>();
 
         return services;
     }

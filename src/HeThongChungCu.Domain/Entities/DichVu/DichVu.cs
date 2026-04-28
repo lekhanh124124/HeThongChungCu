@@ -152,7 +152,7 @@ public class DichVu : AggregateRoot
         }
     }
 
-    public BangGia? GetCurrentPrice(DateTime atDate)
+    public BangGia? GetCurrentPrice(DateTimeOffset atDate)
     {
         return _bangGias
             .Where(bg => bg.IsActive && bg.ThoiGian.IsActive(atDate))
