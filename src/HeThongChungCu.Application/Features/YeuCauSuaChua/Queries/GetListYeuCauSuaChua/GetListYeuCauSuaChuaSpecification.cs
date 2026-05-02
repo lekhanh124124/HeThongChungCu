@@ -21,11 +21,14 @@ public class GetListYeuCauSuaChuaSpecification : BaseSpecification
         int? trangThaiSuaChuaId,
         int? loaiSuCoId,
         DateTimeOffset? ngayTaoTu,
-        DateTimeOffset? ngayTaoDen)
+        DateTimeOffset? ngayTaoDen,
+        string? maCanHo,
+        string? tenNguoiGui)
         : base(sortCol, isAsc, pageNumber, pageSize)
     {
         AddFilter("YeuCauLoai", FilterOperator.Equal, LoaiYeuCauCuDan.SuaChua.Value);
         AddFilter("YeuCauIsDeleted", FilterOperator.Equal, false);
+        AddFilter("CanHoIsDeleted", FilterOperator.Equal, false);
 
         if (canHoId.HasValue)
         {
@@ -55,6 +58,16 @@ public class GetListYeuCauSuaChuaSpecification : BaseSpecification
         if (ngayTaoDen.HasValue)
         {
             AddFilter("CreatedAt", FilterOperator.LessThanOrEqual, ngayTaoDen.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(maCanHo))
+        {
+            AddFilter("MaCanHo", FilterOperator.Contains, maCanHo);
+        }
+
+        if (!string.IsNullOrWhiteSpace(tenNguoiGui))
+        {
+            AddKeyword("TenNguoiGui", FilterOperator.Contains, tenNguoiGui);
         }
     }
 

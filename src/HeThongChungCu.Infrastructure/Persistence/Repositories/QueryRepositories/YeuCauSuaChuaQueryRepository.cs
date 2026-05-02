@@ -38,7 +38,9 @@ public class YeuCauSuaChuaQueryRepository : IYeuCauSuaChuaQueryRepository
             { "LoaiSuCoId", "y.LoaiSuCoId" },
             { "CreatedAt", "y.CreatedAt" },
             { "YeuCauIsDeleted", "y.IsDeleted" },
-            { "YeuCauLoai", "y.LoaiYeuCauCuDanId" }
+            { "YeuCauLoai", "y.LoaiYeuCauCuDanId" },
+            { "MaCanHo", "ch.MaCanHo" },
+            { "TenNguoiGui", "nd.Ho + ' ' + nd.Ten" }
         };
 
         var parameters = new DynamicParameters();

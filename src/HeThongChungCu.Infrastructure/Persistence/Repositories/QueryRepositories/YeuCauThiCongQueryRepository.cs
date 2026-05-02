@@ -39,7 +39,9 @@ public class YeuCauThiCongQueryRepository : IYeuCauThiCongQueryRepository
             { "DuKienBatDau", "y.DuKienBatDau" },
             { "DuKienKetThuc", "y.DuKienKetThuc" },
             { "YeuCauIsDeleted", "y.IsDeleted" },
-            { "YeuCauLoai", "y.LoaiYeuCauCuDanId" }
+            { "YeuCauLoai", "y.LoaiYeuCauCuDanId" },
+            { "MaCanHo", "ch.MaCanHo" },
+            { "TenNguoiGui", "nd.Ho + ' ' + nd.Ten" }
         };
 
         var parameters = new DynamicParameters();

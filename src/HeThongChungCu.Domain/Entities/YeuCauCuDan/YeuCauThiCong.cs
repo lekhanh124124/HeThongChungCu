@@ -387,6 +387,7 @@ public class YeuCauThiCong : YeuCau
         var tep = _tepYeuCauThiCongs.FirstOrDefault(x => x.Id == tepId);
         if (tep != null)
         {
+            tep.MarkAsUnused();
             _tepYeuCauThiCongs.Remove(tep);
         }
 

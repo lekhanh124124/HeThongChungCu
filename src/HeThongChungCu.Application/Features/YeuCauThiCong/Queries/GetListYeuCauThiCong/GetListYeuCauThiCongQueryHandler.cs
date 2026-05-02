@@ -30,7 +30,9 @@ public class GetListYeuCauThiCongQueryHandler : IQueryHandler<GetListYeuCauThiCo
             request.SortCol,
             request.IsAsc,
             request.PageNumber,
-            request.PageSize);
+            request.PageSize,
+            request.MaCanHo,
+            request.TenNguoiGui);
 
         return Result.Success(await _queryRepository.GetAllAsync(spec, cancellationToken));
     }

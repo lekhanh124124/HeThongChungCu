@@ -15,4 +15,7 @@ public record GetListYeuCauSuaChuaQuery : IQuery<PagedResult<YeuCauSuaChuaRespon
     public int? LoaiSuCoId { get; init; }
     public DateTimeOffset? NgayTaoTu { get; init; }
     public DateTimeOffset? NgayTaoDen { get; init; }
+
+    public string? MaCanHo { get; init; }
+    public string? TenNguoiGui { get; init; }
 }

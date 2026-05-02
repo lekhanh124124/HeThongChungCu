@@ -10,5 +10,10 @@ public class GetYeuCauThiCongByIdSpecification : BaseSpecification
         AddFilter("Id", FilterOperator.Equal, id);
         AddFilter("YeuCauLoai", FilterOperator.Equal, LoaiYeuCauCuDan.ThiCong.Value);
         AddFilter("YeuCauIsDeleted", FilterOperator.Equal, false);
+        AddFilter("CanHoIsDeleted", FilterOperator.Equal, false);
+        AddFilter("NhanSuLoai", FilterOperator.Equal, LoaiNhanSuYeuCau.ThiCong.Value);
+        AddFilter("NhanSuIsDeleted", FilterOperator.Equal, false);
+        AddFilter("TepLoai", FilterOperator.Equal, LoaiTepTaiLieu.YeuCauThiCong.Value);
+        AddFilter("TepIsDeleted", FilterOperator.Equal, false);
     }
 }

@@ -14,10 +14,10 @@ public class CreateKhungGioDichVuCommandValidator : AbstractValidator<CreateKhun
             .MaximumLength(100).WithMessage("Tên khung giờ không được vượt quá 100 ký tự.");
 
         RuleFor(x => x.GioBatDau)
-            .NotEmpty().WithMessage("Giờ bắt đầu không được để trống.");
+            .NotNull().WithMessage("Giờ bắt đầu không được để trống.");
 
         RuleFor(x => x.GioKetThuc)
-            .NotEmpty().WithMessage("Giờ kết thúc không được để trống.")
+            .NotNull().WithMessage("Giờ kết thúc không được để trống.")
             .GreaterThan(x => x.GioBatDau).WithMessage("Giờ kết thúc phải lớn hơn giờ bắt đầu.");
 
         RuleFor(x => x.NgayTrongTuan)

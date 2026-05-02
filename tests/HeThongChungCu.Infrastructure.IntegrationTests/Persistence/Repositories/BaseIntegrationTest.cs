@@ -9,6 +9,7 @@ using Xunit;
 
 namespace HeThongChungCu.Infrastructure.IntegrationTests.Persistence.Repositories;
 
+[Collection("Integration")]
 public abstract class BaseIntegrationTest : IAsyncLifetime
 {
     protected readonly AppDbContext DbContext;

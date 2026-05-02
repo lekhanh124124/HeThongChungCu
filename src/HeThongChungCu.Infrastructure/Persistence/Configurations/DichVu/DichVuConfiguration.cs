@@ -48,7 +48,7 @@ public class DichVuConfiguration : IEntityTypeConfiguration<HeThongChungCu.Domai
         builder.HasMany(x => x.BangGias)
             .WithOne(x => x.DichVu)
             .HasForeignKey(x => x.DichVuId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.Navigation(x => x.BangGias)
             .HasField("_bangGias")

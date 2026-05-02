@@ -18,4 +18,6 @@ public record GetListYeuCauThiCongQuery(
     string? SortCol,
     bool? IsAsc,
     int? PageNumber,
-    int? PageSize) : IQuery<PagedResult<YeuCauThiCongResponse>>;
+    int? PageSize,
+    string? MaCanHo = null,
+    string? TenNguoiGui = null) : IQuery<PagedResult<YeuCauThiCongResponse>>;

@@ -92,7 +92,6 @@ public class DichVuCommandRepository : IDichVuCommandRepository
         return await _dbContext.DichVus
             .Where(x => x.IsBatBuoc && x.TrangThaiId == TrangThaiDichVu.HoatDong)
             .Include(x => x.BangGias.Where(bg => bg.IsActive))
-                .ThenInclude((BangGia bg) => bg.DichVu)
             .Include(x => x.BangGias.Where(bg => bg.IsActive))
                 .ThenInclude((BangGia bg) => ((BangGiaLoaiCanHo)bg).ChiTietGias)
             .Include(x => x.BangGias.Where(bg => bg.IsActive))
@@ -107,7 +106,6 @@ public class DichVuCommandRepository : IDichVuCommandRepository
         return await _dbContext.DichVus
             .Where(x => x.TrangThaiId == TrangThaiDichVu.HoatDong)
             .Include(x => x.BangGias.Where(bg => bg.IsActive && bg.IsDinhKy))
-                .ThenInclude((BangGia bg) => bg.DichVu)
             .Include(x => x.BangGias.Where(bg => bg.IsActive && bg.IsDinhKy))
                 .ThenInclude((BangGia bg) => ((BangGiaLoaiCanHo)bg).ChiTietGias)
             .Include(x => x.BangGias.Where(bg => bg.IsActive && bg.IsDinhKy))

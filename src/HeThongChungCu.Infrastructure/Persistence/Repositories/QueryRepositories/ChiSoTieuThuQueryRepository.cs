@@ -197,7 +197,7 @@ public class ChiSoTieuThuQueryRepository : IChiSoTieuThuQueryRepository
                 cs.DichVuId, dv.TenDichVu,
                 cs.ChiSoCu, cs.ChiSoMoi, cs.Thang, cs.Nam, cs.NgayGhiNhan,
                 cs.TrangThaiChiSoId, cs.GhiChu, cs.HoaDonId, cs.AnhDongHoId,
-                tl.Url AS AnhDongHoUrl, cs.MaTraCuu
+                tl.FileUrl AS AnhDongHoUrl, cs.MaTraCuu
             FROM ChiSoTieuThu cs
             JOIN CanHo ch ON cs.CanHoId = ch.Id
             JOIN DichVu dv ON cs.DichVuId = dv.Id

@@ -163,6 +163,8 @@ public partial class FileStorageService : IFileStorageService
         if (category == FileCategory.StaffDocument) return _settings.StaffDocumentContainer;
         if (category == FileCategory.PartnerDocument) return _settings.PartnerDocumentContainer;
         if (category == FileCategory.MeterReading) return _settings.MeterReadingContainer;
+        if (category == FileCategory.RepairRequest) return _settings.RepairRequestContainer;
+        if (category == FileCategory.ConstructionRequest) return _settings.ConstructionRequestContainer;
 
         return _settings.DocumentContainer; // Default
     }

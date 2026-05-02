@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Features.YeuCauSuaChua.DTOs;
+using HeThongChungCu.Application.Features.YeuCauSuaChua.DTOs;
 
 namespace HeThongChungCu.Application.Features.YeuCauSuaChua.Queries.GetListYeuCauSuaChua;
 
@@ -23,7 +23,9 @@ public class GetListYeuCauSuaChuaQueryHandler : IQueryHandler<GetListYeuCauSuaCh
             request.TrangThaiSuaChuaId,
             request.LoaiSuCoId,
             request.NgayTaoTu,
-            request.NgayTaoDen);
+            request.NgayTaoDen,
+            request.MaCanHo,
+            request.TenNguoiGui);
 
         var result = await _queryRepository.GetAllAsync(spec, cancellationToken);
         return result;

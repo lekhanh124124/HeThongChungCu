@@ -64,7 +64,7 @@ public class ChiSoTieuThuController : ApiControllerBase
     /// Nhập chỉ số tiêu thụ từ file Excel
     /// </summary>
     [HttpPost("import")]
-    public async Task<IActionResult> Import([FromForm] IFormFile file, [FromForm] int thang, [FromForm] int nam, [FromForm] DateTimeOffset ngayChot)
+    public async Task<IActionResult> Import(IFormFile file, [FromForm] int thang, [FromForm] int nam, [FromForm] DateTimeOffset ngayChot)
     {
         var command = new ImportChiSoCommand(file.OpenReadStream(), thang, nam, ngayChot);
         var result = await _sender.Send(command);
@@ -95,7 +95,7 @@ public class ChiSoTieuThuController : ApiControllerBase
     /// Upload file zip chứa hàng loạt ảnh đồng hồ
     /// </summary>
     [HttpPost("import-images")]
-    public async Task<IActionResult> UploadImagesBatch([FromForm] IFormFile zipFile)
+    public async Task<IActionResult> UploadImagesBatch(IFormFile zipFile)
     {
         var command = new UploadChiSoImagesBatchCommand(zipFile.OpenReadStream(), zipFile.FileName);
         var result = await _sender.Send(command);

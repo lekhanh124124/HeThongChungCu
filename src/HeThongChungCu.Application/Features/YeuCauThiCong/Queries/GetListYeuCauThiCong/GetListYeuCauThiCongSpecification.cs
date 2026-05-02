@@ -24,10 +24,13 @@ public class GetListYeuCauThiCongSpecification : BaseSpecification
         string? sortCol,
         bool? isAsc,
         int? pageNumber,
-        int? pageSize) : base(sortCol, isAsc, pageNumber, pageSize)
+        int? pageSize,
+        string? maCanHo,
+        string? tenNguoiGui) : base(sortCol, isAsc, pageNumber, pageSize)
     {
         AddFilter("YeuCauLoai", FilterOperator.Equal, LoaiYeuCauCuDan.ThiCong.Value);
         AddFilter("YeuCauIsDeleted", FilterOperator.Equal, false);
+        AddFilter("CanHoIsDeleted", FilterOperator.Equal, false);
 
         if (canHoId.HasValue)
             AddFilter("CanHoId", FilterOperator.Equal, canHoId.Value);
@@ -61,5 +64,11 @@ public class GetListYeuCauThiCongSpecification : BaseSpecification
 
         if (ketThucDen.HasValue)
             AddFilter("DuKienKetThuc", FilterOperator.LessThanOrEqual, ketThucDen.Value);
+
+        if (!string.IsNullOrWhiteSpace(maCanHo))
+            AddFilter("MaCanHo", FilterOperator.Contains, maCanHo);
+
+        if (!string.IsNullOrWhiteSpace(tenNguoiGui))
+            AddKeyword("TenNguoiGui", FilterOperator.Contains, tenNguoiGui);
     }
 }

@@ -12,6 +12,8 @@ public class FileCategory : BaseEnum<FileCategory, int>
     public static readonly FileCategory StaffDocument = new(6, "Tài liệu nhân viên", 10, [".pdf", ".doc", ".docx", ".png", ".jpg", ".jpeg"]);
     public static readonly FileCategory PartnerDocument = new(7, "Tài liệu đối tác", 10, [".pdf", ".doc", ".docx", ".png", ".jpg", ".jpeg"]);
     public static readonly FileCategory MeterReading = new(8, "Ảnh đồng hồ chỉ số", 5, [".jpg", ".jpeg", ".png"]);
+    public static readonly FileCategory RepairRequest = new(9, "Tài liệu yêu cầu sửa chữa", 10, [".pdf", ".doc", ".docx", ".png", ".jpg", ".jpeg", ".mp4", ".mov"]);
+    public static readonly FileCategory ConstructionRequest = new(10, "Tài liệu yêu cầu thi công", 10, [".pdf", ".doc", ".docx", ".png", ".jpg", ".jpeg", ".mp4", ".mov"]);
 
     public int MaxSizeMB { get; }
     public string[] AllowedExtensions { get; }
@@ -35,6 +37,8 @@ public class FileCategory : BaseEnum<FileCategory, int>
             "tai-lieu-nhan-vien" => StaffDocument,
             "tai-lieu-doi-tac" => PartnerDocument,
             "anh-dong-ho-chi-so" => MeterReading,
+            "yeu-cau-sua-chua" => RepairRequest,
+            "yeu-cau-thi-cong" => ConstructionRequest,
             _ => Document
         };
     }
