@@ -211,7 +211,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             {sqlWhereDv}; 
 
             -- Query 3: BangGia (1-N)
-            SELECT bg.Id, bg.TenBangGia, bg.NgayApDung, bg.NgayKetThuc, bg.LoaiDinhGiaId, bg.IsActive, bg.DonGia, bg.DichVuId
+            SELECT bg.Id, bg.TenBangGia, bg.NgayApDung, bg.NgayKetThuc, bg.LoaiDinhGiaId, bg.IsActive, bg.IsDinhKy, bg.DonGia, bg.DichVuId
             FROM DichVu dv
             {sqlJoinsBg}
             {sqlWhereDv};
@@ -293,6 +293,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
                 LoaiDinhGiaTen = LoaiDinhGia.FromValue(bgRow.LoaiDinhGiaId)?.Name ?? string.Empty,
                 LoaiDinhGiaCode = LoaiDinhGia.FromValue(bgRow.LoaiDinhGiaId)?.Code ?? string.Empty,
                 DonGia = bgRow.DonGia,
+                IsDinhKy = bgRow.IsDinhKy,
                 IsActive = bgRow.IsActive
             };
 
@@ -474,7 +475,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
 
         var sql = $"""
             SELECT COUNT(*) OVER() AS TotalCount, 
-                   bg.Id, bg.TenBangGia, bg.NgayApDung, bg.NgayKetThuc, bg.LoaiDinhGiaId, bg.IsActive, bg.DonGia, bg.DichVuId
+                   bg.Id, bg.TenBangGia, bg.NgayApDung, bg.NgayKetThuc, bg.LoaiDinhGiaId, bg.IsActive, bg.IsDinhKy, bg.DonGia, bg.DichVuId
             FROM BangGia bg
             {sqlWhere}
             {sqlOrderBy}
@@ -495,6 +496,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             LoaiDinhGiaTen = LoaiDinhGia.FromValue(r.LoaiDinhGiaId)?.Name ?? string.Empty,
             LoaiDinhGiaCode = LoaiDinhGia.FromValue(r.LoaiDinhGiaId)?.Code ?? string.Empty,
             DonGia = r.DonGia,
+            IsDinhKy = r.IsDinhKy,
             IsActive = r.IsActive
         }).ToList();
 
@@ -554,7 +556,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
 
         var sqlOrderByLuyTien = DapperQueryBuilder.BuildOrderBy(spec, luyTienMapping, "TuMuc");
         var sql = $"""
-            SELECT bg.Id, bg.TenBangGia, bg.NgayApDung, bg.NgayKetThuc, bg.LoaiDinhGiaId, bg.IsActive, bg.DonGia, bg.DichVuId
+            SELECT bg.Id, bg.TenBangGia, bg.NgayApDung, bg.NgayKetThuc, bg.LoaiDinhGiaId, bg.IsActive, bg.IsDinhKy, bg.DonGia, bg.DichVuId
             FROM BangGia bg
             {sqlWhereBg};
 
@@ -595,6 +597,7 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             LoaiDinhGiaTen = LoaiDinhGia.FromValue(row.LoaiDinhGiaId)?.Name ?? string.Empty,
             LoaiDinhGiaCode = LoaiDinhGia.FromValue(row.LoaiDinhGiaId)?.Code ?? string.Empty,
             DonGia = row.DonGia,
+            IsDinhKy = row.IsDinhKy,
             IsActive = row.IsActive
         };
 

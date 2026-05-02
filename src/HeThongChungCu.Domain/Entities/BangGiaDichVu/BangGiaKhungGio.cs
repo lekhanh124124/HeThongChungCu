@@ -15,8 +15,9 @@ public class BangGiaKhungGio : BangGia
         int dichVuId,
         string tenBangGia,
         DateTimeOffset ngayApDung,
+        bool isDinhKy,
         DateTimeOffset? ngayKetThuc = null)
-        : base(dichVuId, tenBangGia, ngayApDung, LoaiDinhGia.TheoKhungGio, ngayKetThuc)
+        : base(dichVuId, tenBangGia, ngayApDung, LoaiDinhGia.TheoKhungGio, isDinhKy, ngayKetThuc)
     {
     }
 

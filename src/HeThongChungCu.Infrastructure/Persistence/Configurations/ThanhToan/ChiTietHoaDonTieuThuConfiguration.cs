@@ -21,6 +21,6 @@ public class ChiTietHoaDonTieuThuConfiguration : IEntityTypeConfiguration<ChiTie
         builder.HasOne<Domain.Entities.DichVu>()
             .WithMany()
             .HasForeignKey(x => x.DichVuId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

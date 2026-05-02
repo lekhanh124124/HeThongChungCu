@@ -15,6 +15,7 @@ public interface IDichVuCommandRepository
     Task<bool> MaDichVuExistsAsync(string maDichVu, CancellationToken cancellationToken = default);
     Task<List<DichVu>> GetByHopDongAsync(int hopDongId, CancellationToken cancellationToken = default);
     Task<List<DichVu>> GetActiveMandatoryServicesAsync(CancellationToken cancellationToken = default);
+    Task<List<DichVu>> GetActivePeriodicServicesWithPriceListsAsync(CancellationToken cancellationToken = default);
     Task AddAsync(DichVu dichVu, CancellationToken cancellationToken = default);
     void Update(DichVu dichVu);
     void Remove(DichVu dichVu);

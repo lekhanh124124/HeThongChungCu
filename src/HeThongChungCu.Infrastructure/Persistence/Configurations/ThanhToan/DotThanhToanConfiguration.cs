@@ -34,7 +34,5 @@ public class DotThanhToanConfiguration : IEntityTypeConfiguration<DotThanhToan>
             .IsRequired();
 
         builder.Property(x => x.NgayPhatHanh);
-
-        builder.HasIndex(x => new { x.KyThanhToan.Thang, x.KyThanhToan.Nam });
     }
 }

@@ -12,4 +12,5 @@ public class BlobStorageSettings
     public string VehicleContainer { get; set; } = string.Empty;
     public string StaffDocumentContainer { get; set; } = string.Empty;
     public string PartnerDocumentContainer { get; set; } = string.Empty;
+    public string MeterReadingContainer { get; set; } = string.Empty;
 }

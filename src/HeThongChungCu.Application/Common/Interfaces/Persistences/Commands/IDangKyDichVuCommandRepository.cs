@@ -8,4 +8,7 @@ public interface IDangKyDichVuCommandRepository
     Task<int> GetSumActiveQuantityByDichVuIdAsync(int dichVuId, CancellationToken cancellationToken);
     Task<int> GetSumActiveQuantityByKhungGioAsync(int dichVuId, TimeSpan gioBatDau, TimeSpan gioKetThuc, DateTime ngay, CancellationToken cancellationToken);
     Task<bool> IsCanHoRegisteredActiveAsync(int canHoId, int dichVuId, CancellationToken cancellationToken);
+    Task<List<DangKyDichVu>> GetActiveSubscriptionsByCanHoAsync(int canHoId, CancellationToken cancellationToken = default);
+    Task<List<DangKyDichVu>> GetActiveByCanHoIdsAsync(IEnumerable<int> canHoIds, CancellationToken cancellationToken = default);
+    Task<List<DangKyDichVu>> GetAllActiveAsync(CancellationToken cancellationToken = default);
 }

@@ -40,6 +40,13 @@ public class CanHoCommandRepository : ICanHoCommandRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<CanHo>> GetAllActiveAsync(CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.CanHos
+            .Where(x => x.TinhTrangCanHoId != TrangThaiCanHo.ChuaBanGiao)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddAsync(CanHo canHo, CancellationToken cancellationToken = default)
     {
         await _dbContext.CanHos.AddAsync(canHo, cancellationToken);

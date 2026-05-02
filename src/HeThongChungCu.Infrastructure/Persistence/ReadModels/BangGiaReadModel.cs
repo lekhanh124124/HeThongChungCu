@@ -9,6 +9,7 @@ internal record BangGiaReadModel
     public DateTimeOffset? NgayKetThuc { get; init; }
     public int LoaiDinhGiaId { get; init; }
     public bool IsActive { get; init; }
+    public bool IsDinhKy { get; init; }
     public decimal? DonGia { get; init; }
     public int DichVuId { get; init; }
 }

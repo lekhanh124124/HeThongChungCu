@@ -9,8 +9,9 @@ public static class DependencyInjection
     public static IServiceCollection AddNotification(this IServiceCollection services)
     {
         services.AddSignalR();
+        services.AddSingleton<INotificationQueue, NotificationQueue>();
         services.AddScoped<INotificationService, SignalRNotificationService>();
-        
+
         return services;
     }
 }

@@ -8,5 +8,6 @@ public interface IQuanHeCuTruCommandRepository
     void Update(QuanHeCuTru quanHeCuTru);
     void Remove(QuanHeCuTru quanHeCuTru);
     Task<IEnumerable<QuanHeCuTru>> GetByCanHoIdAsync(int canHoId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<QuanHeCuTru>> GetByCanHoIdsAsync(IEnumerable<int> canHoIds, CancellationToken cancellationToken = default);
     Task<QuanHeCuTru?> GetByUserAndCanHoAsync(int userId, int canHoId, CancellationToken cancellationToken = default);
 }

@@ -115,7 +115,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvVanHanh);
         await context.SaveChangesAsync();
 
-        var bgVanHanh = new BangGiaLoaiCanHo(dvVanHanh.Id, "Bảng giá vận hành 2026", DateTimeOffset.Now);
+        var bgVanHanh = new BangGiaLoaiCanHo(dvVanHanh.Id, "Bảng giá vận hành 2026", DateTimeOffset.Now, true);
         bgVanHanh.Activate();
         bgVanHanh.AddGiaLoaiCanHo(LoaiCanHo.Standard, 10000);
         bgVanHanh.AddGiaLoaiCanHo(LoaiCanHo.Studio, 8000);
@@ -134,7 +134,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvDien);
         await context.SaveChangesAsync();
 
-        var bgDien = new BangGiaLuyTien(dvDien.Id, "Biểu giá điện sinh hoạt 2026", DateTimeOffset.Now);
+        var bgDien = new BangGiaLuyTien(dvDien.Id, "Biểu giá điện sinh hoạt 2026", DateTimeOffset.Now, true);
         bgDien.Activate();
         bgDien.AddChiTietGia(0, 50, 1806);
         bgDien.AddChiTietGia(50, 100, 1866);
@@ -157,7 +157,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvNuoc);
         await context.SaveChangesAsync();
 
-        var bgNuoc = new BangGiaLuyTien(dvNuoc.Id, "Giá nước sinh hoạt 2026", DateTimeOffset.Now);
+        var bgNuoc = new BangGiaLuyTien(dvNuoc.Id, "Giá nước sinh hoạt 2026", DateTimeOffset.Now, true);
         bgNuoc.Activate();
         bgNuoc.AddChiTietGia(0, 10, 5973);
         bgNuoc.AddChiTietGia(10, 20, 7052);
@@ -186,7 +186,7 @@ public static class DichVuSeeder
             if (adminId != 0) dvParking.SetCreated(adminId, DateTimeOffset.Now);
             await context.DichVus.AddAsync(dvParking);
             await context.SaveChangesAsync();
-            var bgParking = new BangGiaCoDinh(dvParking.Id, "Giá giữ xe tháng 2026", DateTimeOffset.Now, Price);
+            var bgParking = new BangGiaCoDinh(dvParking.Id, "Giá giữ xe tháng 2026", DateTimeOffset.Now, Price, true);
             bgParking.Activate();
             if (adminId != 0) bgParking.SetCreated(adminId, DateTimeOffset.Now);
             await context.BangGias.AddAsync(bgParking);
@@ -200,7 +200,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvRac);
         await context.SaveChangesAsync();
 
-        var bgRac = new BangGiaCoDinh(dvRac.Id, "Giá phí vệ sinh 2026", DateTimeOffset.Now, 30000);
+        var bgRac = new BangGiaCoDinh(dvRac.Id, "Giá phí vệ sinh 2026", DateTimeOffset.Now, 30000, true);
         bgRac.Activate();
         if (adminId != 0) bgRac.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgRac);
@@ -219,7 +219,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvGym);
         await context.SaveChangesAsync();
 
-        var bgGym = new BangGiaCoDinh(dvGym.Id, "Bảng giá tập Gym 2026", DateTimeOffset.Now, 500000);
+        var bgGym = new BangGiaCoDinh(dvGym.Id, "Bảng giá tập Gym 2026", DateTimeOffset.Now, 500000, true);
         bgGym.Activate();
         if (adminId != 0) bgGym.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgGym);
@@ -236,7 +236,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvPool);
         await context.SaveChangesAsync();
 
-        var bgPool = new BangGiaCoDinh(dvPool.Id, "Bảng giá hồ bơi 2026", DateTimeOffset.Now, 30000);
+        var bgPool = new BangGiaCoDinh(dvPool.Id, "Bảng giá hồ bơi 2026", DateTimeOffset.Now, 30000, false);
         bgPool.Activate();
         if (adminId != 0) bgPool.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgPool);
@@ -254,7 +254,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvBbq);
         await context.SaveChangesAsync(); // Lưu để lấy ID KhungGio
 
-        var bgBbq = new BangGiaKhungGio(dvBbq.Id, "Giá thuê sân BBQ 2026", DateTimeOffset.Now);
+        var bgBbq = new BangGiaKhungGio(dvBbq.Id, "Giá thuê sân BBQ 2026", DateTimeOffset.Now, false);
         bgBbq.Activate();
         if (adminId != 0) bgBbq.SetCreated(adminId, DateTimeOffset.Now);
 
@@ -277,7 +277,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvCommon);
         await context.SaveChangesAsync();
 
-        var bgCommon = new BangGiaKhungGio(dvCommon.Id, "Giá thuê phòng cộng đồng 2026", DateTimeOffset.Now);
+        var bgCommon = new BangGiaKhungGio(dvCommon.Id, "Giá thuê phòng cộng đồng 2026", DateTimeOffset.Now, false);
         bgCommon.Activate();
         if (adminId != 0) bgCommon.SetCreated(adminId, DateTimeOffset.Now);
 
@@ -295,7 +295,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvLaundry);
         await context.SaveChangesAsync();
 
-        var bgLaundry = new BangGiaCoDinh(dvLaundry.Id, "Bảng giá giặt ủi 2026", DateTimeOffset.Now, 20000);
+        var bgLaundry = new BangGiaCoDinh(dvLaundry.Id, "Bảng giá giặt ủi 2026", DateTimeOffset.Now, 20000, false);
         bgLaundry.Activate();
         if (adminId != 0) bgLaundry.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgLaundry);
@@ -312,7 +312,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvCleaning);
         await context.SaveChangesAsync();
 
-        var bgCleaning = new BangGiaCoDinh(dvCleaning.Id, "Bảng giá dọn dẹp 2026", DateTimeOffset.Now, 100000);
+        var bgCleaning = new BangGiaCoDinh(dvCleaning.Id, "Bảng giá dọn dẹp 2026", DateTimeOffset.Now, 100000, false);
         bgCleaning.Activate();
         if (adminId != 0) bgCleaning.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgCleaning);
@@ -379,7 +379,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvThueNha);
         await context.SaveChangesAsync();
 
-        var bgThueNha = new BangGiaLoaiCanHo(dvThueNha.Id, "Bảng giá thuê nhà 2026", DateTimeOffset.Now);
+        var bgThueNha = new BangGiaLoaiCanHo(dvThueNha.Id, "Bảng giá thuê nhà 2026", DateTimeOffset.Now, true);
         bgThueNha.Activate();
         bgThueNha.AddGiaLoaiCanHo(LoaiCanHo.Standard, 12000000);
         bgThueNha.AddGiaLoaiCanHo(LoaiCanHo.Studio, 7000000);

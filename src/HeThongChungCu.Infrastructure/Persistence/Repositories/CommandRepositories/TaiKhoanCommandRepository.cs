@@ -94,6 +94,13 @@ public class TaiKhoanCommandRepository : ITaiKhoanCommandRepository
         return await _dbContext.TaiKhoan.AnyAsync(expression, cancellationToken);
     }
 
+    public async Task<IEnumerable<TaiKhoan>> GetByNguoiDungIdsAsync(IEnumerable<int> nguoiDungIds, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.TaiKhoan
+            .Where(t => t.NguoiDungId.HasValue && nguoiDungIds.Contains(t.NguoiDungId.Value))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddAsync(TaiKhoan taiKhoan, CancellationToken cancellationToken = default)
     {
         await _dbContext.TaiKhoan.AddAsync(taiKhoan, cancellationToken);

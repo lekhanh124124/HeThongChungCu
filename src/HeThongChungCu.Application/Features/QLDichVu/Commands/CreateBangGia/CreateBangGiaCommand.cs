@@ -11,6 +11,7 @@ public record CreateBangGiaCommand : ICommand<BangGiaResponse>
     public DateTimeOffset NgayApDung { get; init; }
     public DateTimeOffset? NgayKetThuc { get; init; }
     public int LoaiDinhGiaId { get; init; }
+    public bool IsDinhKy { get; init; }
     public decimal? DonGiaCoDinh { get; init; } // For CoDinh
     public List<CreateChiTietGiaLuyTienDto> GiaLuyTiens { get; init; } = [];
     public List<CreateChiTietGiaKhungGioDto> GiaKhungGios { get; init; } = [];

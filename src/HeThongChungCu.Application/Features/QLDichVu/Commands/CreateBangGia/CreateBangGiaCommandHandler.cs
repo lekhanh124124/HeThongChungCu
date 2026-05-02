@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLDichVu.DTOs;
 using HeThongChungCu.Application.Features.QLDichVu.Queries.GetBangGiaById;
 using HeThongChungCu.Domain.Common;
@@ -36,11 +36,11 @@ public class CreateBangGiaCommandHandler : ICommandHandler<CreateBangGiaCommand,
         // Using DichVu domain methods to add BangGia
         if (loaiDinhGia == LoaiDinhGia.CoDinh)
         {
-            dichVu.AddBangGiaCoDinh(request.TenBangGia, request.NgayApDung, request.DonGiaCoDinh ?? 0, ngayKetThuc: request.NgayKetThuc);
+            dichVu.AddBangGiaCoDinh(request.TenBangGia, request.NgayApDung, request.DonGiaCoDinh ?? 0, request.IsDinhKy, ngayKetThuc: request.NgayKetThuc);
         }
         else if (loaiDinhGia == LoaiDinhGia.LuyTien)
         {
-            dichVu.AddBangGiaLuyTien(request.TenBangGia, request.NgayApDung, request.NgayKetThuc);
+            dichVu.AddBangGiaLuyTien(request.TenBangGia, request.NgayApDung, request.IsDinhKy, request.NgayKetThuc);
             var bangGia = dichVu.BangGias.Last() as BangGiaLuyTien;
             foreach (var detail in request.GiaLuyTiens)
             {
@@ -49,7 +49,7 @@ public class CreateBangGiaCommandHandler : ICommandHandler<CreateBangGiaCommand,
         }
         else if (loaiDinhGia == LoaiDinhGia.TheoKhungGio)
         {
-            dichVu.AddBangGiaKhungGio(request.TenBangGia, request.NgayApDung, request.NgayKetThuc);
+            dichVu.AddBangGiaKhungGio(request.TenBangGia, request.NgayApDung, request.IsDinhKy, request.NgayKetThuc);
             var bangGia = dichVu.BangGias.Last() as BangGiaKhungGio;
             foreach (var detail in request.GiaKhungGios)
             {
@@ -58,7 +58,7 @@ public class CreateBangGiaCommandHandler : ICommandHandler<CreateBangGiaCommand,
         }
         else if (loaiDinhGia == LoaiDinhGia.TheoDienTich)
         {
-            dichVu.AddBangGiaLoaiCanHo(request.TenBangGia, request.NgayApDung, request.NgayKetThuc);
+            dichVu.AddBangGiaLoaiCanHo(request.TenBangGia, request.NgayApDung, request.IsDinhKy, request.NgayKetThuc);
             var bangGia = dichVu.BangGias.Last() as BangGiaLoaiCanHo;
             foreach (var detail in request.GiaLoaiCanHos)
             {

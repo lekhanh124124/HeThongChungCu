@@ -59,6 +59,6 @@ public class HoaDonConfiguration : IEntityTypeConfiguration<HoaDon>
 
         builder.HasIndex(x => x.MaHoaDon).IsUnique();
         builder.HasIndex(x => x.DotThanhToanId);
-        builder.HasIndex(x => new { x.CanHoId, x.KyThanhToan.Thang, x.KyThanhToan.Nam });
+        builder.HasIndex(x => x.CanHoId);
     }
 }

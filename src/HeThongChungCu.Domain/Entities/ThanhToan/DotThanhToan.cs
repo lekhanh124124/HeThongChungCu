@@ -6,7 +6,7 @@ namespace HeThongChungCu.Domain.Entities;
 
 public class DotThanhToan : AggregateRoot
 {
-    public string TenDot { get; private set; } = null!;
+    public string TenDot { get; private set; } = string.Empty;
     public KyThanhToan KyThanhToan { get; private set; } = null!;
     public TrangThaiDotThanhToan TrangThaiDotThanhToanId { get; private set; } = null!;
     public DateTimeOffset? NgayPhatHanh { get; private set; }

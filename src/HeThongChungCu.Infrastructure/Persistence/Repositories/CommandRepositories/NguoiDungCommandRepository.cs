@@ -41,6 +41,13 @@ public class NguoiDungCommandRepository : INguoiDungCommandRepository
         return await _dbContext.NguoiDung.AnyAsync(expression, cancellationToken);
     }
 
+    public async Task<IEnumerable<NguoiDung>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.NguoiDung
+            .Where(n => ids.Contains(n.Id))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddAsync(NguoiDung nguoiDung, CancellationToken cancellationToken = default)
     {
         await _dbContext.NguoiDung.AddAsync(nguoiDung, cancellationToken);

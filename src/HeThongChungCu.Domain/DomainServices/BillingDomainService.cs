@@ -156,7 +156,7 @@ public class BillingDomainService : IBillingDomainService
 
     // --- Private Calculation Methods ---
 
-    private decimal CalculateConsumptionFee(ChiSoTieuThu chiSo, BangGia bangGia)
+    private static decimal CalculateConsumptionFee(ChiSoTieuThu chiSo, BangGia bangGia)
     {
         var context = new PricingContext(
             SoLuong: chiSo.SoLuong,
@@ -167,7 +167,7 @@ public class BillingDomainService : IBillingDomainService
         return bangGia.CalculateAmount(context);
     }
 
-    private decimal CalculateRecurringFee(DangKyDichVu dangKy, CanHo canHo, BangGia bangGia)
+    private static decimal CalculateRecurringFee(DangKyDichVu dangKy, CanHo canHo, BangGia bangGia)
     {
         var context = new PricingContext(
             SoLuong: dangKy.SoLuong,
@@ -179,7 +179,7 @@ public class BillingDomainService : IBillingDomainService
         return bangGia.CalculateAmount(context);
     }
 
-    private decimal CalculateRent(CanHo canHo, IEnumerable<QuanHeCuTru> residencyRelations, BangGia bangGia)
+    private static decimal CalculateRent(CanHo canHo, IEnumerable<QuanHeCuTru> residencyRelations, BangGia bangGia)
     {
         bool hasActiveTenant = residencyRelations.Any(r =>
             r.CanHoId == canHo.Id &&
@@ -196,7 +196,7 @@ public class BillingDomainService : IBillingDomainService
         return bangGia.CalculateAmount(context);
     }
 
-    private decimal CalculateMandatoryFee(CanHo canHo, BangGia bangGia)
+    private static decimal CalculateMandatoryFee(CanHo canHo, BangGia bangGia)
     {
         var area = canHo.ThongSo.DienTich;
         var context = new PricingContext(
@@ -208,7 +208,7 @@ public class BillingDomainService : IBillingDomainService
         return bangGia.CalculateAmount(context);
     }
 
-    private decimal CalculateLateInterest(HoaDon overdueInvoice, BangGia interestBangGia, DateTimeOffset calculationDate)
+    private static decimal CalculateLateInterest(HoaDon overdueInvoice, BangGia interestBangGia, DateTimeOffset calculationDate)
     {
         if (overdueInvoice.TrangThaiHoaDonId == TrangThaiHoaDon.DaThanhToan) return 0;
         if (calculationDate <= overdueInvoice.NgayHanThanhToan) return 0;

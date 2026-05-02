@@ -228,4 +228,36 @@ public static class DapperQueryBuilder
         var direction = (spec.IsAsc.HasValue && !spec.IsAsc.Value) ? "DESC" : "ASC";
         return $"ORDER BY {columnName} {direction}";
     }
+
+    public static string BuildOuterApply(
+        IQuerySpecification spec,
+        string table,
+        string alias,
+        string selectColumns,
+        string joinCondition,
+        string orderBy,
+        Dictionary<string, string> mapping,
+        DynamicParameters parameters)
+    {
+        var whereClauses = new List<string> { joinCondition };
+
+        foreach (var filter in spec.Filters)
+        {
+            if (mapping.TryGetValue(filter.PropertyName, out var columnName))
+            {
+                var clause = BuildFilterClause(filter, parameters, new Dictionary<string, string> { { filter.PropertyName, columnName } });
+                whereClauses.Add(clause);
+            }
+        }
+
+        var whereSection = string.Join(" AND ", whereClauses);
+
+        return $@"
+            OUTER APPLY (
+                SELECT TOP 1 {selectColumns}
+                FROM {table}
+                WHERE {whereSection}
+                ORDER BY {orderBy}
+            ) {alias}";
+    }
 }

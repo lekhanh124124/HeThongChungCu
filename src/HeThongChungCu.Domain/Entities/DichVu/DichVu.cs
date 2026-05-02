@@ -93,41 +93,45 @@ public class DichVu : AggregateRoot
         string tenBangGia,
         DateTimeOffset ngayApDung,
         decimal donGia,
+        bool isDinhKy,
         LoaiDinhGia? loaiDinhGia = null,
         DateTimeOffset? ngayKetThuc = null)
     {
         EnsureNoOverlap(ngayApDung, ngayKetThuc);
-        var newBangGia = new BangGiaCoDinh(Id, tenBangGia, ngayApDung, donGia, loaiDinhGia, ngayKetThuc);
+        var newBangGia = new BangGiaCoDinh(Id, tenBangGia, ngayApDung, donGia, isDinhKy, loaiDinhGia, ngayKetThuc);
         _bangGias.Add(newBangGia);
     }
 
     public void AddBangGiaLuyTien(
         string tenBangGia,
         DateTimeOffset ngayApDung,
+        bool isDinhKy,
         DateTimeOffset? ngayKetThuc = null)
     {
         EnsureNoOverlap(ngayApDung, ngayKetThuc);
-        var newBangGia = new BangGiaLuyTien(Id, tenBangGia, ngayApDung, ngayKetThuc);
+        var newBangGia = new BangGiaLuyTien(Id, tenBangGia, ngayApDung, isDinhKy, ngayKetThuc);
         _bangGias.Add(newBangGia);
     }
 
     public void AddBangGiaKhungGio(
         string tenBangGia,
         DateTimeOffset ngayApDung,
+        bool isDinhKy,
         DateTimeOffset? ngayKetThuc = null)
     {
         EnsureNoOverlap(ngayApDung, ngayKetThuc);
-        var newBangGia = new BangGiaKhungGio(Id, tenBangGia, ngayApDung, ngayKetThuc);
+        var newBangGia = new BangGiaKhungGio(Id, tenBangGia, ngayApDung, isDinhKy, ngayKetThuc);
         _bangGias.Add(newBangGia);
     }
 
     public void AddBangGiaLoaiCanHo(
         string tenBangGia,
         DateTimeOffset ngayApDung,
+        bool isDinhKy,
         DateTimeOffset? ngayKetThuc = null)
     {
         EnsureNoOverlap(ngayApDung, ngayKetThuc);
-        var newBangGia = new BangGiaLoaiCanHo(Id, tenBangGia, ngayApDung, ngayKetThuc);
+        var newBangGia = new BangGiaLoaiCanHo(Id, tenBangGia, ngayApDung, isDinhKy, ngayKetThuc);
         _bangGias.Add(newBangGia);
     }
 

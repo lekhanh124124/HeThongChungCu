@@ -14,9 +14,10 @@ public class BangGiaCoDinh : BangGia
         string tenBangGia,
         DateTimeOffset ngayApDung,
         decimal donGia,
+        bool isDinhKy,
         LoaiDinhGia? loaiDinhGia = null,
         DateTimeOffset? ngayKetThuc = null)
-        : base(dichVuId, tenBangGia, ngayApDung, loaiDinhGia ?? LoaiDinhGia.CoDinh, ngayKetThuc)
+        : base(dichVuId, tenBangGia, ngayApDung, loaiDinhGia ?? LoaiDinhGia.CoDinh, isDinhKy, ngayKetThuc)
     {
         DonGia = new GiaTien(donGia);
     }

@@ -11,6 +11,7 @@ public abstract class BangGia : AuditableEntity
     public string TenBangGia { get; private set; } = string.Empty;
     public ThoiGianHieuLuc ThoiGian { get; private set; } = null!;
     public LoaiDinhGia LoaiDinhGiaId { get; protected set; } = null!;
+    public bool IsDinhKy { get; private set; }
     public bool IsActive { get; private set; }
 
     public DichVu DichVu { get; private set; } = null!;
@@ -22,6 +23,7 @@ public abstract class BangGia : AuditableEntity
         string tenBangGia,
         DateTimeOffset ngayApDung,
         LoaiDinhGia loaiDinhGiaId,
+        bool isDinhKy,
         DateTimeOffset? ngayKetThuc = null)
     {
         if (string.IsNullOrWhiteSpace(tenBangGia))
@@ -31,6 +33,7 @@ public abstract class BangGia : AuditableEntity
         TenBangGia = tenBangGia;
         ThoiGian = new ThoiGianHieuLuc(ngayApDung, ngayKetThuc);
         LoaiDinhGiaId = loaiDinhGiaId;
+        IsDinhKy = isDinhKy;
         IsActive = false;
     }
 

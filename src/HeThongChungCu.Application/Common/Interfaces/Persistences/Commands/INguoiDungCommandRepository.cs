@@ -11,6 +11,7 @@ public interface INguoiDungCommandRepository
 
     Task<bool> AnyAsync(Expression<Func<NguoiDung, bool>> expression, CancellationToken cancellationToken = default);
 
+    Task<IEnumerable<NguoiDung>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
     Task AddAsync(NguoiDung nguoiDung, CancellationToken cancellationToken = default);
     void Update(NguoiDung nguoiDung);
     void Delete(NguoiDung nguoiDung);

@@ -47,4 +47,25 @@ internal sealed class DangKyDichVuCommandRepository : IDangKyDichVuCommandReposi
                         && x.DichVuId == dichVuId
                         && x.TrangThaiDangKyId == TrangThaiDangKy.DangSuDung, cancellationToken);
     }
+
+    public async Task<List<DangKyDichVu>> GetActiveSubscriptionsByCanHoAsync(int canHoId, CancellationToken cancellationToken = default)
+    {
+        return await _context.DangKyDichVus
+            .Where(x => x.CanHoId == canHoId && x.TrangThaiDangKyId == TrangThaiDangKy.DangSuDung)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<DangKyDichVu>> GetActiveByCanHoIdsAsync(IEnumerable<int> canHoIds, CancellationToken cancellationToken = default)
+    {
+        return await _context.DangKyDichVus
+            .Where(x => canHoIds.Contains(x.CanHoId) && x.TrangThaiDangKyId == TrangThaiDangKy.DangSuDung)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<DangKyDichVu>> GetAllActiveAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.DangKyDichVus
+            .Where(x => x.TrangThaiDangKyId == TrangThaiDangKy.DangSuDung)
+            .ToListAsync(cancellationToken);
+    }
 }

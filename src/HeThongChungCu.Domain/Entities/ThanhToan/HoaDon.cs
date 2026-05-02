@@ -2,7 +2,7 @@ using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.ValueObjects;
-using HeThongChungCu.Domain.Entities.ThanhToan.Events;
+using HeThongChungCu.Domain.Events;
 
 namespace HeThongChungCu.Domain.Entities;
 

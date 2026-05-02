@@ -11,6 +11,7 @@ public record BangGiaResponse
     public string LoaiDinhGiaTen { get; init; } = string.Empty;
     public string LoaiDinhGiaCode { get; init; } = string.Empty;
     public decimal? DonGia { get; init; }
+    public bool IsDinhKy { get; init; }
     public bool IsActive { get; init; }
     public List<ChiTietGiaLuyTienResponse> GiaLuyTiens { get; init; } = [];
     public List<ChiTietGiaKhungGioResponse> GiaKhungGios { get; init; } = [];

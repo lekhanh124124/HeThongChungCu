@@ -25,6 +25,9 @@ public class CreateBangGiaCommandValidator : AbstractValidator<CreateBangGiaComm
         RuleFor(x => x.LoaiDinhGiaId)
             .Must(v => LoaiDinhGia.FromValue(v) != null).WithMessage("Loại định giá không hợp lệ.");
 
+        RuleFor(x => x.IsDinhKy)
+            .NotEmpty().WithMessage("Phải có thông tin về định kỳ.");
+
         // Additional validations based on LoaiDinhGiaId
         When(x => x.LoaiDinhGiaId == LoaiDinhGia.CoDinh.Value, () =>
         {

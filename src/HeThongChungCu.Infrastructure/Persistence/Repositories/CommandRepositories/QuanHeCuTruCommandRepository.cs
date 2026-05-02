@@ -51,6 +51,13 @@ public class QuanHeCuTruCommandRepository : IQuanHeCuTruCommandRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IEnumerable<QuanHeCuTru>> GetByCanHoIdsAsync(IEnumerable<int> canHoIds, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.QuanHeCuTrus
+            .Where(q => canHoIds.Contains(q.CanHoId))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<QuanHeCuTru?> GetByUserAndCanHoAsync(int nguoiDungId, int canHoId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.QuanHeCuTrus

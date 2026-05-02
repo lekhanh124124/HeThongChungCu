@@ -91,6 +91,30 @@ public class DichVuCommandRepository : IDichVuCommandRepository
     {
         return await _dbContext.DichVus
             .Where(x => x.IsBatBuoc && x.TrangThaiId == TrangThaiDichVu.HoatDong)
+            .Include(x => x.BangGias.Where(bg => bg.IsActive))
+                .ThenInclude((BangGia bg) => bg.DichVu)
+            .Include(x => x.BangGias.Where(bg => bg.IsActive))
+                .ThenInclude((BangGia bg) => ((BangGiaLoaiCanHo)bg).ChiTietGias)
+            .Include(x => x.BangGias.Where(bg => bg.IsActive))
+                .ThenInclude((BangGia bg) => ((BangGiaLuyTien)bg).ChiTietGias)
+            .Include(x => x.BangGias.Where(bg => bg.IsActive))
+                .ThenInclude((BangGia bg) => ((BangGiaKhungGio)bg).ChiTietGias)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<DichVu>> GetActivePeriodicServicesWithPriceListsAsync(CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.DichVus
+            .Where(x => x.TrangThaiId == TrangThaiDichVu.HoatDong)
+            .Include(x => x.BangGias.Where(bg => bg.IsActive && bg.IsDinhKy))
+                .ThenInclude((BangGia bg) => bg.DichVu)
+            .Include(x => x.BangGias.Where(bg => bg.IsActive && bg.IsDinhKy))
+                .ThenInclude((BangGia bg) => ((BangGiaLoaiCanHo)bg).ChiTietGias)
+            .Include(x => x.BangGias.Where(bg => bg.IsActive && bg.IsDinhKy))
+                .ThenInclude((BangGia bg) => ((BangGiaLuyTien)bg).ChiTietGias)
+            .Include(x => x.BangGias.Where(bg => bg.IsActive && bg.IsDinhKy))
+                .ThenInclude((BangGia bg) => ((BangGiaKhungGio)bg).ChiTietGias)
+            .Where(x => x.BangGias.Any(bg => bg.IsActive && bg.IsDinhKy))
             .ToListAsync(cancellationToken);
     }
 

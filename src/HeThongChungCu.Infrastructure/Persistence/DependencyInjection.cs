@@ -90,6 +90,13 @@ public static class DependencyInjection
 
         services.AddScoped<IYeuCauThiCongQueryRepository, YeuCauThiCongQueryRepository>();
         services.AddScoped<IYeuCauThiCongCommandRepository, YeuCauThiCongCommandRepository>();
+        
+        services.AddScoped<IHoaDonCommandRepository, HoaDonCommandRepository>();
+        services.AddScoped<IHoaDonQueryRepository, HoaDonQueryRepository>();
+        services.AddScoped<IChiSoTieuThuCommandRepository, ChiSoTieuThuCommandRepository>();
+        services.AddScoped<IChiSoTieuThuQueryRepository, ChiSoTieuThuQueryRepository>();
+        services.AddScoped<IDotThanhToanCommandRepository, DotThanhToanCommandRepository>();
+        services.AddScoped<IDotThanhToanQueryRepository, DotThanhToanQueryRepository>();
 
 
         return services;

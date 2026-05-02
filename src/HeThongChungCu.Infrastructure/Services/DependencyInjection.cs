@@ -1,4 +1,5 @@
 using HeThongChungCu.Application.Common.Interfaces.Services;
+using HeThongChungCu.Infrastructure.Notifications;
 
 namespace HeThongChungCu.Infrastructure.Services;
 
@@ -9,7 +10,11 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IDateTimeProvider, DateTimeProvider>();
         services.AddScoped<ICodeGeneratorService, CodeGeneratorService>();
+        services.AddScoped<IExcelService, ExcelService>();
+        services.AddScoped<IZipService, ZipService>();
         services.AddHostedService<CleanupUnusedFilesService>();
+        services.AddHostedService<MonthlyBillingBackgroundService>();
+        services.AddHostedService<NotificationBackgroundService>();
 
         return services;
     }
