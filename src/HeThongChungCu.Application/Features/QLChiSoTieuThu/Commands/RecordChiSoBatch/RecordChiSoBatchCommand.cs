@@ -7,4 +7,4 @@ public record RecordChiSoBatchCommand(
     List<ChiSoBatchItemDto> Items,
     int Thang,
     int Nam,
-    DateTimeOffset NgayGhiNhan) : ICommand<int>;
+    DateTimeOffset NgayGhiNhan) : ICommand<ChiSoBatchResultResponse>;

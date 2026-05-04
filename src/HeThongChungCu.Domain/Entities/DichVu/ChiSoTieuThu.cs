@@ -16,6 +16,7 @@ public class ChiSoTieuThu : AggregateRoot
     public DateTimeOffset NgayGhiNhan { get; private set; }
     public TrangThaiChiSo TrangThaiChiSoId { get; private set; } = null!;
     public int? AnhDongHoId { get; private set; }
+    public virtual TepTaiLieu? AnhDongHo { get; private set; }
     public string? GhiChu { get; private set; }
     public int? HoaDonId { get; private set; }
     public string? MaTraCuu { get; private set; }
@@ -117,6 +118,14 @@ public class ChiSoTieuThu : AggregateRoot
         
         TrangThaiChiSoId = TrangThaiChiSo.Draft;
         return Result.Success();
+    }
+
+    public void SetAnhDongHo(TepTaiLieu tepTaiLieu)
+    {
+        if (TrangThaiChiSoId == TrangThaiChiSo.Locked)
+            throw new BusinessException("Chỉ số đã lập hóa đơn, không thể cập nhật ảnh.");
+
+        AnhDongHo = tepTaiLieu;
     }
 
     public void SetAnhDongHo(int anhDongHoId)

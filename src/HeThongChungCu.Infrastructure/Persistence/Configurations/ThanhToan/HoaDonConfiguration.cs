@@ -30,6 +30,9 @@ public class HoaDonConfiguration : IEntityTypeConfiguration<HoaDon>
         builder.Property(x => x.NgayHanThanhToan)
             .IsRequired();
 
+        builder.Property(x => x.NgayTinhLaiCuoi)
+            .IsRequired(false);
+
         builder.OwnsOne(x => x.KyThanhToan, kyBuilder =>
         {
             kyBuilder.Property(k => k.Thang).HasColumnName("Thang").IsRequired();
@@ -50,6 +53,7 @@ public class HoaDonConfiguration : IEntityTypeConfiguration<HoaDon>
         builder.HasOne<DotThanhToan>()
             .WithMany()
             .HasForeignKey(x => x.DotThanhToanId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(x => x.ChiTietHoaDons)

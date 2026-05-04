@@ -12,4 +12,13 @@ public interface IHoaDonCommandRepository
     Task<List<HoaDon>> GetByDotThanhToanAsync(int dotId, CancellationToken cancellationToken = default);
     Task<bool> ExistsByKyThanhToanAsync(int canHoId, KyThanhToan ky, CancellationToken cancellationToken = default);
     Task<HashSet<int>> GetExistingCanHoIdsByKyAsync(KyThanhToan ky, CancellationToken cancellationToken = default);
+    Task<bool> AnyByDotThanhToanAsync(int dotId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Lấy tất cả hóa đơn quá hạn của các căn hộ chỉ định, chưa tính lãi trong kỳ hiện tại.
+    /// Điều kiện: ChuaThanhToan/QuaHan, NgayHanThanhToan < today, NgayTinhLaiCuoi IS NULL hoặc < dotStartDate.
+    /// </summary>
+    Task<ILookup<int, HoaDon>> GetOverdueByCanHoIdsAsync(IEnumerable<int> canHoIds, DateTimeOffset dotStartDate, CancellationToken cancellationToken = default);
+
+    void Update(HoaDon hoaDon);
 }

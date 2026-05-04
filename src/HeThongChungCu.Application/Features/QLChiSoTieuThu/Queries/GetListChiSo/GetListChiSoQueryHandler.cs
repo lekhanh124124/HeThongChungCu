@@ -18,7 +18,7 @@ public class GetListChiSoQueryHandler : IQueryHandler<GetListChiSoQuery, PagedRe
     {
         var spec = new GetListChiSoSpecification(
             request.SortCol,
-            request.IsAsc == false, // sortDesc
+            request.IsAsc,
             request.PageNumber,
             request.PageSize,
             request.Thang,

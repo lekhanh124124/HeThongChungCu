@@ -142,13 +142,12 @@ public class UploadChiSoImagesBatchCommandHandler : ICommandHandler<UploadChiSoI
         }
 
         await _tepTaiLieuRepository.AddRangeAsync(tepTaiLieus, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         for (int i = 0; i < tepTaiLieus.Count; i++)
         {
             var chiSo = matchingEntries[i].ChiSo;
             var tepTaiLieu = tepTaiLieus[i];
-            chiSo.SetAnhDongHo(tepTaiLieu.Id);
+            chiSo.SetAnhDongHo(tepTaiLieu);
             _chiSoRepository.Update(chiSo);
         }
 

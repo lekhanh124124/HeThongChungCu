@@ -18,4 +18,7 @@ public static class ServiceCodeConstants
     // Dịch vụ điện nước
     public const string DIEN = "ELECTRICITY";
     public const string NUOC = "WATER";
+
+    // Dịch vụ hệ thống (Lãi trễ hạn)
+    public const string LAI_TRE_HAN = "LATE_INTEREST_FEE";
 }

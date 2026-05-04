@@ -30,7 +30,7 @@ public class PhatHanhHoaDonCommandHandler : ICommandHandler<PhatHanhHoaDonComman
     {
         var dot = await _dotRepository.GetByIdAsync(request.DotThanhToanId, cancellationToken);
         if (dot == null)
-            return Result.Failure<bool>(new Error("DotThanhToan.NotFound", "Không tìm thấy đợt thanh toán."));
+            return DotThanhToanErrors.NotFound;
 
         List<HoaDon> hoaDons;
         if (request.HoaDonIds != null && request.HoaDonIds.Count > 0)
@@ -46,12 +46,12 @@ public class PhatHanhHoaDonCommandHandler : ICommandHandler<PhatHanhHoaDonComman
         }
 
         if (hoaDons.Count == 0)
-            return Result.Failure<bool>(new Error("HoaDon.NotFound", "Không tìm thấy danh sách hóa đơn hợp lệ cần phát hành."));
+            return HoaDonErrors.NotFound;
 
         // Sử dụng Domain Service để thực hiện phát hành theo lô
         var result = _billingService.PhatHanhBatch(dot, hoaDons);
         if (result.IsFailure)
-            return Result.Failure<bool>(result.Errors);
+            return result.Errors;
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

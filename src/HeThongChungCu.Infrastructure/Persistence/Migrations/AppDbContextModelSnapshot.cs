@@ -698,7 +698,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int>("DotThanhToanId")
+                    b.Property<int?>("DotThanhToanId")
                         .HasColumnType("int");
 
                     b.Property<string>("GhiChu")
@@ -723,6 +723,9 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<DateTimeOffset>("NgayLap")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("NgayTinhLaiCuoi")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<decimal>("TongTien")
@@ -2228,7 +2231,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChiSoTieuThu", b =>
                 {
-                    b.HasOne("HeThongChungCu.Domain.Entities.TaiLieu", null)
+                    b.HasOne("HeThongChungCu.Domain.Entities.TepTaiLieu", "AnhDongHo")
                         .WithMany()
                         .HasForeignKey("AnhDongHoId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -2249,6 +2252,8 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("HoaDonId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("AnhDongHo");
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.ChiTietGiaKhungGio", b =>
@@ -2548,8 +2553,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.HasOne("HeThongChungCu.Domain.Entities.DotThanhToan", null)
                         .WithMany()
                         .HasForeignKey("DotThanhToanId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.OwnsOne("HeThongChungCu.Domain.ValueObjects.KyThanhToan", "KyThanhToan", b1 =>
                         {

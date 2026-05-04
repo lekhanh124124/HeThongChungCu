@@ -1,6 +1,8 @@
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.Commands.ConfirmChiSoBatch;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.Commands.ImportChiSo;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.Commands.RecordChiSoBatch;
+using HeThongChungCu.Application.Features.QLChiSoTieuThu.Commands.UpdateChiSoTieuThu;
+using HeThongChungCu.Application.Features.QLChiSoTieuThu.Commands.DeleteChiSoTieuThu;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.Commands.UploadChiSoImagesBatch;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.DTOs;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.Queries.ExportChiSoTemplate;
@@ -98,6 +100,26 @@ public class ChiSoTieuThuController : ApiControllerBase
     public async Task<IActionResult> UploadImagesBatch(IFormFile zipFile)
     {
         var command = new UploadChiSoImagesBatchCommand(zipFile.OpenReadStream(), zipFile.FileName);
+        var result = await _sender.Send(command);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Cập nhật chỉ số tiêu thụ
+    /// </summary>
+    [HttpPut]
+    public async Task<IActionResult> Update([FromBody] UpdateChiSoTieuThuCommand command)
+    {
+        var result = await _sender.Send(command);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Xóa danh sách chỉ số tiêu thụ
+    /// </summary>
+    [HttpDelete]
+    public async Task<IActionResult> Delete([FromBody] DeleteChiSoTieuThuCommand command)
+    {
         var result = await _sender.Send(command);
         return HandleResult(result);
     }

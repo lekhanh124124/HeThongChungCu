@@ -389,6 +389,29 @@ public static class DichVuSeeder
         await context.BangGias.AddAsync(bgThueNha);
         await context.SaveChangesAsync();
 
+        // --- 6. Dịch vụ hệ thống: Lãi trễ hạn (Internal — không hiển thị cho cư dân) ---
+        // Lãi suất: 0.05%/ngày = 0.0005 (nhân với SoLuong = TongTienGoc × SoNgayQuaHan)
+        var dvLaiTreHan = new DichVu(
+            ServiceCodeConstants.LAI_TRE_HAN,
+            "Lãi chậm nộp",
+            LoaiDichVu.Khac,
+            "VNĐ",
+            "Phí lãi phát sinh khi cư dân thanh toán trễ hạn. Tỷ lệ 0.05%/ngày tính trên số tiền gốc.",
+            null,
+            true);
+        dvLaiTreHan.Activate();
+        if (adminId != 0) dvLaiTreHan.SetCreated(adminId, DateTimeOffset.Now);
+        await context.DichVus.AddAsync(dvLaiTreHan);
+        await context.SaveChangesAsync();
+
+        // BangGiaCoDinh: DonGia = 0.0005 (= 0.05%/ngày)
+        // CalculateAmount(context) = DonGia × SoLuong = 0.0005 × (TongTienGoc × SoNgayQuaHan)
+        var bgLaiTreHan = new BangGiaCoDinh(dvLaiTreHan.Id, "Lãi suất chậm nộp 2026", DateTimeOffset.Now, 0.0005m, true);
+        bgLaiTreHan.Activate();
+        if (adminId != 0) bgLaiTreHan.SetCreated(adminId, DateTimeOffset.Now);
+        await context.BangGias.AddAsync(bgLaiTreHan);
+        await context.SaveChangesAsync();
+
         DatabaseSeeder.ClearAllDomainEvents(context);
         await context.SaveChangesAsync();
 

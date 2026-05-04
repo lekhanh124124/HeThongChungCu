@@ -70,7 +70,7 @@ public class ChiSoTieuThuConfiguration : IEntityTypeConfiguration<ChiSoTieuThu>
             .HasForeignKey(x => x.HoaDonId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        builder.HasOne<TaiLieu>()
+        builder.HasOne(x => x.AnhDongHo)
             .WithMany()
             .HasForeignKey(x => x.AnhDongHoId)
             .OnDelete(DeleteBehavior.SetNull);

@@ -8,7 +8,7 @@ public class ExcelService : IExcelService
 {
     public ExcelService()
     {
-        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+        ExcelPackage.License.SetNonCommercialPersonal("HeThongChungCu");
     }
 
     public byte[] CreateTemplate<T>(IEnumerable<T> data, string sheetName)

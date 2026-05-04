@@ -9,7 +9,7 @@ namespace HeThongChungCu.Domain.Entities;
 public class HoaDon : AggregateRoot
 {
     public int CanHoId { get; private set; }
-    public int DotThanhToanId { get; private set; }
+    public int? DotThanhToanId { get; private set; }
     public string MaHoaDon { get; private set; } = null!;
     public KyThanhToan KyThanhToan { get; private set; } = null!;
     public DateTimeOffset NgayLap { get; private set; }
@@ -18,6 +18,17 @@ public class HoaDon : AggregateRoot
     public TrangThaiHoaDon TrangThaiHoaDonId { get; private set; } = null!;
     public string? GhiChu { get; private set; }
 
+    /// <summary>
+    /// Ngày lần cuối tính lãi trễ hạn cho hóa đơn này.
+    /// Null = chưa bao giờ bị tính lãi. Dùng để tránh tính lãi trùng qua nhiều kỳ thanh toán.
+    /// </summary>
+    public DateTimeOffset? NgayTinhLaiCuoi { get; private set; }
+
+    /// <summary>
+    /// Ghi nhận thời điểm đã tính lãi trễ hạn. Được gọi sau khi LapHoaDonDuThao gắn lãi vào hóa đơn mới.
+    /// </summary>
+    public void SetNgayTinhLai(DateTimeOffset ngayTinh) => NgayTinhLaiCuoi = ngayTinh;
+
     private readonly List<ChiTietHoaDon> _chiTietHoaDons = [];
     public IReadOnlyCollection<ChiTietHoaDon> ChiTietHoaDons => _chiTietHoaDons.AsReadOnly();
 
@@ -25,7 +36,7 @@ public class HoaDon : AggregateRoot
 
     private HoaDon(
         int canHoId,
-        int dotThanhToanId,
+        int? dotThanhToanId,
         string maHoaDon,
         KyThanhToan kyThanhToan,
         DateTimeOffset ngayLap,
@@ -45,7 +56,7 @@ public class HoaDon : AggregateRoot
 
     public static Result<HoaDon> CreateHoaDon(
         int canHoId,
-        int dotThanhToanId,
+        int? dotThanhToanId,
         string maHoaDon,
         KyThanhToan kyThanhToan,
         DateTimeOffset ngayLap,

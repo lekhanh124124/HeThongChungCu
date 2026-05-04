@@ -9,9 +9,9 @@ public class GetListChiSoSpecification : BaseSpecification
         "Id", "MaCanHo", "TenCanHo", "TenDichVu", "Thang", "Nam", "NgayGhiNhan", "TrangThaiChiSoId"
     };
 
-    public GetListChiSoSpecification(string? sortCol, bool? sortDesc, int? pageIndex, int? pageSize,
+    public GetListChiSoSpecification(string? sortCol, bool? isAsc, int? pageIndex, int? pageSize,
         int? thang, int? nam, int? dichVuId, int? trangThaiChiSoId) 
-        : base(sortCol, sortDesc, pageIndex, pageSize)
+        : base(sortCol, isAsc, pageIndex, pageSize)
     {
         AddFilter("IsDeleted", FilterOperator.Equal, false);
 

@@ -1,4 +1,5 @@
 using HeThongChungCu.Domain.Common;
+using HeThongChungCu.Domain.Exceptions;
 
 namespace HeThongChungCu.Domain.ValueObjects;
 
@@ -10,10 +11,10 @@ public record KyThanhToan
     public KyThanhToan(int thang, int nam)
     {
         if (thang < 1 || thang > 12)
-            throw new ArgumentOutOfRangeException(nameof(thang), "Tháng phải từ 1 đến 12.");
-        
+            throw new BusinessException("Tháng không hợp lệ.");
+
         if (nam < 2000)
-            throw new ArgumentOutOfRangeException(nameof(nam), "Năm không hợp lệ.");
+            throw new BusinessException("Năm không hợp lệ.");
 
         Thang = thang;
         Nam = nam;

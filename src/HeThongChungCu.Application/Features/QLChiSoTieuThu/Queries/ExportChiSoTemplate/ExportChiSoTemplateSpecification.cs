@@ -20,9 +20,9 @@ public class ExportChiSoTemplateSpecification : BaseSpecification
         Nam = nam;
         AddFilter("IsDeleted", FilterOperator.Equal, false);
         AddFilter("DichVuId", FilterOperator.Equal, dichVuId);
-        
+
         // Chỉ lấy số cũ từ các bản ghi đã xác nhận hoặc đã chốt
-        AddFilter("TrangThaiChiSoId", FilterOperator.In, new List<int> { 2, 3 });
+        AddFilter("TrangThaiChiSoId", FilterOperator.In, new List<int> { TrangThaiChiSo.Confirmed.Value, TrangThaiChiSo.Locked.Value });
 
         if (toanhaId.HasValue)
         {

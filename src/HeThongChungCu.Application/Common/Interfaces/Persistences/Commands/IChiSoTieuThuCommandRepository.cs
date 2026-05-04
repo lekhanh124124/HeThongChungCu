@@ -8,10 +8,13 @@ public interface IChiSoTieuThuCommandRepository
     Task AddAsync(ChiSoTieuThu chiSo, CancellationToken cancellationToken = default);
     Task AddRangeAsync(IEnumerable<ChiSoTieuThu> chiSos, CancellationToken cancellationToken = default);
     Task<ChiSoTieuThu?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<List<ChiSoTieuThu>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
     Task<List<ChiSoTieuThu>> GetLockedUnbilledByPeriodAsync(KyThanhToan ky, CancellationToken cancellationToken = default);
     Task<List<ChiSoTieuThu>> GetLockedUnbilledByCanHoAsync(int canHoId, KyThanhToan ky, CancellationToken cancellationToken = default);
     Task<ChiSoTieuThu?> GetLatestByCanHoAndDichVuAsync(int canHoId, int dichVuId, CancellationToken cancellationToken = default);
     Task<List<ChiSoTieuThu>> GetByPeriodAsync(int thang, int nam, CancellationToken cancellationToken = default);
     Task<List<ChiSoTieuThu>> GetByMaTraCuusAsync(IEnumerable<string> codes, CancellationToken cancellationToken = default);
     void Update(ChiSoTieuThu chiSo);
+    void Remove(ChiSoTieuThu chiSo);
+    void RemoveRange(IEnumerable<ChiSoTieuThu> chiSos);
 }

@@ -12,7 +12,7 @@ public class BillingDomainService : IBillingDomainService
 {
     public Result PhatHanhBatch(DotThanhToan dotThanhToan, IEnumerable<HoaDon> hoaDons)
     {
-        if (dotThanhToan.TrangThaiDotThanhToanId != TrangThaiDotThanhToan.Nhap)
+        if (dotThanhToan.TrangThaiDotThanhToanId != TrangThaiDotThanhToan.DaDuyet)
         {
             return Result.Failure(HoaDonErrors.InvalidBatchStatus);
         }
@@ -29,16 +29,90 @@ public class BillingDomainService : IBillingDomainService
         return Result.Success();
     }
 
-    public Result<HoaDon> CreateInvoiceHeader(CanHo canHo, DotThanhToan dot, KyThanhToan ky, string maHoaDon, DateTimeOffset ngayHanThanhToan)
+    public Result<HoaDon> CreateInvoiceHeader(CanHo canHo, DotThanhToan? dot, KyThanhToan ky, string maHoaDon, DateTimeOffset ngayHanThanhToan)
     {
         return HoaDon.CreateHoaDon(
             canHo.Id,
-            dot.Id,
+            dot?.Id,
             maHoaDon,
-            ky,
+            new KyThanhToan(ky.Thang, ky.Nam),
             DateTimeOffset.Now,
             ngayHanThanhToan
         );
+    }
+
+    public Result<HoaDon> CreateInvoiceForRegistration(DangKyDichVu dangKy, BangGia bangGia, CanHo canHo, string maHoaDon, DateTimeOffset ngayHanThanhToan)
+    {
+        // Hóa đơn lẻ không thuộc đợt nào (DotThanhToanId = null)
+        var ky = new KyThanhToan(dangKy.ThoiGian.NgayBatDau.Month, dangKy.ThoiGian.NgayBatDau.Year);
+        var hoaDonResult = CreateInvoiceHeader(canHo, null, ky, maHoaDon, ngayHanThanhToan);
+        if (hoaDonResult.IsFailure) return hoaDonResult;
+
+        var hoaDon = hoaDonResult.Value;
+
+        // Gắn chi tiết dịch vụ vào hóa đơn
+        AttachRecurringDetail(hoaDon, dangKy, canHo, bangGia);
+
+        // Tự phát hành ngay (bỏ qua bước Chờ duyệt của Ban quản lý)
+        var phatHanhResult = hoaDon.PhatHanh();
+        if (phatHanhResult.IsFailure) return Result.Failure<HoaDon>(phatHanhResult.Errors);
+
+        return Result.Success(hoaDon);
+    }
+
+    public Result<HoaDon> CreateInvoiceForRepair(YeuCauSuaChua suaChua, CanHo canHo, string maHoaDon, DateTimeOffset ngayHanThanhToan)
+    {
+        var chiPhiThucTe = suaChua.ChiPhiThucTe ?? 0;
+        if (chiPhiThucTe <= 0)
+            return Result.Failure<HoaDon>(HoaDonErrors.InvalidAmount);
+
+        // Hóa đơn lẻ không thuộc đợt nào (DotThanhToanId = null)
+        var ky = new KyThanhToan(DateTimeOffset.Now.Month, DateTimeOffset.Now.Year);
+        var hoaDonResult = CreateInvoiceHeader(canHo, null, ky, maHoaDon, ngayHanThanhToan);
+        if (hoaDonResult.IsFailure) return hoaDonResult;
+
+        var hoaDon = hoaDonResult.Value;
+
+        // Gắn chi tiết phí sửa chữa — dùng ChiPhiThucTe đã chốt
+        hoaDon.AddSuaChuaDetail(
+            suaChua.Id,
+            $"Phí sửa chữa - {suaChua.NoiDung}",
+            chiPhiThucTe
+        );
+
+        // Tự phát hành ngay để cư dân thấy và thanh toán
+        var phatHanhResult = hoaDon.PhatHanh();
+        if (phatHanhResult.IsFailure) return Result.Failure<HoaDon>(phatHanhResult.Errors);
+
+        return Result.Success(hoaDon);
+    }
+
+    public Result<HoaDon> CreateInvoiceForConstruction(YeuCauThiCong thiCong, CanHo canHo, string maHoaDon, DateTimeOffset ngayHanThanhToan)
+    {
+        var tienDatCoc = thiCong.TienDatCoc ?? 0;
+        if (tienDatCoc <= 0)
+            return Result.Failure<HoaDon>(HoaDonErrors.InvalidAmount);
+
+        // Hóa đơn lẻ không thuộc đợt nào (DotThanhToanId = null)
+        var ky = new KyThanhToan(DateTimeOffset.Now.Month, DateTimeOffset.Now.Year);
+        var hoaDonResult = CreateInvoiceHeader(canHo, null, ky, maHoaDon, ngayHanThanhToan);
+        if (hoaDonResult.IsFailure) return hoaDonResult;
+
+        var hoaDon = hoaDonResult.Value;
+
+        // Gắn chi tiết tiền đặt cọc thi công
+        hoaDon.AddThiCongDetail(
+            thiCong.Id,
+            LoaiChiPhiThiCong.DatCoc,
+            $"Tiền đặt cọc thi công - {thiCong.HangMucThiCong}",
+            tienDatCoc
+        );
+
+        // Tự phát hành ngay để cư dân nộp cọc
+        var phatHanhResult2 = hoaDon.PhatHanh();
+        if (phatHanhResult2.IsFailure) return Result.Failure<HoaDon>(phatHanhResult2.Errors);
+
+        return Result.Success(hoaDon);
     }
 
     public void AttachConsumptionDetail(HoaDon hoaDon, ChiSoTieuThu chiSo, BangGia bangGia)
@@ -62,8 +136,8 @@ public class BillingDomainService : IBillingDomainService
 
         hoaDon.AddDichVuDetail(
             $"Phí {tenDichVu} tháng {dangKy.ThoiGian.NgayBatDau.Month}/{dangKy.ThoiGian.NgayBatDau.Year}",
-            1,
-            amount,
+            dangKy.SoLuong,
+            amount / (dangKy.SoLuong == 0 ? 1 : dangKy.SoLuong),
             bangGia.DichVuId
         );
     }
@@ -83,13 +157,13 @@ public class BillingDomainService : IBillingDomainService
 
     public void AttachMandatoryFeeDetail(HoaDon hoaDon, CanHo canHo, BangGia bangGia)
     {
-        var amount = CalculateMandatoryFee(canHo, bangGia);
+        var amount = CalculateMandatoryFee(canHo, bangGia, out var quantity);
         if (amount <= 0) return;
 
         hoaDon.AddDichVuDetail(
             $"Phí {bangGia.DichVu?.TenDichVu ?? "Bắt buộc"} - {canHo.MaCanHo}",
-            canHo.ThongSo.DienTich,
-            amount / (canHo.ThongSo.DienTich == 0 ? 1 : canHo.ThongSo.DienTich),
+            quantity,
+            amount / (quantity == 0 ? 1 : quantity),
             bangGia.DichVuId
         );
     }
@@ -196,11 +270,16 @@ public class BillingDomainService : IBillingDomainService
         return bangGia.CalculateAmount(context);
     }
 
-    private static decimal CalculateMandatoryFee(CanHo canHo, BangGia bangGia)
+    private static decimal CalculateMandatoryFee(CanHo canHo, BangGia bangGia, out decimal quantity)
     {
         var area = canHo.ThongSo.DienTich;
+
+        // Determine quantity based on pricing model: 
+        // Use area if pricing is per area, otherwise default to 1 (per apartment)
+        quantity = (bangGia.LoaiDinhGiaId == LoaiDinhGia.TheoDienTich) ? area : 1;
+
         var context = new PricingContext(
-            SoLuong: area,
+            SoLuong: quantity,
             DienTich: area,
             LoaiCanHoId: canHo.LoaiCanHoId
         );

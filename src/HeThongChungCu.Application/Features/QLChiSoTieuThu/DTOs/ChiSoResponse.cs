@@ -16,7 +16,7 @@ public class ChiSoResponse
     public int Thang { get; set; }
     public int Nam { get; set; }
     public DateTimeOffset NgayGhiNhan { get; set; }
-    public TrangThaiChiSo TrangThaiChiSoId { get; set; } = null!;
-    public string TrangThaiChiSoName => TrangThaiChiSoId.Name;
+    public int TrangThaiChiSoId { get; set; }
+    public string TrangThaiChiSoTen { get; set; } = null!;
     public string? MaTraCuu { get; set; }
 }

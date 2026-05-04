@@ -30,6 +30,13 @@ public class ChiSoTieuThuCommandRepository : IChiSoTieuThuCommandRepository
         return await _dbContext.ChiSoTieuThus.FindAsync(new object[] { id }, cancellationToken);
     }
 
+    public async Task<List<ChiSoTieuThu>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.ChiSoTieuThus
+            .Where(x => ids.Contains(x.Id))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<ChiSoTieuThu>> GetLockedUnbilledByPeriodAsync(KyThanhToan ky, CancellationToken cancellationToken = default)
     {
         return await _dbContext.ChiSoTieuThus
@@ -77,5 +84,15 @@ public class ChiSoTieuThuCommandRepository : IChiSoTieuThuCommandRepository
     public void Update(ChiSoTieuThu chiSo)
     {
         _dbContext.ChiSoTieuThus.Update(chiSo);
+    }
+
+    public void Remove(ChiSoTieuThu chiSo)
+    {
+        _dbContext.ChiSoTieuThus.Remove(chiSo);
+    }
+
+    public void RemoveRange(IEnumerable<ChiSoTieuThu> chiSos)
+    {
+        _dbContext.ChiSoTieuThus.RemoveRange(chiSos);
     }
 }

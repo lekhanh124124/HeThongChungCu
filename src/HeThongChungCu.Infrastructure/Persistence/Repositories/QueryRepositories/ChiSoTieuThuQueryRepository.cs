@@ -3,6 +3,7 @@ using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.DTOs;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.Queries.ExportChiSoTemplate;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.Queries.GetListChiSo;
+using HeThongChungCu.Application.Features.QLChiSoTieuThu.Queries.GetChiSoById;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.Infrastructure.Persistence.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -27,14 +28,22 @@ public class ChiSoTieuThuQueryRepository : IChiSoTieuThuQueryRepository
 
         var parameters = new DynamicParameters();
 
-        // 1. Định nghĩa Mapping cho từng bảng để BuildJoin/BuildWhere có thể ánh xạ đúng
-        var canHoMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "IsDeleted", "ch.IsDeleted" } };
-        var toaNhaMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "ToaNhaId", "tn.Id" }, { "Block", "tn.Block" } };
-        var tangMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "TangId", "t.Id" }, { "TenTang", "t.TenTang" } };
-        var dichVuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "DichVuId", "dv.Id" } };
+        // 1. Định nghĩa Mapping
+        // propertyToColumnMap cho WHERE clause - Chứa các filter dùng để lọc tập kết quả chính
+        var whereMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "IsDeleted", "ch.IsDeleted" },
+            { "ToaNhaId", "tn.Id" },
+            { "TangId", "t.Id" },
+            { "DichVuId", "dv.Id" }
+        };
+
+        // Mapping cho từng bảng JOIN để lấy dữ liệu hiển thị (Block, TenTang, etc.)
+        var toaNhaMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "Block", "tn.Block" } };
+        var tangMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "TenTang", "t.TenTang" } };
+        var dichVuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "TenDichVu", "dv.TenDichVu" } };
 
         // 2. Sử dụng Helper để build phần JOIN
-        // BuildJoin sẽ tự động bóc tách các filter từ Spec (DichVuId, ToaNhaId, TangId) nếu thấy PropertyName khớp trong Mapping
         var sqlJoin = DapperQueryBuilder.BuildJoin(spec,
         [
             new("Tang", "t", "ch.TangId = t.Id", Mapping: tangMapping),
@@ -42,16 +51,16 @@ public class ChiSoTieuThuQueryRepository : IChiSoTieuThuQueryRepository
             new("DichVu", "dv", "1=1", Type: JoinType.Inner, Mapping: dichVuMapping)
         ], parameters);
 
-        // 3. Build phần WHERE và ORDER BY cho câu truy vấn chính (bảng CanHo)
-        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, canHoMapping, parameters);
-        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, canHoMapping, "MaCanHo");
+        // 3. Build phần WHERE và ORDER BY cho câu truy vấn chính
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, whereMapping, parameters);
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, whereMapping, "MaCanHo");
 
         // 4. Câu lệnh SQL hoàn chỉnh
         // GIẢI THÍCH:
         // 4. Build OUTER APPLY để lấy "Số cũ" (Chỉ số mới nhất của kỳ trước)
         // Helper này sẽ tự động đưa các filter từ Spec (DichVuId, TrangThaiChiSoId) vào trong subquery
-        var chiSoMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) 
-        { 
+        var chiSoMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
             { "DichVuId", "DichVuId" },
             { "TrangThaiChiSoId", "TrangThaiChiSoId" }
         };
@@ -114,7 +123,7 @@ public class ChiSoTieuThuQueryRepository : IChiSoTieuThuQueryRepository
 
         var parameters = new DynamicParameters();
         var sqlWhere = DapperQueryBuilder.BuildWhere(spec, mapping, parameters);
-        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, mapping, "Id DESC");
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, mapping, "Id");
         var sqlPaging = DapperQueryBuilder.BuildPagination(spec, parameters);
 
         var sqlJoin = DapperQueryBuilder.BuildJoin(spec, new[]
@@ -167,7 +176,8 @@ public class ChiSoTieuThuQueryRepository : IChiSoTieuThuQueryRepository
             Thang = row.Thang,
             Nam = row.Nam,
             NgayGhiNhan = row.NgayGhiNhan,
-            TrangThaiChiSoId = Domain.Enums.TrangThaiChiSo.FromValue((int)row.TrangThaiChiSoId),
+            TrangThaiChiSoId = (int)row.TrangThaiChiSoId,
+            TrangThaiChiSoTen = TrangThaiChiSo.FromValue((int)row.TrangThaiChiSoId)!.Name,
             MaTraCuu = row.MaTraCuu
         }).ToList();
 
@@ -185,13 +195,28 @@ public class ChiSoTieuThuQueryRepository : IChiSoTieuThuQueryRepository
         };
     }
 
-    public async Task<ChiSoDetailResponse?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<ChiSoDetailResponse?> GetByIdAsync(GetChiSoByIdSpecification spec, CancellationToken cancellationToken = default)
     {
         var connection = _dbContext.GetDbConnection();
         if (connection.State != ConnectionState.Open)
             await connection.OpenAsync(cancellationToken);
 
-        var sql = @"
+        var mapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Id", "cs.Id" },
+            { "IsDeleted", "cs.IsDeleted" }
+        };
+
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, mapping, parameters);
+        var sqlJoin = DapperQueryBuilder.BuildJoin(spec, new[]
+        {
+            new JoinDefinition("CanHo", "ch", "cs.CanHoId = ch.Id", JoinType.Inner),
+            new JoinDefinition("DichVu", "dv", "cs.DichVuId = dv.Id", JoinType.Inner),
+            new JoinDefinition("TepTaiLieu", "tl", "cs.AnhDongHoId = tl.Id", JoinType.Left)
+        }, parameters);
+
+        var sql = $@"
             SELECT 
                 cs.Id, cs.CanHoId, ch.MaCanHo, ch.TenCanHo,
                 cs.DichVuId, dv.TenDichVu,
@@ -199,13 +224,11 @@ public class ChiSoTieuThuQueryRepository : IChiSoTieuThuQueryRepository
                 cs.TrangThaiChiSoId, cs.GhiChu, cs.HoaDonId, cs.AnhDongHoId,
                 tl.FileUrl AS AnhDongHoUrl, cs.MaTraCuu
             FROM ChiSoTieuThu cs
-            JOIN CanHo ch ON cs.CanHoId = ch.Id
-            JOIN DichVu dv ON cs.DichVuId = dv.Id
-            LEFT JOIN TepTaiLieu tl ON cs.AnhDongHoId = tl.Id
-            WHERE cs.Id = @Id AND cs.IsDeleted = 0";
+            {sqlJoin}
+            {sqlWhere}";
 
         var transaction = _dbContext.GetDbTransaction();
-        var row = await connection.QueryFirstOrDefaultAsync<dynamic>(sql, new { Id = id }, transaction);
+        var row = await connection.QueryFirstOrDefaultAsync<dynamic>(sql, parameters, transaction);
 
         if (row == null) return null;
 
@@ -223,7 +246,8 @@ public class ChiSoTieuThuQueryRepository : IChiSoTieuThuQueryRepository
             Thang = row.Thang,
             Nam = row.Nam,
             NgayGhiNhan = row.NgayGhiNhan,
-            TrangThaiChiSoId = Domain.Enums.TrangThaiChiSo.FromValue((int)row.TrangThaiChiSoId),
+            TrangThaiChiSoId = (int)row.TrangThaiChiSoId,
+            TrangThaiChiSoTen = TrangThaiChiSo.FromValue((int)row.TrangThaiChiSoId)!.Name,
             MaTraCuu = row.MaTraCuu,
             GhiChu = row.GhiChu,
             AnhDongHoId = row.AnhDongHoId,

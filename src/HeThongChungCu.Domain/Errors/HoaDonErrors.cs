@@ -43,4 +43,16 @@ public static class HoaDonErrors
     public static readonly Error InvalidBatchStatus = new(
         "HoaDon.InvalidBatchStatus",
         "Trạng thái đợt thanh toán không hợp lệ để phát hành.");
+
+    public static readonly Error ChiTietNotFound = new(
+        "HoaDon.ChiTietNotFound",
+        "Chi tiết hóa đơn không tồn tại.");
+
+    public static readonly Error InvalidPricingType = new(
+        "HoaDon.InvalidPricingType",
+        "Loại định giá không khớp với yêu cầu.");
+
+    public static readonly Error InvalidAmount = new(
+        "HoaDon.InvalidAmount",
+        "Chi phí thực tế phải lớn hơn 0 mới có thể tạo hóa đơn.");
 }

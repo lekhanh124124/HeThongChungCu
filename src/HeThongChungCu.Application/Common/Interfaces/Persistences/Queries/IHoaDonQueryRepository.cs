@@ -14,4 +14,9 @@ public interface IHoaDonQueryRepository
     Task<HoaDonDetailResponse?> GetByIdAsync(
         GetHoaDonByIdSpecification spec,
         CancellationToken cancellationToken = default);
+
+    Task<ChiTietCoDinhResponse?> GetChiTietCoDinhAsync(int chiTietHoaDonId, CancellationToken cancellationToken = default);
+    Task<ChiTietLuyTienResponse?> GetChiTietLuyTienAsync(int chiTietHoaDonId, CancellationToken cancellationToken = default);
+    Task<ChiTietDienTichResponse?> GetChiTietDienTichAsync(int chiTietHoaDonId, CancellationToken cancellationToken = default);
+    Task<ChiTietKhungGioResponse?> GetChiTietKhungGioAsync(int chiTietHoaDonId, CancellationToken cancellationToken = default);
 }

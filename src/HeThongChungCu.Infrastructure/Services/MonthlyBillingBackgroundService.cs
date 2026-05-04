@@ -58,12 +58,10 @@ public class MonthlyBillingBackgroundService : BackgroundService
         var query = new GetLatestOpenDotThanhToanQuery(now.Month, now.Year);
         var queryResult = await mediator.Send(query, cancellationToken);
 
-        int dotId;
-
         if (queryResult.IsFailure)
         {
-            // Nếu không tìm thấy, tiến hành tạo mới
-            _logger.LogInformation("No open payment period found for {Month}/{Year}. Creating new one...", now.Month, now.Year);
+            // Nếu không tìm thấy bất kỳ đợt nào (Nháp/Phát hành), tiến hành tạo mới
+            _logger.LogInformation("No payment period found for {Month}/{Year}. Creating new one as 'TaoMoi'...", now.Month, now.Year);
             var createResult = await mediator.Send(new CreateDotThanhToanCommand
             {
                 Thang = now.Month,
@@ -74,19 +72,26 @@ public class MonthlyBillingBackgroundService : BackgroundService
             {
                 _logger.LogWarning("Failed to create payment period: {Error}",
                     string.Join(", ", createResult.Errors.Select(e => e.Description)));
-                return;
             }
-            dotId = createResult.Value.Id;
-        }
-        else
-        {
-            dotId = queryResult.Value.Id;
+
+            // Dừng tại đây, vì đợt mới tạo ở trạng thái 'TaoMoi', chưa được duyệt để lập hóa đơn
+            return;
         }
 
-        // 2. Chạy lệnh lập hóa đơn dự thảo
+        var dot = queryResult.Value;
+
+        // 2. Chỉ lập hóa đơn nếu đợt thanh toán đã được DUYỆT
+        if (dot.TrangThaiDotThanhToanId != TrangThaiDotThanhToan.DaDuyet.Value)
+        {
+            _logger.LogInformation("Payment period {TenDot} found but is not 'DaDuyet' (Status: {Status}). Skipping invoice generation.",
+                dot.TenDot, dot.TrangThaiDotThanhToanTen);
+            return;
+        }
+
+        // 3. Chạy lệnh lập hóa đơn dự thảo
         var command = new LapHoaDonDuThaoCommand
         {
-            DotThanhToanId = dotId
+            DotThanhToanId = dot.Id
         };
 
         var result = await mediator.Send(command, cancellationToken);

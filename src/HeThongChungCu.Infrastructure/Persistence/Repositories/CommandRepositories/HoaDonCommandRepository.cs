@@ -1,5 +1,6 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
@@ -64,5 +65,40 @@ public class HoaDonCommandRepository : IHoaDonCommandRepository
             .ToListAsync(cancellationToken);
             
         return ids.ToHashSet();
+    }
+
+    public async Task<bool> AnyByDotThanhToanAsync(int dotId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.HoaDons.AnyAsync(x => x.DotThanhToanId == dotId, cancellationToken);
+    }
+
+    public async Task<ILookup<int, HoaDon>> GetOverdueByCanHoIdsAsync(
+        IEnumerable<int> canHoIds,
+        DateTimeOffset dotStartDate,
+        CancellationToken cancellationToken = default)
+    {
+        var today = DateTimeOffset.Now;
+        var overdueStatuses = new[]
+        {
+            TrangThaiHoaDon.ChuaThanhToan.Value,
+            TrangThaiHoaDon.QuaHan.Value,
+            TrangThaiHoaDon.QuaHanNhe.Value,
+            TrangThaiHoaDon.QuaHanNang.Value
+        };
+
+        var list = await _dbContext.HoaDons
+            .Where(x =>
+                canHoIds.Contains(x.CanHoId) &&
+                overdueStatuses.Contains(x.TrangThaiHoaDonId.Value) &&
+                x.NgayHanThanhToan < today &&
+                (x.NgayTinhLaiCuoi == null || x.NgayTinhLaiCuoi < dotStartDate))
+            .ToListAsync(cancellationToken);
+
+        return list.ToLookup(x => x.CanHoId);
+    }
+
+    public void Update(HoaDon hoaDon)
+    {
+        _dbContext.HoaDons.Update(hoaDon);
     }
 }

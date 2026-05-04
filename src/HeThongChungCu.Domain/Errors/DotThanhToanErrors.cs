@@ -15,4 +15,8 @@ public static class DotThanhToanErrors
     public static Error NotFoundById(int id) => new(
         "DotThanhToan.NotFound",
         $"Không tìm thấy đợt thanh toán với ID '{id}'.");
+
+    public static Error NotFoundByIds(List<int> ids) => new(
+        "DotThanhToan.NotFound",
+        $"Không tìm thấy đợt thanh toán với ID '{string.Join(", ", ids)}'.");
 }

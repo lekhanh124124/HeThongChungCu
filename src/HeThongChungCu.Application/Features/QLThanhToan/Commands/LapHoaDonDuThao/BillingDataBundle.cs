@@ -9,5 +9,7 @@ public record BillingDataBundle(
     ILookup<int, QuanHeCuTru> ResidencyRelations,
     ILookup<int, ChiSoTieuThu> ConsumptionRecords,
     ILookup<int, DangKyDichVu> Subscriptions,
-    HashSet<int> ExistingInvoiceCanHoIds
+    HashSet<int> ExistingInvoiceCanHoIds,
+    ILookup<int, HoaDon> OverdueInvoices,
+    BangGia? LateInterestBangGia
 );

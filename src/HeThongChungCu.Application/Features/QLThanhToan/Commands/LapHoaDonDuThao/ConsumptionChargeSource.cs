@@ -15,6 +15,8 @@ public class ConsumptionChargeSource : IChargeSource
         _chiSoRepository = chiSoRepository;
     }
 
+    public List<(HoaDon HoaDon, int ChiSoId)> ConsumptionsToLink { get; } = [];
+
     public bool AttachCharges(HoaDon hoaDon, Domain.Entities.CanHo canHo, BillingDataBundle data)
     {
         bool hasAdded = false;
@@ -26,11 +28,7 @@ public class ConsumptionChargeSource : IChargeSource
                 if (bg != null)
                 {
                     _billingService.AttachConsumptionDetail(hoaDon, record, bg);
-
-                    // Note: Cập nhật trạng thái đã thanh toán ngay tại đây
-                    record.MarkAsBilled(hoaDon.Id);
-                    _chiSoRepository.Update(record);
-
+                    ConsumptionsToLink.Add((hoaDon, record.Id));
                     hasAdded = true;
                 }
             }

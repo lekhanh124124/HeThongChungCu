@@ -16,7 +16,8 @@ public class GetChiSoByIdQueryHandler : IQueryHandler<GetChiSoByIdQuery, ChiSoDe
 
     public async Task<Result<ChiSoDetailResponse>> Handle(GetChiSoByIdQuery request, CancellationToken cancellationToken)
     {
-        var result = await _repository.GetByIdAsync(request.Id, cancellationToken);
+        var spec = new GetChiSoByIdSpecification(request.Id);
+        var result = await _repository.GetByIdAsync(spec, cancellationToken);
 
         if (result == null)
         {
