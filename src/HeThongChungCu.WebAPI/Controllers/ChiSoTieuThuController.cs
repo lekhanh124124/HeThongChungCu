@@ -86,7 +86,7 @@ public class ChiSoTieuThuController : ApiControllerBase
     /// <summary>
     /// Xác nhận hàng loạt chỉ số để sẵn sàng lập hóa đơn
     /// </summary>
-    [HttpPost("xac-nhan")]
+    [HttpPut("xac-nhan")]
     public async Task<IActionResult> Confirm([FromBody] ConfirmChiSoBatchCommand command)
     {
         var result = await _sender.Send(command);

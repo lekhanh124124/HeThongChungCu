@@ -58,6 +58,10 @@ public class DotThanhToan : AggregateRoot
 
     public void MarkAsApproved()
     {
+        if (TrangThaiDotThanhToanId != TrangThaiDotThanhToan.TaoMoi)
+            throw new BusinessException("Chỉ có thể duyệt đợt thanh toán ở trạng thái Tạo mới.");
+
         TrangThaiDotThanhToanId = TrangThaiDotThanhToan.DaDuyet;
     }
 }
+

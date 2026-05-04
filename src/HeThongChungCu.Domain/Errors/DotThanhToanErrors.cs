@@ -19,4 +19,8 @@ public static class DotThanhToanErrors
     public static Error NotFoundByIds(List<int> ids) => new(
         "DotThanhToan.NotFound",
         $"Không tìm thấy đợt thanh toán với ID '{string.Join(", ", ids)}'.");
-}
+
+    public static readonly Error CannotApprove = new(
+        "DotThanhToan.CannotApprove",
+        "Chỉ có thể duyệt đợt thanh toán ở trạng thái Tạo mới.");
+}

@@ -6,6 +6,7 @@ using HeThongChungCu.Application.Features.QLThanhToan.Commands.CreateDotThanhToa
 using HeThongChungCu.Application.Features.QLThanhToan.Commands.UpdateDotThanhToan;
 using HeThongChungCu.Application.Features.QLThanhToan.Commands.DeleteDotThanhToan;
 using HeThongChungCu.Application.Features.QLThanhToan.Commands.LapHoaDonDuThao;
+using HeThongChungCu.Application.Features.QLThanhToan.Commands.DuyetDotThanhToan;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -56,7 +57,7 @@ public class DotThanhToanController : ApiControllerBase
     /// <summary>
     /// Tạo mới một đợt thanh toán (tháng/năm)
     /// </summary>
-    [HttpPost("create")]
+    [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<DotThanhToanDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] CreateDotThanhToanCommand command, CancellationToken cancellationToken)
@@ -67,7 +68,7 @@ public class DotThanhToanController : ApiControllerBase
     /// <summary>
     /// Cập nhật thông tin đợt thanh toán (chỉ khi ở trạng thái Tạo mới)
     /// </summary>
-    [HttpPut("update")]
+    [HttpPut]
     [ProducesResponseType(typeof(ApiResponse<DotThanhToanDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Update([FromBody] UpdateDotThanhToanCommand command, CancellationToken cancellationToken)
@@ -78,10 +79,24 @@ public class DotThanhToanController : ApiControllerBase
     /// <summary>
     /// Xóa các đợt thanh toán (chỉ khi ở trạng thái Tạo mới)
     /// </summary>
-    [HttpDelete("delete")]
+    [HttpDelete]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Delete([FromBody] DeleteDotThanhToanCommand command, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(command, cancellationToken));
+    }
+
+    /// <summary>
+    /// Duyệt các đợt thanh toán (chỉ khi ở trạng thái Tạo mới)
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Sau khi kiểm tra các hóa đơn dự thảo, quản trị viên duyệt đợt thanh toán để chuẩn bị phát hành.
+    /// </remarks>
+    [HttpPut("duyet")]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Duyet([FromBody] DuyetDotThanhToanCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
     }
@@ -103,4 +118,6 @@ public class DotThanhToanController : ApiControllerBase
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
     }
+
+
 }
