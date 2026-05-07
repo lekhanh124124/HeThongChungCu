@@ -4,6 +4,7 @@ using HeThongChungCu.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260507042430_UpdateNhanSuBaoTriSchema")]
+    partial class UpdateNhanSuBaoTriSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1020,7 +1023,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("NgayKetThuc")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int>("TanSuatBaoTriId")
+                    b.Property<int>("TanSuat")
                         .HasColumnType("int");
 
                     b.Property<int>("ThietBiId")
@@ -1115,6 +1118,9 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<int>("LoaiNhanSuId")
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset?>("ModifiedAt")
                         .HasColumnType("datetimeoffset");
@@ -1455,7 +1461,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Property<int>("ThietBiId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TrangThaiPhieuBaoTriId")
+                    b.Property<int>("TrangThai")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -1473,7 +1479,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ThietBiId");
 
-                    b.HasIndex("TrangThaiPhieuBaoTriId");
+                    b.HasIndex("TrangThai");
 
                     b.ToTable("PhieuBaoTri", (string)null);
                 });
@@ -1486,8 +1492,9 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AnhMinhHoaId")
-                        .HasColumnType("int");
+                    b.Property<string>("AnhMinhHoaUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
@@ -1523,8 +1530,6 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AnhMinhHoaId");
 
                     b.HasIndex("PhieuBaoTriId");
 
@@ -2014,7 +2019,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("TrangThaiThietBiId")
+                    b.Property<int>("TrangThai")
                         .HasColumnType("int");
 
                     b.Property<string>("ViTri")
@@ -2029,7 +2034,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TenThietBi");
 
-                    b.HasIndex("TrangThaiThietBiId");
+                    b.HasIndex("TrangThai");
 
                     b.ToTable("ThietBi", (string)null);
                 });
@@ -3397,18 +3402,11 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.PhieuBaoTriChecklist", b =>
                 {
-                    b.HasOne("HeThongChungCu.Domain.Entities.TepTaiLieu", "AnhMinhHoa")
-                        .WithMany()
-                        .HasForeignKey("AnhMinhHoaId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("HeThongChungCu.Domain.Entities.PhieuBaoTri", null)
                         .WithMany("Checklists")
                         .HasForeignKey("PhieuBaoTriId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("AnhMinhHoa");
                 });
 
             modelBuilder.Entity("HeThongChungCu.Domain.Entities.PhieuBaoTriVatTu", b =>

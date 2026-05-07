@@ -57,6 +57,15 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<GiaoDichThanhToan> GiaoDichThanhToans => Set<GiaoDichThanhToan>();
     public DbSet<PhienThanhToan> PhienThanhToans => Set<PhienThanhToan>();
     public DbSet<NhanVien> NhanViens => Set<NhanVien>();
+    
+    // Phase 4 - Bảo trì hạ tầng
+    public DbSet<ThietBi> ThietBis => Set<ThietBi>();
+    public DbSet<HangMucBaoTri> HangMucBaoTris => Set<HangMucBaoTri>();
+    public DbSet<LichBaoTri> LichBaoTris => Set<LichBaoTri>();
+    public DbSet<PhieuBaoTri> PhieuBaoTris => Set<PhieuBaoTri>();
+    public DbSet<PhieuBaoTriChecklist> PhieuBaoTriChecklists => Set<PhieuBaoTriChecklist>();
+    public DbSet<PhieuBaoTriVatTu> PhieuBaoTriVatTus => Set<PhieuBaoTriVatTu>();
+    public DbSet<NhanSuBaoTri> NhanSuBaoTris => Set<NhanSuBaoTri>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -678,4 +678,59 @@ public class CatalogController : ApiControllerBase
 
         return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cung cấp các trạng thái của thiết bị hạ tầng (Hoạt động tốt, Cần bảo trì, Đang bảo trì, Đang hỏng, Ngừng sử dụng).
+    /// </remarks>
+    [HttpPost("trang-thai-thiet-bi-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTrangThaiThietBiForSelector()
+    {
+        var result = TrangThaiThietBi.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cung cấp các trạng thái của phiếu bảo trì hạ tầng (Chờ giao việc, Đã giao việc, Đang thực hiện, Chờ nghiệm thu, Đã hoàn thành, Đã hủy).
+    /// </remarks>
+    [HttpPost("trang-thai-phieu-bao-tri-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTrangThaiPhieuBaoTriForSelector()
+    {
+        var result = TrangThaiPhieuBaoTri.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cung cấp tần suất bảo trì định kỳ cho lịch bảo trì (Hàng ngày, Hàng tuần, Hàng tháng, Hàng quý, Sáu tháng, Hàng năm).
+    /// </remarks>
+    [HttpPost("tan-suat-bao-tri-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTanSuatBaoTriForSelector()
+    {
+        var result = TanSuatBaoTri.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
 }
+

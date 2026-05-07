@@ -4,6 +4,7 @@ using HeThongChungCu.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260507060543_UpdateChecklistAnhMinhHoaFK")]
+    partial class UpdateChecklistAnhMinhHoaFK
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1020,7 +1023,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("NgayKetThuc")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int>("TanSuatBaoTriId")
+                    b.Property<int>("TanSuat")
                         .HasColumnType("int");
 
                     b.Property<int>("ThietBiId")
@@ -1455,7 +1458,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                     b.Property<int>("ThietBiId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TrangThaiPhieuBaoTriId")
+                    b.Property<int>("TrangThai")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -1473,7 +1476,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ThietBiId");
 
-                    b.HasIndex("TrangThaiPhieuBaoTriId");
+                    b.HasIndex("TrangThai");
 
                     b.ToTable("PhieuBaoTri", (string)null);
                 });
@@ -2014,7 +2017,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("TrangThaiThietBiId")
+                    b.Property<int>("TrangThai")
                         .HasColumnType("int");
 
                     b.Property<string>("ViTri")
@@ -2029,7 +2032,7 @@ namespace HeThongChungCu.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("TenThietBi");
 
-                    b.HasIndex("TrangThaiThietBiId");
+                    b.HasIndex("TrangThai");
 
                     b.ToTable("ThietBi", (string)null);
                 });

@@ -103,6 +103,15 @@ public static class DependencyInjection
         services.AddScoped<IDotThanhToanCommandRepository, DotThanhToanCommandRepository>();
         services.AddScoped<IDotThanhToanQueryRepository, DotThanhToanQueryRepository>();
         services.AddScoped<IPhienThanhToanCommandRepository, PhienThanhToanCommandRepository>();
+        
+        // Phase 4 - Bảo trì hạ tầng
+        services.AddScoped<IThietBiCommandRepository, ThietBiCommandRepository>();
+        services.AddScoped<IThietBiQueryRepository, ThietBiQueryRepository>();
+        services.AddScoped<ILichBaoTriQueryRepository, LichBaoTriQueryRepository>();
+        services.AddScoped<IHangMucBaoTriQueryRepository, HangMucBaoTriQueryRepository>();
+        services.AddScoped<IPhieuBaoTriCommandRepository, PhieuBaoTriCommandRepository>();
+        services.AddScoped<IPhieuBaoTriQueryRepository, PhieuBaoTriQueryRepository>();
+        
         return services;
     }
 }
