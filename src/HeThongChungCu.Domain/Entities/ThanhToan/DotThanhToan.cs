@@ -1,5 +1,6 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.Exceptions;
 using HeThongChungCu.Domain.ValueObjects;
 
@@ -62,6 +63,16 @@ public class DotThanhToan : AggregateRoot
             throw new BusinessException("Chỉ có thể duyệt đợt thanh toán ở trạng thái Tạo mới.");
 
         TrangThaiDotThanhToanId = TrangThaiDotThanhToan.DaDuyet;
+    }
+
+    public Result MarkAsClosed()
+    {
+        if (TrangThaiDotThanhToanId != TrangThaiDotThanhToan.DaPhatHanh)
+            return Result.Failure(DotThanhToanErrors.CannotClose);
+
+        TrangThaiDotThanhToanId = TrangThaiDotThanhToan.DaDong;
+
+        return Result.Success();
     }
 }
 

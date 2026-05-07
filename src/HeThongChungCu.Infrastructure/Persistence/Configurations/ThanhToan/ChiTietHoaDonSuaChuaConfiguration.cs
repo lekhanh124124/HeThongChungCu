@@ -8,7 +8,8 @@ public class ChiTietHoaDonSuaChuaConfiguration : IEntityTypeConfiguration<ChiTie
 {
     public void Configure(EntityTypeBuilder<ChiTietHoaDonSuaChua> builder)
     {
-        builder.Property(x => x.YeuCauSuaChuaId);
+        builder.Property(x => x.YeuCauSuaChuaId)
+            .HasColumnName("YeuCauId");
         
         // Link to YeuCauSuaChua (Optional tracking)
         builder.HasOne<YeuCauSuaChua>()

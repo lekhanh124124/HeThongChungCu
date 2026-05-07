@@ -20,5 +20,10 @@ public interface IHoaDonCommandRepository
     /// </summary>
     Task<ILookup<int, HoaDon>> GetOverdueByCanHoIdsAsync(IEnumerable<int> canHoIds, DateTimeOffset dotStartDate, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Lấy danh sách các hóa đơn chưa thanh toán hoặc thanh toán một phần đã quá hạn thanh toán.
+    /// </summary>
+    Task<List<HoaDon>> GetPendingPastDueInvoicesAsync(DateTimeOffset referenceDate, CancellationToken cancellationToken = default);
+
     void Update(HoaDon hoaDon);
 }

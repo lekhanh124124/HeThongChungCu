@@ -8,6 +8,7 @@ using HeThongChungCu.Application.Features.QLChiSoTieuThu.DTOs;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.Queries.ExportChiSoTemplate;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.Queries.GetListChiSo;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.Queries.GetChiSoById;
+using HeThongChungCu.Application.Features.QLChiSoTieuThu.Queries.GetDichVuTieuThu;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -37,6 +38,16 @@ public class ChiSoTieuThuController : ApiControllerBase
     public async Task<IActionResult> GetList([FromBody] GetListChiSoQuery query)
     {
         var result = await _sender.Send(query);
+        return HandleResult(result);
+    }
+
+    /// <summary>
+    /// Lấy danh sách dịch vụ có sử dụng chỉ số tiêu thụ (Điện, Nước...)
+    /// </summary>
+    [HttpPost("get-list-dich-vu-tieu-thu")]
+    public async Task<IActionResult> GetDichVuTieuThu()
+    {
+        var result = await _sender.Send(new GetDichVuTieuThuQuery());
         return HandleResult(result);
     }
 

@@ -606,4 +606,76 @@ public class CatalogController : ApiControllerBase
 
         return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Trạng thái của chỉ số tiêu thụ (Nháp, Đã xác nhận, Đã khóa).
+    /// </remarks>
+    [HttpPost("trang-thai-chi-so-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTrangThaiChiSoForSelector()
+    {
+        var result = TrangThaiChiSo.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Trạng thái của đợt thanh toán (Mới tạo, Đã duyệt, Đã phát hành, Đã đóng).
+    /// </remarks>
+    [HttpPost("trang-thai-dot-thanh-toan-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTrangThaiDotThanhToanForSelector()
+    {
+        var result = TrangThaiDotThanhToan.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Trạng thái của hóa đơn (Chờ duyệt, Chưa thanh toán, Đã thanh toán, Hủy).
+    /// </remarks>
+    [HttpPost("trang-thai-hoa-don-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetTrangThaiHoaDonForSelector()
+    {
+        var result = TrangThaiHoaDon.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Loại chi tiết hóa đơn (Tiêu thụ, Dịch vụ, Sửa chữa, Thi công).
+    /// </remarks>
+    [HttpPost("loai-chi-tiet-hoa-don-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetLoaiChiTietHoaDonForSelector()
+    {
+        var result = LoaiChiTietHoaDon.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
 }

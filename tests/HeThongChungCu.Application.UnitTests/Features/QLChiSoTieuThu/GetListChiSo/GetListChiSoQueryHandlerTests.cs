@@ -23,7 +23,7 @@ public sealed class GetListChiSoQueryHandlerTests : BaseTest
     [Fact]
     public async Task Handle_Should_ReturnPagedResult()
     {
-        var query = new GetListChiSoQuery(5, 2024, 1, 1, 1, 10, "Id", true);
+        var query = new GetListChiSoQuery(Thang: 5, Nam: 2024, DichVuId: 1, TrangThaiChiSoId: 1, ToaNhaId: 1, PageNumber: 1, PageSize: 10, SortCol: "Id", IsAsc: true);
         var expected = new PagedResult<ChiSoResponse> { Items = new List<ChiSoResponse>(), PagingInfo = new PagingInfo { TotalItems = 0, PageNumber = 1, PageSize = 10 } };
         
         _repository.GetListAsync(Arg.Any<GetListChiSoSpecification>(), CancellationToken).Returns(expected);

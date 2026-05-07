@@ -80,21 +80,35 @@ public class HoaDonCommandRepository : IHoaDonCommandRepository
         var today = DateTimeOffset.Now;
         var overdueStatuses = new[]
         {
-            TrangThaiHoaDon.ChuaThanhToan.Value,
-            TrangThaiHoaDon.QuaHan.Value,
-            TrangThaiHoaDon.QuaHanNhe.Value,
-            TrangThaiHoaDon.QuaHanNang.Value
+            TrangThaiHoaDon.ChuaThanhToan,
+            TrangThaiHoaDon.ThanhToanMotPhan,
+            TrangThaiHoaDon.QuaHan,
+            TrangThaiHoaDon.QuaHanNhe,
+            TrangThaiHoaDon.QuaHanNang
         };
 
         var list = await _dbContext.HoaDons
             .Where(x =>
                 canHoIds.Contains(x.CanHoId) &&
-                overdueStatuses.Contains(x.TrangThaiHoaDonId.Value) &&
+                overdueStatuses.Contains(x.TrangThaiHoaDonId) &&
                 x.NgayHanThanhToan < today &&
                 (x.NgayTinhLaiCuoi == null || x.NgayTinhLaiCuoi < dotStartDate))
             .ToListAsync(cancellationToken);
 
         return list.ToLookup(x => x.CanHoId);
+    }
+
+    public async Task<List<HoaDon>> GetPendingPastDueInvoicesAsync(DateTimeOffset referenceDate, CancellationToken cancellationToken = default)
+    {
+        var pendingStatuses = new[]
+        {
+            TrangThaiHoaDon.ChuaThanhToan,
+            TrangThaiHoaDon.ThanhToanMotPhan
+        };
+
+        return await _dbContext.HoaDons
+            .Where(x => pendingStatuses.Contains(x.TrangThaiHoaDonId) && x.NgayHanThanhToan < referenceDate)
+            .ToListAsync(cancellationToken);
     }
 
     public void Update(HoaDon hoaDon)

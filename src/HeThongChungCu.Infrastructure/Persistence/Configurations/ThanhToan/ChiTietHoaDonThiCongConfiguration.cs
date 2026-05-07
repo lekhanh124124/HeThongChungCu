@@ -9,7 +9,8 @@ public class ChiTietHoaDonThiCongConfiguration : IEntityTypeConfiguration<ChiTie
 {
     public void Configure(EntityTypeBuilder<ChiTietHoaDonThiCong> builder)
     {
-        builder.Property(x => x.YeuCauThiCongId);
+        builder.Property(x => x.YeuCauThiCongId)
+            .HasColumnName("YeuCauId");
 
         builder.Property(x => x.LoaiChiPhiThiCongId)
             .HasConversion(

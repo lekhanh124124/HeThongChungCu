@@ -23,4 +23,8 @@ public static class DotThanhToanErrors
     public static readonly Error CannotApprove = new(
         "DotThanhToan.CannotApprove",
         "Chỉ có thể duyệt đợt thanh toán ở trạng thái Tạo mới.");
+
+    public static readonly Error CannotClose = new(
+        "DotThanhToan.CannotClose",
+        "Chỉ có thể đóng đợt thanh toán đã phát hành.");
 }

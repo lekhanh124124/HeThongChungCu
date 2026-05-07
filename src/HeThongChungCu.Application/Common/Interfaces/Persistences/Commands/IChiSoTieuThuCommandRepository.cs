@@ -13,6 +13,7 @@ public interface IChiSoTieuThuCommandRepository
     Task<List<ChiSoTieuThu>> GetLockedUnbilledByCanHoAsync(int canHoId, KyThanhToan ky, CancellationToken cancellationToken = default);
     Task<ChiSoTieuThu?> GetLatestByCanHoAndDichVuAsync(int canHoId, int dichVuId, CancellationToken cancellationToken = default);
     Task<List<ChiSoTieuThu>> GetByPeriodAsync(int thang, int nam, CancellationToken cancellationToken = default);
+    Task<List<ChiSoTieuThu>> GetDraftByPeriodAsync(int thang, int nam, int? dichVuId = null, CancellationToken cancellationToken = default);
     Task<List<ChiSoTieuThu>> GetByMaTraCuusAsync(IEnumerable<string> codes, CancellationToken cancellationToken = default);
     void Update(ChiSoTieuThu chiSo);
     void Remove(ChiSoTieuThu chiSo);

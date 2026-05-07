@@ -32,9 +32,9 @@ public class GiaoDichThanhToanConfiguration : IEntityTypeConfiguration<GiaoDichT
                 v => PhuongThucThanhToan.FromValue(v, null)!)
             .IsRequired();
 
-        builder.HasOne<HoaDon>()
+        builder.HasOne<ChiTietHoaDon>()
             .WithMany()
-            .HasForeignKey(x => x.HoaDonId)
+            .HasForeignKey(x => x.ChiTietHoaDonId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

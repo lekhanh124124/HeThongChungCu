@@ -7,6 +7,7 @@ using HeThongChungCu.Application.Features.QLThanhToan.Commands.UpdateDotThanhToa
 using HeThongChungCu.Application.Features.QLThanhToan.Commands.DeleteDotThanhToan;
 using HeThongChungCu.Application.Features.QLThanhToan.Commands.LapHoaDonDuThao;
 using HeThongChungCu.Application.Features.QLThanhToan.Commands.DuyetDotThanhToan;
+using HeThongChungCu.Application.Features.QLThanhToan.Commands.DongDotThanhToan;
 using HeThongChungCu.WebAPI.Common.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -119,5 +120,18 @@ public class DotThanhToanController : ApiControllerBase
         return HandleResult(await _sender.Send(command, cancellationToken));
     }
 
-
+    /// <summary>
+    /// Đóng đợt thanh toán (chuyển sang trạng thái Đã đóng)
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Đóng kỳ để kết thúc chu kỳ thanh toán và khóa dữ liệu của đợt thanh toán đó.
+    /// - **Hệ thống xử lý**: Cập nhật trạng thái đợt thanh toán sang `DaDong`.
+    /// </remarks>
+    [HttpPut("dong")]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Dong([FromBody] DongDotThanhToanCommand command, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(command, cancellationToken));
+    }
 }

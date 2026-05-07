@@ -181,12 +181,15 @@ public class HoaDonQueryRepository : IHoaDonQueryRepository
 
         var sql = """
             SELECT ct.Id, ct.TenMucPhi, ct.ChiSoCu, ct.ChiSoMoi, ct.ThanhTien,
-                   (ct.ChiSoMoi - ct.ChiSoCu) AS SoLuongTieuThu
+                   (ct.ChiSoMoi - ct.ChiSoCu) AS SoLuongTieuThu,
+                   tl.FileUrl AS AnhDongHoUrl
             FROM ChiTietHoaDon ct
             INNER JOIN HoaDon hd ON ct.HoaDonId = hd.Id
             INNER JOIN BangGia bg ON bg.DichVuId = ct.DichVuId 
                 AND hd.NgayLap >= bg.NgayApDung 
                 AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc)
+            LEFT JOIN ChiSoTieuThu cs ON cs.HoaDonId = hd.Id AND cs.DichVuId = ct.DichVuId
+            LEFT JOIN TepTaiLieu tl ON cs.AnhDongHoId = tl.Id
             WHERE ct.Id = @Id AND bg.LoaiDinhGiaId = 2;
 
             SELECT bglt.TuMuc, bglt.DenMuc, bglt.DonGia

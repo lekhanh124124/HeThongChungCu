@@ -55,6 +55,7 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<ChiTietHoaDon> ChiTietHoaDons => Set<ChiTietHoaDon>();
     public DbSet<DotThanhToan> DotThanhToan => Set<DotThanhToan>();
     public DbSet<GiaoDichThanhToan> GiaoDichThanhToans => Set<GiaoDichThanhToan>();
+    public DbSet<PhienThanhToan> PhienThanhToans => Set<PhienThanhToan>();
     public DbSet<NhanVien> NhanViens => Set<NhanVien>();
 
     protected override void OnModelCreating(ModelBuilder builder)

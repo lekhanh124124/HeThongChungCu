@@ -119,6 +119,35 @@ public class HoaDon : AggregateRoot
         TrangThaiHoaDonId = status;
     }
 
+    public void UpdateStatusByPaidAmount(decimal totalPaidAmount)
+    {
+        if (totalPaidAmount <= 0)
+        {
+            TrangThaiHoaDonId = TrangThaiHoaDon.ChuaThanhToan;
+        }
+        else if (totalPaidAmount < TongTien)
+        {
+            TrangThaiHoaDonId = TrangThaiHoaDon.ThanhToanMotPhan;
+        }
+        else
+        {
+            TrangThaiHoaDonId = TrangThaiHoaDon.DaThanhToan;
+        }
+    }
+
+    public Result Cancel(string? reason = null)
+    {
+        if (TrangThaiHoaDonId != TrangThaiHoaDon.ChoDuyet && TrangThaiHoaDonId != TrangThaiHoaDon.ChuaThanhToan)
+            return Result.Failure(HoaDonErrors.CannotCancelInvoiceInCurrentStatus);
+
+        TrangThaiHoaDonId = TrangThaiHoaDon.DaHuy;
+        GhiChu = string.IsNullOrWhiteSpace(GhiChu) 
+            ? $"Lý do hủy: {reason}" 
+            : $"{GhiChu} | Lý do hủy: {reason}";
+
+        return Result.Success();
+    }
+
     public Result PhatHanh()
     {
         if (TrangThaiHoaDonId != TrangThaiHoaDon.ChoDuyet)

@@ -1,8 +1,8 @@
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.DTOs;
-using HeThongChungCu.Application.Features.QLDichVu.Queries.GetDichVuById;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
@@ -12,12 +12,12 @@ namespace HeThongChungCu.Application.Features.QLChiSoTieuThu.Queries.ExportChiSo
 public class ExportChiSoTemplateQueryHandler : IQueryHandler<ExportChiSoTemplateQuery, ExportFileResponse>
 {
     private readonly IChiSoTieuThuQueryRepository _queryRepository;
-    private readonly IDichVuQueryRepository _dichVuRepository;
+    private readonly IDichVuCommandRepository _dichVuRepository;
     private readonly IExcelService _excelService;
 
     public ExportChiSoTemplateQueryHandler(
         IChiSoTieuThuQueryRepository queryRepository, 
-        IDichVuQueryRepository dichVuRepository,
+        IDichVuCommandRepository dichVuRepository,
         IExcelService excelService)
     {
         _queryRepository = queryRepository;
@@ -28,26 +28,26 @@ public class ExportChiSoTemplateQueryHandler : IQueryHandler<ExportChiSoTemplate
     public async Task<Result<ExportFileResponse>> Handle(ExportChiSoTemplateQuery request, CancellationToken cancellationToken)
     {
         // 1. Validate dịch vụ có tồn tại và đang hoạt động
-        var dvSpec = new GetDichVuByIdSpecification(request.DichVuId);
-        var service = await _dichVuRepository.GetByIdAsync(dvSpec, cancellationToken);
+        var service = await _dichVuRepository.GetByIdWithBangGiasAsync(request.DichVuId, cancellationToken);
 
         if (service == null)
         {
             return Result.Failure<ExportFileResponse>(DichVuErrors.NotFoundById(request.DichVuId));
         }
 
-        if (service.TrangThaiDichVuId != TrangThaiDichVu.HoatDong.Value && 
-            service.TrangThaiDichVuId != TrangThaiDichVu.CanhBao.Value)
+        if (service.TrangThaiId != TrangThaiDichVu.HoatDong && 
+            service.TrangThaiId != TrangThaiDichVu.CanhBao)
         {
             return Result.Failure<ExportFileResponse>(DichVuErrors.NotActive(service.TenDichVu));
         }
 
         // 2 & 3. Validate bảng giá định kỳ và loại Lũy tiến (hoặc các loại cần ghi chỉ số)
         // Lưu ý: Dịch vụ ghi chỉ số tiêu thụ thường dùng bảng giá Lũy tiến (Electricity/Water)
-        if (service.BangGia == null || !service.BangGia.IsDinhKy || service.BangGia.LoaiDinhGiaCode != LoaiDinhGia.LuyTien.Code)
+        var activePrice = service.GetCurrentPrice(DateTimeOffset.Now);
+        if (activePrice == null || !activePrice.IsDinhKy || activePrice.LoaiDinhGiaId != LoaiDinhGia.LuyTien)
         {
             return Result.Failure<ExportFileResponse>(new Error("Export.InvalidServiceType", 
-                $"Dịch vụ '{service.TenDichVu}' không phải là dịch vụ tiêu thụ (không có bảng giá lũy tiến định kỳ)."));
+                $"Dịch vụ '{service.TenDichVu}' không phải là dịch vụ tiêu thụ (không có bảng giá lũy tiến định kỳ đang áp dụng)."));
         }
 
         var spec = new ExportChiSoTemplateSpecification(request.DichVuId, request.ToaNhaId, request.TangId, request.Thang, request.Nam);

@@ -22,7 +22,7 @@ public sealed class GetChiSoByIdQueryHandlerTests : BaseTest
     [Fact]
     public async Task Handle_Should_ReturnFailure_When_NotFound()
     {
-        _repository.GetByIdAsync(1, CancellationToken).Returns((ChiSoDetailResponse?)null);
+        _repository.GetByIdAsync(Arg.Any<GetChiSoByIdSpecification>(), CancellationToken).Returns((ChiSoDetailResponse?)null);
         var query = new GetChiSoByIdQuery(1);
 
         var result = await _handler.Handle(query, CancellationToken);
@@ -35,7 +35,7 @@ public sealed class GetChiSoByIdQueryHandlerTests : BaseTest
     public async Task Handle_Should_ReturnSuccess_When_Found()
     {
         var expected = new ChiSoDetailResponse { Id = 1 };
-        _repository.GetByIdAsync(1, CancellationToken).Returns(expected);
+        _repository.GetByIdAsync(Arg.Any<GetChiSoByIdSpecification>(), CancellationToken).Returns(expected);
         var query = new GetChiSoByIdQuery(1);
 
         var result = await _handler.Handle(query, CancellationToken);

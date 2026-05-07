@@ -10,7 +10,8 @@ public class GetListChiSoSpecification : BaseSpecification
     };
 
     public GetListChiSoSpecification(string? sortCol, bool? isAsc, int? pageIndex, int? pageSize,
-        int? thang, int? nam, int? dichVuId, int? trangThaiChiSoId) 
+        int? thang, int? nam, int? dichVuId, int? trangThaiChiSoId, 
+        int? toaNhaId, int? tangId, int? canHoId) 
         : base(sortCol, isAsc, pageIndex, pageSize)
     {
         AddFilter("IsDeleted", FilterOperator.Equal, false);
@@ -19,5 +20,9 @@ public class GetListChiSoSpecification : BaseSpecification
         if (nam.HasValue) AddFilter("Nam", FilterOperator.Equal, nam.Value);
         if (dichVuId.HasValue) AddFilter("DichVuId", FilterOperator.Equal, dichVuId.Value);
         if (trangThaiChiSoId.HasValue) AddFilter("TrangThaiChiSoId", FilterOperator.Equal, trangThaiChiSoId.Value);
+        
+        if (toaNhaId.HasValue) AddFilter("ToaNhaId", FilterOperator.Equal, toaNhaId.Value);
+        if (tangId.HasValue) AddFilter("TangId", FilterOperator.Equal, tangId.Value);
+        if (canHoId.HasValue) AddFilter("CanHoId", FilterOperator.Equal, canHoId.Value);
     }
 }

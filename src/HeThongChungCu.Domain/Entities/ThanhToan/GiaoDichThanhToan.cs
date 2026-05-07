@@ -6,7 +6,7 @@ namespace HeThongChungCu.Domain.Entities;
 
 public class GiaoDichThanhToan : AggregateRoot
 {
-    public int HoaDonId { get; private set; }
+    public int ChiTietHoaDonId { get; private set; }
     public DateTimeOffset NgayGiaoDich { get; private set; }
     public decimal SoTien { get; private set; }
     public PhuongThucThanhToan PhuongThucThanhToanId { get; private set; } = null!;
@@ -16,14 +16,14 @@ public class GiaoDichThanhToan : AggregateRoot
     private GiaoDichThanhToan() { } // EF Core
 
     private GiaoDichThanhToan(
-        int hoaDonId,
+        int chiTietHoaDonId,
         DateTimeOffset ngayGiaoDich,
         decimal soTien,
         PhuongThucThanhToan phuongThucThanhToanId,
         string? maGiaoDich,
         string? ghiChu)
     {
-        HoaDonId = hoaDonId;
+        ChiTietHoaDonId = chiTietHoaDonId;
         NgayGiaoDich = ngayGiaoDich;
         SoTien = soTien;
         PhuongThucThanhToanId = phuongThucThanhToanId;
@@ -32,7 +32,7 @@ public class GiaoDichThanhToan : AggregateRoot
     }
 
     public static Result<GiaoDichThanhToan> RecordTransaction(
-        int hoaDonId,
+        int chiTietHoaDonId,
         decimal soTien,
         PhuongThucThanhToan phuongThucThanhToanId,
         string? maGiaoDich = null,
@@ -42,7 +42,7 @@ public class GiaoDichThanhToan : AggregateRoot
             return Result.Failure<GiaoDichThanhToan>(GiaoDichErrors.InvalidAmount);
 
         var transaction = new GiaoDichThanhToan(
-            hoaDonId,
+            chiTietHoaDonId,
             DateTimeOffset.Now,
             soTien,
             phuongThucThanhToanId,

@@ -74,6 +74,19 @@ public class ChiSoTieuThuCommandRepository : IChiSoTieuThuCommandRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<ChiSoTieuThu>> GetDraftByPeriodAsync(int thang, int nam, int? dichVuId = null, CancellationToken cancellationToken = default)
+    {
+        var query = _dbContext.ChiSoTieuThus
+            .Where(x => x.Thang == thang && x.Nam == nam && x.TrangThaiChiSoId == TrangThaiChiSo.Draft);
+
+        if (dichVuId.HasValue)
+        {
+            query = query.Where(x => x.DichVuId == dichVuId.Value);
+        }
+
+        return await query.ToListAsync(cancellationToken);
+    }
+
     public async Task<List<ChiSoTieuThu>> GetByMaTraCuusAsync(IEnumerable<string> codes, CancellationToken cancellationToken = default)
     {
         return await _dbContext.ChiSoTieuThus

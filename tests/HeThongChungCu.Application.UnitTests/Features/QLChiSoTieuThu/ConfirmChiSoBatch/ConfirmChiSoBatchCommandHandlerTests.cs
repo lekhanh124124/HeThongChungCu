@@ -12,15 +12,17 @@ namespace HeThongChungCu.Application.UnitTests.Features.QLChiSoTieuThu.ConfirmCh
 public sealed class ConfirmChiSoBatchCommandHandlerTests : BaseTest
 {
     private readonly IChiSoTieuThuCommandRepository _chiSoRepository;
+    private readonly IDichVuCommandRepository _dichVuRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ConfirmChiSoBatchCommandHandler _handler;
 
     public ConfirmChiSoBatchCommandHandlerTests()
     {
         _chiSoRepository = CreateMock<IChiSoTieuThuCommandRepository>();
+        _dichVuRepository = CreateMock<IDichVuCommandRepository>();
         _unitOfWork = CreateMock<IUnitOfWork>();
 
-        _handler = new ConfirmChiSoBatchCommandHandler(_chiSoRepository, _unitOfWork);
+        _handler = new ConfirmChiSoBatchCommandHandler(_chiSoRepository, _dichVuRepository, _unitOfWork);
     }
 
     [Fact]
@@ -30,7 +32,7 @@ public sealed class ConfirmChiSoBatchCommandHandlerTests : BaseTest
         var chiSo = ChiSoTieuThu.Create(1, 1, 0, 10, 5, 2024, DateTimeOffset.Now);
         _chiSoRepository.GetByIdAsync(1, CancellationToken).Returns(chiSo);
         
-        var command = new ConfirmChiSoBatchCommand(new List<int> { 1 });
+        var command = new ConfirmChiSoBatchCommand(5, 2024, 1);
 
         // Act
         var result = await _handler.Handle(command, CancellationToken);
@@ -47,7 +49,7 @@ public sealed class ConfirmChiSoBatchCommandHandlerTests : BaseTest
     {
         // Arrange
         _chiSoRepository.GetByIdAsync(1, CancellationToken).Returns((ChiSoTieuThu?)null);
-        var command = new ConfirmChiSoBatchCommand(new List<int> { 1 });
+        var command = new ConfirmChiSoBatchCommand(5, 2024, 1);
 
         // Act
         var result = await _handler.Handle(command, CancellationToken);
@@ -68,7 +70,7 @@ public sealed class ConfirmChiSoBatchCommandHandlerTests : BaseTest
         chiSo.MarkAsBilled(1); // Locked state
         
         _chiSoRepository.GetByIdAsync(1, CancellationToken).Returns(chiSo);
-        var command = new ConfirmChiSoBatchCommand(new List<int> { 1 });
+        var command = new ConfirmChiSoBatchCommand(5, 2024, 1);
 
         // Act
         var result = await _handler.Handle(command, CancellationToken);

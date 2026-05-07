@@ -118,7 +118,10 @@ public class ChiSoTieuThuQueryRepository : IChiSoTieuThuQueryRepository
             { "TenCanHo", "ch.TenCanHo" },
             { "TenDichVu", "dv.TenDichVu" },
             { "NgayGhiNhan", "cs.NgayGhiNhan" },
-            { "IsDeleted", "cs.IsDeleted" }
+            { "IsDeleted", "cs.IsDeleted" },
+            { "CanHoId", "cs.CanHoId" },
+            { "ToaNhaId", "tn.Id" },
+            { "TangId", "t.Id" }
         };
 
         var parameters = new DynamicParameters();
@@ -129,7 +132,9 @@ public class ChiSoTieuThuQueryRepository : IChiSoTieuThuQueryRepository
         var sqlJoin = DapperQueryBuilder.BuildJoin(spec, new[]
         {
             new JoinDefinition("CanHo", "ch", "cs.CanHoId = ch.Id"),
-            new JoinDefinition("DichVu", "dv", "cs.DichVuId = dv.Id")
+            new JoinDefinition("DichVu", "dv", "cs.DichVuId = dv.Id"),
+            new JoinDefinition("Tang", "t", "ch.TangId = t.Id"),
+            new JoinDefinition("ToaNha", "tn", "t.ToaNhaId = tn.Id")
         }, parameters);
 
         var sql = $@"

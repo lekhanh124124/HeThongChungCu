@@ -24,7 +24,10 @@ public class GetListChiSoQueryHandler : IQueryHandler<GetListChiSoQuery, PagedRe
             request.Thang,
             request.Nam,
             request.DichVuId,
-            request.TrangThaiChiSoId);
+            request.TrangThaiChiSoId,
+            request.ToaNhaId,
+            request.TangId,
+            request.CanHoId);
 
         var result = await _repository.GetListAsync(spec, cancellationToken);
         return Result.Success(result);

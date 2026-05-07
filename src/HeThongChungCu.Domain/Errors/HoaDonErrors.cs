@@ -55,4 +55,8 @@ public static class HoaDonErrors
     public static readonly Error InvalidAmount = new(
         "HoaDon.InvalidAmount",
         "Chi phí thực tế phải lớn hơn 0 mới có thể tạo hóa đơn.");
+
+    public static readonly Error CannotCancelInvoiceInCurrentStatus = new(
+        "HoaDon.CannotCancelInvoiceInCurrentStatus",
+        "Chỉ có thể hủy hóa đơn ở trạng thái Chờ duyệt hoặc Chưa thanh toán.");
 }

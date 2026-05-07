@@ -6,20 +6,23 @@ using HeThongChungCu.Application.Features.QLChiSoTieuThu.Queries.ExportChiSoTemp
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.DTOs;
 using HeThongChungCu.Application.UnitTests.Abstractions;
 using Xunit;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 
 namespace HeThongChungCu.Application.UnitTests.Features.QLChiSoTieuThu.ExportChiSoTemplate;
 
 public sealed class ExportChiSoTemplateQueryHandlerTests : BaseTest
 {
     private readonly IChiSoTieuThuQueryRepository _queryRepository;
+    private readonly IDichVuCommandRepository _dichVuRepository;
     private readonly IExcelService _excelService;
     private readonly ExportChiSoTemplateQueryHandler _handler;
 
     public ExportChiSoTemplateQueryHandlerTests()
     {
         _queryRepository = CreateMock<IChiSoTieuThuQueryRepository>();
+        _dichVuRepository = CreateMock<IDichVuCommandRepository>();
         _excelService = CreateMock<IExcelService>();
-        _handler = new ExportChiSoTemplateQueryHandler(_queryRepository, _excelService);
+        _handler = new ExportChiSoTemplateQueryHandler(_queryRepository, _dichVuRepository, _excelService);
     }
 
     [Fact]

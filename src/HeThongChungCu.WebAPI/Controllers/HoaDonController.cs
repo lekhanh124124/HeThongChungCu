@@ -3,6 +3,7 @@ using HeThongChungCu.Application.Features.QLThanhToan.DTOs;
 using HeThongChungCu.Application.Features.QLThanhToan.Queries.GetHoaDonById;
 using HeThongChungCu.Application.Features.QLThanhToan.Queries.GetListHoaDon;
 using HeThongChungCu.Application.Features.QLThanhToan.Commands.PhatHanhHoaDon;
+using HeThongChungCu.Application.Features.QLThanhToan.Commands.HuyHoaDon;
 using HeThongChungCu.Application.Features.QLThanhToan.Queries.GetChiTietCoDinh;
 using HeThongChungCu.Application.Features.QLThanhToan.Queries.GetChiTietLuyTien;
 using HeThongChungCu.Application.Features.QLThanhToan.Queries.GetChiTietDienTich;
@@ -60,7 +61,7 @@ public class HoaDonController : ApiControllerBase
     {
         return HandleResult(await _sender.Send(query, cancellationToken));
     }
-    
+
     /// <summary>
     /// Phát hành hóa đơn (chuyển từ trạng thái Chờ duyệt sang Chưa thanh toán)
     /// </summary>
@@ -71,10 +72,25 @@ public class HoaDonController : ApiControllerBase
     ///     - Nếu `HoaDonIds` rỗng: Phát hành toàn bộ hóa đơn đang ở trạng thái 'Chờ duyệt' trong đợt thanh toán.
     ///     - Cập nhật trạng thái hóa đơn và ghi nhận lịch sử (nếu có).
     /// </remarks>
-    [HttpPost("phat-hanh")]
+    [HttpPut("phat-hanh")]
     [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PhatHanh([FromBody] PhatHanhHoaDonCommand command, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(command, cancellationToken));
+    }
+
+    /// <summary>
+    /// Hủy hóa đơn (Chuyển trạng thái hóa đơn sang Đã hủy kèm lý do)
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Nhân viên vận hành hủy các hóa đơn bị sai sót chưa thanh toán hoặc đang chờ duyệt.
+    /// - **Hệ thống xử lý**: Cập nhật trạng thái hóa đơn thành `DaHuy` và cập nhật Ghi chú lý do hủy.
+    /// </remarks>
+    [HttpPut("huy")]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Huy([FromBody] HuyHoaDonCommand command, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));
     }

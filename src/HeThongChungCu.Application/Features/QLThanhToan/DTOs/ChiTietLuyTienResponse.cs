@@ -8,6 +8,7 @@ public class ChiTietLuyTienResponse
     public decimal ChiSoMoi { get; set; }
     public decimal SoLuongTieuThu { get; set; }
     public decimal ThanhTien { get; set; }
+    public string? AnhDongHoUrl { get; set; }
     public List<ChiTietGiaLuyTienItemResponse> BacThang { get; set; } = [];
 }
 

@@ -15,6 +15,7 @@ public static class DependencyInjection
         services.AddHostedService<CleanupUnusedFilesService>();
         services.AddHostedService<MonthlyBillingBackgroundService>();
         services.AddHostedService<NotificationBackgroundService>();
+        services.AddHostedService<OverdueInvoicesBackgroundService>();
 
         return services;
     }
