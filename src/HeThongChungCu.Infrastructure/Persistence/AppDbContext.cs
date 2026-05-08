@@ -67,6 +67,15 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<PhieuBaoTriVatTu> PhieuBaoTriVatTus => Set<PhieuBaoTriVatTu>();
     public DbSet<NhanSuBaoTri> NhanSuBaoTris => Set<NhanSuBaoTri>();
 
+    // Phase 6 - Phản hồi & Khảo sát
+    public DbSet<YeuCauPhanAnh> YeuCauPhanAnhs => Set<YeuCauPhanAnh>();
+    public DbSet<TraLoiPhanAnh> TraLoiPhanAnhs => Set<TraLoiPhanAnh>();
+    public DbSet<KhaoSat> KhaoSats => Set<KhaoSat>();
+    public DbSet<CauHoiKhaoSat> CauHoiKhaoSats => Set<CauHoiKhaoSat>();
+    public DbSet<LuaChonKhaoSat> LuaChonKhaoSats => Set<LuaChonKhaoSat>();
+    public DbSet<BieuQuyetCuDan> BieuQuyetCuDans => Set<BieuQuyetCuDan>();
+    public DbSet<ChiTietBieuQuyet> ChiTietBieuQuyets => Set<ChiTietBieuQuyet>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.Ignore<BaseEvent>();

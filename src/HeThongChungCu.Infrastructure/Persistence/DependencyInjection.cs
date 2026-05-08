@@ -112,6 +112,13 @@ public static class DependencyInjection
         services.AddScoped<IPhieuBaoTriCommandRepository, PhieuBaoTriCommandRepository>();
         services.AddScoped<IPhieuBaoTriQueryRepository, PhieuBaoTriQueryRepository>();
         
+        // Phase 6 - Phản hồi & Khảo sát ý kiến cư dân
+        services.AddScoped<IYeuCauPhanAnhCommandRepository, YeuCauPhanAnhCommandRepository>();
+        services.AddScoped<IYeuCauPhanAnhQueryRepository, YeuCauPhanAnhQueryRepository>();
+        services.AddScoped<IKhaoSatCommandRepository, KhaoSatCommandRepository>();
+        services.AddScoped<IKhaoSatQueryRepository, KhaoSatQueryRepository>();
+        services.AddScoped<IBieuQuyetCuDanCommandRepository, BieuQuyetCuDanCommandRepository>();
+        
         return services;
     }
 }

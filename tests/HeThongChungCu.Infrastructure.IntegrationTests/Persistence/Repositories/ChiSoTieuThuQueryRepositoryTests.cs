@@ -1,5 +1,6 @@
 using FluentAssertions;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.Queries.ExportChiSoTemplate;
+using HeThongChungCu.Application.Features.QLChiSoTieuThu.Queries.GetChiSoById;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.Queries.GetListChiSo;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
@@ -28,7 +29,7 @@ public class ChiSoTieuThuQueryRepositoryTests : BaseIntegrationTest
 
         var canHo = CanHo.Create(tang.Id, Guid.NewGuid().ToString()[..10], "Căn Hộ A1-01", 100, 2, 2, LoaiCanHo.Studio, TrangThaiCanHo.ChuaBanGiao);
         await DbContext.CanHos.AddAsync(canHo);
-        
+
         var dichVu = new DichVu(Guid.NewGuid().ToString()[..10], "Điện Sinh Hoạt", LoaiDichVu.TienIch, "kWh");
         await DbContext.DichVus.AddAsync(dichVu);
         await DbContext.SaveChangesAsync();
@@ -61,7 +62,7 @@ public class ChiSoTieuThuQueryRepositoryTests : BaseIntegrationTest
         await DbContext.ChiSoTieuThus.AddAsync(chiSo);
         await DbContext.SaveChangesAsync();
 
-        var spec = new GetListChiSoSpecification("Id", false, 1, 10, 5, 2024, dichVu.Id, null);
+        var spec = new GetListChiSoSpecification("Id", false, 1, 10, 5, 2024, dichVu.Id, null, null, null, null);
 
         // Act
         var result = await _repository.GetListAsync(spec);
@@ -83,7 +84,7 @@ public class ChiSoTieuThuQueryRepositoryTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync();
 
         // Act
-        var result = await _repository.GetByIdAsync(chiSo.Id);
+        var result = await _repository.GetByIdAsync(new GetChiSoByIdSpecification(chiSo.Id));
 
         // Assert
         result.Should().NotBeNull();

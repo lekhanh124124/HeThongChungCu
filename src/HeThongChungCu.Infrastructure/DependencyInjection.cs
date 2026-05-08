@@ -25,6 +25,7 @@ public static class DependencyInjection
         services.AddQdrantVectorStore(configuration);
         services.AddFileStorage(configuration);
         services.AddNotification();
+        services.AddMemoryCache();
         return services;
     }
 }
