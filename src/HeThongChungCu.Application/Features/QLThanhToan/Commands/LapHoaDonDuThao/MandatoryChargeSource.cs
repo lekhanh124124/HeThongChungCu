@@ -1,4 +1,4 @@
-using HeThongChungCu.Domain.Constants;
+
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Interfaces;
 using HeThongChungCu.Domain.Enums;
@@ -29,16 +29,24 @@ public class MandatoryChargeSource : IChargeSource
             if (data.ConsumptionRecords[canHo.Id].Any(r => r.DichVuId == svc.Id)) continue;
             if (data.Subscriptions[canHo.Id].Any(s => s.DichVuId == svc.Id)) continue;
 
-            if (svc.MaDichVu == ServiceCodeConstants.TIEN_THUE_NHA)
+            if (svc.LoaiDichVuId == LoaiDichVu.ThueNha)
             {
-                var relations = data.ResidencyRelations[canHo.Id];
-                _billingService.AttachRentDetail(hoaDon, canHo, relations, bg);
+                if (canHo.TinhTrangCanHoId == TrangThaiCanHo.DangChoThue)
+                {
+                    var relations = data.ResidencyRelations[canHo.Id];
+                    _billingService.AttachRentDetail(hoaDon, canHo, relations, bg);
+                    hasAdded = true;
+                }
             }
             else
             {
-                _billingService.AttachMandatoryFeeDetail(hoaDon, canHo, bg);
+                // General operational fees apply to both owners and renters from investor
+                if (canHo.TinhTrangCanHoId == TrangThaiCanHo.DaBanGiao || canHo.TinhTrangCanHoId == TrangThaiCanHo.DangChoThue)
+                {
+                    _billingService.AttachMandatoryFeeDetail(hoaDon, canHo, bg);
+                    hasAdded = true;
+                }
             }
-            hasAdded = true;
         }
         return hasAdded;
     }

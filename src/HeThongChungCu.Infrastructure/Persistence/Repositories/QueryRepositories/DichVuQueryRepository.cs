@@ -726,4 +726,11 @@ public class DichVuQueryRepository : IDichVuQueryRepository
             }
         };
     }
+
+    public async Task<int?> GetDichVuIdByLoaiAsync(LoaiDichVu loai, CancellationToken cancellationToken = default)
+    {
+        var connection = _dbContext.GetDbConnection();
+        var sql = "SELECT TOP 1 Id FROM DichVu WHERE LoaiDichVuId = @LoaiId AND TrangThaiId = 1 AND IsDeleted = 0";
+        return await connection.QueryFirstOrDefaultAsync<int?>(sql, new { LoaiId = loai.Value }, transaction: _dbContext.GetDbTransaction());
+    }
 }

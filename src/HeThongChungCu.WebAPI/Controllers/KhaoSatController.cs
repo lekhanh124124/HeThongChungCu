@@ -7,6 +7,8 @@ using HeThongChungCu.Application.Features.QLKhaoSat.Commands.DeleteKhaoSat;
 using HeThongChungCu.Application.Features.QLKhaoSat.Queries.GetKhaoSatList;
 using HeThongChungCu.Application.Features.QLKhaoSat.Queries.GetKhaoSatById;
 using HeThongChungCu.Application.Features.QLKhaoSat.Queries.GetKetQuaKhaoSat;
+using HeThongChungCu.Application.Features.QLKhaoSat.Queries.GetKhaoSatParticipants;
+using HeThongChungCu.Application.Features.QLKhaoSat.Queries.GetResidentSurveyHistory;
 using HeThongChungCu.Application.Features.QLKhaoSat.DTOs;
 using HeThongChungCu.Application.Common.Models;
 using HeThongChungCu.WebAPI.Common.Models;
@@ -57,6 +59,26 @@ public class KhaoSatController : ApiControllerBase
     [HttpPost("get-ket-qua")]
     [ProducesResponseType(typeof(ApiResponse<KetQuaKhaoSatResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetKetQua([FromBody] GetKetQuaKhaoSatQuery query, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(query, cancellationToken));
+    }
+
+    /// <summary>
+    /// Xuất danh sách căn hộ và thông tin chủ hộ đã tham gia khảo sát/biểu quyết
+    /// </summary>
+    [HttpPost("danh-sach-tham-gia")]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<KhaoSatParticipantResponse>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDanhSachThamGia([FromBody] GetKhaoSatParticipantsQuery query, CancellationToken cancellationToken)
+    {
+        return HandleResult(await _sender.Send(query, cancellationToken));
+    }
+
+    /// <summary>
+    /// Lấy lịch sử tất cả các lần biểu quyết/khảo sát của một cư dân
+    /// </summary>
+    [HttpPost("lich-su-bieu-quyet")]
+    [ProducesResponseType(typeof(ApiResponse<List<ResidentSurveyHistoryResponse>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetLichSuBieuQuyet([FromBody] GetResidentSurveyHistoryQuery query, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(query, cancellationToken));
     }

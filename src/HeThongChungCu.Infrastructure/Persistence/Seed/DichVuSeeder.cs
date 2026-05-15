@@ -1,4 +1,4 @@
-using HeThongChungCu.Domain.Constants;
+
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -84,6 +84,72 @@ public static class DichVuSeeder
             "support@btaskee.com",
             "Đối tác cung cấp dịch vụ giúp việc gia đình qua ứng dụng.");
 
+        var viettel = new DoiTac(
+            "Viettel Telecom",
+            "Tổng Công ty Viễn thông Viettel",
+            "Tào Đức Thắng",
+            "GPKD-VT-001",
+            "MST-0100109106",
+            "Số 1 Giang Văn Minh, Kim Mã, Ba Đình, Hà Nội",
+            "18008119",
+            "cskh@viettel.com.vn",
+            "Đối tác cung cấp hạ tầng Internet và Truyền hình cáp.");
+
+        var washup = new DoiTac(
+            "WashUp",
+            "Chuỗi rửa xe thông minh WashUp",
+            "Lê Văn Nam",
+            "GPKD-WU-001",
+            "MST-0316442211",
+            "12 Phan Kế Bính, Quận 1, TP. Hồ Chí Minh",
+            "19001234",
+            "contact@washup.vn",
+            "Đối tác cung cấp dịch vụ rửa xe thông minh tận nơi.");
+
+        var lavie = new DoiTac(
+            "La Vie",
+            "Công ty TNHH La Vie",
+            "Fausto Tazzi",
+            "GPKD-LAVIE-001",
+            "MST-0300530438",
+            "Quốc lộ 1A, Phường Khánh Hậu, TP. Tân An, Long An",
+            "19001906",
+            "cskh@laviewater.com",
+            "Đối tác cung cấp nước uống tinh khiết.");
+
+        var shiseido = new DoiTac(
+            "Shiseido Spa",
+            "Công ty TNHH Mỹ phẩm Shiseido Việt Nam",
+            "Isao Shirasu",
+            "GPKD-SHI-001",
+            "MST-0301445724",
+            "Lầu 27, Vietcombank Tower, Quận 1, TP. Hồ Chí Minh",
+            "02839101221",
+            "info@shiseido.com.vn",
+            "Đối tác cung cấp dịch vụ Spa & Massage cao cấp.");
+
+        var schindler = new DoiTac(
+            "Schindler Vietnam",
+            "Công ty TNHH Schindler Việt Nam",
+            "Dương Thành Nam",
+            "GPKD-SCH-001",
+            "MST-0301445724",
+            "Lầu 8, President Place, 93 Nguyễn Du, Quận 1, TP. Hồ Chí Minh",
+            "02835214000",
+            "info@vn.schindler.com",
+            "Đối tác bảo trì thang máy chuyên nghiệp.");
+
+        var daikin = new DoiTac(
+            "Daikin Vietnam",
+            "Công ty Cổ phần Daikin Air Conditioning (Vietnam)",
+            "Lý Thị Phương Hoa",
+            "GPKD-DK-001",
+            "MST-0304323145",
+            "Lầu 12, Tòa nhà Nam Á, 201-203 Cách Mạng Tháng Tám, Quận 3, TP. Hồ Chí Minh",
+            "18006777",
+            "info@daikin.com.vn",
+            "Đối tác cung cấp và bảo trì hệ thống điều hòa trung tâm VRV.");
+
         if (adminId != 0)
         {
             evn.SetCreated(adminId, DateTimeOffset.Now);
@@ -92,16 +158,22 @@ public static class DichVuSeeder
             california.SetCreated(adminId, DateTimeOffset.Now);
             cleany.SetCreated(adminId, DateTimeOffset.Now);
             btaskee.SetCreated(adminId, DateTimeOffset.Now);
+            viettel.SetCreated(adminId, DateTimeOffset.Now);
+            washup.SetCreated(adminId, DateTimeOffset.Now);
+            lavie.SetCreated(adminId, DateTimeOffset.Now);
+            shiseido.SetCreated(adminId, DateTimeOffset.Now);
+            schindler.SetCreated(adminId, DateTimeOffset.Now);
+            daikin.SetCreated(adminId, DateTimeOffset.Now);
         }
 
-        await context.DoiTacs.AddRangeAsync(evn, sawaco, citenco, california, cleany, btaskee);
+        await context.DoiTacs.AddRangeAsync(evn, sawaco, citenco, california, cleany, btaskee, viettel, washup, lavie, shiseido, schindler, daikin);
         await context.SaveChangesAsync();
 
         // --- 2. Khởi tạo các Dịch vụ ---
 
         // 2.1. Dịch vụ Vận hành (Nội bộ 100%)
         var dvVanHanh = new DichVu(
-            ServiceCodeConstants.PHI_QUAN_LY,
+            "MANAGEMENT_FEE",
             "Dịch vụ vận hành tòa nhà",
             LoaiDichVu.VanHanh,
             "m2",
@@ -128,7 +200,7 @@ public static class DichVuSeeder
         await context.SaveChangesAsync();
 
         // 2.2. Dịch vụ Điện lực (Nội bộ quản lý - Có đối tác nguồn)
-        var dvDien = new DichVu(ServiceCodeConstants.DIEN, "Dịch vụ điện lực", LoaiDichVu.VanHanh, "kWh", "Điện năng sinh hoạt cư dân.", null, true);
+        var dvDien = new DichVu("ELECTRICITY", "Dịch vụ điện lực", LoaiDichVu.VanHanh, "kWh", "Điện năng sinh hoạt cư dân.", null, true);
         dvDien.Activate();
         if (adminId != 0) dvDien.SetCreated(adminId, DateTimeOffset.Now);
         await context.DichVus.AddAsync(dvDien);
@@ -151,7 +223,7 @@ public static class DichVuSeeder
         if (adminId != 0) hdDien.SetCreated(adminId, DateTimeOffset.Now);
 
         // 2.3. Dịch vụ Nước sinh hoạt (Nội bộ quản lý - Có đối tác nguồn)
-        var dvNuoc = new DichVu(ServiceCodeConstants.NUOC, "Dịch vụ nước sinh hoạt", LoaiDichVu.VanHanh, "m3", "Nước sạch sinh hoạt cư dân.", null, true);
+        var dvNuoc = new DichVu("WATER", "Dịch vụ nước sinh hoạt", LoaiDichVu.VanHanh, "m3", "Nước sạch sinh hoạt cư dân.", null, true);
         dvNuoc.Activate();
         if (adminId != 0) dvNuoc.SetCreated(adminId, DateTimeOffset.Now);
         await context.DichVus.AddAsync(dvNuoc);
@@ -171,7 +243,24 @@ public static class DichVuSeeder
         var hdNuoc = sawaco.KyHopDongMoi("HD-SW-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5), 3000000000, dvNuoc.Id, "Hợp đồng cấp nước sạch toàn khu dân cư.");
         if (adminId != 0) hdNuoc.SetCreated(adminId, DateTimeOffset.Now);
 
-        // 2.4. Dịch vụ Trông giữ phương tiện (Nội bộ)
+        // 2.4. Dịch vụ Internet & Truyền hình (Vận hành - Bắt buộc)
+        var dvInternet = new DichVu("INTERNET_BASIC", "Gói Internet & Truyền hình cơ bản", LoaiDichVu.VanHanh, "Tháng", "Hạ tầng Internet tốc độ cao và Truyền hình cáp cho toàn căn hộ.", null, true);
+        dvInternet.Activate();
+        if (adminId != 0) dvInternet.SetCreated(adminId, DateTimeOffset.Now);
+        await context.DichVus.AddAsync(dvInternet);
+        await context.SaveChangesAsync();
+
+        var bgInternet = new BangGiaCoDinh(dvInternet.Id, "Bảng giá Internet 2026", DateTimeOffset.Now, 165000, true);
+        bgInternet.Activate();
+        if (adminId != 0) bgInternet.SetCreated(adminId, DateTimeOffset.Now);
+        await context.BangGias.AddAsync(bgInternet);
+        await context.SaveChangesAsync();
+
+        // Ký hợp đồng với Viettel
+        var hdInternet = viettel.KyHopDongMoi("HD-VT-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5), 500000000, dvInternet.Id, "Hợp đồng cung cấp hạ tầng viễn thông cho tòa nhà.");
+        if (adminId != 0) hdInternet.SetCreated(adminId, DateTimeOffset.Now);
+
+        // 2.5. Dịch vụ Trông giữ phương tiện (Nội bộ)
         var parkingServices = new[]
         {
             (Code: LoaiPhuongTien.XeMay.DefaultServiceCode, Name: "Dịch vụ giữ xe máy", Price: 120000m),
@@ -181,7 +270,7 @@ public static class DichVuSeeder
 
         foreach (var (Code, Name, Price) in parkingServices)
         {
-            var dvParking = new DichVu(Code, Name, LoaiDichVu.VanHanh, "Xe", Name, null, true);
+            var dvParking = new DichVu(Code, Name, LoaiDichVu.VanHanh, "Xe", Name, null, false);
             dvParking.Activate();
             if (adminId != 0) dvParking.SetCreated(adminId, DateTimeOffset.Now);
             await context.DichVus.AddAsync(dvParking);
@@ -193,7 +282,7 @@ public static class DichVuSeeder
             await context.SaveChangesAsync();
         }
 
-        // 2.5. Dịch vụ Thu gom rác thải (Thuê ngoài trọn gói)
+        // 2.6. Dịch vụ Thu gom rác thải (Thuê ngoài trọn gói)
         var dvRac = new DichVu("DV_RAC", "Dịch vụ thu gom rác thải", LoaiDichVu.VanHanh, "Hộ", "Phí vệ sinh định kỳ hàng tháng.", null, true);
         dvRac.Activate();
         if (adminId != 0) dvRac.SetCreated(adminId, DateTimeOffset.Now);
@@ -322,58 +411,124 @@ public static class DichVuSeeder
         var hdCleaning = btaskee.KyHopDongMoi("HD-BTASK-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(1), 30000000, dvCleaning.Id, "Hợp đồng hợp tác cung cấp nhân sự giúp việc qua ứng dụng.");
         if (adminId != 0) hdCleaning.SetCreated(adminId, DateTimeOffset.Now);
 
-        // --- 4. Dịch vụ Sửa chữa & Bảo trì (Thuê ngoài chuyên dụng) ---
-
-        // 4.1. Đối tác Thang máy
-        var schindler = new DoiTac("Schindler VN", "Công ty TNHH Schindler Việt Nam", "Jovan Vujovic", "GPKD-SCH-001", "MST-0301438914", "Số 2-4-6-8, Đường số 2, Tân Hưng, Quận 7, TP. HCM", "02837760900", "vietnam@schindler.com", "Đối tác bảo trì hệ thống thang máy khu dân cư.");
-        if (adminId != 0) schindler.SetCreated(adminId, DateTimeOffset.Now);
-        await context.DoiTacs.AddAsync(schindler);
-
-        var dvThangMay = new DichVu("DV_BT_THANGMAY", "Bảo trì thang máy", LoaiDichVu.SuaChua, "Lần", "Dịch vụ bảo trì và sửa chữa thang máy định kỳ.", null, true);
-        dvThangMay.Activate();
-        if (adminId != 0) dvThangMay.SetCreated(adminId, DateTimeOffset.Now);
-        await context.DichVus.AddAsync(dvThangMay);
+        // 3.7. Dịch vụ Giao nước uống
+        var dvWaterBottle = new DichVu("DV_WATER_BOTTLE", "Nước uống La Vie 20L", LoaiDichVu.TienIch, "Bình", "Cung cấp bình nước tinh khiết tận cửa căn hộ.", null, false);
+        dvWaterBottle.Activate();
+        if (adminId != 0) dvWaterBottle.SetCreated(adminId, DateTimeOffset.Now);
+        await context.DichVus.AddAsync(dvWaterBottle);
         await context.SaveChangesAsync();
 
-        var hdThangMay = schindler.KyHopDongMoi("HD-SCH-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(1), 120000000, dvThangMay.Id, "Hợp đồng bảo trì hệ thống thang máy tòan tòa nhà.");
-        if (adminId != 0) hdThangMay.SetCreated(adminId, DateTimeOffset.Now);
-
-        // 4.2. Đối tác Điều hòa/Điện lạnh
-        var daikin = new DoiTac("Daikin VN", "Công ty Cổ phần Daikin Air Conditioning (Vietnam)", "Kobatake Satoshi", "GPKD-DAIKIN-001", "MST-0305040153", "Lầu 12, Tòa nhà Viettel, 285 Cách Mạng Tháng Tám, Quận 10, TP. HCM", "18006777", "info@daikin.com.vn", "Đối tác bảo trì hệ thống điều hòa và thông gió.");
-        if (adminId != 0) daikin.SetCreated(adminId, DateTimeOffset.Now);
-        await context.DoiTacs.AddAsync(daikin);
-
-        var dvDieuHoa = new DichVu("DV_SC_DIEUHOA", "Sửa chữa điều hòa", LoaiDichVu.SuaChua, "Máy", "Dịch vụ kiểm tra và sửa chữa điều hòa cho cư dân và khu vực chung.", null, false);
-        dvDieuHoa.Activate();
-        if (adminId != 0) dvDieuHoa.SetCreated(adminId, DateTimeOffset.Now);
-        await context.DichVus.AddAsync(dvDieuHoa);
+        var bgWaterBottle = new BangGiaCoDinh(dvWaterBottle.Id, "Bảng giá nước La Vie 2026", DateTimeOffset.Now, 65000, false);
+        bgWaterBottle.Activate();
+        if (adminId != 0) bgWaterBottle.SetCreated(adminId, DateTimeOffset.Now);
+        await context.BangGias.AddAsync(bgWaterBottle);
         await context.SaveChangesAsync();
 
-        var hdDieuHoa = daikin.KyHopDongMoi("HD-DAIKIN-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(1), 50000000, dvDieuHoa.Id, "Hợp đồng sửa chữa và cung cấp linh kiện điều hòa.");
-        if (adminId != 0) hdDieuHoa.SetCreated(adminId, DateTimeOffset.Now);
+        // Ký hợp đồng với La Vie
+        var hdWater = lavie.KyHopDongMoi("HD-LAVIE-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(2), 100000000, dvWaterBottle.Id, "Hợp đồng cung cấp nước uống đóng bình.");
+        if (adminId != 0) hdWater.SetCreated(adminId, DateTimeOffset.Now);
 
-        // 4.3. Dịch vụ sửa chữa điện (Đối tác nguồn cung ứng - Thêm hợp đồng sửa chữa)
-        var dvSuaDien = new DichVu("DV_SC_DIEN", "Sửa chữa hệ thống điện", LoaiDichVu.SuaChua, "Lần", "Dịch vụ kiểm tra khẩn cấp và khắc phục sự cố điện lưới.", null, false);
-        dvSuaDien.Activate();
-        if (adminId != 0) dvSuaDien.SetCreated(adminId, DateTimeOffset.Now);
-        await context.DichVus.AddAsync(dvSuaDien);
+        // 3.8. Dịch vụ Rửa xe
+        var washServices = new[]
+        {
+            (Code: "DV_WASH_BIKE", Name: "Rửa xe máy", Price: 25000m),
+            (Code: "DV_WASH_CAR", Name: "Rửa xe ô tô", Price: 80000m)
+        };
+
+        foreach (var (Code, Name, Price) in washServices)
+        {
+            var dvWash = new DichVu(Code, Name, LoaiDichVu.TienIch, "Lượt", Name, null, false);
+            dvWash.Activate();
+            if (adminId != 0) dvWash.SetCreated(adminId, DateTimeOffset.Now);
+            await context.DichVus.AddAsync(dvWash);
+            await context.SaveChangesAsync();
+
+            var bgWash = new BangGiaCoDinh(dvWash.Id, "Bảng giá rửa xe 2026", DateTimeOffset.Now, Price, false);
+            bgWash.Activate();
+            if (adminId != 0) bgWash.SetCreated(adminId, DateTimeOffset.Now);
+            await context.BangGias.AddAsync(bgWash);
+            await context.SaveChangesAsync();
+
+            // Ký hợp đồng với WashUp cho từng dịch vụ
+            var hdWash = washup.KyHopDongMoi($"HD-WU-{Code}-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(1), 20000000, dvWash.Id, $"Hợp đồng cung cấp dịch vụ {Name}.");
+            if (adminId != 0) hdWash.SetCreated(adminId, DateTimeOffset.Now);
+        }
+
+        // 3.9. Sân Tennis
+        var dvTennis = new DichVu("DV_TENNIS", "Sân Tennis", LoaiDichVu.TienIch, "Slot", "Thuê sân tennis tiêu chuẩn thi đấu.", null, false);
+        dvTennis.Activate();
+        if (adminId != 0) dvTennis.SetCreated(adminId, DateTimeOffset.Now);
+
+        dvTennis.AddKhungGio(new TimeSpan(6, 0, 0), new TimeSpan(8, 0, 0), "Sáng sớm (06:00 - 08:00)").Value.Activate();
+        dvTennis.AddKhungGio(new TimeSpan(8, 0, 0), new TimeSpan(10, 0, 0), "Sáng (08:00 - 10:00)").Value.Activate();
+        dvTennis.AddKhungGio(new TimeSpan(16, 0, 0), new TimeSpan(18, 0, 0), "Chiều (16:00 - 18:00)").Value.Activate();
+        dvTennis.AddKhungGio(new TimeSpan(18, 0, 0), new TimeSpan(20, 0, 0), "Tối (18:00 - 20:00)").Value.Activate();
+        dvTennis.AddKhungGio(new TimeSpan(20, 0, 0), new TimeSpan(22, 0, 0), "Khuya (20:00 - 22:00)").Value.Activate();
+
+        await context.DichVus.AddAsync(dvTennis);
         await context.SaveChangesAsync();
 
-        var hdSuaDien = evn.KyHopDongMoi("HD-EVN-REPAIR-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(2), 100000000, dvSuaDien.Id, "Hợp đồng cung cấp thợ kỹ thuật xử lý sự cố điện hộ dân.");
-        if (adminId != 0) hdSuaDien.SetCreated(adminId, DateTimeOffset.Now);
+        var bgTennis = new BangGiaKhungGio(dvTennis.Id, "Giá thuê sân Tennis 2026", DateTimeOffset.Now, false);
+        bgTennis.Activate();
+        if (adminId != 0) bgTennis.SetCreated(adminId, DateTimeOffset.Now);
 
-        // 4.4. Dịch vụ sửa chữa nước (Đối tác nguồn cung ứng - Thêm hợp đồng sửa chữa)
-        var dvSuaNuoc = new DichVu("DV_SC_NUOC", "Sửa chữa hệ thống nước", LoaiDichVu.SuaChua, "Lần", "Dịch vụ xử lý rò rỉ và thông tắc hệ thống cấp thoát nước.", null, false);
-        dvSuaNuoc.Activate();
-        if (adminId != 0) dvSuaNuoc.SetCreated(adminId, DateTimeOffset.Now);
-        await context.DichVus.AddAsync(dvSuaNuoc);
+        foreach (var kg in dvTennis.KhungGios)
+        {
+            var price = kg.TenKhungGio.Contains("Tối") || kg.TenKhungGio.Contains("Khuya") ? 250000 : 150000;
+            bgTennis.AddGiaKhungGio(kg.Id, price);
+        }
+        await context.BangGias.AddAsync(bgTennis);
         await context.SaveChangesAsync();
 
-        var hdSuaNuoc = sawaco.KyHopDongMoi("HD-SW-REPAIR-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(2), 80000000, dvSuaNuoc.Id, "Hợp đồng cung cấp thợ kỹ thuật xử lý sự cố cấp thoát nước.");
-        if (adminId != 0) hdSuaNuoc.SetCreated(adminId, DateTimeOffset.Now);
+        // 3.10. Dịch vụ Spa & Massage
+        var dvSpa = new DichVu("DV_SPA", "Dịch vụ Spa & Massage", LoaiDichVu.TienIch, "Liệu trình", "Chăm sóc sức khỏe và thư giãn.", null, false);
+        dvSpa.Activate();
+        if (adminId != 0) dvSpa.SetCreated(adminId, DateTimeOffset.Now);
+        await context.DichVus.AddAsync(dvSpa);
+        await context.SaveChangesAsync();
+
+        var bgSpa = new BangGiaCoDinh(dvSpa.Id, "Bảng giá Spa 2026", DateTimeOffset.Now, 500000, false);
+        bgSpa.Activate();
+        if (adminId != 0) bgSpa.SetCreated(adminId, DateTimeOffset.Now);
+        await context.BangGias.AddAsync(bgSpa);
+        await context.SaveChangesAsync();
+
+        // Ký hợp đồng với Shiseido
+        var hdSpa = shiseido.KyHopDongMoi("HD-SHI-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(3), 1000000000, dvSpa.Id, "Hợp đồng cung cấp dịch vụ Spa cao cấp.");
+        if (adminId != 0) hdSpa.SetCreated(adminId, DateTimeOffset.Now);
+
+        // --- 4. Dịch vụ Yêu cầu cư dân ---
+
+        // 4.1. Yêu cầu sửa chữa
+        var dvYeuCauSuaChua = new DichVu(
+            "DV_YC_SUACHUA", 
+            "Yêu cầu sửa chữa", 
+            LoaiDichVu.YeuCauSuaChua, 
+            "Lần", 
+            "Dịch vụ xử lý các yêu cầu sửa chữa sự cố trong căn hộ của cư dân.", 
+            null, 
+            false);
+        dvYeuCauSuaChua.Activate();
+        if (adminId != 0) dvYeuCauSuaChua.SetCreated(adminId, DateTimeOffset.Now);
+        await context.DichVus.AddAsync(dvYeuCauSuaChua);
+        await context.SaveChangesAsync();
+
+        // 4.2. Yêu cầu thi công
+        var dvYeuCauThiCong = new DichVu(
+            "DV_YC_THICONG", 
+            "Yêu cầu thi công", 
+            LoaiDichVu.YeuCauThiCong, 
+            "Lần", 
+            "Dịch vụ xử lý các yêu cầu đăng ký thi công, cải tạo nội thất căn hộ.", 
+            null, 
+            false);
+        dvYeuCauThiCong.Activate();
+        if (adminId != 0) dvYeuCauThiCong.SetCreated(adminId, DateTimeOffset.Now);
+        await context.DichVus.AddAsync(dvYeuCauThiCong);
+        await context.SaveChangesAsync();
 
         // --- 5. Dịch vụ Tiền thuê nhà (Dùng BangGiaLoaiCanHo) ---
-        var dvThueNha = new DichVu(ServiceCodeConstants.TIEN_THUE_NHA, "Tiền thuê nhà", LoaiDichVu.VanHanh, "Tháng", "Tiền thuê căn hộ hàng tháng đối với người thuê.", null, false);
+        var dvThueNha = new DichVu("RENT_FEE", "Tiền thuê nhà", LoaiDichVu.ThueNha, "Tháng", "Tiền thuê căn hộ hàng tháng đối với người thuê.", null, false);
         dvThueNha.Activate();
         if (adminId != 0) dvThueNha.SetCreated(adminId, DateTimeOffset.Now);
         await context.DichVus.AddAsync(dvThueNha);
@@ -392,9 +547,9 @@ public static class DichVuSeeder
         // --- 6. Dịch vụ hệ thống: Lãi trễ hạn (Internal — không hiển thị cho cư dân) ---
         // Lãi suất: 0.05%/ngày = 0.0005 (nhân với SoLuong = TongTienGoc × SoNgayQuaHan)
         var dvLaiTreHan = new DichVu(
-            ServiceCodeConstants.LAI_TRE_HAN,
+            "LATE_INTEREST_FEE",
             "Lãi chậm nộp",
-            LoaiDichVu.Khac,
+            LoaiDichVu.PhatTreHan,
             "VNĐ",
             "Phí lãi phát sinh khi cư dân thanh toán trễ hạn. Tỷ lệ 0.05%/ngày tính trên số tiền gốc.",
             null,
@@ -411,6 +566,24 @@ public static class DichVuSeeder
         if (adminId != 0) bgLaiTreHan.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgLaiTreHan);
         await context.SaveChangesAsync();
+
+        // --- 7. Dịch vụ Bảo trì hạ tầng (Dùng cho đối tác kỹ thuật) ---
+        var dvBaoTri = new DichVu("INFRA_MAINTENANCE", "Dịch vụ bảo trì hạ tầng", LoaiDichVu.VanHanh, "Gói", "Dịch vụ bảo trì hệ thống kỹ thuật tòa nhà.", null, true);
+        dvBaoTri.Activate();
+        if (adminId != 0) dvBaoTri.SetCreated(adminId, DateTimeOffset.Now);
+        await context.DichVus.AddAsync(dvBaoTri);
+        await context.SaveChangesAsync();
+
+        // Ký hợp đồng với Schindler và Daikin
+        var hdSchindler = schindler.KyHopDongMoi("HD-SCH-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5), 1500000000, dvBaoTri.Id, "Hợp đồng bảo trì hệ thống thang máy Otis và Schindler.");
+        var hdDaikin = daikin.KyHopDongMoi("HD-DAIKIN-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5), 800000000, dvBaoTri.Id, "Hợp đồng bảo trì hệ thống điều hòa VRV.");
+        
+        if (adminId != 0)
+        {
+            hdSchindler.SetCreated(adminId, DateTimeOffset.Now);
+            hdDaikin.SetCreated(adminId, DateTimeOffset.Now);
+        }
+        await context.HopDongDoiTacs.AddRangeAsync(hdSchindler, hdDaikin);
 
         DatabaseSeeder.ClearAllDomainEvents(context);
         await context.SaveChangesAsync();

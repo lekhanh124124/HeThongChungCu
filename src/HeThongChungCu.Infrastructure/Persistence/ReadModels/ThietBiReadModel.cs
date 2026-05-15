@@ -13,4 +13,6 @@ internal record ThietBiReadModel
     public decimal? GiaTriBanDau { get; init; }
     public int TrangThaiThietBiId { get; init; }
     public string? GhiChu { get; init; }
+    public int? ToaNhaId { get; init; }
+    public string? TenToaNha { get; init; }
 }

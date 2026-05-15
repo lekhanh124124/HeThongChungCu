@@ -2,6 +2,7 @@ using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Exceptions;
 using HeThongChungCu.Domain.ValueObjects;
+using HeThongChungCu.Domain.Events;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -61,5 +62,9 @@ public class HoaDonDoiTac : AggregateRoot
     public void UpdateStatus(TrangThaiThanhToanDoiTac nextStatus)
     {
         TrangThaiThanhToanId = nextStatus;
+        if (nextStatus == TrangThaiThanhToanDoiTac.DaThanhToan)
+        {
+            AddDomainEvent(new HoaDonDoiTacPaidEvent(this));
+        }
     }
 }

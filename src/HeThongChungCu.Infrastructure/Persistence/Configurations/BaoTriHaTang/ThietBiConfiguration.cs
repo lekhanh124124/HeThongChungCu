@@ -42,5 +42,10 @@ public class ThietBiConfiguration : IEntityTypeConfiguration<ThietBi>
                 v => TrangThaiThietBi.FromValue(v, null)!)
             .IsRequired();
         builder.HasIndex(x => x.TrangThaiThietBiId);
+
+        builder.HasOne<ToaNha>()
+            .WithMany()
+            .HasForeignKey(x => x.ToaNhaId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

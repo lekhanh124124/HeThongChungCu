@@ -14,4 +14,6 @@ public interface IHoaDonDoiTacQueryRepository
     Task<HoaDonDoiTacDetailResponse?> GetByIdAsync(
         GetHoaDonDoiTacByIdSpecification spec,
         CancellationToken cancellationToken = default);
+
+    Task<(string SoHopDong, string TenDoiTac)> GetHoaDonDoiTacInfoAsync(int hoaDonDoiTacId, CancellationToken cancellationToken = default);
 }

@@ -3,7 +3,7 @@ using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Common.Messaging;
 using HeThongChungCu.Application.Features.QLThanhToan.DTOs;
 using HeThongChungCu.Domain.Common;
-using HeThongChungCu.Domain.Constants;
+
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Interfaces;
@@ -20,6 +20,7 @@ public class LapHoaDonDuThaoCommandHandler : ICommandHandler<LapHoaDonDuThaoComm
     private readonly IQuanHeCuTruCommandRepository _cuTruRepository;
     private readonly IDotThanhToanCommandRepository _dotRepository;
     private readonly IHoaDonCommandRepository _hoaDonRepository;
+    private readonly IPhuongTienCommandRepository _phuongTienRepository;
     private readonly IBillingDomainService _billingService;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IUnitOfWork _unitOfWork;
@@ -34,6 +35,7 @@ public class LapHoaDonDuThaoCommandHandler : ICommandHandler<LapHoaDonDuThaoComm
         IQuanHeCuTruCommandRepository cuTruRepository,
         IDotThanhToanCommandRepository dotRepository,
         IHoaDonCommandRepository hoaDonRepository,
+        IPhuongTienCommandRepository phuongTienRepository,
         IBillingDomainService billingService,
         IDateTimeProvider dateTimeProvider,
         IUnitOfWork unitOfWork)
@@ -45,6 +47,7 @@ public class LapHoaDonDuThaoCommandHandler : ICommandHandler<LapHoaDonDuThaoComm
         _cuTruRepository = cuTruRepository;
         _dotRepository = dotRepository;
         _hoaDonRepository = hoaDonRepository;
+        _phuongTienRepository = phuongTienRepository;
         _billingService = billingService;
         _dateTimeProvider = dateTimeProvider;
         _unitOfWork = unitOfWork;
@@ -54,7 +57,8 @@ public class LapHoaDonDuThaoCommandHandler : ICommandHandler<LapHoaDonDuThaoComm
         {
             new MandatoryChargeSource(_billingService),
             new ConsumptionChargeSource(_billingService, _chiSoRepository),
-            new SubscriptionChargeSource(_billingService)
+            new SubscriptionChargeSource(_billingService),
+            new VehicleChargeSource(_billingService)
         };
     }
 
@@ -184,15 +188,16 @@ public class LapHoaDonDuThaoCommandHandler : ICommandHandler<LapHoaDonDuThaoComm
         var periodicServices = await _dichVuRepository.GetActivePeriodicServicesWithPriceListsAsync(cancellationToken);
 
         // Lấy DichVu lãi trễ hạn và BangGia hiện hành (nếu đã được seed)
-        var lateInterestDichVu = periodicServices.FirstOrDefault(s => s.MaDichVu == ServiceCodeConstants.LAI_TRE_HAN);
+        var lateInterestDichVu = periodicServices.FirstOrDefault(s => s.LoaiDichVuId == LoaiDichVu.PhatTreHan);
         var lateInterestBangGia = lateInterestDichVu?.GetCurrentPrice(_dateTimeProvider.Now);
 
         return new BillingDataBundle(
             PeriodicServiceDict: periodicServices.ToDictionary(s => s.Id),
-            MandatoryServices: periodicServices.Where(s => s.IsBatBuoc && s.MaDichVu != ServiceCodeConstants.LAI_TRE_HAN).ToList(),
+            MandatoryServices: periodicServices.Where(s => s.IsBatBuoc && s.LoaiDichVuId != LoaiDichVu.PhatTreHan).ToList(),
             ResidencyRelations: (await _cuTruRepository.GetByCanHoIdsAsync(activeCanHoIds, cancellationToken)).ToLookup(x => x.CanHoId),
             ConsumptionRecords: (await _chiSoRepository.GetLockedUnbilledByPeriodAsync(ky, cancellationToken)).ToLookup(x => x.CanHoId),
             Subscriptions: (await _dangKyRepository.GetActiveByCanHoIdsAsync(activeCanHoIds, cancellationToken)).ToLookup(x => x.CanHoId),
+            ActiveVehicles: (await _phuongTienRepository.GetActiveByCanHoIdsAsync(activeCanHoIds, cancellationToken)).ToLookup(x => x.CanHoId),
             ExistingInvoiceCanHoIds: await _hoaDonRepository.GetExistingCanHoIdsByKyAsync(ky, cancellationToken),
             OverdueInvoices: await _hoaDonRepository.GetOverdueByCanHoIdsAsync(activeCanHoIds, dotStartDate, cancellationToken),
             LateInterestBangGia: lateInterestBangGia

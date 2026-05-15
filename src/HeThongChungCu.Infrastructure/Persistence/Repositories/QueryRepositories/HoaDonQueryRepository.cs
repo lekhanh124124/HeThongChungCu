@@ -312,4 +312,24 @@ public class HoaDonQueryRepository : IHoaDonQueryRepository
 
         return response;
     }
+
+    public async Task<(string TenMucPhi, int LoaiChiTietHoaDonId, string? ResidentName, int? DichVuId)> GetChiTietHoaDonInfoAsync(int chiTietHoaDonId, CancellationToken cancellationToken = default)
+    {
+        var connection = _dbContext.GetDbConnection();
+
+        var sql = """
+            SELECT ct.TenMucPhi, ct.LoaiChiTietHoaDonId, ct.DichVuId, nd.Ho + ' ' + nd.Ten AS ResidentName
+            FROM ChiTietHoaDon ct
+            INNER JOIN HoaDon hd ON ct.HoaDonId = hd.Id
+            LEFT JOIN QuanHeCuTru qh ON qh.CanHoId = hd.CanHoId AND qh.TrangThaiCuTruId = 1 AND qh.LoaiQuanHeCuTruId = 1
+            LEFT JOIN NguoiDung nd ON nd.Id = qh.NguoiDungId
+            WHERE ct.Id = @Id
+            """;
+
+        var result = await connection.QueryFirstOrDefaultAsync<dynamic>(sql, new { Id = chiTietHoaDonId }, transaction: _dbContext.GetDbTransaction());
+
+        if (result == null) return ("UNKNOWN", 0, null, null);
+
+        return ((string)result.TenMucPhi, (int)result.LoaiChiTietHoaDonId, (string?)result.ResidentName, (int?)result.DichVuId);
+    }
 }

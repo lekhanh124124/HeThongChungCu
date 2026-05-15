@@ -14,6 +14,7 @@ public class ThietBi : AggregateRoot
     public decimal? GiaTriBanDau { get; private set; }
     public TrangThaiThietBi TrangThaiThietBiId { get; private set; } = null!;
     public string? GhiChu { get; private set; }
+    public int? ToaNhaId { get; private set; }
 
     private ThietBi() : base() { } // EF Core
 
@@ -26,7 +27,8 @@ public class ThietBi : AggregateRoot
         DateTimeOffset? ngayHetHanBaoHanh,
         decimal? giaTriBanDau,
         TrangThaiThietBi trangThaiThietBiId,
-        string? ghiChu) : base()
+        string? ghiChu,
+        int? toaNhaId) : base()
     {
         MaThietBi = maThietBi;
         TenThietBi = tenThietBi;
@@ -37,6 +39,7 @@ public class ThietBi : AggregateRoot
         GiaTriBanDau = giaTriBanDau;
         TrangThaiThietBiId = trangThaiThietBiId;
         GhiChu = ghiChu;
+        ToaNhaId = toaNhaId;
     }
 
     public static ThietBi Create(
@@ -47,7 +50,8 @@ public class ThietBi : AggregateRoot
         DateTimeOffset ngayMua,
         DateTimeOffset? ngayHetHanBaoHanh,
         decimal? giaTriBanDau,
-        string? ghiChu)
+        string? ghiChu,
+        int? toaNhaId)
     {
         return new ThietBi(
             maThietBi,
@@ -58,7 +62,8 @@ public class ThietBi : AggregateRoot
             ngayHetHanBaoHanh,
             giaTriBanDau,
             TrangThaiThietBi.HoatDongTot,
-            ghiChu);
+            ghiChu,
+            toaNhaId);
     }
 
     public void Update(
@@ -68,7 +73,8 @@ public class ThietBi : AggregateRoot
         DateTimeOffset ngayMua,
         DateTimeOffset? ngayHetHanBaoHanh,
         decimal? giaTriBanDau,
-        string? ghiChu)
+        string? ghiChu,
+        int? toaNhaId)
     {
         TenThietBi = tenThietBi;
         LoaiThietBi = loaiThietBi;
@@ -77,6 +83,7 @@ public class ThietBi : AggregateRoot
         NgayHetHanBaoHanh = ngayHetHanBaoHanh;
         GiaTriBanDau = giaTriBanDau;
         GhiChu = ghiChu;
+        ToaNhaId = toaNhaId;
     }
 
     public void UpdateTrangThai(TrangThaiThietBi trangThaiMoi)

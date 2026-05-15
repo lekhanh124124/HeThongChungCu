@@ -1,6 +1,7 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Errors;
 using HeThongChungCu.Domain.Enums;
+using HeThongChungCu.Domain.Events;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -48,6 +49,8 @@ public class GiaoDichThanhToan : AggregateRoot
             phuongThucThanhToanId,
             maGiaoDich,
             ghiChu);
+
+        transaction.AddDomainEvent(new GiaoDichThanhToanRecordedEvent(transaction));
 
         return Result.Success(transaction);
     }

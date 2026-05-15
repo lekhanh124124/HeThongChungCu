@@ -11,4 +11,5 @@ public record UpdateThietBiCommand(
     DateTimeOffset? NgayHetHanBaoHanh,
     decimal? GiaTriBanDau,
     int? TrangThaiThietBiId,
-    string? GhiChu) : ICommand<ThietBiResponse>;
+    string? GhiChu,
+    int? ToaNhaId) : ICommand<ThietBiResponse>;

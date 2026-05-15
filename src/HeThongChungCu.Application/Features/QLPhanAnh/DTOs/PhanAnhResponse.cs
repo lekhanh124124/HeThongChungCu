@@ -15,6 +15,7 @@ public class PhanAnhResponse
     public int? NguoiXuLyId { get; set; }
     public string? TenNguoiXuLy { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? HanPhanHoi { get; set; }
     public int CreatedBy { get; set; }
     public string TenNguoiGui { get; set; } = string.Empty;
 }

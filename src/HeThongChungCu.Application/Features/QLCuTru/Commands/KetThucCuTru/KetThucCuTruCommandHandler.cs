@@ -52,14 +52,10 @@ public class KetThucCuTruCommandHandler : ICommandHandler<KetThucCuTruCommand, C
             var activeRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
             
             // Logic moved from ResidencyService.EndResidency & UpdateApartmentStatus
-            if (activeRelations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
-            {
-                canHo.MarkAsOccupied();
-            }
-            else
-            {
-                canHo.MarkAsVacant();
-            }
+            bool hasOwner = activeRelations.Any(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
+            bool hasTenant = activeRelations.Any(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue && r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
+            
+            canHo.SyncStatusWithResidency(hasOwner, hasTenant);
             
             _quanHeCuTruRepository.Update(quanHe);
             _canHoRepository.Update(canHo);

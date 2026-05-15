@@ -111,6 +111,11 @@ public class DatabaseSeeder : IDatabaseSeeder
             await DangKyDichVuSeeder.SeedAsync(_context, _logger);
             await YeuCauSuaChuaSeeder.SeedAsync(_context, _logger, soLuongYeuCauSuaChua);
             await YeuCauThiCongSeeder.SeedAsync(_context, _logger, soLuongYeuCauThiCong);
+            await QuyThuChiSeeder.SeedAsync(_context, _logger);
+            await HoaDonSeeder.SeedAsync(_context, _logger);
+            await BaoTriHaTangSeeder.SeedAsync(_context, _logger);
+            await PhanAnhSeeder.SeedAsync(_context, _logger);
+            await KhaoSatSeeder.SeedAsync(_context, _logger);
 
             ClearAllDomainEvents(_context);
             await _context.SaveChangesAsync();

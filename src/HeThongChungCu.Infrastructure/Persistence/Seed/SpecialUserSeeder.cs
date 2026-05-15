@@ -175,7 +175,7 @@ public class SpecialUserSeeder
 
             if (!isTerminated)
             {
-                canHo.MarkAsOccupied();
+                canHo.SyncStatusWithResidency(hasOwner: true, hasTenant: false);
             }
 
             // 3. Add 3-5 residents per apartment

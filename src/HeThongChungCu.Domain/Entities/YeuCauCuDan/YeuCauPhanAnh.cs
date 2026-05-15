@@ -1,6 +1,7 @@
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Domain.Errors;
+using HeThongChungCu.Domain.Events;
 
 namespace HeThongChungCu.Domain.Entities;
 
@@ -9,7 +10,9 @@ public class YeuCauPhanAnh : YeuCau
     public string TieuDe { get; private set; } = null!;
     public LoaiPhanAnh LoaiPhanAnhId { get; private set; } = null!;
     public TrangThaiPhanAnh TrangThaiPhanAnhId { get; private set; } = null!;
-    
+    public DateTimeOffset? HanPhanHoi { get; private set; }
+    public bool IsQuaHanNotified { get; private set; }
+
     public int? DiemDanhGia { get; private set; } // 1 - 5 sao
     public string? NhanXetDanhGia { get; private set; }
     public DateTimeOffset? NgayDanhGia { get; private set; }
@@ -57,6 +60,12 @@ public class YeuCauPhanAnh : YeuCau
             }
         }
 
+        if (isSubmit)
+        {
+            phanAnh.HanPhanHoi = DateTimeOffset.Now.AddHours(loaiPhanAnh.HanXuLyGio);
+            phanAnh.AddDomainEvent(new YeuCauPhanAnhCreatedEvent(phanAnh));
+        }
+
         return Result.Success(phanAnh);
     }
 
@@ -66,7 +75,7 @@ public class YeuCauPhanAnh : YeuCau
             return Result.Failure(PhanAnhErrors.InvalidStatus);
 
         TrangThaiPhanAnhId = TrangThaiPhanAnh.DangXuLy;
-        
+
         // Đồng bộ trạng thái cơ bản của YeuCau sang Approved (Đã phê duyệt tiếp nhận)
         var approveResult = Approve(adminId, processedAt);
         if (approveResult.IsFailure)
@@ -122,15 +131,19 @@ public class YeuCauPhanAnh : YeuCau
 
     public override Result Submit()
     {
-        base.Submit(); // Chuyển TrangThaiId -> Pending
+        var result = base.Submit(); // Chuyển TrangThaiId -> Pending
+        if (result.IsFailure) return result;
+
         TrangThaiPhanAnhId = TrangThaiPhanAnh.ChoTiepNhan;
+        HanPhanHoi = DateTimeOffset.Now.AddHours(LoaiPhanAnhId.HanXuLyGio);
+        AddDomainEvent(new YeuCauPhanAnhCreatedEvent(this));
         return Result.Success();
     }
 
     public override Result Withdraw()
     {
-        if (TrangThaiId != TrangThaiYeuCau.Pending && 
-            TrangThaiId != TrangThaiYeuCau.Saved && 
+        if (TrangThaiId != TrangThaiYeuCau.Pending &&
+            TrangThaiId != TrangThaiYeuCau.Saved &&
             TrangThaiId != TrangThaiYeuCau.Returned)
         {
             return Result.Failure(new Error("PhanAnh.InvalidStatusForWithdraw", "Chỉ có thể thu hồi yêu cầu phản ánh ở trạng thái Chờ tiếp nhận, Nháp hoặc Yêu cầu bổ sung."));
@@ -160,8 +173,8 @@ public class YeuCauPhanAnh : YeuCau
 
     public Result XacNhanHoanThanh(int adminId, string ketQua, DateTimeOffset processedAt)
     {
-        if (TrangThaiPhanAnhId != TrangThaiPhanAnh.DangXuLy && 
-            TrangThaiPhanAnhId != TrangThaiPhanAnh.CSKHPhanHoi && 
+        if (TrangThaiPhanAnhId != TrangThaiPhanAnh.DangXuLy &&
+            TrangThaiPhanAnhId != TrangThaiPhanAnh.CSKHPhanHoi &&
             TrangThaiPhanAnhId != TrangThaiPhanAnh.CuDanPhanHoi)
         {
             return Result.Failure(PhanAnhErrors.InvalidStatus);
@@ -186,12 +199,12 @@ public class YeuCauPhanAnh : YeuCau
 
         DiemDanhGia = diem;
         NhanXetDanhGia = nhanXet;
-        NgayDanhGia = DateTimeOffset.UtcNow;
-        
+        NgayDanhGia = DateTimeOffset.Now;
+
         TrangThaiPhanAnhId = TrangThaiPhanAnh.DaDong;
-        
+
         // Đồng bộ trạng thái cơ sở của YeuCau sang Completed
-        var completeResult = Complete(NguoiXuLyId ?? 0, DateTimeOffset.UtcNow);
+        var completeResult = Complete(NguoiXuLyId ?? 0, DateTimeOffset.Now);
         if (completeResult.IsFailure)
             return completeResult;
 
@@ -213,5 +226,15 @@ public class YeuCauPhanAnh : YeuCau
         _traLoiPhanAnhs.Add(thongBao);
 
         return Result.Success();
+    }
+
+    public void SetHanPhanHoi(DateTimeOffset hanPhanHoi)
+    {
+        HanPhanHoi = hanPhanHoi;
+    }
+
+    public void MarkAsOverdueNotified()
+    {
+        IsQuaHanNotified = true;
     }
 }

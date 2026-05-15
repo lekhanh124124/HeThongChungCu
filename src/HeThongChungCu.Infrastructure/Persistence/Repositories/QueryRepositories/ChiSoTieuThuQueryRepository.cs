@@ -28,22 +28,18 @@ public class ChiSoTieuThuQueryRepository : IChiSoTieuThuQueryRepository
 
         var parameters = new DynamicParameters();
 
-        // 1. Định nghĩa Mapping
-        // propertyToColumnMap cho WHERE clause - Chứa các filter dùng để lọc tập kết quả chính
         var whereMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "IsDeleted", "ch.IsDeleted" },
-            { "ToaNhaId", "tn.Id" },
-            { "TangId", "t.Id" },
+            { "ToaNhaId", "t.ToaNhaId" },
+            { "TangId", "ch.TangId" },
             { "DichVuId", "dv.Id" }
         };
 
-        // Mapping cho từng bảng JOIN để lấy dữ liệu hiển thị (Block, TenTang, etc.)
         var toaNhaMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "Block", "tn.Block" } };
         var tangMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "TenTang", "t.TenTang" } };
         var dichVuMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { { "TenDichVu", "dv.TenDichVu" } };
 
-        // 2. Sử dụng Helper để build phần JOIN
         var sqlJoin = DapperQueryBuilder.BuildJoin(spec,
         [
             new("Tang", "t", "ch.TangId = t.Id", Mapping: tangMapping),
@@ -51,14 +47,9 @@ public class ChiSoTieuThuQueryRepository : IChiSoTieuThuQueryRepository
             new("DichVu", "dv", "1=1", Type: JoinType.Inner, Mapping: dichVuMapping)
         ], parameters);
 
-        // 3. Build phần WHERE và ORDER BY cho câu truy vấn chính
         var sqlWhere = DapperQueryBuilder.BuildWhere(spec, whereMapping, parameters);
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, whereMapping, "MaCanHo");
 
-        // 4. Câu lệnh SQL hoàn chỉnh
-        // GIẢI THÍCH:
-        // 4. Build OUTER APPLY để lấy "Số cũ" (Chỉ số mới nhất của kỳ trước)
-        // Helper này sẽ tự động đưa các filter từ Spec (DichVuId, TrangThaiChiSoId) vào trong subquery
         var chiSoMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "DichVuId", "DichVuId" },
@@ -120,8 +111,8 @@ public class ChiSoTieuThuQueryRepository : IChiSoTieuThuQueryRepository
             { "NgayGhiNhan", "cs.NgayGhiNhan" },
             { "IsDeleted", "cs.IsDeleted" },
             { "CanHoId", "cs.CanHoId" },
-            { "ToaNhaId", "tn.Id" },
-            { "TangId", "t.Id" }
+            { "ToaNhaId", "t.ToaNhaId" },
+            { "TangId", "ch.TangId" }
         };
 
         var parameters = new DynamicParameters();

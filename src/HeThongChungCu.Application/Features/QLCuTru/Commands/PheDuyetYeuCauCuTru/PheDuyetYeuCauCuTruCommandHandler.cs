@@ -127,14 +127,10 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
 
             // 3. Update Apartment Status
             existingRelations.Add(relation);
-            if (existingRelations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
-            {
-                canHo.MarkAsOccupied();
-            }
-            else
-            {
-                canHo.MarkAsVacant();
-            }
+            bool hasOwner = existingRelations.Any(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
+            bool hasTenant = existingRelations.Any(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue && r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
+            
+            canHo.SyncStatusWithResidency(hasOwner, hasTenant);
             _canHoRepository.Update(canHo);
         }
         else if (yeuCau.LoaiHanhDongYeuCauId == LoaiHanhDongYeuCau.Sua)
@@ -185,14 +181,10 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
                 relation.KetThucCuTru(now.DateTime);
 
                 var activeRelations = await _quanHeCuTruRepository.GetByCanHoIdAsync(yeuCau.CanHoId, cancellationToken);
-                if (activeRelations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
-                {
-                    canHo.MarkAsOccupied();
-                }
-                else
-                {
-                    canHo.MarkAsVacant();
-                }
+                bool hasOwner = activeRelations.Any(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
+                bool hasTenant = activeRelations.Any(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue && r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
+
+                canHo.SyncStatusWithResidency(hasOwner, hasTenant);
 
                 _quanHeCuTruRepository.Update(relation);
                 _canHoRepository.Update(canHo);

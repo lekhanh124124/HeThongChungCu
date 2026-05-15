@@ -75,6 +75,27 @@ public class ChiSoTieuThuQueryRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task GetListAsync_Should_ReturnPagedData_WithFilters()
+    {
+        // Arrange
+        var (toaNha, tang, canHo, dichVu) = await CreateDataAsync();
+        var chiSo = ChiSoTieuThu.Create(canHo.Id, dichVu.Id, 100, 150, 5, 2024, DateTimeOffset.Now);
+        await DbContext.ChiSoTieuThus.AddAsync(chiSo);
+        await DbContext.SaveChangesAsync();
+
+        var spec = new GetListChiSoSpecification("Id", false, 1, 10, 5, 2024, dichVu.Id, null, toaNha.Id, tang.Id, null);
+
+        // Act
+        var result = await _repository.GetListAsync(spec);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Items.Should().HaveCount(1);
+        result.Items!.First().Id.Should().Be(chiSo.Id);
+        result.PagingInfo.TotalItems.Should().Be(1);
+    }
+
+    [Fact]
     public async Task GetByIdAsync_Should_ReturnData()
     {
         // Arrange

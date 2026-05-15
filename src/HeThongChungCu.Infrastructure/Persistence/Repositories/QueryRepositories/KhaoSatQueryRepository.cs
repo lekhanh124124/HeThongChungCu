@@ -14,6 +14,8 @@ using HeThongChungCu.Application.Features.QLKhaoSat.Queries.GetKetQuaKhaoSat;
 using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Infrastructure.Persistence.Helpers;
 using HeThongChungCu.Infrastructure.Persistence.ReadModels;
+using HeThongChungCu.Application.Features.QLKhaoSat.Queries.GetKhaoSatParticipants;
+using HeThongChungCu.Application.Features.QLKhaoSat.Queries.GetResidentSurveyHistory;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.QueryRepositories;
 
@@ -346,7 +348,7 @@ public class KhaoSatQueryRepository : IKhaoSatQueryRepository
         foreach (var q in questions)
         {
             var qRows = statRows.Where(r => (int)r.CauHoiId == q.Id).ToList();
-            
+
             // Total vote weight for this question to calculate individual option percentages
             decimal totalWeightForQuestion = 0;
             foreach (var r in qRows)
@@ -379,5 +381,149 @@ public class KhaoSatQueryRepository : IKhaoSatQueryRepository
         }
 
         return response;
+    }
+    public async Task<PagedResult<KhaoSatParticipantResponse>> GetParticipantsAsync(
+        GetKhaoSatParticipantsSpecification spec,
+        CancellationToken cancellationToken = default)
+    {
+        var connection = _dbContext.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync(cancellationToken);
+
+        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Id", "b.Id" },
+            { "ThoiGianBieuQuyet", "b.CreatedAt" },
+            { "MaCanHo", "c.MaCanHo" },
+            { "BieuQuyetIsDeleted", "b.IsDeleted" },
+            { "KhaoSatId", "b.KhaoSatId" }
+        };
+
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+        var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "b.CreatedAt");
+        var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
+
+        var sql = $"""
+            SELECT
+                COUNT(*) OVER() AS TotalCount,
+                b.CanHoId,
+                c.MaCanHo,
+                (u.Ho + ' ' + u.Ten) AS TenChuHo,
+                u.SoDienThoai,
+                b.CreatedAt AS ThoiGianBieuQuyet,
+                b.TrongSoBieuQuyet AS TrongSo,
+                b.IsOtpVerified
+            FROM BieuQuyetCuDan b
+            INNER JOIN CanHo c ON b.CanHoId = c.Id
+            LEFT JOIN QuanHeCuTru q ON c.Id = q.CanHoId AND q.LoaiQuanHeCuTruId = 1 AND q.TrangThaiCuTruId = 1 AND q.IsDeleted = 0
+            LEFT JOIN NguoiDung u ON q.NguoiDungId = u.Id
+            {sqlWhere}
+            {sqlOrderBy}
+            {sqlPagination}
+            """;
+
+        var transaction = _dbContext.GetDbTransaction();
+        var rows = (await connection.QueryAsync<dynamic>(sql, parameters, transaction: transaction)).ToList();
+        var totalCount = rows.FirstOrDefault()?.TotalCount ?? 0;
+
+        var items = rows.Select(r => new KhaoSatParticipantResponse
+        {
+            CanHoId = (int)r.CanHoId,
+            MaCanHo = (string)r.MaCanHo,
+            TenChuHo = (string)(r.TenChuHo ?? "N/A"),
+            SoDienThoai = (string)(r.SoDienThoai ?? "N/A"),
+            ThoiGianBieuQuyet = (DateTimeOffset)r.ThoiGianBieuQuyet,
+            TrongSo = (decimal)r.TrongSo,
+            IsOtpVerified = (bool)r.IsOtpVerified
+        }).ToList();
+
+        return new PagedResult<KhaoSatParticipantResponse>
+        {
+            Items = items,
+            PagingInfo = new PagingInfo
+            {
+                PageNumber = spec.PageNumber ?? 1,
+                PageSize = spec.PageSize ?? (items.Count > 0 ? items.Count : 10),
+                TotalItems = totalCount
+            }
+        };
+    }
+
+    public async Task<List<ResidentSurveyHistoryResponse>> GetResidentHistoryAsync(
+        GetResidentSurveyHistorySpecification spec,
+        CancellationToken cancellationToken = default)
+    {
+        var connection = _dbContext.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync(cancellationToken);
+
+        var columnMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Id", "b.Id" },
+            { "NgayThamGia", "b.CreatedAt" },
+            { "BieuQuyetIsDeleted", "b.IsDeleted" },
+            { "CanHoId", "b.CanHoId" },
+            { "KhaoSatId", "b.KhaoSatId" }
+        };
+
+        var parameters = new DynamicParameters();
+        var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
+
+        var sql = $"""
+            SELECT
+                k.Id AS KhaoSatId,
+                k.TieuDe AS TieuDeKhaoSat,
+                b.CreatedAt AS NgayThamGia,
+                q.Id AS CauHoiId,
+                q.NoiDungCauHoi AS CauHoi,
+                o.Id AS LuaChonId,
+                o.NoiDungLuaChon AS LuaChon,
+                CASE WHEN d.Id IS NOT NULL THEN 1 ELSE 0 END AS IsSelected,
+                d.NoiDungTraLoiTuDo AS NoiDungTuDo
+            FROM BieuQuyetCuDan b
+            INNER JOIN KhaoSat k ON b.KhaoSatId = k.Id
+            INNER JOIN CauHoiKhaoSat q ON q.KhaoSatId = k.Id AND q.IsDeleted = 0
+            INNER JOIN LuaChonKhaoSat o ON o.CauHoiKhaoSatId = q.Id AND o.IsDeleted = 0
+            LEFT JOIN ChiTietBieuQuyet d ON d.BieuQuyetCuDanId = b.Id AND d.LuaChonKhaoSatId = o.Id AND d.IsDeleted = 0
+            {sqlWhere}
+            ORDER BY b.CreatedAt DESC, q.Id ASC, o.Id ASC
+            """;
+
+        var transaction = _dbContext.GetDbTransaction();
+        var rows = (await connection.QueryAsync<dynamic>(sql, parameters, transaction: transaction)).ToList();
+
+        var history = new List<ResidentSurveyHistoryResponse>();
+
+        foreach (var group in rows.GroupBy(r => new { r.KhaoSatId, r.TieuDeKhaoSat, r.NgayThamGia }))
+        {
+            var surveyHistory = new ResidentSurveyHistoryResponse
+            {
+                KhaoSatId = (int)group.Key.KhaoSatId,
+                TieuDeKhaoSat = (string)group.Key.TieuDeKhaoSat,
+                NgayThamGia = (DateTimeOffset)group.Key.NgayThamGia,
+                ChiTietLuaChon = []
+            };
+
+            foreach (var qGroup in group.GroupBy(r => new { r.CauHoiId, r.CauHoi }))
+            {
+                surveyHistory.ChiTietLuaChon.Add(new QuestionAnswerResponse
+                {
+                    CauHoi = (string)qGroup.Key.CauHoi,
+                    LuaChons = qGroup.Select(r => new OptionSelectionResponse
+                    {
+                        NoiDungLuaChon = (string)r.LuaChon,
+                        IsSelected = (int)r.IsSelected == 1
+                    }).ToList(),
+                    NoiDungTuDo = qGroup.FirstOrDefault(r => (int)r.IsSelected == 1)?.NoiDungTuDo ?? string.Empty
+                });
+            }
+
+            history.Add(surveyHistory);
+        }
+
+        return history;
     }
 }

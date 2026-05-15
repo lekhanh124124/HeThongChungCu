@@ -12,6 +12,7 @@ public interface IPhuongTienCommandRepository
     Task<bool> BienSoExistsAsync(string bienSo, CancellationToken cancellationToken = default);
     Task<bool> MaTheExistsAsync(string maThe, CancellationToken cancellationToken = default);
     Task<int> GetMaxThePhuongTienIdAsync(CancellationToken cancellationToken = default);
+    Task<List<PhuongTien>> GetActiveByCanHoIdsAsync(IEnumerable<int> canHoIds, CancellationToken cancellationToken = default);
     void Update(PhuongTien phuongTien);
     void RemoveRange(IEnumerable<PhuongTien> phuongTiens);
 }

@@ -47,7 +47,7 @@ public class QuanHeCuTruSeeder
             if (adminId != 0) qh.SetCreated(adminId, joinDate);
             context.QuanHeCuTrus.Add(qh);
 
-            canHo.MarkAsOccupied();
+            canHo.SyncStatusWithResidency(hasOwner: true, hasTenant: false);
             headApartmentDates[canHo.Id] = joinDate;
         }
 
@@ -70,7 +70,7 @@ public class QuanHeCuTruSeeder
             if (adminId != 0) qh.SetCreated(adminId, joinDate);
             context.QuanHeCuTrus.Add(qh);
 
-            canHo.MarkAsOccupied();
+            canHo.SyncStatusWithResidency(hasOwner: false, hasTenant: true);
             headApartmentDates[canHo.Id] = joinDate;
         }
 

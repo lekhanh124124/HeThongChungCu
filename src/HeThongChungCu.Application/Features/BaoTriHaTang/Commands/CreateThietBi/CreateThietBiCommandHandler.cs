@@ -29,7 +29,8 @@ public class CreateThietBiCommandHandler : ICommandHandler<CreateThietBiCommand,
             request.NgayMua,
             request.NgayHetHanBaoHanh,
             request.GiaTriBanDau,
-            request.GhiChu);
+            request.GhiChu,
+            request.ToaNhaId);
 
         await _thietBiRepository.AddThietBiAsync(thietBi, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -46,7 +47,8 @@ public class CreateThietBiCommandHandler : ICommandHandler<CreateThietBiCommand,
             GiaTriBanDau = thietBi.GiaTriBanDau,
             TrangThaiThietBiId = thietBi.TrangThaiThietBiId.Value,
             TenTrangThaiThietBi = thietBi.TrangThaiThietBiId.Name,
-            GhiChu = thietBi.GhiChu
+            GhiChu = thietBi.GhiChu,
+            ToaNhaId = thietBi.ToaNhaId
         });
     }
 }

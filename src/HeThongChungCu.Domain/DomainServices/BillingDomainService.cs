@@ -228,6 +228,23 @@ public class BillingDomainService : IBillingDomainService
         );
     }
 
+    public void AttachVehicleDetail(HoaDon hoaDon, PhuongTien phuongTien, BangGia bangGia)
+    {
+        var context = new PricingContext(SoLuong: 1);
+        var amount = bangGia.CalculateAmount(context);
+        
+        if (amount <= 0) return;
+
+        var tenDichVu = bangGia.DichVu?.TenDichVu ?? $"Phí trông giữ {phuongTien.LoaiPhuongTienId.Name}";
+
+        hoaDon.AddDichVuDetail(
+            $"{tenDichVu} - {phuongTien.BienSo}",
+            1,
+            amount,
+            bangGia.DichVuId
+        );
+    }
+
     // --- Private Calculation Methods ---
 
     private static decimal CalculateConsumptionFee(ChiSoTieuThu chiSo, BangGia bangGia)

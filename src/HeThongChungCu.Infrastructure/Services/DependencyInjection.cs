@@ -18,6 +18,7 @@ public static class DependencyInjection
         services.AddHostedService<OverdueInvoicesBackgroundService>();
         services.AddHostedService<PeriodicMaintenanceBackgroundService>();
         services.AddHostedService<CampaignSchedulerBackgroundService>();
+        services.AddHostedService<OverduePhanAnhBackgroundService>();
 
         return services;
     }

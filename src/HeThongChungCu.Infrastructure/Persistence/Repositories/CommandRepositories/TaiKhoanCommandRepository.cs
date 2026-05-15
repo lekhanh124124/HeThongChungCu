@@ -31,6 +31,7 @@ public class TaiKhoanCommandRepository : ITaiKhoanCommandRepository
     {
         return await _dbContext.TaiKhoan
             .Include(a => a.PhanQuyens)
+            .Include(a => a.Tokens)
             .FirstOrDefaultAsync(x => x.Email.Value == email, cancellationToken);
     }
 
@@ -38,6 +39,7 @@ public class TaiKhoanCommandRepository : ITaiKhoanCommandRepository
     {
         return await _dbContext.TaiKhoan
             .Include(a => a.PhanQuyens)
+            .Include(a => a.Tokens)
             .Include(a => a.AnhDaiDien)
             .FirstOrDefaultAsync(x => x.TenDangNhap == tenDangNhap, cancellationToken);
     }

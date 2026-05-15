@@ -10,4 +10,5 @@ public record CreateThietBiCommand(
     DateTimeOffset NgayMua,
     DateTimeOffset? NgayHetHanBaoHanh,
     decimal? GiaTriBanDau,
-    string? GhiChu) : ICommand<ThietBiResponse>;
+    string? GhiChu,
+    int? ToaNhaId) : ICommand<ThietBiResponse>;

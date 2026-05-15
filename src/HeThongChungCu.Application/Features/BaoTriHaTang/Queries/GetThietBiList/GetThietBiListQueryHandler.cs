@@ -18,6 +18,7 @@ public class GetThietBiListQueryHandler : IQueryHandler<GetThietBiListQuery, Pag
         var spec = new GetThietBiListSpecification(
             request.Keyword,
             request.TrangThaiThietBiId,
+            request.ToaNhaId,
             request.SortCol,
             request.IsAsc,
             request.PageNumber,

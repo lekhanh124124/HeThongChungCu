@@ -56,6 +56,8 @@ public class AppDbContext : DbContext, IUnitOfWork
     public DbSet<DotThanhToan> DotThanhToan => Set<DotThanhToan>();
     public DbSet<GiaoDichThanhToan> GiaoDichThanhToans => Set<GiaoDichThanhToan>();
     public DbSet<PhienThanhToan> PhienThanhToans => Set<PhienThanhToan>();
+    public DbSet<QuyThuChi> QuyThuChis => Set<QuyThuChi>();
+    public DbSet<ChiTietQuyThuChi> ChiTietQuyThuChis => Set<ChiTietQuyThuChi>();
     public DbSet<NhanVien> NhanViens => Set<NhanVien>();
     
     // Phase 4 - Bảo trì hạ tầng

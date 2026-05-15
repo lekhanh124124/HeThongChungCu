@@ -80,27 +80,35 @@ public class CanHo : AggregateRoot
     {
         if (TinhTrangCanHoId == nextStatus) return;
 
-        // Rule: ChuaBanGiao -> CoCuDan (phải qua DangTrong trước)
-        if (TinhTrangCanHoId == TrangThaiCanHo.ChuaBanGiao && nextStatus == TrangThaiCanHo.CoCuDan)
+        // Rule: ChuaBanGiao -> DangTrong hoặc DaBanGiao
+        if (TinhTrangCanHoId == TrangThaiCanHo.ChuaBanGiao && nextStatus == TrangThaiCanHo.DangChoThue)
         {
-            throw new BusinessException("Không được chuyển trực tiếp từ 'Chưa bàn giao' sang 'Có cư dân'. Phải qua trạng thái 'Đang trống'.");
+            throw new BusinessException("Không được chuyển trực tiếp từ 'Chưa bàn giao' sang 'Đang cho thuê'. Phải qua trạng thái 'Đang trống'.");
         }
 
         TinhTrangCanHoId = nextStatus;
     }
 
-    public void MarkAsOccupied()
+    public void SyncStatusWithResidency(bool hasOwner, bool hasTenant)
     {
-        if (TinhTrangCanHoId == TrangThaiCanHo.ChuaBanGiao)
-        {
-            UpdateStatus(TrangThaiCanHo.DangTrong);
-        }
-        UpdateStatus(TrangThaiCanHo.CoCuDan);
-    }
+        if (TinhTrangCanHoId == TrangThaiCanHo.ChuaBanGiao || TinhTrangCanHoId == TrangThaiCanHo.DangThiCong) return;
 
-    public void MarkAsVacant()
-    {
-        UpdateStatus(TrangThaiCanHo.DangTrong);
+        if (hasOwner)
+        {
+            UpdateStatus(TrangThaiCanHo.DaBanGiao);
+        }
+        else if (hasTenant)
+        {
+            UpdateStatus(TrangThaiCanHo.DangChoThue);
+        }
+        else
+        {
+            // Không có chủ hộ, không có người thuê -> Trống
+            if (TinhTrangCanHoId == TrangThaiCanHo.DangChoThue)
+            {
+                UpdateStatus(TrangThaiCanHo.DangTrong);
+            }
+        }
     }
 
     public void Delete()

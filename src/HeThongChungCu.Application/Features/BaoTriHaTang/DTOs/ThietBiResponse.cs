@@ -13,6 +13,8 @@ public class ThietBiResponse
     public int TrangThaiThietBiId { get; set; }
     public string TenTrangThaiThietBi { get; set; } = null!;
     public string? GhiChu { get; set; }
+    public int? ToaNhaId { get; set; }
+    public string? TenToaNha { get; set; }
 }
 
 public class ThietBiDetailResponse : ThietBiResponse

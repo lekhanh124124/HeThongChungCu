@@ -27,6 +27,10 @@ public class YeuCauPhanAnhConfiguration : IEntityTypeConfiguration<YeuCauPhanAnh
         builder.Property(x => x.DiemDanhGia);
         builder.Property(x => x.NhanXetDanhGia).HasMaxLength(500);
         builder.Property(x => x.NgayDanhGia);
+        builder.Property(x => x.HanPhanHoi);
+        builder.Property(x => x.IsQuaHanNotified)
+               .IsRequired()
+               .HasDefaultValue(false);
 
         // Chat replies relationship
         builder.HasMany(x => x.TraLoiPhanAnhs)

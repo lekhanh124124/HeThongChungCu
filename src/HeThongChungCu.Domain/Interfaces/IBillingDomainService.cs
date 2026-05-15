@@ -40,4 +40,6 @@ public interface IBillingDomainService
     void AttachConstructionDetail(HoaDon hoaDon, YeuCauThiCong thiCong, LoaiChiPhiThiCong loai, BangGia? bangGia = null);
 
     void AttachLateInterestDetail(HoaDon hoaDon, HoaDon overdueInvoice, BangGia interestBangGia, DateTimeOffset calculationDate);
+    
+    void AttachVehicleDetail(HoaDon hoaDon, PhuongTien phuongTien, BangGia bangGia);
 }

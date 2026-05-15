@@ -12,4 +12,5 @@ public interface IDichVuQueryRepository
     Task<PagedResult<BangGiaResponse>> GetListBangGiaAsync(HeThongChungCu.Application.Features.QLDichVu.Queries.GetListBangGia.GetListBangGiaSpecification spec, CancellationToken cancellationToken = default);
     Task<BangGiaResponse?> GetBangGiaByIdAsync(HeThongChungCu.Application.Features.QLDichVu.Queries.GetBangGiaById.GetBangGiaByIdSpecification spec, CancellationToken cancellationToken = default);
     Task<PagedResult<DangKyDichVuResponse>> GetListDangKyAsync(HeThongChungCu.Application.Features.QLDichVu.Queries.GetListDangKyDichVu.GetListDangKyDichVuSpecification spec, CancellationToken cancellationToken = default);
+    Task<int?> GetDichVuIdByLoaiAsync(HeThongChungCu.Domain.Enums.LoaiDichVu loai, CancellationToken cancellationToken = default);
 }

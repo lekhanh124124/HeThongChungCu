@@ -98,6 +98,8 @@ public static class DependencyInjection
         services.AddScoped<IHoaDonQueryRepository, HoaDonQueryRepository>();
         services.AddScoped<IGiaoDichThanhToanCommandRepository, GiaoDichThanhToanCommandRepository>();
         services.AddScoped<IGiaoDichThanhToanQueryRepository, GiaoDichThanhToanQueryRepository>();
+        services.AddScoped<IQuyThuChiCommandRepository, QuyThuChiCommandRepository>();
+        services.AddScoped<IQuyThuChiQueryRepository, QuyThuChiQueryRepository>();
         services.AddScoped<IChiSoTieuThuCommandRepository, ChiSoTieuThuCommandRepository>();
         services.AddScoped<IChiSoTieuThuQueryRepository, ChiSoTieuThuQueryRepository>();
         services.AddScoped<IDotThanhToanCommandRepository, DotThanhToanCommandRepository>();

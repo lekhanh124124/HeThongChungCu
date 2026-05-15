@@ -166,4 +166,23 @@ public class HoaDonDoiTacQueryRepository : IHoaDonDoiTacQueryRepository
             NoiDungHopDong = r.NoiDungHopDong
         };
     }
+
+    public async Task<(string SoHopDong, string TenDoiTac)> GetHoaDonDoiTacInfoAsync(int hoaDonDoiTacId, CancellationToken cancellationToken = default)
+    {
+        var connection = _dbContext.GetDbConnection();
+
+        var sql = """
+            SELECT hd.SoHopDong, dt.TenDoiTac
+            FROM HoaDonDoiTac h
+            INNER JOIN HopDongDoiTac hd ON h.HopDongDoiTacId = hd.Id
+            INNER JOIN DoiTac dt ON hd.DoiTacId = dt.Id
+            WHERE h.Id = @Id
+            """;
+
+        var result = await connection.QueryFirstOrDefaultAsync<dynamic>(sql, new { Id = hoaDonDoiTacId }, transaction: _dbContext.GetDbTransaction());
+
+        if (result == null) return ("HD-UNKNOWN", "Đối tác");
+
+        return ((string)result.SoHopDong, (string)result.TenDoiTac);
+    }
 }

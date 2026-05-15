@@ -29,6 +29,7 @@ public class ThietBiQueryRepository : IThietBiQueryRepository
         var thietBiMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "Id", "t.Id" },
+            { "ToaNhaId", "t.ToaNhaId" },
             { "IsDeleted", "t.IsDeleted" }
         };
 
@@ -46,8 +47,11 @@ public class ThietBiQueryRepository : IThietBiQueryRepository
                 t.NgayHetHanBaoHanh, 
                 t.GiaTriBanDau, 
                 t.TrangThaiThietBiId, 
-                t.GhiChu
+                t.GhiChu,
+                t.ToaNhaId,
+                tn.TenToaNha
             FROM ThietBi t
+            LEFT JOIN ToaNha tn ON t.ToaNhaId = tn.Id
             {sqlWhere};
             """;
 
@@ -70,7 +74,9 @@ public class ThietBiQueryRepository : IThietBiQueryRepository
             GiaTriBanDau = result.GiaTriBanDau,
             TrangThaiThietBiId = result.TrangThaiThietBiId,
             TenTrangThaiThietBi = status?.Name ?? string.Empty,
-            GhiChu = result.GhiChu
+            GhiChu = result.GhiChu,
+            ToaNhaId = result.ToaNhaId,
+            TenToaNha = result.TenToaNha
         };
     }
 
@@ -86,6 +92,7 @@ public class ThietBiQueryRepository : IThietBiQueryRepository
             { "MaThietBi", "t.MaThietBi" },
             { "TenThietBi", "t.TenThietBi" },
             { "LoaiThietBi", "t.LoaiThietBi" },
+            { "ToaNhaId", "t.ToaNhaId" },
             { "TrangThaiThietBiId", "t.TrangThaiThietBiId" },
             { "IsDeleted", "t.IsDeleted" }
         };
@@ -107,8 +114,11 @@ public class ThietBiQueryRepository : IThietBiQueryRepository
                 t.NgayHetHanBaoHanh, 
                 t.GiaTriBanDau, 
                 t.TrangThaiThietBiId, 
-                t.GhiChu
+                t.GhiChu,
+                t.ToaNhaId,
+                tn.TenToaNha
             FROM ThietBi t
+            LEFT JOIN ToaNha tn ON t.ToaNhaId = tn.Id
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination};
@@ -131,7 +141,9 @@ public class ThietBiQueryRepository : IThietBiQueryRepository
             GiaTriBanDau = r.GiaTriBanDau,
             TrangThaiThietBiId = r.TrangThaiThietBiId,
             TenTrangThaiThietBi = statusMap.GetValueOrDefault(r.TrangThaiThietBiId, string.Empty),
-            GhiChu = r.GhiChu
+            GhiChu = r.GhiChu,
+            ToaNhaId = r.ToaNhaId,
+            TenToaNha = r.TenToaNha
         }).ToList();
 
         return new PagedResult<ThietBiResponse>

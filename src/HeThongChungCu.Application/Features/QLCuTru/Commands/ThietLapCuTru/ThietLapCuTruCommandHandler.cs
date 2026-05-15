@@ -88,14 +88,10 @@ public class ThietLapCuTruCommandHandler : ICommandHandler<ThietLapCuTruCommand,
 
         // 3. Update Apartment Status
         existingRelations.Add(quanHe);
-        if (existingRelations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
-        {
-            canHo.MarkAsOccupied();
-        }
-        else
-        {
-            canHo.MarkAsVacant();
-        }
+        bool hasOwner = existingRelations.Any(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
+        bool hasTenant = existingRelations.Any(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue && r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
+        
+        canHo.SyncStatusWithResidency(hasOwner, hasTenant);
         _canHoRepository.Update(canHo);
 
         // Update role if account exists

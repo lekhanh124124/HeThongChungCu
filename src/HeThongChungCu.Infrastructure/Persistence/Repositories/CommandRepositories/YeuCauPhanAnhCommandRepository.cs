@@ -41,6 +41,18 @@ public class YeuCauPhanAnhCommandRepository : IYeuCauPhanAnhCommandRepository
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public async Task<List<YeuCauPhanAnh>> GetOverdueNotNotifiedAsync(DateTimeOffset currentTime, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.YeuCauPhanAnhs
+            .Where(x => !x.IsQuaHanNotified
+                        && x.HanPhanHoi != null
+                        && x.HanPhanHoi < currentTime
+                        && (x.TrangThaiPhanAnhId == HeThongChungCu.Domain.Enums.TrangThaiPhanAnh.ChoTiepNhan || 
+                            x.TrangThaiPhanAnhId == HeThongChungCu.Domain.Enums.TrangThaiPhanAnh.DangXuLy ||
+                            x.TrangThaiPhanAnhId == HeThongChungCu.Domain.Enums.TrangThaiPhanAnh.CuDanPhanHoi))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddAsync(YeuCauPhanAnh phanAnh, CancellationToken cancellationToken = default)
     {
         await _dbContext.YeuCauPhanAnhs.AddAsync(phanAnh, cancellationToken);

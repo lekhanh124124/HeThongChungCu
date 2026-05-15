@@ -15,4 +15,5 @@ public class BlobStorageSettings
     public string MeterReadingContainer { get; set; } = string.Empty;
     public string RepairRequestContainer { get; set; } = string.Empty;
     public string ConstructionRequestContainer { get; set; } = string.Empty;
+    public string ReflectionRequestContainer { get; set; } = string.Empty;
 }

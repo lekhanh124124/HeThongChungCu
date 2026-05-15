@@ -16,6 +16,7 @@ public class GetThietBiListSpecification : BaseSpecification
     public GetThietBiListSpecification(
         string? keyword,
         int? trangThaiThietBiId,
+        int? toaNhaId,
         string? sortCol,
         bool? isAsc,
         int? pageNumber,
@@ -27,6 +28,11 @@ public class GetThietBiListSpecification : BaseSpecification
         if (trangThaiThietBiId.HasValue)
         {
             AddFilter("TrangThaiThietBiId", FilterOperator.Equal, trangThaiThietBiId.Value);
+        }
+
+        if (toaNhaId.HasValue)
+        {
+            AddFilter("ToaNhaId", FilterOperator.Equal, toaNhaId.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(keyword))

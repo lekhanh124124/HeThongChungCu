@@ -75,6 +75,13 @@ internal sealed class PhuongTienCommandRepository : IPhuongTienCommandRepository
             .MaxAsync(x => (int?)x.Id, cancellationToken) ?? 0;
     }
 
+    public async Task<List<PhuongTien>> GetActiveByCanHoIdsAsync(IEnumerable<int> canHoIds, CancellationToken cancellationToken = default)
+    {
+        return await _context.PhuongTiens
+            .Where(x => x.TrangThaiPhuongTienId == TrangThaiPhuongTien.Active && canHoIds.Contains(x.CanHoId))
+            .ToListAsync(cancellationToken);
+    }
+
     public void RemoveRange(IEnumerable<PhuongTien> phuongTiens)
     {
         _context.PhuongTiens.RemoveRange(phuongTiens);

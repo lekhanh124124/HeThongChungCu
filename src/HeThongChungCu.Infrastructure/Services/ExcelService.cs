@@ -16,12 +16,19 @@ public class ExcelService : IExcelService
         using var package = new ExcelPackage();
         var worksheet = package.Workbook.Worksheets.Add(sheetName);
 
-        var properties = typeof(T).GetProperties();
+        // Detect actual type if T is object (common when using anonymous types in List<object>)
+        Type itemType = typeof(T);
+        if (itemType == typeof(object) && data != null && data.Any())
+        {
+            itemType = data.First()!.GetType();
+        }
+
+        var properties = itemType.GetProperties();
         
         // Headers
         for (int i = 0; i < properties.Length; i++)
         {
-            worksheet.Cells[1, i + 1].Value = properties[i].Name;
+            worksheet.Cells[1, i + 1].Value = properties[i].Name.Replace("_", " ");
             worksheet.Cells[1, i + 1].Style.Font.Bold = true;
         }
 
@@ -29,6 +36,7 @@ public class ExcelService : IExcelService
         var row = 2;
         foreach (var item in data)
         {
+            if (item == null) continue;
             for (int i = 0; i < properties.Length; i++)
             {
                 worksheet.Cells[row, i + 1].Value = properties[i].GetValue(item);
@@ -38,7 +46,7 @@ public class ExcelService : IExcelService
 
         // Add extra columns for input if it's a template
         // For ChiSoExcelTemplateDto, we need "SoMoi" and "GhiChu"
-        if (typeof(T).Name.Contains("Template"))
+        if (itemType.Name.Contains("Template"))
         {
             worksheet.Cells[1, properties.Length + 1].Value = "SoMoi";
             worksheet.Cells[1, properties.Length + 1].Style.Font.Bold = true;

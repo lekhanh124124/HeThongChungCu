@@ -732,5 +732,43 @@ public class CatalogController : ApiControllerBase
 
         return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
     }
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cung cấp tùy chọn loại thu/chi (Thu, Chi) cho bộ lọc hoặc lập phiếu thủ công.
+    /// </remarks>
+    [HttpPost("loai-thu-chi-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetLoaiThuChiForSelector()
+    {
+        var result = LoaiThuChi.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
+
+
+
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Cung cấp danh sách các phương thức thanh toán (Tiền mặt, Chuyển khoản) cho form lập phiếu.
+    /// </remarks>
+    [HttpPost("phuong-thuc-thanh-toan-for-selector")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<ItemForSelectorResponse>>), StatusCodes.Status200OK)]
+    public IActionResult GetPhuongThucThanhToanForSelector()
+    {
+        var result = PhuongThucThanhToan.GetAll()
+            .Select(x => new ItemForSelectorResponse
+            {
+                Id = x.Value,
+                Name = x.Name
+            })
+            .ToList();
+
+        return HandleResult(Result.Success<IReadOnlyList<ItemForSelectorResponse>>(result));
+    }
 }
 

@@ -5,6 +5,7 @@ namespace HeThongChungCu.Application.Features.BaoTriHaTang.Queries.GetThietBiLis
 public record GetThietBiListQuery(
     string? Keyword,
     int? TrangThaiThietBiId,
+    int? ToaNhaId,
     string? SortCol,
     bool? IsAsc,
     int? PageNumber = 1,

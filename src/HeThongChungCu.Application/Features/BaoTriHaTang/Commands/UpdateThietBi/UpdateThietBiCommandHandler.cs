@@ -28,7 +28,8 @@ public class UpdateThietBiCommandHandler : ICommandHandler<UpdateThietBiCommand,
             request.NgayMua,
             request.NgayHetHanBaoHanh,
             request.GiaTriBanDau,
-            request.GhiChu);
+            request.GhiChu,
+            request.ToaNhaId);
 
         if (request.TrangThaiThietBiId.HasValue)
         {
@@ -54,7 +55,8 @@ public class UpdateThietBiCommandHandler : ICommandHandler<UpdateThietBiCommand,
             GiaTriBanDau = thietBi.GiaTriBanDau,
             TrangThaiThietBiId = thietBi.TrangThaiThietBiId.Value,
             TenTrangThaiThietBi = thietBi.TrangThaiThietBiId.Name,
-            GhiChu = thietBi.GhiChu
+            GhiChu = thietBi.GhiChu,
+            ToaNhaId = thietBi.ToaNhaId
         });
     }
 }
