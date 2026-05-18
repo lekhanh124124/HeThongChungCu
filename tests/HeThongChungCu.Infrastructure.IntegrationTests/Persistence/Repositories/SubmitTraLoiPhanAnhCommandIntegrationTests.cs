@@ -38,7 +38,7 @@ public class SubmitTraLoiPhanAnhCommandIntegrationTests : BaseIntegrationTest
         var tang = toaNha.AddTang(Guid.NewGuid().ToString()[..10], "Tầng 3", LoaiTang.TangLau);
         await DbContext.SaveChangesAsync();
 
-        var canHo = CanHo.Create(tang.Id, Guid.NewGuid().ToString()[..10], "Căn Hộ C3-01", 85.0m, 2, 1, LoaiCanHo.Standard, TrangThaiCanHo.CoCuDan);
+        var canHo = CanHo.Create(tang.Id, Guid.NewGuid().ToString()[..10], "Căn Hộ C3-01", 85.0m, 2, 1, LoaiCanHo.Standard, TrangThaiCanHo.DaBanGiao);
         await DbContext.CanHos.AddAsync(canHo);
         await DbContext.SaveChangesAsync();
 

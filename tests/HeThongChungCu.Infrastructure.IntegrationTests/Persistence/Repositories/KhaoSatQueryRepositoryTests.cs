@@ -32,7 +32,7 @@ public class KhaoSatQueryRepositoryTests : BaseIntegrationTest
         var tang = toaNha.AddTang(Guid.NewGuid().ToString()[..10], "Tầng 1", LoaiTang.TangLau);
         await DbContext.SaveChangesAsync();
 
-        var canHo = CanHo.Create(tang.Id, Guid.NewGuid().ToString()[..10], "Căn Hộ K1-01", 120.5m, 3, 2, LoaiCanHo.Standard, TrangThaiCanHo.CoCuDan);
+        var canHo = CanHo.Create(tang.Id, Guid.NewGuid().ToString()[..10], "Căn Hộ K1-01", 120.5m, 3, 2, LoaiCanHo.Standard, TrangThaiCanHo.DaBanGiao);
         await DbContext.CanHos.AddAsync(canHo);
         await DbContext.SaveChangesAsync();
 

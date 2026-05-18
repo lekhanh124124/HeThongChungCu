@@ -12,7 +12,9 @@
     <PackageReference Include="Bogus" Version="35.6.5" />
     <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="EPPlus" Version="8.5.4" />
+    <PackageReference Include="Google.GenAI" Version="1.6.2" />
     <PackageReference Include="MailKit" Version="4.15.0" />
+    <PackageReference Include="Markdig" Version="0.37.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.24" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.2.9" />
@@ -24,10 +26,13 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.12" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.3" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.13.0" />
+    <PackageReference Include="OpenAI" Version="2.10.0" />
     <PackageReference Include="Qdrant.Client" Version="1.17.0" />
     <PackageReference Include="Quartz" Version="3.18.1" />
     <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.18.1" />
     <PackageReference Include="Quartz.Extensions.Hosting" Version="3.18.1" />
+    <PackageReference Include="SharpToken" Version="2.0.6" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
   </ItemGroup>
 

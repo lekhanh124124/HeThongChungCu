@@ -181,7 +181,7 @@ public sealed class XacNhanBieuQuyetCommandHandlerTests : BaseTest
             2, 
             2, 
             LoaiCanHo.Standard, 
-            TrangThaiCanHo.CoCuDan);
+            TrangThaiCanHo.DaBanGiao);
         _canHoRepository.GetByIdAsync(command.CanHoId, CancellationToken).Returns(canHo);
 
         // Act

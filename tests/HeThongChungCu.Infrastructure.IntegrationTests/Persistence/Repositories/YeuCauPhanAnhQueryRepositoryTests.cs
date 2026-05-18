@@ -31,7 +31,7 @@ public class YeuCauPhanAnhQueryRepositoryTests : BaseIntegrationTest
         var tang = toaNha.AddTang(Guid.NewGuid().ToString()[..10], "Tầng 2", LoaiTang.TangLau);
         await DbContext.SaveChangesAsync();
 
-        var canHo = CanHo.Create(tang.Id, Guid.NewGuid().ToString()[..10], "Căn Hộ P2-01", 90.0m, 2, 2, LoaiCanHo.Standard, TrangThaiCanHo.CoCuDan);
+        var canHo = CanHo.Create(tang.Id, Guid.NewGuid().ToString()[..10], "Căn Hộ P2-01", 90.0m, 2, 2, LoaiCanHo.Standard, TrangThaiCanHo.DaBanGiao);
         await DbContext.CanHos.AddAsync(canHo);
         await DbContext.SaveChangesAsync();
 

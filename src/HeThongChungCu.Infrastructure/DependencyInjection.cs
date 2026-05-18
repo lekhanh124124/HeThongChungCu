@@ -6,6 +6,10 @@ using HeThongChungCu.Infrastructure.Persistence;
 using HeThongChungCu.Infrastructure.Persistence.Repositories.CommandRepositories;
 using HeThongChungCu.Infrastructure.Qdrant;
 using HeThongChungCu.Infrastructure.Services;
+using HeThongChungCu.Infrastructure.Gemini;
+using HeThongChungCu.Infrastructure.OpenAI;
+using HeThongChungCu.Infrastructure.Embeddings;
+using HeThongChungCu.Infrastructure.Chunking;
 using HeThongChungCu.Infrastructure.Notifications;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +27,20 @@ public static class DependencyInjection
         services.AddHealthChecks(configuration);
         services.AddEmail(configuration);
         services.AddQdrantVectorStore(configuration);
+        
+        // Dynamically select LLM provider from configuration (default is Gemini)
+        var aiProvider = configuration["AI:Provider"] ?? "Gemini";
+        if (aiProvider.Equals("OpenAI", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddOpenAILLM();
+        }
+        else
+        {
+            services.AddGeminiLLM();
+        }
+
+        services.AddGeminiEmbeddings();
+        services.AddChunkingServices();
         services.AddFileStorage(configuration);
         services.AddNotification();
         services.AddMemoryCache();
