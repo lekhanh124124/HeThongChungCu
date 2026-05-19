@@ -22,7 +22,8 @@ public class TepTaiLieuConfiguration : IEntityTypeConfiguration<TepTaiLieu>
             .HasValue<TepYeuCauThiCong>(LoaiTepTaiLieu.YeuCauThiCong)
             .HasValue<TepPhuongTien>(LoaiTepTaiLieu.PhuongTien)
             .HasValue<TepHopDongDoiTac>(LoaiTepTaiLieu.HopDongDoiTac)
-            .HasValue<TepYeuCauPhanAnh>(LoaiTepTaiLieu.YeuCauPhanAnh);
+            .HasValue<TepYeuCauPhanAnh>(LoaiTepTaiLieu.YeuCauPhanAnh)
+            .HasValue<TepSaoLuuDb>(LoaiTepTaiLieu.SaoLuuDb);
 
         builder.Property(x => x.LoaiTepId)
             .HasConversion(

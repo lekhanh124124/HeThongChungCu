@@ -166,6 +166,7 @@ public partial class FileStorageService : IFileStorageService
         if (category == FileCategory.RepairRequest) return _settings.RepairRequestContainer;
         if (category == FileCategory.ConstructionRequest) return _settings.ConstructionRequestContainer;
         if (category == FileCategory.ReflectionRequest) return _settings.ReflectionRequestContainer;
+        if (category == FileCategory.Backup) return _settings.BackupContainer;
 
         return _settings.DocumentContainer; // Default
     }

@@ -1,5 +1,6 @@
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.CommandRepositories;
@@ -30,6 +31,21 @@ public class TepTaiLieuCommandRepository : ITepTaiLieuCommandRepository
         // Tìm tệp chưa được sử dụng và tạo trước thời điểm before
         return await _context.TepTaiLieus
             .Where(f => !f.IsUsed && f.CreatedAt <= before)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<TepTaiLieu>> GetBackupFilesAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.TepTaiLieus
+            .Where(f => f.LoaiTepId == LoaiTepTaiLieu.SaoLuuDb)
+            .OrderByDescending(f => f.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IEnumerable<TepTaiLieu>> GetExpiredAutoBackupsAsync(DateTime thresholdDate, CancellationToken cancellationToken = default)
+    {
+        return await _context.TepTaiLieus
+            .Where(f => f.LoaiTepId == LoaiTepTaiLieu.SaoLuuDb && f.FileName.StartsWith("AutoBackup_") && f.CreatedAt < thresholdDate)
             .ToListAsync(cancellationToken);
     }
 

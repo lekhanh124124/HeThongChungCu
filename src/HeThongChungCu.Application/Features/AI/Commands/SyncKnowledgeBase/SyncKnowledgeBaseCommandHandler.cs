@@ -77,10 +77,15 @@ public class SyncKnowledgeBaseCommandHandler : ICommandHandler<SyncKnowledgeBase
                 collectionName = _configuration["Qdrant:CollectionName"] ?? "resident_knowledge_base";
             }
 
-            var vectorSizeStr = _configuration["Gemini:EmbeddingVectorSize"] ?? "3072";
+            var aiProvider = _configuration["AI:Provider"] ?? "Gemini";
+            var isOpenAI = aiProvider.Equals("OpenAI", StringComparison.OrdinalIgnoreCase);
+            var vectorSizeKey = isOpenAI ? "OpenAI:EmbeddingVectorSize" : "Gemini:EmbeddingVectorSize";
+            var defaultSize = isOpenAI ? "1536" : "3072";
+            
+            var vectorSizeStr = _configuration[vectorSizeKey] ?? defaultSize;
             if (!ulong.TryParse(vectorSizeStr, out var vectorSize))
             {
-                vectorSize = 3072;
+                vectorSize = isOpenAI ? 1536UL : 3072UL;
             }
 
             if (request.ForceRebuild)

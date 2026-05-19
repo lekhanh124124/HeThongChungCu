@@ -13,6 +13,7 @@ public class LoaiTepTaiLieu : BaseEnum<LoaiTepTaiLieu, int>
     public static readonly LoaiTepTaiLieu PhuongTien = new(7, "Phương tiện");
     public static readonly LoaiTepTaiLieu HopDongDoiTac = new(8, "Hợp đồng đối tác");
     public static readonly LoaiTepTaiLieu YeuCauPhanAnh = new(9, "Yêu cầu phản ánh");
+    public static readonly LoaiTepTaiLieu SaoLuuDb = new(10, "Sao lưu dữ liệu nghiệp vụ");
 
     private LoaiTepTaiLieu(int value, string name) : base(value, name)
     {

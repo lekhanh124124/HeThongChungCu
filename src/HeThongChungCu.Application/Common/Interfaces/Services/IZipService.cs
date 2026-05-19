@@ -17,4 +17,9 @@ public interface IZipService
     /// Người gọi chịu trách nhiệm Dispose các MemoryStream sau khi sử dụng.
     /// </summary>
     Task<List<(string FileName, MemoryStream Content)>> ExtractFilesAsync(Stream zipStream, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Tạo một tệp zip chứa các tệp tin trực tiếp trong bộ nhớ RAM từ danh sách dữ liệu byte.
+    /// </summary>
+    Task<MemoryStream> CreateZipAsync(IEnumerable<(string FileName, byte[] Content)> files, CancellationToken cancellationToken = default);
 }

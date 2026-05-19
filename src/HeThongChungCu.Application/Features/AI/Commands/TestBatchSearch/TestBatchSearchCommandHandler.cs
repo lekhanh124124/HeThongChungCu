@@ -9,25 +9,28 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Configuration;
+
 namespace HeThongChungCu.Application.Features.AI.Commands.TestBatchSearch;
 
 public class TestBatchSearchCommandHandler : ICommandHandler<TestBatchSearchCommand, TestBatchSearchResultDto>
 {
     private const string EvenStatusIndexField = "even_status";
-    // Kích thước vector Gemini Embedding (text-embedding-004)
-    private const ulong EmbeddingDimension = 3072;
 
     private readonly IVectorStore _vectorStore;
     private readonly IEmbeddingService _embeddingService;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<TestBatchSearchCommandHandler> _logger;
 
     public TestBatchSearchCommandHandler(
         IVectorStore vectorStore,
         IEmbeddingService embeddingService,
+        IConfiguration configuration,
         ILogger<TestBatchSearchCommandHandler> logger)
     {
         _vectorStore = vectorStore;
         _embeddingService = embeddingService;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -39,8 +42,19 @@ public class TestBatchSearchCommandHandler : ICommandHandler<TestBatchSearchComm
                 "Starting batch upsert & search test on collection '{Collection}' with {Count} texts.",
                 request.CollectionName, request.Texts.Count);
 
-            // 1. Đảm bảo collection tồn tại (Dùng dimension của model Gemini Embedding: 3072)
-            await _vectorStore.CreateCollectionIfNotExistsAsync(request.CollectionName, EmbeddingDimension, cancellationToken);
+            // 1. Đảm bảo collection tồn tại (Dùng dimension động của active model)
+            var aiProvider = _configuration["AI:Provider"] ?? "Gemini";
+            var isOpenAI = aiProvider.Equals("OpenAI", StringComparison.OrdinalIgnoreCase);
+            var vectorSizeKey = isOpenAI ? "OpenAI:EmbeddingVectorSize" : "Gemini:EmbeddingVectorSize";
+            var defaultSize = isOpenAI ? 1536UL : 3072UL;
+            
+            var vectorSizeStr = _configuration[vectorSizeKey];
+            if (!ulong.TryParse(vectorSizeStr, out var vectorSize))
+            {
+                vectorSize = defaultSize;
+            }
+
+            await _vectorStore.CreateCollectionIfNotExistsAsync(request.CollectionName, vectorSize, cancellationToken);
 
             // Đăng ký trước chỉ mục siêu dữ liệu (Payload Index) – keyword index cho bộ lọc chẵn/lẻ
             await _vectorStore.CreatePayloadIndexAsync(request.CollectionName, EvenStatusIndexField, "keyword", cancellationToken);

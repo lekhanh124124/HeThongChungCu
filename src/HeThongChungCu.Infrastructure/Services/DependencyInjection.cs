@@ -12,6 +12,8 @@ public static class DependencyInjection
         services.AddScoped<ICodeGeneratorService, CodeGeneratorService>();
         services.AddScoped<IExcelService, ExcelService>();
         services.AddScoped<IZipService, ZipService>();
+        services.AddScoped<IBackupService, BackupService>();
+        services.AddSingleton<IMaintenanceService, MaintenanceService>();
         services.AddHostedService<CleanupUnusedFilesService>();
         services.AddHostedService<MonthlyBillingBackgroundService>();
         services.AddHostedService<NotificationBackgroundService>();
@@ -19,6 +21,7 @@ public static class DependencyInjection
         services.AddHostedService<PeriodicMaintenanceBackgroundService>();
         services.AddHostedService<CampaignSchedulerBackgroundService>();
         services.AddHostedService<OverduePhanAnhBackgroundService>();
+        services.AddHostedService<DatabaseBackupBackgroundService>();
 
         return services;
     }

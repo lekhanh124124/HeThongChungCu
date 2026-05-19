@@ -33,13 +33,13 @@ public static class DependencyInjection
         if (aiProvider.Equals("OpenAI", StringComparison.OrdinalIgnoreCase))
         {
             services.AddOpenAILLM();
+            services.AddOpenAIEmbeddings();
         }
         else
         {
             services.AddGeminiLLM();
+            services.AddGeminiEmbeddings();
         }
-
-        services.AddGeminiEmbeddings();
         services.AddChunkingServices();
         services.AddFileStorage(configuration);
         services.AddNotification();

@@ -16,4 +16,5 @@ public class BlobStorageSettings
     public string RepairRequestContainer { get; set; } = string.Empty;
     public string ConstructionRequestContainer { get; set; } = string.Empty;
     public string ReflectionRequestContainer { get; set; } = string.Empty;
+    public string BackupContainer { get; set; } = string.Empty;
 }

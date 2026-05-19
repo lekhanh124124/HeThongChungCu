@@ -183,7 +183,6 @@ public class AIController : ApiControllerBase
     ///     - **Tùy chọn**: `DocumentType` (lọc theo loại tài liệu), `Limit` (số kết quả tìm kiếm, mặc định: 5).
     /// </remarks>
     [HttpPost("chat")]
-    [AllowAnonymous]
     [ProducesResponseType(typeof(ApiResponse<AIChatResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Chat(

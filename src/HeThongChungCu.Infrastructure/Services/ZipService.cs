@@ -73,4 +73,22 @@ public class ZipService : IZipService
 
         return result;
     }
+
+    public async Task<MemoryStream> CreateZipAsync(IEnumerable<(string FileName, byte[] Content)> files, CancellationToken cancellationToken = default)
+    {
+        var zipMs = new MemoryStream();
+
+        using (var archive = new ZipArchive(zipMs, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            foreach (var file in files)
+            {
+                var entry = archive.CreateEntry(file.FileName, CompressionLevel.Optimal);
+                using var entryStream = entry.Open();
+                await entryStream.WriteAsync(file.Content, 0, file.Content.Length, cancellationToken);
+            }
+        }
+
+        zipMs.Position = 0;
+        return zipMs;
+    }
 }

@@ -73,6 +73,7 @@ namespace HeThongChungCu.WebAPI
 
             // ================== CONFIGURE THE HTTP REQUEST PIPELINE ==================
             app.UseMiddleware<Middlewares.GlobalExceptionMiddleware>();
+            app.UseMiddleware<Middlewares.MaintenanceModeMiddleware>();
 
             app.UseSerilogRequestLogging();
 

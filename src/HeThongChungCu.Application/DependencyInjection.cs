@@ -16,6 +16,7 @@ public static class DependencyInjection
         services.AddMediatR(configuration =>
         {
             configuration.RegisterServicesFromAssembly(assembly);
+            configuration.AddOpenBehavior(typeof(MaintenanceBehavior<,>));
             configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
             configuration.AddOpenBehavior(typeof(TransactionBehavior<,>));
             configuration.AddOpenBehavior(typeof(LoggingBehavior<,>));

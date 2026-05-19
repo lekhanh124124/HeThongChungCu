@@ -7,6 +7,8 @@ public interface ITepTaiLieuCommandRepository
     Task<TepTaiLieu?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<IEnumerable<TepTaiLieu>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
     Task<IEnumerable<TepTaiLieu>> GetUnusedFilesAsync(DateTime before, CancellationToken cancellationToken = default);
+    Task<IEnumerable<TepTaiLieu>> GetBackupFilesAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<TepTaiLieu>> GetExpiredAutoBackupsAsync(DateTime thresholdDate, CancellationToken cancellationToken = default);
     Task AddAsync(TepTaiLieu file, CancellationToken cancellationToken = default);
     Task AddRangeAsync(IEnumerable<TepTaiLieu> files, CancellationToken cancellationToken = default);
     void Update(TepTaiLieu file);

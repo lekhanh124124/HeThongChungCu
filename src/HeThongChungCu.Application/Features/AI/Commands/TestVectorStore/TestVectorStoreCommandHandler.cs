@@ -6,20 +6,25 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Configuration;
+
 namespace HeThongChungCu.Application.Features.AI.Commands.TestVectorStore;
 
 public class TestVectorStoreCommandHandler : ICommandHandler<TestVectorStoreCommand, TestVectorStoreResultDto>
 {
     private const string TestCollectionName = "test_connection_collection";
-    // Kích thước vector Gemini Embedding (text-embedding-004)
-    private const ulong EmbeddingDimension = 3072;
 
     private readonly IVectorStore _vectorStore;
+    private readonly IConfiguration _configuration;
     private readonly ILogger<TestVectorStoreCommandHandler> _logger;
 
-    public TestVectorStoreCommandHandler(IVectorStore vectorStore, ILogger<TestVectorStoreCommandHandler> logger)
+    public TestVectorStoreCommandHandler(
+        IVectorStore vectorStore,
+        IConfiguration configuration,
+        ILogger<TestVectorStoreCommandHandler> logger)
     {
         _vectorStore = vectorStore;
+        _configuration = configuration;
         _logger = logger;
     }
 
@@ -29,7 +34,18 @@ public class TestVectorStoreCommandHandler : ICommandHandler<TestVectorStoreComm
         {
             _logger.LogInformation("Testing VectorStore connection by ensuring collection '{Collection}' exists.", TestCollectionName);
 
-            await _vectorStore.CreateCollectionIfNotExistsAsync(TestCollectionName, EmbeddingDimension, cancellationToken);
+            var aiProvider = _configuration["AI:Provider"] ?? "Gemini";
+            var isOpenAI = aiProvider.Equals("OpenAI", StringComparison.OrdinalIgnoreCase);
+            var vectorSizeKey = isOpenAI ? "OpenAI:EmbeddingVectorSize" : "Gemini:EmbeddingVectorSize";
+            var defaultSize = isOpenAI ? 1536UL : 3072UL;
+            
+            var vectorSizeStr = _configuration[vectorSizeKey];
+            if (!ulong.TryParse(vectorSizeStr, out var vectorSize))
+            {
+                vectorSize = defaultSize;
+            }
+
+            await _vectorStore.CreateCollectionIfNotExistsAsync(TestCollectionName, vectorSize, cancellationToken);
 
             _logger.LogInformation("VectorStore connection test successful.");
 

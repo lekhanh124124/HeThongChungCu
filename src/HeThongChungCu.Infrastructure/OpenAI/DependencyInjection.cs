@@ -10,4 +10,10 @@ public static class DependencyInjection
         services.AddScoped<ILLMService, OpenAILLMService>();
         return services;
     }
+
+    public static IServiceCollection AddOpenAIEmbeddings(this IServiceCollection services)
+    {
+        services.AddScoped<IEmbeddingService, OpenAIEmbeddingService>();
+        return services;
+    }
 }
