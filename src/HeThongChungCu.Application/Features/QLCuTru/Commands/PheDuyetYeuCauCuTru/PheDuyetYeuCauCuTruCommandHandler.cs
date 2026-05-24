@@ -65,7 +65,8 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
         {
             // Gather data for uniqueness check
             var cccdExists = !string.IsNullOrEmpty(yeuCau.YeuCauCCCD) && await _userRepository.AnyAsync(u => u.CCCD == yeuCau.YeuCauCCCD, cancellationToken);
-            var phoneExists = !string.IsNullOrEmpty(yeuCau.YeuCauSoDienThoai) && await _userRepository.AnyAsync(u => u.SoDienThoai!.Value == yeuCau.YeuCauSoDienThoai, cancellationToken);
+            string? targetPhoneValue = yeuCau.YeuCauSoDienThoai?.Value;
+            var phoneExists = !string.IsNullOrEmpty(targetPhoneValue) && await _userRepository.AnyAsync(u => u.SoDienThoai!.Value == targetPhoneValue, cancellationToken);
 
             // Logic moved from ResidencyService.CheckUniqueness
             if (cccdExists) return UserErrors.IdCardAlreadyExists;
@@ -77,7 +78,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
                 yeuCau.YeuCauHo!,
                 yeuCau.YeuCauNgaySinh ?? DateTimeOffset.MinValue,
                 GioiTinh.FromValue(yeuCau.YeuCauGioiTinhId ?? 1, null)!,
-                yeuCau.YeuCauDiaChi.FullAddress,
+                yeuCau.YeuCauDiaChi?.FullAddress,
                 cccd: yeuCau.YeuCauCCCD,
                 soDienThoai: yeuCau.YeuCauSoDienThoai);
 
@@ -227,7 +228,7 @@ public class PheDuyetYeuCauCuTruCommandHandler : ICommandHandler<PheDuyetYeuCauC
                 Files = d.Files.Select(f => new TepTaiLieuResponse(f.Id, f.FileUrl, f.FileName, f.ContentType)).ToList()
             }).ToList(),
             YeuCauCCCD = yeuCau.YeuCauCCCD,
-            YeuCauDiaChi = yeuCau.YeuCauDiaChi!.FullAddress
+            YeuCauDiaChi = yeuCau.YeuCauDiaChi?.FullAddress
         });
     }
 }

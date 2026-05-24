@@ -33,7 +33,7 @@ public class ApproveYeuCauThiCongCommandHandler : ICommandHandler<ApproveYeuCauT
 
     public async Task<Result<YeuCauThiCongResponse>> Handle(ApproveYeuCauThiCongCommand command, CancellationToken cancellationToken)
     {
-        var yctc = await _yctcCommandRepository.GetByIdWithPersonnelAsync(command.Id, cancellationToken);
+        var yctc = await _yctcCommandRepository.GetByIdWithAllAsync(command.Id, cancellationToken);
         if (yctc == null)
             return YeuCauThiCongErrors.NotFound;
 

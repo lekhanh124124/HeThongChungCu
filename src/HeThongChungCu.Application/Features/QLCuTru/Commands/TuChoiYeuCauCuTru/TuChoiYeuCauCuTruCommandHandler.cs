@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -62,6 +62,8 @@ public class TuChoiYeuCauCuTruCommandHandler : ICommandHandler<TuChoiYeuCauCuTru
             CreatedAt = yeuCau.CreatedAt,
             NgayXuLy = yeuCau.NgayXuLy,
             NguoiXuLyId = yeuCau.NguoiXuLyId,
+            YeuCauCCCD = yeuCau.YeuCauCCCD,
+            YeuCauDiaChi = yeuCau.YeuCauDiaChi?.FullAddress,
             Documents = yeuCau.YeuCauTaiLieuCuTrus.Select(d => new TaiLieuResponse
             {
                 Id = d.Id,

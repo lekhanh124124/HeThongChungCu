@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLCuTru.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -111,7 +111,7 @@ public class CapNhatYeuCauCuTruCommandHandler : ICommandHandler<CapNhatYeuCauCuT
             YeuCauGioiTinhId = yeuCau.YeuCauGioiTinhId,
             YeuCauSoDienThoai = yeuCau.YeuCauSoDienThoai,
             YeuCauCCCD = yeuCau.YeuCauCCCD,
-            YeuCauDiaChi = yeuCau.YeuCauDiaChi.FullAddress,
+            YeuCauDiaChi = yeuCau.YeuCauDiaChi?.FullAddress,
             YeuCauLoaiQuanHeId = yeuCau.YeuCauLoaiQuanHeId,
             TargetQuanHeCuTruId = yeuCau.YeuCauQuanHeCuTruId,
             NgayXuLy = yeuCau.NgayXuLy,

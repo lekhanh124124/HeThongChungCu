@@ -14,6 +14,7 @@ public static class DichVuSeeder
 
         logger.LogInformation("Seeding Mandatory Services and Partners...");
 
+        var seedDate = new DateTimeOffset(2025, 1, 1, 0, 0, 0, TimeSpan.FromHours(7));
         var admin = await context.TaiKhoan.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Email.Value == "admin@gmail.com");
         var adminId = admin?.Id ?? 0;
 
@@ -187,7 +188,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvVanHanh);
         await context.SaveChangesAsync();
 
-        var bgVanHanh = new BangGiaLoaiCanHo(dvVanHanh.Id, "Bảng giá vận hành 2026", DateTimeOffset.Now, true);
+        var bgVanHanh = new BangGiaLoaiCanHo(dvVanHanh.Id, "Bảng giá vận hành 2026", seedDate, true);
         bgVanHanh.Activate();
         bgVanHanh.AddGiaLoaiCanHo(LoaiCanHo.Standard, 10000);
         bgVanHanh.AddGiaLoaiCanHo(LoaiCanHo.Studio, 8000);
@@ -206,7 +207,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvDien);
         await context.SaveChangesAsync();
 
-        var bgDien = new BangGiaLuyTien(dvDien.Id, "Biểu giá điện sinh hoạt 2026", DateTimeOffset.Now, true);
+        var bgDien = new BangGiaLuyTien(dvDien.Id, "Biểu giá điện sinh hoạt 2026", seedDate, true);
         bgDien.Activate();
         bgDien.AddChiTietGia(0, 50, 1806);
         bgDien.AddChiTietGia(50, 100, 1866);
@@ -219,7 +220,7 @@ public static class DichVuSeeder
         await context.SaveChangesAsync();
 
         // Ký hợp đồng tổng với EVN
-        var hdDien = evn.KyHopDongMoi("HD-EVN-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(10), 20000000000, dvDien.Id, "Hợp đồng mua điện năng tổng cho tòa nhà.");
+        var hdDien = evn.KyHopDongMoi("HD-EVN-2026", seedDate, seedDate.AddYears(10), 20000000000, dvDien.Id, "Hợp đồng mua điện năng tổng cho tòa nhà.");
         if (adminId != 0) hdDien.SetCreated(adminId, DateTimeOffset.Now);
 
         // 2.3. Dịch vụ Nước sinh hoạt (Nội bộ quản lý - Có đối tác nguồn)
@@ -229,7 +230,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvNuoc);
         await context.SaveChangesAsync();
 
-        var bgNuoc = new BangGiaLuyTien(dvNuoc.Id, "Giá nước sinh hoạt 2026", DateTimeOffset.Now, true);
+        var bgNuoc = new BangGiaLuyTien(dvNuoc.Id, "Giá nước sinh hoạt 2026", seedDate, true);
         bgNuoc.Activate();
         bgNuoc.AddChiTietGia(0, 10, 5973);
         bgNuoc.AddChiTietGia(10, 20, 7052);
@@ -240,7 +241,7 @@ public static class DichVuSeeder
         await context.SaveChangesAsync();
 
         // Ký hợp đồng tổng với SAWACO
-        var hdNuoc = sawaco.KyHopDongMoi("HD-SW-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5), 3000000000, dvNuoc.Id, "Hợp đồng cấp nước sạch toàn khu dân cư.");
+        var hdNuoc = sawaco.KyHopDongMoi("HD-SW-2026", seedDate, seedDate.AddYears(5), 3000000000, dvNuoc.Id, "Hợp đồng cấp nước sạch toàn khu dân cư.");
         if (adminId != 0) hdNuoc.SetCreated(adminId, DateTimeOffset.Now);
 
         // 2.4. Dịch vụ Internet & Truyền hình (Vận hành - Bắt buộc)
@@ -250,14 +251,14 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvInternet);
         await context.SaveChangesAsync();
 
-        var bgInternet = new BangGiaCoDinh(dvInternet.Id, "Bảng giá Internet 2026", DateTimeOffset.Now, 165000, true);
+        var bgInternet = new BangGiaCoDinh(dvInternet.Id, "Bảng giá Internet 2026", seedDate, 165000, true);
         bgInternet.Activate();
         if (adminId != 0) bgInternet.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgInternet);
         await context.SaveChangesAsync();
 
         // Ký hợp đồng với Viettel
-        var hdInternet = viettel.KyHopDongMoi("HD-VT-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5), 500000000, dvInternet.Id, "Hợp đồng cung cấp hạ tầng viễn thông cho tòa nhà.");
+        var hdInternet = viettel.KyHopDongMoi("HD-VT-2026", seedDate, seedDate.AddYears(5), 500000000, dvInternet.Id, "Hợp đồng cung cấp hạ tầng viễn thông cho tòa nhà.");
         if (adminId != 0) hdInternet.SetCreated(adminId, DateTimeOffset.Now);
 
         // 2.5. Dịch vụ Trông giữ phương tiện (Nội bộ)
@@ -275,7 +276,7 @@ public static class DichVuSeeder
             if (adminId != 0) dvParking.SetCreated(adminId, DateTimeOffset.Now);
             await context.DichVus.AddAsync(dvParking);
             await context.SaveChangesAsync();
-            var bgParking = new BangGiaCoDinh(dvParking.Id, "Giá giữ xe tháng 2026", DateTimeOffset.Now, Price, true);
+            var bgParking = new BangGiaCoDinh(dvParking.Id, "Giá giữ xe tháng 2026", seedDate, Price, true);
             bgParking.Activate();
             if (adminId != 0) bgParking.SetCreated(adminId, DateTimeOffset.Now);
             await context.BangGias.AddAsync(bgParking);
@@ -289,14 +290,14 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvRac);
         await context.SaveChangesAsync();
 
-        var bgRac = new BangGiaCoDinh(dvRac.Id, "Giá phí vệ sinh 2026", DateTimeOffset.Now, 30000, true);
+        var bgRac = new BangGiaCoDinh(dvRac.Id, "Giá phí vệ sinh 2026", seedDate, 30000, true);
         bgRac.Activate();
         if (adminId != 0) bgRac.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgRac);
         await context.SaveChangesAsync();
 
         // Ký hợp đồng tổng với CITENCO
-        var hdRac = citenco.KyHopDongMoi("HD-RAC-2026-001", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(1), 50000000, dvRac.Id, "Hợp đồng thu gom rác thải khu vực tòa nhà.");
+        var hdRac = citenco.KyHopDongMoi("HD-RAC-2026-001", seedDate, seedDate.AddYears(1), 50000000, dvRac.Id, "Hợp đồng thu gom rác thải khu vực tòa nhà.");
         if (adminId != 0) hdRac.SetCreated(adminId, DateTimeOffset.Now);
 
         // --- 3. Dịch vụ Tiện ích & Giá trị gia tăng (Không bắt buộc - Nội bộ) ---
@@ -308,14 +309,14 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvGym);
         await context.SaveChangesAsync();
 
-        var bgGym = new BangGiaCoDinh(dvGym.Id, "Bảng giá tập Gym 2026", DateTimeOffset.Now, 500000, true);
+        var bgGym = new BangGiaCoDinh(dvGym.Id, "Bảng giá tập Gym 2026", seedDate, 500000, true);
         bgGym.Activate();
         if (adminId != 0) bgGym.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgGym);
         await context.SaveChangesAsync();
 
         // Ký hợp đồng với California
-        var hdGym = california.KyHopDongMoi("HD-CALI-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(3), 200000000, dvGym.Id, "Hợp đồng cung cấp dịch vụ Gym & Yoga cho tòa nhà.");
+        var hdGym = california.KyHopDongMoi("HD-CALI-2026", seedDate, seedDate.AddYears(3), 200000000, dvGym.Id, "Hợp đồng cung cấp dịch vụ Gym & Yoga cho tòa nhà.");
         if (adminId != 0) hdGym.SetCreated(adminId, DateTimeOffset.Now);
 
         // 3.2. Vé hồ bơi theo lượt
@@ -325,7 +326,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvPool);
         await context.SaveChangesAsync();
 
-        var bgPool = new BangGiaCoDinh(dvPool.Id, "Bảng giá hồ bơi 2026", DateTimeOffset.Now, 30000, false);
+        var bgPool = new BangGiaCoDinh(dvPool.Id, "Bảng giá hồ bơi 2026", seedDate, 30000, false);
         bgPool.Activate();
         if (adminId != 0) bgPool.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgPool);
@@ -343,7 +344,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvBbq);
         await context.SaveChangesAsync(); // Lưu để lấy ID KhungGio
 
-        var bgBbq = new BangGiaKhungGio(dvBbq.Id, "Giá thuê sân BBQ 2026", DateTimeOffset.Now, false);
+        var bgBbq = new BangGiaKhungGio(dvBbq.Id, "Giá thuê sân BBQ 2026", seedDate, false);
         bgBbq.Activate();
         if (adminId != 0) bgBbq.SetCreated(adminId, DateTimeOffset.Now);
 
@@ -366,7 +367,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvCommon);
         await context.SaveChangesAsync();
 
-        var bgCommon = new BangGiaKhungGio(dvCommon.Id, "Giá thuê phòng cộng đồng 2026", DateTimeOffset.Now, false);
+        var bgCommon = new BangGiaKhungGio(dvCommon.Id, "Giá thuê phòng cộng đồng 2026", seedDate, false);
         bgCommon.Activate();
         if (adminId != 0) bgCommon.SetCreated(adminId, DateTimeOffset.Now);
 
@@ -384,14 +385,14 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvLaundry);
         await context.SaveChangesAsync();
 
-        var bgLaundry = new BangGiaCoDinh(dvLaundry.Id, "Bảng giá giặt ủi 2026", DateTimeOffset.Now, 20000, false);
+        var bgLaundry = new BangGiaCoDinh(dvLaundry.Id, "Bảng giá giặt ủi 2026", seedDate, 20000, false);
         bgLaundry.Activate();
         if (adminId != 0) bgLaundry.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgLaundry);
         await context.SaveChangesAsync();
 
         // Ký hợp đồng với Cleany
-        var hdLaundry = cleany.KyHopDongMoi("HD-CLEAN-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(1), 50000000, dvLaundry.Id, "Hợp đồng cung cấp dịch vụ giặt ủi định kỳ.");
+        var hdLaundry = cleany.KyHopDongMoi("HD-CLEAN-2026", seedDate, seedDate.AddYears(1), 50000000, dvLaundry.Id, "Hợp đồng cung cấp dịch vụ giặt ủi định kỳ.");
         if (adminId != 0) hdLaundry.SetCreated(adminId, DateTimeOffset.Now);
 
         // 3.6. Dịch vụ giúp việc theo giờ
@@ -401,14 +402,14 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvCleaning);
         await context.SaveChangesAsync();
 
-        var bgCleaning = new BangGiaCoDinh(dvCleaning.Id, "Bảng giá dọn dẹp 2026", DateTimeOffset.Now, 100000, false);
+        var bgCleaning = new BangGiaCoDinh(dvCleaning.Id, "Bảng giá dọn dẹp 2026", seedDate, 100000, false);
         bgCleaning.Activate();
         if (adminId != 0) bgCleaning.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgCleaning);
         await context.SaveChangesAsync();
 
         // Ký hợp đồng với bTaskee
-        var hdCleaning = btaskee.KyHopDongMoi("HD-BTASK-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(1), 30000000, dvCleaning.Id, "Hợp đồng hợp tác cung cấp nhân sự giúp việc qua ứng dụng.");
+        var hdCleaning = btaskee.KyHopDongMoi("HD-BTASK-2026", seedDate, seedDate.AddYears(1), 30000000, dvCleaning.Id, "Hợp đồng hợp tác cung cấp nhân sự giúp việc qua ứng dụng.");
         if (adminId != 0) hdCleaning.SetCreated(adminId, DateTimeOffset.Now);
 
         // 3.7. Dịch vụ Giao nước uống
@@ -418,14 +419,14 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvWaterBottle);
         await context.SaveChangesAsync();
 
-        var bgWaterBottle = new BangGiaCoDinh(dvWaterBottle.Id, "Bảng giá nước La Vie 2026", DateTimeOffset.Now, 65000, false);
+        var bgWaterBottle = new BangGiaCoDinh(dvWaterBottle.Id, "Bảng giá nước La Vie 2026", seedDate, 65000, false);
         bgWaterBottle.Activate();
         if (adminId != 0) bgWaterBottle.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgWaterBottle);
         await context.SaveChangesAsync();
 
         // Ký hợp đồng với La Vie
-        var hdWater = lavie.KyHopDongMoi("HD-LAVIE-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(2), 100000000, dvWaterBottle.Id, "Hợp đồng cung cấp nước uống đóng bình.");
+        var hdWater = lavie.KyHopDongMoi("HD-LAVIE-2026", seedDate, seedDate.AddYears(2), 100000000, dvWaterBottle.Id, "Hợp đồng cung cấp nước uống đóng bình.");
         if (adminId != 0) hdWater.SetCreated(adminId, DateTimeOffset.Now);
 
         // 3.8. Dịch vụ Rửa xe
@@ -443,14 +444,14 @@ public static class DichVuSeeder
             await context.DichVus.AddAsync(dvWash);
             await context.SaveChangesAsync();
 
-            var bgWash = new BangGiaCoDinh(dvWash.Id, "Bảng giá rửa xe 2026", DateTimeOffset.Now, Price, false);
+            var bgWash = new BangGiaCoDinh(dvWash.Id, "Bảng giá rửa xe 2026", seedDate, Price, false);
             bgWash.Activate();
             if (adminId != 0) bgWash.SetCreated(adminId, DateTimeOffset.Now);
             await context.BangGias.AddAsync(bgWash);
             await context.SaveChangesAsync();
 
             // Ký hợp đồng với WashUp cho từng dịch vụ
-            var hdWash = washup.KyHopDongMoi($"HD-WU-{Code}-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(1), 20000000, dvWash.Id, $"Hợp đồng cung cấp dịch vụ {Name}.");
+            var hdWash = washup.KyHopDongMoi($"HD-WU-{Code}-2026", seedDate, seedDate.AddYears(1), 20000000, dvWash.Id, $"Hợp đồng cung cấp dịch vụ {Name}.");
             if (adminId != 0) hdWash.SetCreated(adminId, DateTimeOffset.Now);
         }
 
@@ -468,7 +469,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvTennis);
         await context.SaveChangesAsync();
 
-        var bgTennis = new BangGiaKhungGio(dvTennis.Id, "Giá thuê sân Tennis 2026", DateTimeOffset.Now, false);
+        var bgTennis = new BangGiaKhungGio(dvTennis.Id, "Giá thuê sân Tennis 2026", seedDate, false);
         bgTennis.Activate();
         if (adminId != 0) bgTennis.SetCreated(adminId, DateTimeOffset.Now);
 
@@ -487,14 +488,14 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvSpa);
         await context.SaveChangesAsync();
 
-        var bgSpa = new BangGiaCoDinh(dvSpa.Id, "Bảng giá Spa 2026", DateTimeOffset.Now, 500000, false);
+        var bgSpa = new BangGiaCoDinh(dvSpa.Id, "Bảng giá Spa 2026", seedDate, 500000, false);
         bgSpa.Activate();
         if (adminId != 0) bgSpa.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgSpa);
         await context.SaveChangesAsync();
 
         // Ký hợp đồng với Shiseido
-        var hdSpa = shiseido.KyHopDongMoi("HD-SHI-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(3), 1000000000, dvSpa.Id, "Hợp đồng cung cấp dịch vụ Spa cao cấp.");
+        var hdSpa = shiseido.KyHopDongMoi("HD-SHI-2026", seedDate, seedDate.AddYears(3), 1000000000, dvSpa.Id, "Hợp đồng cung cấp dịch vụ Spa cao cấp.");
         if (adminId != 0) hdSpa.SetCreated(adminId, DateTimeOffset.Now);
 
         // --- 4. Dịch vụ Yêu cầu cư dân ---
@@ -534,7 +535,7 @@ public static class DichVuSeeder
         await context.DichVus.AddAsync(dvThueNha);
         await context.SaveChangesAsync();
 
-        var bgThueNha = new BangGiaLoaiCanHo(dvThueNha.Id, "Bảng giá thuê nhà 2026", DateTimeOffset.Now, true);
+        var bgThueNha = new BangGiaLoaiCanHo(dvThueNha.Id, "Bảng giá thuê nhà 2026", seedDate, true);
         bgThueNha.Activate();
         bgThueNha.AddGiaLoaiCanHo(LoaiCanHo.Standard, 12000000);
         bgThueNha.AddGiaLoaiCanHo(LoaiCanHo.Studio, 7000000);
@@ -561,7 +562,7 @@ public static class DichVuSeeder
 
         // BangGiaCoDinh: DonGia = 0.0005 (= 0.05%/ngày)
         // CalculateAmount(context) = DonGia × SoLuong = 0.0005 × (TongTienGoc × SoNgayQuaHan)
-        var bgLaiTreHan = new BangGiaCoDinh(dvLaiTreHan.Id, "Lãi suất chậm nộp 2026", DateTimeOffset.Now, 0.0005m, true);
+        var bgLaiTreHan = new BangGiaCoDinh(dvLaiTreHan.Id, "Lãi suất chậm nộp 2026", seedDate, 0.0005m, true);
         bgLaiTreHan.Activate();
         if (adminId != 0) bgLaiTreHan.SetCreated(adminId, DateTimeOffset.Now);
         await context.BangGias.AddAsync(bgLaiTreHan);
@@ -575,8 +576,8 @@ public static class DichVuSeeder
         await context.SaveChangesAsync();
 
         // Ký hợp đồng với Schindler và Daikin
-        var hdSchindler = schindler.KyHopDongMoi("HD-SCH-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5), 1500000000, dvBaoTri.Id, "Hợp đồng bảo trì hệ thống thang máy Otis và Schindler.");
-        var hdDaikin = daikin.KyHopDongMoi("HD-DAIKIN-2026", DateTimeOffset.Now, DateTimeOffset.Now.AddYears(5), 800000000, dvBaoTri.Id, "Hợp đồng bảo trì hệ thống điều hòa VRV.");
+        var hdSchindler = schindler.KyHopDongMoi("HD-SCH-2026", seedDate, seedDate.AddYears(5), 1500000000, dvBaoTri.Id, "Hợp đồng bảo trì hệ thống thang máy Otis và Schindler.");
+        var hdDaikin = daikin.KyHopDongMoi("HD-DAIKIN-2026", seedDate, seedDate.AddYears(5), 800000000, dvBaoTri.Id, "Hợp đồng bảo trì hệ thống điều hòa VRV.");
         
         if (adminId != 0)
         {

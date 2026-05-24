@@ -145,7 +145,7 @@ public class TaoYeuCauCuTruCommandHandler : ICommandHandler<TaoYeuCauCuTruComman
             YeuCauGioiTinhId = yeuCau.YeuCauGioiTinhId,
             YeuCauSoDienThoai = yeuCau.YeuCauSoDienThoai,
             YeuCauCCCD = yeuCau.YeuCauCCCD,
-            YeuCauDiaChi = yeuCau.YeuCauDiaChi.FullAddress,
+            YeuCauDiaChi = yeuCau.YeuCauDiaChi?.FullAddress,
             YeuCauLoaiQuanHeId = yeuCau.YeuCauLoaiQuanHeId,
             TargetQuanHeCuTruId = yeuCau.YeuCauQuanHeCuTruId,
             NgayXuLy = yeuCau.NgayXuLy,

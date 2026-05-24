@@ -115,8 +115,15 @@ public class HoaDonQueryRepository : IHoaDonQueryRepository
             FROM HoaDon hd
             INNER JOIN ChiTietHoaDon ct ON ct.HoaDonId = hd.Id
             LEFT JOIN BangGia bg ON bg.DichVuId = ct.DichVuId 
-                AND hd.NgayLap >= bg.NgayApDung 
-                AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc)
+                AND (
+                    (hd.NgayLap >= bg.NgayApDung AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc))
+                    OR bg.Id = (
+                        SELECT TOP 1 b2.Id 
+                        FROM BangGia b2 
+                        WHERE b2.DichVuId = ct.DichVuId 
+                        ORDER BY b2.IsActive DESC, b2.NgayApDung DESC
+                    )
+                )
             {sqlWhere};
             """;
 
@@ -167,8 +174,15 @@ public class HoaDonQueryRepository : IHoaDonQueryRepository
             FROM ChiTietHoaDon ct
             INNER JOIN HoaDon hd ON ct.HoaDonId = hd.Id
             INNER JOIN BangGia bg ON bg.DichVuId = ct.DichVuId 
-                AND hd.NgayLap >= bg.NgayApDung 
-                AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc)
+                AND (
+                    (hd.NgayLap >= bg.NgayApDung AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc))
+                    OR bg.Id = (
+                        SELECT TOP 1 b2.Id 
+                        FROM BangGia b2 
+                        WHERE b2.DichVuId = ct.DichVuId 
+                        ORDER BY b2.IsActive DESC, b2.NgayApDung DESC
+                    )
+                )
             WHERE ct.Id = @Id AND bg.LoaiDinhGiaId = 1
             """;
 
@@ -186,8 +200,15 @@ public class HoaDonQueryRepository : IHoaDonQueryRepository
             FROM ChiTietHoaDon ct
             INNER JOIN HoaDon hd ON ct.HoaDonId = hd.Id
             INNER JOIN BangGia bg ON bg.DichVuId = ct.DichVuId 
-                AND hd.NgayLap >= bg.NgayApDung 
-                AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc)
+                AND (
+                    (hd.NgayLap >= bg.NgayApDung AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc))
+                    OR bg.Id = (
+                        SELECT TOP 1 b2.Id 
+                        FROM BangGia b2 
+                        WHERE b2.DichVuId = ct.DichVuId 
+                        ORDER BY b2.IsActive DESC, b2.NgayApDung DESC
+                    )
+                )
             LEFT JOIN ChiSoTieuThu cs ON cs.HoaDonId = hd.Id AND cs.DichVuId = ct.DichVuId
             LEFT JOIN TepTaiLieu tl ON cs.AnhDongHoId = tl.Id
             WHERE ct.Id = @Id AND bg.LoaiDinhGiaId = 2;
@@ -196,8 +217,15 @@ public class HoaDonQueryRepository : IHoaDonQueryRepository
             FROM ChiTietHoaDon ct
             INNER JOIN HoaDon hd ON ct.HoaDonId = hd.Id
             INNER JOIN BangGia bg ON bg.DichVuId = ct.DichVuId 
-                AND hd.NgayLap >= bg.NgayApDung 
-                AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc)
+                AND (
+                    (hd.NgayLap >= bg.NgayApDung AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc))
+                    OR bg.Id = (
+                        SELECT TOP 1 b2.Id 
+                        FROM BangGia b2 
+                        WHERE b2.DichVuId = ct.DichVuId 
+                        ORDER BY b2.IsActive DESC, b2.NgayApDung DESC
+                    )
+                )
             INNER JOIN ChiTietGiaLuyTien bglt ON bglt.BangGiaId = bg.Id
             WHERE ct.Id = @Id
             ORDER BY bglt.TuMuc;
@@ -249,8 +277,15 @@ public class HoaDonQueryRepository : IHoaDonQueryRepository
             INNER JOIN HoaDon hd ON ct.HoaDonId = hd.Id
             INNER JOIN CanHo ch ON ch.Id = hd.CanHoId
             INNER JOIN BangGia bg ON bg.DichVuId = ct.DichVuId 
-                AND hd.NgayLap >= bg.NgayApDung 
-                AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc)
+                AND (
+                    (hd.NgayLap >= bg.NgayApDung AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc))
+                    OR bg.Id = (
+                        SELECT TOP 1 b2.Id 
+                        FROM BangGia b2 
+                        WHERE b2.DichVuId = ct.DichVuId 
+                        ORDER BY b2.IsActive DESC, b2.NgayApDung DESC
+                    )
+                )
             WHERE ct.Id = @Id AND bg.LoaiDinhGiaId = 6
             """;
 
@@ -278,16 +313,30 @@ public class HoaDonQueryRepository : IHoaDonQueryRepository
             FROM ChiTietHoaDon ct
             INNER JOIN HoaDon hd ON ct.HoaDonId = hd.Id
             INNER JOIN BangGia bg ON bg.DichVuId = ct.DichVuId 
-                AND hd.NgayLap >= bg.NgayApDung 
-                AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc)
+                AND (
+                    (hd.NgayLap >= bg.NgayApDung AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc))
+                    OR bg.Id = (
+                        SELECT TOP 1 b2.Id 
+                        FROM BangGia b2 
+                        WHERE b2.DichVuId = ct.DichVuId 
+                        ORDER BY b2.IsActive DESC, b2.NgayApDung DESC
+                    )
+                )
             WHERE ct.Id = @Id AND bg.LoaiDinhGiaId = 7;
 
             SELECT bgkg.DonGia, kg.TenKhungGio, kg.GioBatDau, kg.GioKetThuc
             FROM ChiTietHoaDon ct
             INNER JOIN HoaDon hd ON ct.HoaDonId = hd.Id
             INNER JOIN BangGia bg ON bg.DichVuId = ct.DichVuId 
-                AND hd.NgayLap >= bg.NgayApDung 
-                AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc)
+                AND (
+                    (hd.NgayLap >= bg.NgayApDung AND (bg.NgayKetThuc IS NULL OR hd.NgayLap <= bg.NgayKetThuc))
+                    OR bg.Id = (
+                        SELECT TOP 1 b2.Id 
+                        FROM BangGia b2 
+                        WHERE b2.DichVuId = ct.DichVuId 
+                        ORDER BY b2.IsActive DESC, b2.NgayApDung DESC
+                    )
+                )
             INNER JOIN ChiTietGiaKhungGio bgkg ON bgkg.BangGiaId = bg.Id
             INNER JOIN KhungGioDichVu kg ON kg.Id = bgkg.KhungGioId
             WHERE ct.Id = @Id;
