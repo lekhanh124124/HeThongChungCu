@@ -171,6 +171,10 @@ public class LapHoaDonDuThaoCommandHandler : ICommandHandler<LapHoaDonDuThaoComm
             }
         }
 
+        // Cập nhật trạng thái đợt thanh toán sang Đã lập dự thảo
+        dot.MarkAsDraftGenerated();
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
         return Result.Success(new LapHoaDonDuThaoResponse
         {
             SoLuongHoaDonTaoMoi = newInvoices.Count,

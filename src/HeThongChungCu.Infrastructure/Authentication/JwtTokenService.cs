@@ -19,6 +19,8 @@ public class JwtTokenService : ITokenService
         _dateTimeProvider = dateTimeProvider;
     }
 
+    public int RefreshTokenExpiryMinutes => _jwtSettings.RefreshTokenExpiryMinutes;
+
     public string GenerateToken(int accountId, string username, IEnumerable<string> roles, int? userId = null)
     {
         var claims = new List<Claim>

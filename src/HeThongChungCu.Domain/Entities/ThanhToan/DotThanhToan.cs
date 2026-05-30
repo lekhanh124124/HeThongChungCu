@@ -51,8 +51,19 @@ public class DotThanhToan : AggregateRoot
         GhiChu = ghiChu;
     }
 
+    public void MarkAsDraftGenerated()
+    {
+        if (TrangThaiDotThanhToanId != TrangThaiDotThanhToan.DaDuyet)
+            throw new BusinessException("Chỉ có thể lập hóa đơn dự thảo cho đợt thanh toán ở trạng thái Đã duyệt.");
+
+        TrangThaiDotThanhToanId = TrangThaiDotThanhToan.DaLapDuThao;
+    }
+
     public void MarkAsIssued()
     {
+        if (TrangThaiDotThanhToanId != TrangThaiDotThanhToan.DaLapDuThao)
+            throw new BusinessException("Chỉ có thể phát hành đợt thanh toán ở trạng thái Đã lập dự thảo.");
+
         TrangThaiDotThanhToanId = TrangThaiDotThanhToan.DaPhatHanh;
         NgayPhatHanh = DateTimeOffset.Now;
     }

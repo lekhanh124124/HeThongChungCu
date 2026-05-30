@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.Auth.DTOs;
 using HeThongChungCu.Domain.Common;
@@ -60,7 +60,7 @@ public class LoginCommandHandler : ICommandHandler<LoginCommand, AuthResponse>
         var refreshTokenString = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
         var refreshTokenHash = _hasherService.HashToken(refreshTokenString);
  
-        account.AddRefreshToken(refreshTokenHash, _dateTimeProvider.UtcNow.AddDays(7));
+        account.AddRefreshToken(refreshTokenHash, _dateTimeProvider.UtcNow.AddMinutes(_tokenService.RefreshTokenExpiryMinutes));
         _accountRepository.Update(account);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -20,6 +20,7 @@ public class GetListHoaDonQueryHandler : IQueryHandler<GetListHoaDonQuery, Paged
             request.CanHoId,
             request.DotThanhToanId,
             request.TrangThaiHoaDonId,
+            request.NguoiDungId,
             request.Thang,
             request.Nam,
             request.Keyword,

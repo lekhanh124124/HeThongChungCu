@@ -8,6 +8,7 @@ public class TrangThaiDotThanhToan : BaseEnum<TrangThaiDotThanhToan, int>
     public static readonly TrangThaiDotThanhToan DaPhatHanh = new(2, "Đã phát hành");
     public static readonly TrangThaiDotThanhToan DaDuyet = new(3, "Đã duyệt");
     public static readonly TrangThaiDotThanhToan DaDong = new(4, "Đã đóng");
+    public static readonly TrangThaiDotThanhToan DaLapDuThao = new(5, "Đã lập dự thảo");
 
     private TrangThaiDotThanhToan(int value, string name) : base(value, name)
     {

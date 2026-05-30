@@ -120,6 +120,7 @@ public static class DependencyInjection
         services.AddScoped<IKhaoSatCommandRepository, KhaoSatCommandRepository>();
         services.AddScoped<IKhaoSatQueryRepository, KhaoSatQueryRepository>();
         services.AddScoped<IBieuQuyetCuDanCommandRepository, BieuQuyetCuDanCommandRepository>();
+        services.AddScoped<IDashboardQueryRepository, DashboardQueryRepository>();
         
         return services;
     }

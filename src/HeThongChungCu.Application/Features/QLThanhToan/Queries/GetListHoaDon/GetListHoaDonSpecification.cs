@@ -13,6 +13,7 @@ public class GetListHoaDonSpecification : BaseSpecification
         int? canHoId,
         int? dotThanhToanId,
         int? trangThaiHoaDonId,
+        int? nguoiDungId,
         int? thang,
         int? nam,
         string? keyword,
@@ -22,6 +23,11 @@ public class GetListHoaDonSpecification : BaseSpecification
         bool? isAsc = false)
         : base(sortBy, isAsc, pageNumber, pageSize)
     {
+        if (nguoiDungId.HasValue)
+        {
+            AddFilter("NguoiDungId", FilterOperator.Equal, nguoiDungId.Value);
+        }
+
         if (canHoId.HasValue)
         {
             AddFilter("CanHoId", FilterOperator.Equal, canHoId.Value);

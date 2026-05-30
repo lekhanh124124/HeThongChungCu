@@ -14,7 +14,7 @@ public class LayThongTinCuDanSpecification : BaseSpecification
         AddFilter("TaiKhoanIsActive", FilterOperator.Equal, true);
         AddFilter("TaiKhoanIsDeleted", FilterOperator.Equal, false);
         AddFilter("TepIsDeleted", FilterOperator.Equal, false);
-        AddFilter("LoaiTepNguoiDung", FilterOperator.Equal, LoaiTepTaiLieu.NguoiDung.Value);
+        AddFilter("LoaiTepNguoiDung", FilterOperator.Equal, LoaiTepTaiLieu.MacDinh.Value);
         AddFilter("TaiLieuIsDeleted", FilterOperator.Equal, false);
         AddFilter("LoaiTaiLieuNguoiDung", FilterOperator.Equal, LoaiTaiLieu.NguoiDung.Value);
     }

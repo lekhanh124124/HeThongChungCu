@@ -71,7 +71,7 @@ public static class YeuCauThiCongSeeder
             var nguoiDaiDien = faker.Name.FullName();
             var sdt = "09" + faker.Random.Number(10000000, 99999999);
 
-            var noiDung = faker.Lorem.Paragraph(1);
+            var noiDung = GenerateConstructionDescription(hangMuc, faker);
 
             // Create request
             var request = YeuCauThiCong.Create(
@@ -209,7 +209,14 @@ public static class YeuCauThiCongSeeder
 
             // Resubmit Loop
             var updateDate = returnDate.AddDays(faker.Random.Int(1, 3));
-            request.CapNhatThongTinThiCong(null, null, null, "Đã bổ sung hồ sơ theo yêu cầu của BQL. " + faker.Lorem.Sentence(), null, null, null);
+            var boSungComments = new[]
+            {
+                "Tôi gửi kèm bản chụp CCCD mới của tổ trưởng thi công và giấy chứng nhận kiểm định an toàn của máy hàn điện.",
+                "Đã đính kèm bản vẽ điều chỉnh vị trí đặt cục nóng điều hòa theo đúng thiết kế của Block.",
+                "Đã bổ sung phụ lục hợp đồng cam kết bảo hiểm trách nhiệm công cộng đối với bên thứ ba.",
+                "Đã điều chỉnh lại thời gian dự kiến kết thúc lùi lại 3 ngày để phù hợp tiến độ thực tế."
+            };
+            request.CapNhatThongTinThiCong(null, null, null, "Đã bổ sung hồ sơ theo yêu cầu của BQL. " + faker.PickRandom(boSungComments), null, null, null);
             request.Submit();
             // Now state is Pending again
             if (target == SeedTargetState.Resubmitted && faker.Random.Bool(0.3f)) return; // Some stay pending
@@ -294,5 +301,73 @@ public static class YeuCauThiCongSeeder
             var completeDate = refundDate.AddHours(faker.Random.Int(4, 48));
             request.Complete(adminId, completeDate);
         }
+    }
+
+    private static string GenerateConstructionDescription(string hangMuc, Faker faker)
+    {
+        return hangMuc switch
+        {
+            "Cải tạo nội thất phòng khách và bếp" => faker.PickRandom(new[]
+            {
+                "Thi công làm mới hệ thống tủ bếp kịch trần bằng gỗ MDF chống ẩm An Cường, lắp đặt mặt đá bếp thạch anh chống ố và ốp kính cường lực. Cải tạo hệ tủ tivi, vách ngăn phòng khách dạng lam gỗ hiện đại.",
+                "Cải tạo lại không gian phòng khách kết hợp gian bếp mở: Đóng mới tủ bếp chữ L, quầy bar mini tiện lợi, lắp đặt tủ giày kịch trần sảnh vào và vách ốp trang trí tivi phòng khách.",
+                "Thay thế tủ bếp cũ bị mối mọt bằng tủ bếp khung cánh nhựa Picomat cánh phủ Acrylic bóng gương cao cấp, lắp đặt phụ kiện tủ bếp thông minh thương hiệu Hafele."
+            }),
+            "Lát lại sàn gỗ toàn bộ căn hộ" => faker.PickRandom(new[]
+            {
+                "Tháo dỡ lớp gạch men cũ hiện tại bị rộp bong tróc, tiến hành xử lý cán phẳng lại nền và lát sàn gỗ công nghiệp dày 12mm chịu nước thương hiệu Kronoswiss cho toàn bộ phòng khách và 3 phòng ngủ.",
+                "Thi công lót sàn gỗ xương cá cao cấp cho toàn bộ căn hộ (trừ khu vực nhà vệ sinh và ban công). Có sử dụng lớp cao su non 3mm lót sàn cách âm tốt.",
+                "Cải tạo lại sàn nhà: Tháo dỡ sàn cũ bị cong vênh do ngập nước trước đây, cán nền phẳng bằng vữa tự san phẳng và tiến hành lát lại sàn gỗ công nghiệp cốt xanh chống ẩm nhập khẩu Malaysia."
+            }),
+            "Sơn sửa và chống thấm ban công" => faker.PickRandom(new[]
+            {
+                "Đục bỏ lớp gạch ban công hiện tại bị nứt nẻ thấm ẩm xuống nhà dưới, thi công quét 3 lớp chống thấm ngược dạng màng đàn hồi Sika Lastic, cán nền tạo độ dốc thoát nước tốt và lát gạch chống trơn trượt mới.",
+                "Khắc phục tường ban công bị ẩm mốc bong tróc sơn do thời tiết mưa tạt: Cạo sủi lớp sơn cũ, bả matit chống thấm ngoài trời và lăn lại 2 lớp sơn bóng phủ chống bám bụi Dulux Weathershield.",
+                "Thi công chống thấm dột khu vực lô gia phơi đồ, nâng cao bậc thềm cửa ngăn nước mưa tràn vào nhà, lắp đặt phễu thoát nước sàn chống mùi hôi chuyên dụng."
+            }),
+            "Lắp đặt hệ thống điều hòa Multi" => faker.PickRandom(new[]
+            {
+                "Lắp đặt hệ thống máy lạnh Multi Daikin Inverter gồm 1 dàn nóng công suất 4.0 HP đặt ngoài ban công kết nối với 3 dàn lạnh âm trần nối ống gió sang trọng cho phòng khách và 2 phòng ngủ.",
+                "Thi công đi âm đường ống đồng, ống nước thải máy lạnh cho hệ thống điều hòa Multi Panasonic 1 nóng 4 lạnh phục vụ toàn bộ các phòng trong căn hộ.",
+                "Lắp đặt trọn gói hệ thống điều hòa Multi Mitsubishi gồm 1 dàn nóng 34000BTU tiết kiệm diện tích ban công và 3 dàn lạnh treo tường dòng cao cấp có bộ lọc khí kháng khuẩn."
+            }),
+            "Thi công trần thạch cao và đèn led" => faker.PickRandom(new[]
+            {
+                "Đóng trần thạch cao khung xương chìm Vĩnh Tường chống ẩm cho toàn nhà, đi lại dây điện nguồn âm trần, khoét lỗ lắp đặt hệ thống đèn Led âm trần downlight 9W ánh sáng trung tính và đèn led dây hắt trần trang trí.",
+                "Cải tạo lại trần nhà: Hạ trần thạch cao giật cấp trang trí phòng khách và bếp, đi hệ thống đèn rọi ray hiện đại tạo điểm nhấn không gian ấm cúng.",
+                "Thi công đóng trần phẳng thạch cao chống ẩm tấm Gyproc cho khu vực nhà vệ sinh và sảnh vào hành lang căn hộ, tích hợp quạt thông gió âm trần và đèn led cảm ứng."
+            }),
+            "Cải tạo nhà vệ sinh, thay mới thiết bị" => faker.PickRandom(new[]
+            {
+                "Đục toàn bộ gạch ốp lát tường và sàn nhà vệ sinh master, quét chống thấm polyurethane toàn bộ bề mặt sàn và tường cao 1.8m, ốp lát gạch đá Viglacera 30x60 sang trọng, lắp vách tắm kính cường lực và bộ thiết bị vệ sinh Toto.",
+                "Cải tạo nâng cấp nhà tắm chung: Thay mới bồn cầu thông minh, lắp tủ chậu lavabo mặt đá chống nước, thay vòi sen cây tắm massage và lắp đặt bình nóng lạnh gián tiếp Ariston 30L.",
+                "Xử lý chống thấm cổ ống thoát sàn nhà vệ sinh bị rò rỉ nước, thi công lát lại gạch sàn chống trượt taicera và lắp phễu thu nước ngăn mùi hôi ngăn côn trùng."
+            }),
+            "Lắp đặt rèm cửa và lưới an toàn" => faker.PickRandom(new[]
+            {
+                "Lắp đặt hệ thống rèm vải 2 lớp (1 lớp vải chống nắng cản sáng 100%, 1 lớp voan trắng nhẹ nhàng) cho phòng khách và các phòng ngủ. Thi công lưới an toàn cáp inox bọc nhựa bảo vệ ban công đảm bảo an toàn cho trẻ nhỏ.",
+                "Thi công lắp đặt rèm cầu vồng Hàn Quốc hiện đại cho các ô cửa sổ phòng ngủ phụ, rèm sáo gỗ cho phòng làm việc và lưới an toàn ban công gia cố lực kéo cực tốt.",
+                "Lắp đặt lưới sợi thủy tinh chống côn trùng, muỗi cho toàn bộ cửa sổ căn hộ kết hợp hệ thống rèm cuốn tự động tích hợp Smart Home."
+            }),
+            "Sửa chữa hệ thống điện nước âm tường" => faker.PickRandom(new[]
+            {
+                "Cải tạo đi lại đường dây điện cấp nguồn riêng biệt cho bếp từ công suất lớn và máy rửa bát âm tủ, lắp đặt thêm các ổ cắm điện âm tường Panasonic tại khu vực phòng khách và phòng làm việc.",
+                "Dịch chuyển vị trí đường ống cấp và thoát nước sinh hoạt trong phòng bếp để phù hợp với bản vẽ thiết kế tủ bếp mới, thi công đấu nối lại van giảm áp nguồn cấp tổng căn hộ.",
+                "Khắc phục sự cố rò rỉ đường ống nước sạch chịu nhiệt PPR đi âm tường khu vực nhà tắm master, thi công thay thế đoạn ống nước bị nứt vỡ và hoàn trả lại mặt bằng tường ốp."
+            }),
+            "Lắp đặt hệ thống Smart Home" => faker.PickRandom(new[]
+            {
+                "Thi công thay thế toàn bộ công tắc cơ thông thường bằng hệ thống công tắc cảm ứng thông minh viền vàng Lumi, lắp đặt bộ điều khiển trung tâm HC, hệ thống cảm biến chuyển động cầu thang và rèm tự động.",
+                "Nâng cấp căn hộ thông minh Smart Home dòng Tuya: Lắp khóa cửa thông minh nhận diện khuôn mặt vân tay FaceID, hệ thống điều khiển bình nóng lạnh, điều hòa và tivi qua giọng nói tiếng Việt.",
+                "Lắp đặt hệ thống an ninh thông minh gồm cảm biến mở cửa, cảm biến phát hiện rò rỉ nước tại bếp và còi báo động kết nối cảnh báo tức thì qua điện thoại của chủ hộ."
+            }),
+            "Cải tạo phòng ngủ thành phòng làm việc" => faker.PickRandom(new[]
+            {
+                "Tháo dỡ giường tủ cũ tại phòng ngủ nhỏ, thi công đóng mới hệ bàn làm việc đôi kết hợp giá sách kịch trần rộng rãi, lắp đặt vách ốp tiêu âm cách âm cho phòng họp online tại nhà.",
+                "Thiết kế thi công hệ giường gấp thông minh kết hợp bàn làm việc đa năng tối ưu diện tích phòng ngủ phụ thành phòng làm việc ban ngày và phòng ngủ khách ban đêm.",
+                "Lắp đặt hệ thống tủ hồ sơ tài liệu nhiều ngăn kéo bằng gỗ công nghiệp Melamine chống trầy xước, bàn làm việc chữ L rộng rãi có chân sắt sơn tĩnh điện vô cùng chắc chắn."
+            }),
+            _ => "Tiến hành cải tạo, sửa chữa và nâng cấp các hạng mục nội thất, trang thiết bị trong căn hộ theo đúng quy định và tiêu chuẩn kỹ thuật của tòa nhà."
+        };
     }
 }

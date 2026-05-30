@@ -39,7 +39,8 @@ public class DotThanhToanCommandRepository : IDotThanhToanCommandRepository
                 x.KyThanhToan.Nam == ky.Nam && 
                 (x.TrangThaiDotThanhToanId == TrangThaiDotThanhToan.TaoMoi || 
                  x.TrangThaiDotThanhToanId == TrangThaiDotThanhToan.DaPhatHanh ||
-                 x.TrangThaiDotThanhToanId == TrangThaiDotThanhToan.DaDuyet), 
+                 x.TrangThaiDotThanhToanId == TrangThaiDotThanhToan.DaDuyet ||
+                 x.TrangThaiDotThanhToanId == TrangThaiDotThanhToan.DaLapDuThao), 
                 cancellationToken);
     }
 

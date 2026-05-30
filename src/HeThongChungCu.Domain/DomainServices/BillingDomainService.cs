@@ -12,7 +12,7 @@ public class BillingDomainService : IBillingDomainService
 {
     public Result PhatHanhBatch(DotThanhToan dotThanhToan, IEnumerable<HoaDon> hoaDons)
     {
-        if (dotThanhToan.TrangThaiDotThanhToanId != TrangThaiDotThanhToan.DaDuyet)
+        if (dotThanhToan.TrangThaiDotThanhToanId != TrangThaiDotThanhToan.DaLapDuThao)
         {
             return Result.Failure(HoaDonErrors.InvalidBatchStatus);
         }

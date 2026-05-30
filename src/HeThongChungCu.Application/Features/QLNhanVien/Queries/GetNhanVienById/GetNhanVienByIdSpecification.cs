@@ -21,7 +21,7 @@ public class GetNhanVienByIdSpecification : BaseSpecification
 
         // File filters
         AddFilter("TepIsDeleted", FilterOperator.Equal, false);
-        AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, LoaiTepTaiLieu.NguoiDung.Value);
+        AddFilter("LoaiTepTaiLieu", FilterOperator.Equal, LoaiTepTaiLieu.MacDinh.Value);
 
         // Document filters
         AddFilter("TaiLieuIsDeleted", FilterOperator.Equal, false);

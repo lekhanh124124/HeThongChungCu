@@ -39,6 +39,25 @@ public class HoaDonQueryRepository : IHoaDonQueryRepository
         };
 
         var parameters = new DynamicParameters();
+
+        var quanHeCuTruMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "NguoiDungId", "qh.NguoiDungId" }
+        };
+
+        var hasQuanHeCuTruFilter = spec.Filters.Any(f => quanHeCuTruMapping.ContainsKey(f.PropertyName));
+        var sqlJoin = hasQuanHeCuTruFilter
+            ? DapperQueryBuilder.BuildJoin(spec, new[]
+            {
+                new JoinDefinition(
+                    Table: "QuanHeCuTru",
+                    Alias: "qh",
+                    OnCondition: "qh.CanHoId = hd.CanHoId AND qh.IsDeleted = 0 AND qh.TrangThaiCuTruId = 1",
+                    Type: JoinType.Inner,
+                    Mapping: quanHeCuTruMapping)
+            }, parameters)
+            : string.Empty;
+
         var sqlWhere = DapperQueryBuilder.BuildWhere(spec, columnMapping, parameters);
         var sqlOrderBy = DapperQueryBuilder.BuildOrderBy(spec, columnMapping, "Id");
         var sqlPagination = DapperQueryBuilder.BuildPagination(spec, parameters);
@@ -48,6 +67,7 @@ public class HoaDonQueryRepository : IHoaDonQueryRepository
                    hd.Id, hd.CanHoId, hd.DotThanhToanId, hd.MaHoaDon, hd.Thang, hd.Nam, 
                    hd.NgayLap, hd.NgayHanThanhToan, hd.TongTien, hd.TrangThaiHoaDonId
             FROM HoaDon hd
+            {sqlJoin}
             {sqlWhere}
             {sqlOrderBy}
             {sqlPagination};

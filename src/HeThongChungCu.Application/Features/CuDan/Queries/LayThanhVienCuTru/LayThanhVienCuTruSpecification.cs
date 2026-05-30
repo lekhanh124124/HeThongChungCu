@@ -13,7 +13,7 @@ public class LayThanhVienCuTruSpecification : BaseSpecification
         AddFilter("NguoiDungIsDeleted", FilterOperator.Equal, false);
         AddFilter("TaiKhoanIsActive", FilterOperator.Equal, true);
         AddFilter("TepIsDeleted", FilterOperator.Equal, false);
-        AddFilter("LoaiTepNguoiDung", FilterOperator.Equal, LoaiTepTaiLieu.NguoiDung.Value);
+        AddFilter("LoaiTepNguoiDung", FilterOperator.Equal, LoaiTepTaiLieu.MacDinh.Value);
     }
 }
 

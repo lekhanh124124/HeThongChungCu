@@ -8,6 +8,7 @@ public record GetListHoaDonQuery(
     int? CanHoId = null,
     int? DotThanhToanId = null,
     int? TrangThaiHoaDonId = null,
+    int? NguoiDungId = null,
     int? Thang = null,
     int? Nam = null,
     string? Keyword = null,
