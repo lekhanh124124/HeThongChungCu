@@ -19,19 +19,22 @@ public class GetAIChatResponseQueryHandler : IQueryHandler<GetAIChatResponseQuer
     private readonly ILLMService _llmService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<GetAIChatResponseQueryHandler> _logger;
+    private readonly IChatbotContextEnricher _contextEnricher;
 
     public GetAIChatResponseQueryHandler(
         IVectorStore vectorStore,
         IEmbeddingService embeddingService,
         ILLMService llmService,
         IConfiguration configuration,
-        ILogger<GetAIChatResponseQueryHandler> logger)
+        ILogger<GetAIChatResponseQueryHandler> logger,
+        IChatbotContextEnricher contextEnricher)
     {
         _vectorStore = vectorStore;
         _embeddingService = embeddingService;
         _llmService = llmService;
         _configuration = configuration;
         _logger = logger;
+        _contextEnricher = contextEnricher;
     }
 
     public async Task<Result<AIChatResponseDto>> Handle(GetAIChatResponseQuery request, CancellationToken cancellationToken)
@@ -87,6 +90,7 @@ public class GetAIChatResponseQueryHandler : IQueryHandler<GetAIChatResponseQuer
 
             var modelId = _embeddingService.ModelId;
             var collectionName = _configuration[$"Qdrant:Collections:{modelId}"];
+            // var collectionName = "tri_thuc_chatbot_test_openai";
             if (string.IsNullOrWhiteSpace(collectionName))
             {
                 collectionName = _configuration["Qdrant:CollectionName"] ?? "resident_knowledge_base";
@@ -158,6 +162,15 @@ public class GetAIChatResponseQueryHandler : IQueryHandler<GetAIChatResponseQuer
             // Bổ sung lịch sử hội thoại gần nhất (sliding window 5 lượt) vào ngữ cảnh cho LLM
             var historyContext = BuildHistoryContext(request.History);
 
+            // ═══════════════════════════════════════════════════════════════════
+            // BƯỚC 3.1 – ENRICH: Bổ sung dữ liệu động từ DB (real-time)
+            // Phát hiện intent → truy vấn DB → inject ngữ cảnh thời gian thực.
+            // ═══════════════════════════════════════════════════════════════════
+            var dynamicContext = await _contextEnricher.EnrichAsync(searchQuery, cancellationToken);
+            _logger.LogDebug(
+                "Step 3.1 – ENRICH: Dynamic context length: {Length} chars.",
+                dynamicContext.Length);
+
             _logger.LogDebug(
                 "Step 3/3 – GENERATE: Invoking LLM (Context: {ContextLen} chars, History: {HistoryLen} chars)...",
                 contextBuilder.Length, historyContext.Length);
@@ -165,6 +178,12 @@ public class GetAIChatResponseQueryHandler : IQueryHandler<GetAIChatResponseQuer
             var fullContext = string.IsNullOrEmpty(historyContext)
                 ? contextBuilder.ToString()
                 : $"{contextBuilder}\n\n{historyContext}";
+
+            // Ưu tiên dữ liệu động (real-time) bằng cách đặt lên đầu context
+            if (!string.IsNullOrEmpty(dynamicContext))
+            {
+                fullContext = dynamicContext + "\n\n" + fullContext;
+            }
 
             var answer = await _llmService.GenerateResponseAsync(
                 prompt: request.Prompt,

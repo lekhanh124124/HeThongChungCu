@@ -17,6 +17,7 @@ public sealed class GetAIChatResponseQueryHandlerTests : BaseTest
     private readonly ILLMService _llmService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<GetAIChatResponseQueryHandler> _logger;
+    private readonly IChatbotContextEnricher _contextEnricher;
     private readonly GetAIChatResponseQueryHandler _handler;
 
     public GetAIChatResponseQueryHandlerTests()
@@ -26,13 +27,18 @@ public sealed class GetAIChatResponseQueryHandlerTests : BaseTest
         _llmService = Substitute.For<ILLMService>();
         _configuration = Substitute.For<IConfiguration>();
         _logger = Substitute.For<ILogger<GetAIChatResponseQueryHandler>>();
+        _contextEnricher = Substitute.For<IChatbotContextEnricher>();
+
+        _contextEnricher.EnrichAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(string.Empty));
 
         _handler = new GetAIChatResponseQueryHandler(
             _vectorStore,
             _embeddingService,
             _llmService,
             _configuration,
-            _logger);
+            _logger,
+            _contextEnricher);
     }
 
     [Fact]

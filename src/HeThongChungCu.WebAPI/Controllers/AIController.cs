@@ -1,5 +1,4 @@
 using Asp.Versioning;
-using HeThongChungCu.Application.Features.AI.Commands.SyncKnowledgeBase;
 using HeThongChungCu.Application.Features.AI.Commands.TestBatchSearch;
 using HeThongChungCu.Application.Features.AI.Commands.TestChunking;
 using HeThongChungCu.Application.Features.AI.Commands.TestEmbedding;
@@ -140,29 +139,6 @@ public class AIController : ApiControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> TestQdrantBatchAndSearch(
         [FromBody] TestBatchSearchCommand command,
-        CancellationToken cancellationToken)
-    {
-        return HandleResult(await _sender.Send(command, cancellationToken));
-    }
-
-    /// <summary>
-    /// Đồng bộ hóa toàn bộ cơ sở tri thức từ thư mục 'knowledge-base' vào Qdrant
-    /// </summary>
-    /// <remarks>
-    /// - **Hoàn cảnh sử dụng**: Dùng khi cần nạp hoặc cập nhật lại toàn bộ tài liệu tri thức vào Qdrant để phục vụ chatbot RAG.
-    /// - **Hệ thống xử lý**:
-    ///     - Quét tất cả file Markdown (.md) trong thư mục `knowledge-base`.
-    ///     - Chia nhỏ văn bản, sinh embedding và upsert vào Qdrant theo lô (batch size 50).
-    ///     - Trả về thống kê số file đã xử lý và số chunk đã nạp.
-    /// - **Yêu cầu dữ liệu**:
-    ///     - **Tùy chọn**: `ForceRebuild` (xóa và tạo lại collection), `MaxFilesToSync` (giới hạn số file, dùng để test).
-    /// </remarks>
-    [HttpPost("sync-knowledge")]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(typeof(ApiResponse<SyncResultDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> SyncKnowledge(
-        [FromBody] SyncKnowledgeBaseCommand command,
         CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(command, cancellationToken));

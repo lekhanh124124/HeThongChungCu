@@ -14,6 +14,7 @@ public static class DependencyInjection
         services.AddScoped<IZipService, ZipService>();
         services.AddScoped<IBackupService, BackupService>();
         services.AddSingleton<IMaintenanceService, MaintenanceService>();
+        services.AddScoped<IChatbotContextEnricher, DynamicContextEnricher>();
         services.AddHostedService<CleanupUnusedFilesService>();
         services.AddHostedService<MonthlyBillingBackgroundService>();
         services.AddHostedService<NotificationBackgroundService>();

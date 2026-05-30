@@ -34,7 +34,7 @@ public class TestVectorStoreCommandHandler : ICommandHandler<TestVectorStoreComm
         {
             _logger.LogInformation("Testing VectorStore connection by ensuring collection '{Collection}' exists.", TestCollectionName);
 
-            var aiProvider = _configuration["AI:Provider"] ?? "Gemini";
+            var aiProvider = _configuration["AI:Provider"] ?? "OpenAI";
             var isOpenAI = aiProvider.Equals("OpenAI", StringComparison.OrdinalIgnoreCase);
             var vectorSizeKey = isOpenAI ? "OpenAI:EmbeddingVectorSize" : "Gemini:EmbeddingVectorSize";
             var defaultSize = isOpenAI ? 1536UL : 3072UL;

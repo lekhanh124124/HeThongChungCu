@@ -28,8 +28,8 @@ public static class DependencyInjection
         services.AddEmail(configuration);
         services.AddQdrantVectorStore(configuration);
         
-        // Dynamically select LLM provider from configuration (default is Gemini)
-        var aiProvider = configuration["AI:Provider"] ?? "Gemini";
+        // Dynamically select LLM provider from configuration (default is OpenAI)
+        var aiProvider = configuration["AI:Provider"] ?? "OpenAI";
         if (aiProvider.Equals("OpenAI", StringComparison.OrdinalIgnoreCase))
         {
             services.AddOpenAILLM();

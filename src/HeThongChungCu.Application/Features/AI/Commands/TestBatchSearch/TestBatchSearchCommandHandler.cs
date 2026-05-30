@@ -43,7 +43,7 @@ public class TestBatchSearchCommandHandler : ICommandHandler<TestBatchSearchComm
                 request.CollectionName, request.Texts.Count);
 
             // 1. Đảm bảo collection tồn tại (Dùng dimension động của active model)
-            var aiProvider = _configuration["AI:Provider"] ?? "Gemini";
+            var aiProvider = _configuration["AI:Provider"] ?? "OpenAI";
             var isOpenAI = aiProvider.Equals("OpenAI", StringComparison.OrdinalIgnoreCase);
             var vectorSizeKey = isOpenAI ? "OpenAI:EmbeddingVectorSize" : "Gemini:EmbeddingVectorSize";
             var defaultSize = isOpenAI ? 1536UL : 3072UL;

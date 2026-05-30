@@ -121,6 +121,10 @@ public static class DependencyInjection
         services.AddScoped<IKhaoSatQueryRepository, KhaoSatQueryRepository>();
         services.AddScoped<IBieuQuyetCuDanCommandRepository, BieuQuyetCuDanCommandRepository>();
         services.AddScoped<IDashboardQueryRepository, DashboardQueryRepository>();
+
+        // AI - Chatbot
+        services.AddScoped<ITriThucChatbotCommandRepository, TriThucChatbotCommandRepository>();
+        services.AddScoped<ITriThucChatbotQueryRepository, TriThucChatbotQueryRepository>();
         
         return services;
     }
