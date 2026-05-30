@@ -6,6 +6,7 @@ using HeThongChungCu.Application.Features.QLTriThucChatbot.Commands.SyncTriThucC
 using HeThongChungCu.Application.Features.QLTriThucChatbot.Commands.ToggleActiveTriThucChatbot;
 using HeThongChungCu.Application.Features.QLTriThucChatbot.Commands.UpdateTriThucChatbot;
 using HeThongChungCu.Application.Features.QLTriThucChatbot.DTOs;
+using HeThongChungCu.Application.Features.QLTriThucChatbot.Queries.GetDanhMucTriThucChatbot;
 using HeThongChungCu.Application.Features.QLTriThucChatbot.Queries.GetListTriThucChatbot;
 using HeThongChungCu.Application.Features.QLTriThucChatbot.Queries.GetTriThucChatbotById;
 using HeThongChungCu.WebAPI.Common.Models;
@@ -53,6 +54,22 @@ public class TriThucChatbotController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetTriThucChatbotByIdQuery(request.Id);
+        return HandleResult(await _sender.Send(query, cancellationToken));
+    }
+
+    /// <summary>
+    /// Lấy danh sách danh mục tri thức chatbot
+    /// </summary>
+    /// <remarks>
+    /// - **Hoàn cảnh sử dụng**: Lấy tất cả danh mục phân biệt hiện có để dùng cho dropdown/filter.
+    /// - **Hệ thống xử lý**: Truy vấn DISTINCT DanhMuc từ bảng TriThucChatbot.
+    /// - **Không yêu cầu tham số**.
+    /// </remarks>
+    [HttpPost("get-danh-muc")]
+    [ProducesResponseType(typeof(ApiResponse<List<string>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDanhMuc(CancellationToken cancellationToken)
+    {
+        var query = new GetDanhMucTriThucChatbotQuery();
         return HandleResult(await _sender.Send(query, cancellationToken));
     }
 

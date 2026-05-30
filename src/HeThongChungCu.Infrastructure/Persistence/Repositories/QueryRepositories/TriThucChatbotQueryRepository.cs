@@ -142,4 +142,27 @@ public class TriThucChatbotQueryRepository : ITriThucChatbotQueryRepository
         UpdatedAt    = r.ModifiedAt,
         CreatedBy    = r.CreatedBy > 0 ? r.CreatedBy.ToString() : null
     };
+
+    public async Task<List<string>> GetDanhMucListAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var connection = _dbContext.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+            await connection.OpenAsync(cancellationToken);
+
+        const string sql = """
+            SELECT DISTINCT DanhMuc
+            FROM TriThucChatbot
+            WHERE IsDeleted = 0
+              AND DanhMuc IS NOT NULL
+              AND DanhMuc <> ''
+            ORDER BY DanhMuc ASC
+            """;
+
+        var result = await connection.QueryAsync<string>(
+            sql, transaction: _dbContext.GetDbTransaction());
+
+        return result.ToList();
+    }
 }

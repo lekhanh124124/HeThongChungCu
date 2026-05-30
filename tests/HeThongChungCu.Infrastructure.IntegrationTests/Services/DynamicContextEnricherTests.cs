@@ -201,6 +201,62 @@ public class DynamicContextEnricherTests : BaseIntegrationTest
         result.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task EnrichAsync_WithBaoTriIntent_ShouldReturnUpcomingMaintenance()
+    {
+        // Arrange
+        var now = DateTimeOffset.UtcNow;
+        var device = ThietBi.Create("TB001", "Thang máy Block A", "Thang máy", "Sảnh Tòa A", now, null, null, null, null);
+        var item = HangMucBaoTri.Create("HM001", "Bảo dưỡng cáp kéo", "Mô tả", 60, 500000, "[]");
+        
+        await DbContext.ThietBis.AddAsync(device);
+        await DbContext.HangMucBaoTris.AddAsync(item);
+        await DbContext.SaveChangesAsync();
+
+        var schedule = LichBaoTri.Create(device.Id, item.Id, TanSuatBaoTri.HangThang, now.AddDays(2), null);
+        await DbContext.LichBaoTris.AddAsync(schedule);
+        await DbContext.SaveChangesAsync();
+
+        // Act
+        var result = await _enricher.EnrichAsync("Hỏi về lịch bảo trì thang máy tòa A");
+
+        // Assert
+        result.Should().NotBeEmpty();
+        result.Should().Contain("Lịch bảo trì thiết bị và hạ tầng sắp tới");
+        result.Should().Contain("Thang máy Block A");
+        result.Should().Contain("Bảo dưỡng cáp kéo");
+    }
+
+    [Fact]
+    public async Task EnrichAsync_WithKhaoSatIntent_ShouldReturnActiveSurveys()
+    {
+        // Arrange
+        var now = DateTimeOffset.UtcNow;
+        var khaoSat = KhaoSat.Create(
+            "Khảo sát chất lượng nước sinh hoạt",
+            "Đóng góp ý kiến về nguồn nước tòa B",
+            LoaiKhaoSat.LayYKienCuDan,
+            CoCheTinhDiemBauCu.MoiCanHoMotPhieu,
+            now.AddDays(-1),
+            now.AddDays(5)
+        ).Value;
+
+        khaoSat.ThemCauHoi("Nước sinh hoạt có sạch không?", true, false, new List<string> { "Sạch", "Bình thường", "Bẩn" });
+        khaoSat.PublicCampaign(); // publish to make it DangDienRa
+
+        await DbContext.KhaoSats.AddAsync(khaoSat);
+        await DbContext.SaveChangesAsync();
+
+        // Act
+        var result = await _enricher.EnrichAsync("Có khảo sát ý kiến cư dân nào đang mở không?");
+
+        // Assert
+        result.Should().NotBeEmpty();
+        result.Should().Contain("Các chương trình khảo sát & biểu quyết đang diễn ra");
+        result.Should().Contain("Khảo sát chất lượng nước sinh hoạt");
+        result.Should().Contain("Đóng góp ý kiến về nguồn nước tòa B");
+    }
+
     [Theory]
     [InlineData("")]
     [InlineData("   ")]

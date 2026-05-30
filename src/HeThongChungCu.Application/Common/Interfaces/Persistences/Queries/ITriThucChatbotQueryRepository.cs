@@ -14,4 +14,7 @@ public interface ITriThucChatbotQueryRepository
     Task<PagedResult<TriThucChatbotResponse>> GetListAsync(
         GetListTriThucChatbotSpecification spec,
         CancellationToken cancellationToken = default);
+
+    Task<List<string>> GetDanhMucListAsync(
+        CancellationToken cancellationToken = default);
 }
