@@ -31,6 +31,7 @@ public class DoiTacCommandRepository : IDoiTacCommandRepository
     public async Task<IReadOnlyList<DoiTac>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
         return await _dbContext.DoiTacs
+            .Include(t => t.HopDongs)
             .Where(t => ids.Contains(t.Id))
             .ToListAsync(cancellationToken);
     }

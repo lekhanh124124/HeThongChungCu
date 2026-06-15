@@ -4,6 +4,8 @@ using HeThongChungCu.Application.Common.Interfaces.Persistences.Queries;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.Queries.ExportChiSoTemplate;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.DTOs;
+using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Application.UnitTests.Abstractions;
 using Xunit;
 using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
@@ -25,10 +27,22 @@ public sealed class ExportChiSoTemplateQueryHandlerTests : BaseTest
         _handler = new ExportChiSoTemplateQueryHandler(_queryRepository, _dichVuRepository, _excelService);
     }
 
+    private DichVu CreateActiveDichVu()
+    {
+        var dichVu = new DichVu("DV001", "Điện", LoaiDichVu.TienIch, "kWh");
+        dichVu.Activate();
+        dichVu.AddBangGiaLuyTien("Bảng giá điện", DateTimeOffset.Now.AddDays(-1), true);
+        dichVu.BangGias.First().Activate();
+        return dichVu;
+    }
+
     [Fact]
     public async Task Handle_Should_ReturnFailure_When_DataIsEmpty()
     {
         var query = new ExportChiSoTemplateQuery(1, 1, 1, 5, 2024);
+        var dichVu = CreateActiveDichVu();
+        
+        _dichVuRepository.GetByIdWithBangGiasAsync(1, CancellationToken).Returns(dichVu);
         _queryRepository.GetExcelTemplateDataAsync(Arg.Any<ExportChiSoTemplateSpecification>(), CancellationToken).Returns(new List<ChiSoExcelTemplateDto>());
 
         var result = await _handler.Handle(query, CancellationToken);
@@ -41,7 +55,10 @@ public sealed class ExportChiSoTemplateQueryHandlerTests : BaseTest
     public async Task Handle_Should_ReturnSuccessWithBytes_When_DataExists()
     {
         var query = new ExportChiSoTemplateQuery(1, 1, 1, 5, 2024);
+        var dichVu = CreateActiveDichVu();
         var data = new List<ChiSoExcelTemplateDto> { new ChiSoExcelTemplateDto() };
+
+        _dichVuRepository.GetByIdWithBangGiasAsync(1, CancellationToken).Returns(dichVu);
         _queryRepository.GetExcelTemplateDataAsync(Arg.Any<ExportChiSoTemplateSpecification>(), CancellationToken).Returns(data);
         _excelService.CreateTemplate(data, Arg.Any<string>()).Returns(new byte[] { 1, 2, 3 });
 

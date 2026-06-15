@@ -13,7 +13,7 @@ public class RecordChiSoBatchCommandValidator : AbstractValidator<RecordChiSoBat
             .InclusiveBetween(1, 12).WithMessage("Tháng phải từ 1 đến 12.");
 
         RuleFor(x => x.Nam)
-            .GreaterThanOrEqualTo(2000).WithMessage("Năm không hợp lệ.");
+            .InclusiveBetween(2000, 2100).WithMessage("Năm phải từ 2000 đến 2100.");
 
         RuleFor(x => x.NgayGhiNhan)
             .NotEmpty().WithMessage("Ngày ghi nhận không được để trống.");
@@ -25,6 +25,12 @@ public class RecordChiSoBatchCommandValidator : AbstractValidator<RecordChiSoBat
 
             item.RuleFor(x => x.DichVuId)
                 .GreaterThan(0).WithMessage("Dịch vụ không hợp lệ.");
+
+            item.RuleFor(x => x.ChiSoCu)
+                .GreaterThanOrEqualTo(0).WithMessage("Chỉ số cũ không được nhỏ hơn 0.");
+
+            item.RuleFor(x => x.ChiSoMoi)
+                .GreaterThanOrEqualTo(0).WithMessage("Chỉ số mới không được nhỏ hơn 0.");
 
             item.RuleFor(x => x.ChiSoMoi)
                 .GreaterThanOrEqualTo(x => x.ChiSoCu)

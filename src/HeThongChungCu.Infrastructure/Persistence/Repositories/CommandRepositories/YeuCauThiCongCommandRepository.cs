@@ -42,6 +42,13 @@ public class YeuCauThiCongCommandRepository : IYeuCauThiCongCommandRepository
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public async Task<List<YeuCauThiCong>> GetByCanHoIdAndStatusesAsync(int canHoId, IEnumerable<HeThongChungCu.Domain.Enums.TrangThaiYeuCau> statuses, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.YeuCauThiCongs
+            .Where(x => x.CanHoId == canHoId && statuses.Contains(x.TrangThaiId))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<bool> AnyAsync(Expression<Func<YeuCauThiCong, bool>> expression, CancellationToken cancellationToken = default)
     {
         return await _dbContext.YeuCauThiCongs.AnyAsync(expression, cancellationToken);

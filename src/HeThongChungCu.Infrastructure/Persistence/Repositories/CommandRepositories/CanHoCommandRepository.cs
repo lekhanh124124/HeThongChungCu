@@ -28,6 +28,12 @@ public class CanHoCommandRepository : ICanHoCommandRepository
                 cancellationToken);
     }
 
+    public async Task<bool> AnyByTangIdsAsync(IEnumerable<int> tangIds, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.CanHos
+            .AnyAsync(c => tangIds.Contains(c.TangId), cancellationToken);
+    }
+
     public async Task<bool> MaCanHoExistsAsync(string maCanHo, CancellationToken cancellationToken = default)
     {
         return await _dbContext.CanHos.AnyAsync(c => c.MaCanHo == maCanHo, cancellationToken);

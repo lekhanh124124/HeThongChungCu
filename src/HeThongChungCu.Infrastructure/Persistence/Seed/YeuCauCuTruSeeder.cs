@@ -34,7 +34,9 @@ public class YeuCauCuTruSeeder
                                       TaiKhoanId = tk != null ? tk.Id : (int?)null,
                                       TrangThaiCuTruId = qh.TrangThaiCuTruId,
                                       LoaiQuanHeCuTruId = qh.LoaiQuanHeCuTruId.Value,
-                                      GioiTinhId = u.GioiTinhId.Value
+                                      GioiTinhId = u.GioiTinhId.Value,
+                                      NgayBatDau = qh.ThoiGian.NgayBatDau,
+                                      NgayKetThuc = qh.ThoiGian.NgayKetThuc
                                   }).ToListAsync();
 
         var residentsByApartment = allResidents
@@ -155,8 +157,13 @@ public class YeuCauCuTruSeeder
                     initialStatus);
             }
 
+            var minDate = chuHo.NgayBatDau;
+            var maxDate = chuHo.NgayKetThuc ?? DateTimeOffset.Now;
+            if (minDate >= maxDate) minDate = maxDate.AddDays(-1);
+            var createdDate = minDate.AddDays(faker.Random.Number(0, (int)(maxDate - minDate).TotalDays));
+
             // Requester is the Chu Ho
-            request.SetCreated(chuHo.TaiKhoanId!.Value, DateTimeOffset.Now.AddDays(-faker.Random.Number(5, 10)));
+            request.SetCreated(chuHo.TaiKhoanId!.Value, createdDate);
 
             // Apply Approval/Rejection/Return/Invalidation if needed
             if (admin != null)
@@ -309,5 +316,7 @@ public class YeuCauCuTruSeeder
         public TrangThaiCuTru TrangThaiCuTruId { get; set; } = null!;
         public int LoaiQuanHeCuTruId { get; set; }
         public int GioiTinhId { get; set; }
+        public DateTimeOffset NgayBatDau { get; set; }
+        public DateTimeOffset? NgayKetThuc { get; set; }
     }
 }

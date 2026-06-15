@@ -29,7 +29,7 @@ public class YeuCauPhuongTienSeeder
 
         // Get householders with their TaiKhoanId
         var householders = await context.QuanHeCuTrus
-            .Where(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo && r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru)
+            .Where(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo || r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue)
             .Join(context.TaiKhoan,
                 qh => qh.NguoiDungId,
                 tk => tk.NguoiDungId,
@@ -38,7 +38,9 @@ public class YeuCauPhuongTienSeeder
                     Id = qh.Id,
                     CanHoId = qh.CanHoId,
                     TaiKhoanId = tk.Id,
-                    TrangThaiCuTruId = qh.TrangThaiCuTruId
+                    TrangThaiCuTruId = qh.TrangThaiCuTruId,
+                    NgayBatDau = qh.ThoiGian.NgayBatDau,
+                    NgayKetThuc = qh.ThoiGian.NgayKetThuc
                 })
             .ToListAsync();
 
@@ -157,8 +159,13 @@ public class YeuCauPhuongTienSeeder
                 }
             }
 
+            var minDate = householder.NgayBatDau;
+            var maxDate = householder.NgayKetThuc ?? DateTimeOffset.Now;
+            if (minDate >= maxDate) minDate = maxDate.AddDays(-1);
+            var createdDate = minDate.AddDays(faker.Random.Number(0, (int)(maxDate - minDate).TotalDays));
+
             // Set the requester (CreatedBy) manually for seed data
-            request.SetCreated(householder.TaiKhoanId, DateTimeOffset.Now.AddDays(-faker.Random.Number(5, 10)));
+            request.SetCreated(householder.TaiKhoanId, createdDate);
 
             // Apply Approval/Rejection/Return/Invalidation if needed
             if (admin != null)
@@ -296,5 +303,7 @@ public class YeuCauPhuongTienSeeder
         public int CanHoId { get; set; }
         public int TaiKhoanId { get; set; }
         public TrangThaiCuTru TrangThaiCuTruId { get; set; } = null!;
+        public DateTimeOffset NgayBatDau { get; set; }
+        public DateTimeOffset? NgayKetThuc { get; set; }
     }
 }

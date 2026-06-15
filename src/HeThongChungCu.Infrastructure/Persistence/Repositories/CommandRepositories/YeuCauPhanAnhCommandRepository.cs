@@ -41,6 +41,13 @@ public class YeuCauPhanAnhCommandRepository : IYeuCauPhanAnhCommandRepository
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public async Task<List<YeuCauPhanAnh>> GetByCanHoIdAndStatusesAsync(int canHoId, IEnumerable<HeThongChungCu.Domain.Enums.TrangThaiYeuCau> statuses, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.YeuCauPhanAnhs
+            .Where(x => x.CanHoId == canHoId && statuses.Contains(x.TrangThaiId))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<YeuCauPhanAnh>> GetOverdueNotNotifiedAsync(DateTimeOffset currentTime, CancellationToken cancellationToken = default)
     {
         return await _dbContext.YeuCauPhanAnhs

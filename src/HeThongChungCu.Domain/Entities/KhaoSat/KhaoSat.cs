@@ -106,6 +106,7 @@ public class KhaoSat : AggregateRoot
             return Result.Failure(KhaoSatErrors.NoQuestions);
 
         TrangThaiId = TrangThaiKhaoSat.DangDienRa;
+        AddDomainEvent(new KhaoSatPublishedEvent(Id, TieuDe));
         return Result.Success();
     }
 

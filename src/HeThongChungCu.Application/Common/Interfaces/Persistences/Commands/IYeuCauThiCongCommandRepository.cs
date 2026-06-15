@@ -9,6 +9,7 @@ public interface IYeuCauThiCongCommandRepository
     Task<YeuCauThiCong?> GetByIdWithFilesAsync(int id, CancellationToken cancellationToken = default);
     Task<YeuCauThiCong?> GetByIdWithPersonnelAsync(int id, CancellationToken cancellationToken = default);
     Task<YeuCauThiCong?> GetByIdWithAllAsync(int id, CancellationToken cancellationToken = default);
+    Task<List<YeuCauThiCong>> GetByCanHoIdAndStatusesAsync(int canHoId, IEnumerable<HeThongChungCu.Domain.Enums.TrangThaiYeuCau> statuses, CancellationToken cancellationToken = default);
     Task<bool> AnyAsync(Expression<Func<YeuCauThiCong, bool>> expression, CancellationToken cancellationToken = default);
 
     Task AddAsync(YeuCauThiCong yctc, CancellationToken cancellationToken = default);

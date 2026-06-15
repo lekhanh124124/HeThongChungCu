@@ -31,30 +31,12 @@ public class DatabaseSeeder : IDatabaseSeeder
         }
     }
 
-    public async Task SeedDatabaseAsync(
-        int soLuongChuHo,
-        int soLuongCuTru,
-        int soLuongPhuongTien,
-        int soLuongTaiKhoanKhach,
-        int soLuongNhanVien,
-        int soLuongYeuCauSuaChua,
-        int soLuongYeuCauThiCong,
-        YeuCauCounts? soLuongYeuCauCuTru = null,
-        YeuCauCounts? soLuongYeuCauPhuongTien = null)
+    public async Task SeedDatabaseAsync()
     {
         await _semaphore.WaitAsync();
         try
         {
-            await ExecuteSeedingAsync(
-                soLuongChuHo,
-                soLuongCuTru,
-                soLuongPhuongTien,
-                soLuongTaiKhoanKhach,
-                soLuongNhanVien,
-                soLuongYeuCauCuTru,
-                soLuongYeuCauPhuongTien,
-                soLuongYeuCauSuaChua,
-                soLuongYeuCauThiCong);
+            await ExecuteSeedingAsync();
         }
         finally
         {
@@ -62,17 +44,17 @@ public class DatabaseSeeder : IDatabaseSeeder
         }
     }
 
-    private async Task ExecuteSeedingAsync(
-        int soLuongChuHo,
-        int soLuongCuTru,
-        int soLuongPhuongTien,
-        int soLuongTaiKhoanKhach,
-        int soLuongNhanVien,
-        YeuCauCounts? soLuongYeuCauCuTru,
-        YeuCauCounts? soLuongYeuCauPhuongTien,
-        int soLuongYeuCauSuaChua,
-        int soLuongYeuCauThiCong)
+    private async Task ExecuteSeedingAsync()
     {
+        int soLuongChuHo = 50;
+        int soLuongCuTru = 300;
+        int soLuongPhuongTien = 200;
+        int soLuongTaiKhoanKhach = 50;
+        int soLuongNhanVien = 50;
+        YeuCauCounts soLuongYeuCauCuTru = new YeuCauCounts();
+        YeuCauCounts soLuongYeuCauPhuongTien = new YeuCauCounts();
+        int soLuongYeuCauSuaChua = 50;
+        int soLuongYeuCauThiCong = 50;
         var hasExistingTransaction = _context.Database.CurrentTransaction != null;
         var transaction = hasExistingTransaction ? null : await _context.Database.BeginTransactionAsync();
 
@@ -171,16 +153,16 @@ public class DatabaseSeeder : IDatabaseSeeder
                     if (deletedRows > 0)
                     {
                         _logger.LogInformation($"Cleared {deletedRows} rows from table {table}.");
+                    }
 
-                        // Reseed identity columns so IDs start from 1
-                        try
-                        {
-                            await _context.Database.ExecuteSqlRawAsync($"DBCC CHECKIDENT ('{table}', RESEED, 0)");
-                        }
-                        catch
-                        {
-                            // Table might not have an identity column
-                        }
+                    // Reseed identity columns so IDs start from 1 unconditionally
+                    try
+                    {
+                        await _context.Database.ExecuteSqlRawAsync($"DBCC CHECKIDENT ('{table}', RESEED, 0)");
+                    }
+                    catch
+                    {
+                        // Table might not have an identity column
                     }
                 }
                 catch (Exception ex)

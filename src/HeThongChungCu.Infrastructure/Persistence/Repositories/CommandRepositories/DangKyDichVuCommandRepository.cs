@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.CommandRepositories;
 
-internal sealed class DangKyDichVuCommandRepository : IDangKyDichVuCommandRepository
+public sealed class DangKyDichVuCommandRepository : IDangKyDichVuCommandRepository
 {
     private readonly AppDbContext _context;
 
@@ -67,5 +67,15 @@ internal sealed class DangKyDichVuCommandRepository : IDangKyDichVuCommandReposi
         return await _context.DangKyDichVus
             .Where(x => x.TrangThaiDangKyId == TrangThaiDangKy.DangSuDung)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> AnyByDichVuIdAsync(int dichVuId, CancellationToken cancellationToken = default)
+    {
+        return await _context.DangKyDichVus.AnyAsync(x => x.DichVuId == dichVuId, cancellationToken);
+    }
+
+    public void Update(DangKyDichVu dangKyDichVu)
+    {
+        _context.DangKyDichVus.Update(dangKyDichVu);
     }
 }

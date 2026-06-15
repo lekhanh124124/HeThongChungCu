@@ -15,8 +15,8 @@ public class ChiSoResponse
     public decimal SoLuong { get; set; }
     public int Thang { get; set; }
     public int Nam { get; set; }
-    public DateTimeOffset NgayGhiNhan { get; set; }
+    public DateTimeOffset? NgayGhiNhan { get; set; }
     public int TrangThaiChiSoId { get; set; }
-    public string TrangThaiChiSoTen { get; set; } = null!;
+    public string? TrangThaiChiSoTen { get; set; }
     public string? MaTraCuu { get; set; }
 }

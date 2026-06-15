@@ -34,8 +34,14 @@ public class PhuongTienSeeder
     {
         logger.LogInformation("Seeding {Count} PhuongTiens with logic-based cards...", soLuongPhuongTien);
 
-        var canHoIds = await context.CanHos.Select(c => c.Id).ToListAsync();
-        if (canHoIds.Count == 0) return;
+        // Fetch all residencies to know who lived when
+        var residencies = await context.QuanHeCuTrus.ToListAsync();
+        if (residencies.Count == 0) return;
+
+        var residenciesByApt = residencies.GroupBy(r => r.CanHoId).ToDictionary(g => g.Key, g => g.ToList());
+        var validCanHoIds = residenciesByApt.Keys.ToList();
+
+        if (validCanHoIds.Count == 0) return;
 
         var admin = await context.TaiKhoan.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Email.Value == "admin@gmail.com");
         var adminId = admin?.Id ?? 0;
@@ -56,17 +62,39 @@ public class PhuongTienSeeder
 
         for (int i = 0; i < soLuongPhuongTien; i++)
         {
+            var canHoId = faker.PickRandom(validCanHoIds);
+            var aptResidencies = residenciesByApt[canHoId];
+            
+            // Check if there are active residents
+            var activeResident = aptResidencies.FirstOrDefault(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru);
+            var pastResident = aptResidencies.Where(r => r.TrangThaiCuTruId == TrangThaiCuTru.DaKetThuc).OrderByDescending(r => r.ThoiGian.NgayKetThuc).FirstOrDefault();
+
             var loaiId = faker.PickRandom(loaiPhuongTiens);
             var model = faker.PickRandom(vehicleModels[loaiId]);
             var status = faker.PickRandom(trangThais);
             var color = faker.PickRandom(vehicleColors);
 
-            // Bicycles don't have plates in Vietnam, generation a fake internal plate instead
+            // If no active resident, the vehicle must be inactive/blocked and tied to the past resident's timeline
+            if (activeResident == null && pastResident != null)
+            {
+                status = faker.PickRandom(TrangThaiPhuongTien.Inactive, TrangThaiPhuongTien.Blocked);
+            }
+
+            var baseResident = activeResident ?? pastResident!;
+            var minDate = baseResident.ThoiGian.NgayBatDau;
+            var maxDate = baseResident.ThoiGian.NgayKetThuc ?? DateTimeOffset.Now;
+
+            // Đảm bảo minDate < maxDate để random không lỗi
+            if (minDate >= maxDate) minDate = maxDate.AddDays(-1);
+
+            // Random a registration date during the residency
+            var regDate = minDate.AddDays(faker.Random.Number(0, (int)(maxDate - minDate).TotalDays));
+
             var bienSo = (loaiId == LoaiPhuongTien.XeDap) ? GenerateBienSoXeDap(faker) : GenerateBienSo(faker);
             var tenHienThi = $"{model} ({bienSo})";
 
             var pt = new PhuongTien(
-                canHoId: faker.PickRandom(canHoIds),
+                canHoId: canHoId,
                 tenPhuongTien: tenHienThi,
                 loaiPhuongTienId: loaiId,
                 bienSo: bienSo,
@@ -74,28 +102,33 @@ public class PhuongTienSeeder
                 hinhAnhs: null
             );
 
-            if (adminId != 0) pt.SetCreated(adminId, DateTimeOffset.Now);
+            if (adminId != 0) pt.SetCreated(adminId, regDate);
 
             await context.PhuongTiens.AddAsync(pt);
 
             // Status-based card logic
             if (status == TrangThaiPhuongTien.Active)
             {
-                var the = pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.Now.AddMonths(-1));
-                if (adminId != 0) the.SetCreated(adminId, DateTimeOffset.Now);
+                var the = pt.AddThe(GenerateUniqueMaThe(faker), regDate);
+                if (adminId != 0) the.SetCreated(adminId, regDate);
             }
             else if (status == TrangThaiPhuongTien.Inactive)
             {
-                // Inactive vehicles might still have old cards
-                var the = pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.Now.AddMonths(-2));
-                if (adminId != 0) the.SetCreated(adminId, DateTimeOffset.Now);
-                pt.Huy(DateTimeOffset.Now);
+                var the = pt.AddThe(GenerateUniqueMaThe(faker), regDate);
+                if (adminId != 0) the.SetCreated(adminId, regDate);
+                
+                var cancelDate = activeResident == null ? maxDate : regDate.AddDays(faker.Random.Number(1, (int)(maxDate - regDate).TotalDays == 0 ? 1 : (int)(maxDate - regDate).TotalDays));
+                pt.Huy(cancelDate);
+                pt.SetModified(adminId, cancelDate);
             }
             else if (status == TrangThaiPhuongTien.Blocked)
             {
-                var the = pt.AddThe(GenerateUniqueMaThe(faker), DateTimeOffset.Now.AddMonths(-3));
-                if (adminId != 0) the.SetCreated(adminId, DateTimeOffset.Now);
-                pt.Khoa(DateTimeOffset.Now);
+                var the = pt.AddThe(GenerateUniqueMaThe(faker), regDate);
+                if (adminId != 0) the.SetCreated(adminId, regDate);
+                
+                var blockDate = activeResident == null ? maxDate : regDate.AddDays(faker.Random.Number(1, (int)(maxDate - regDate).TotalDays == 0 ? 1 : (int)(maxDate - regDate).TotalDays));
+                pt.Khoa(blockDate);
+                pt.SetModified(adminId, blockDate);
             }
         }
 

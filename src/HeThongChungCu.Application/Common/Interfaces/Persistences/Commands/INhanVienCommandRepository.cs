@@ -9,6 +9,7 @@ public interface INhanVienCommandRepository
     Task DeleteAsync(NhanVien nhanVien, CancellationToken cancellationToken = default);
     Task<NhanVien?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<IEnumerable<NhanVien>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
+    Task<bool> HasAssignedRequestsAsync(int nhanVienId, CancellationToken cancellationToken = default);
     Task<bool> MaNhanVienExistsAsync(string maNhanVien, CancellationToken cancellationToken = default);
     Task<NhanVien?> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default);
 }

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Repositories.CommandRepositories;
 
-internal sealed class PhuongTienCommandRepository : IPhuongTienCommandRepository
+public sealed class PhuongTienCommandRepository : IPhuongTienCommandRepository
 {
     private readonly AppDbContext _context;
 

@@ -61,7 +61,7 @@ public sealed class ImportChiSoCommandHandlerTests : BaseTest
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().Be(0);
+        result.Value.SuccessCount.Should().Be(0);
         await _chiSoRepository.DidNotReceive().AddRangeAsync(Arg.Any<IEnumerable<ChiSoTieuThu>>(), CancellationToken);
         await _unitOfWork.DidNotReceive().SaveChangesAsync(CancellationToken);
     }
@@ -81,7 +81,7 @@ public sealed class ImportChiSoCommandHandlerTests : BaseTest
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().Be(0);
+        result.Value.SuccessCount.Should().Be(0);
         await _chiSoRepository.DidNotReceive().AddRangeAsync(Arg.Any<IEnumerable<ChiSoTieuThu>>(), CancellationToken);
         await _unitOfWork.DidNotReceive().SaveChangesAsync(CancellationToken);
     }
@@ -101,7 +101,7 @@ public sealed class ImportChiSoCommandHandlerTests : BaseTest
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Value.Should().Be(1);
+        result.Value.SuccessCount.Should().Be(1);
         await _chiSoRepository.Received(1).AddRangeAsync(Arg.Is<IEnumerable<ChiSoTieuThu>>(x => x.Count() == 1), CancellationToken);
         await _unitOfWork.Received(1).SaveChangesAsync(CancellationToken);
     }

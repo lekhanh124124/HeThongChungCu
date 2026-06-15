@@ -21,19 +21,19 @@ public static class YeuCauThiCongSeeder
         var adminId = admin?.Id ?? 0;
 
         // Get residents grouped by apartment to find requesters
+        // Get residents grouped by apartment to find requesters
         var residentsByApartment = await context.QuanHeCuTrus
-            .Where(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru)
             .Join(context.TaiKhoan,
                 qh => qh.NguoiDungId,
                 tk => tk.NguoiDungId,
-                (qh, tk) => new { qh.CanHoId, tk.Id, qh.LoaiQuanHeCuTruId })
+                (qh, tk) => new { qh.CanHoId, tk.Id, qh.LoaiQuanHeCuTruId, qh.ThoiGian.NgayBatDau, qh.ThoiGian.NgayKetThuc })
             .ToListAsync();
 
         var apartmentRequesters = residentsByApartment
             .GroupBy(r => r.CanHoId)
             .ToDictionary(
                 g => g.Key,
-                g => g.OrderBy(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo ? 0 : 1).First().Id
+                g => g.OrderBy(r => Guid.NewGuid()).First()
             );
 
         var validApartmentIds = apartmentRequesters.Keys.ToList();
@@ -49,6 +49,15 @@ public static class YeuCauThiCongSeeder
         for (int i = 0; i < count; i++)
         {
             var aptId = faker.PickRandom(validApartmentIds);
+            var requester = apartmentRequesters[aptId];
+            var minDate = requester.NgayBatDau;
+            var maxDate = requester.NgayKetThuc ?? DateTimeOffset.Now;
+            if (minDate >= maxDate) minDate = maxDate.AddDays(-1);
+
+            var createdDate = minDate.AddDays(faker.Random.Number(0, (int)(maxDate - minDate).TotalDays));
+            var batDau = createdDate.AddDays(faker.Random.Int(5, 15));
+            var ketThuc = batDau.AddDays(faker.Random.Int(5, 45));
+
             var hangMucItems = new[]
             {
                 "Cải tạo nội thất phòng khách và bếp",
@@ -64,9 +73,6 @@ public static class YeuCauThiCongSeeder
             };
 
             var hangMuc = faker.PickRandom(hangMucItems);
-            var batDau = DateTimeOffset.Now.AddDays(faker.Random.Int(-30, 10));
-            var ketThuc = batDau.AddDays(faker.Random.Int(5, 45));
-            
             var tenDonVi = faker.Company.CompanyName();
             var nguoiDaiDien = faker.Name.FullName();
             var sdt = "09" + faker.Random.Number(10000000, 99999999);
@@ -85,9 +91,7 @@ public static class YeuCauThiCongSeeder
                 sdt,
                 trangThaiBanDau: TrangThaiYeuCau.Saved);
 
-            var requesterId = apartmentRequesters[aptId];
-            var createdDate = batDau.AddDays(-faker.Random.Int(5, 15));
-            request.SetCreated(requesterId, createdDate);
+            request.SetCreated(requester.Id, createdDate);
 
             // Comprehensive Target State distribution
             SeedTargetState[] targetOptions =

@@ -11,17 +11,23 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
     private readonly IUnitOfWork _unitOfWork;
     private readonly IQuanHeCuTruCommandRepository _quanHeCuTruRepository;
     private readonly IToaNhaCommandRepository _toaNhaRepository;
+    private readonly IPhuongTienCommandRepository _phuongTienRepository;
+    private readonly IHoaDonCommandRepository _hoaDonRepository;
 
     public DeleteCanHoCommandHandler(
         ICanHoCommandRepository canHoRepository,
         IUnitOfWork unitOfWork,
         IQuanHeCuTruCommandRepository quanHeCuTruRepository,
-        IToaNhaCommandRepository toaNhaRepository)
+        IToaNhaCommandRepository toaNhaRepository,
+        IPhuongTienCommandRepository phuongTienRepository,
+        IHoaDonCommandRepository hoaDonRepository)
     {
         _canHoRepository = canHoRepository;
         _unitOfWork = unitOfWork;
         _quanHeCuTruRepository = quanHeCuTruRepository;
         _toaNhaRepository = toaNhaRepository;
+        _phuongTienRepository = phuongTienRepository;
+        _hoaDonRepository = hoaDonRepository;
     }
 
     public async Task<Result<IReadOnlyList<CanHoDetailResponse>>> Handle(DeleteCanHoCommand request, CancellationToken cancellationToken)
@@ -57,11 +63,21 @@ public class DeleteCanHoCommandHandler : ICommandHandler<DeleteCanHoCommand, IRe
         foreach (var canHo in canHos)
         {
             var relations = await _quanHeCuTruRepository.GetByCanHoIdAsync(canHo.Id, cancellationToken);
-            
-            // Logic moved from ResidencyService.CheckCanUpdateOrDeleteCanHo
-            if (relations.Any(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru))
+            if (relations.Any())
             {
-                return new Error("CanHo.HasActiveResidents", "Không được thực hiện thao tác này khi đang có cư dân cư trú.");
+                return new Error("CanHo.HasResidencyHistory", "Không được xóa căn hộ đã từng có cư dân cư trú.");
+            }
+
+            var phuongTiens = await _phuongTienRepository.GetPhuongTiensByCanHoIdAsync(canHo.Id, cancellationToken);
+            if (phuongTiens.Any())
+            {
+                return new Error("CanHo.HasVehicles", "Không được xóa căn hộ đã đăng ký phương tiện.");
+            }
+
+            var hasInvoices = await _hoaDonRepository.AnyInvoicesByCanHoAsync(canHo.Id, cancellationToken);
+            if (hasInvoices)
+            {
+                return new Error("CanHo.HasInvoices", "Không được xóa căn hộ đã có hóa đơn.");
             }
 
             canHo.Delete();

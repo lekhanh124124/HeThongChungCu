@@ -4,6 +4,7 @@ public interface ICanHoCommandRepository
 {
     Task<CanHo?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<bool> AnyAsync(int id, CancellationToken cancellationToken = default);
+    Task<bool> AnyByTangIdsAsync(IEnumerable<int> tangIds, CancellationToken cancellationToken = default);
     Task<bool> MaCanHoExistsAsync(string maCanHo, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<CanHo>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
     Task<List<CanHo>> GetAllActiveAsync(CancellationToken cancellationToken = default);

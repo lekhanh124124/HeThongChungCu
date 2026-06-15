@@ -34,16 +34,14 @@ public static class PhanAnhSeeder
 
         var relations = await context.QuanHeCuTrus
             .Where(r => specialUserIds.Contains(r.NguoiDungId) && 
-                        r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru && 
                         (r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo || r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue))
             .ToListAsync();
 
         if (!relations.Any())
         {
-            logger.LogWarning("No special user relations found for complaints seeding. Falling back to active general residents.");
+            logger.LogWarning("No special user relations found for complaints seeding. Falling back to general residents.");
             relations = await context.QuanHeCuTrus
-                .Where(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru && 
-                            (r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo || r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue))
+                .Where(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo || r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue)
                 .Take(5)
                 .ToListAsync();
         }

@@ -113,10 +113,10 @@ public class AppDbContext : DbContext, IUnitOfWork
             if (typeof(AuditableEntity).IsAssignableFrom(entityType.ClrType) && entityType.BaseType == null)
             {
                 var method = typeof(AppDbContext)
-                    .GetMethod(nameof(ApplySoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Instance)
+                    .GetMethod(nameof(ApplySoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)
                     ?.MakeGenericMethod(entityType.ClrType);
 
-                method?.Invoke(this, [builder]);
+                method?.Invoke(null, [builder]);
             }
         }
 

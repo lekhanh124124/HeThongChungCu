@@ -43,6 +43,17 @@ public class NhanVienCommandRepository : INhanVienCommandRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<bool> HasAssignedRequestsAsync(int nhanVienId, CancellationToken cancellationToken = default)
+    {
+        var hasYeuCau = await _dbContext.Set<NhanSuYeuCau>()
+            .AnyAsync(x => x.NhanVienId == nhanVienId, cancellationToken);
+            
+        if (hasYeuCau) return true;
+        
+        return await _dbContext.NhanSuBaoTris
+            .AnyAsync(x => x.NhanVienId == nhanVienId, cancellationToken);
+    }
+
     public async Task<bool> MaNhanVienExistsAsync(string maNhanVien, CancellationToken cancellationToken = default)
     {
         return await _dbContext.NhanViens

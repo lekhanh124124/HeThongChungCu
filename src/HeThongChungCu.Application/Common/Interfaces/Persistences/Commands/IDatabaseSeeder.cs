@@ -4,14 +4,5 @@ namespace HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 
 public interface IDatabaseSeeder
 {
-    Task SeedDatabaseAsync(
-        int soLuongChuHo,
-        int soLuongCuTru,
-        int soLuongPhuongTien,
-        int soLuongTaiKhoanKhach,
-        int soLuongNhanVien,
-        int soLuongYeuCauSuaChua,
-        int soLuongYeuCauThiCong,
-        YeuCauCounts? soLuongYeuCauCuTru = null,
-        YeuCauCounts? soLuongYeuCauPhuongTien = null);
+    Task SeedDatabaseAsync();
 }

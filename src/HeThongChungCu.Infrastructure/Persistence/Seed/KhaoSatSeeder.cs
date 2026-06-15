@@ -166,8 +166,7 @@ public static class KhaoSatSeeder
 
         // Get all active residents joined with their apartments to retrieve areas and IDs safely
         var activeResidents = await context.QuanHeCuTrus
-            .Where(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru && 
-                        (r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo || r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue))
+            .Where(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo || r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue)
             .Join(context.CanHos,
                 r => r.CanHoId,
                 c => c.Id,

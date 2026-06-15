@@ -72,6 +72,26 @@ public class HoaDonCommandRepository : IHoaDonCommandRepository
         return await _dbContext.HoaDons.AnyAsync(x => x.DotThanhToanId == dotId, cancellationToken);
     }
 
+    public async Task<bool> HasUnpaidInvoicesAsync(int canHoId, CancellationToken cancellationToken = default)
+    {
+        var unpaidStatuses = new[]
+        {
+            TrangThaiHoaDon.ChuaThanhToan,
+            TrangThaiHoaDon.ThanhToanMotPhan,
+            TrangThaiHoaDon.QuaHan,
+            TrangThaiHoaDon.QuaHanNhe,
+            TrangThaiHoaDon.QuaHanNang
+        };
+
+        return await _dbContext.HoaDons
+            .AnyAsync(x => x.CanHoId == canHoId && unpaidStatuses.Contains(x.TrangThaiHoaDonId), cancellationToken);
+    }
+
+    public async Task<bool> AnyInvoicesByCanHoAsync(int canHoId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.HoaDons.AnyAsync(x => x.CanHoId == canHoId, cancellationToken);
+    }
+
     public async Task<ILookup<int, HoaDon>> GetOverdueByCanHoIdsAsync(
         IEnumerable<int> canHoIds,
         DateTimeOffset dotStartDate,

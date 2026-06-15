@@ -37,6 +37,23 @@ public class CreatePhieuBaoTriCommandHandler : ICommandHandler<CreatePhieuBaoTri
         if (hangMuc == null)
             return BaoTriHaTangErrors.HangMucNotFoundById(request.HangMucBaoTriId);
 
+        List<string> checklistItems = [];
+        if (request.NoiDungChecklistBanDaus != null && request.NoiDungChecklistBanDaus.Count > 0)
+        {
+            checklistItems = request.NoiDungChecklistBanDaus;
+        }
+        else if (!string.IsNullOrWhiteSpace(hangMuc.ChecklistTieuChuan))
+        {
+            try
+            {
+                checklistItems = System.Text.Json.JsonSerializer.Deserialize<List<string>>(hangMuc.ChecklistTieuChuan) ?? [];
+            }
+            catch
+            {
+                // Fallback to empty list if deserialization fails
+            }
+        }
+
         var phieuBaoTri = PhieuBaoTri.Create(
             request.MaPhieu,
             request.ThietBiId,
@@ -44,7 +61,7 @@ public class CreatePhieuBaoTriCommandHandler : ICommandHandler<CreatePhieuBaoTri
             null, // Thủ công không có lịch bảo trì
             DateTimeOffset.UtcNow, // NgayLapPhieu
             request.NgayDuKien,
-            request.NoiDungChecklistBanDaus ?? []);
+            checklistItems);
 
         if (request.HopDongDoiTacId.HasValue)
         {

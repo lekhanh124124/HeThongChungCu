@@ -50,7 +50,7 @@ public sealed class LoginCommandHandlerTests : BaseTest
         var password = "password123";
         var hashedPassword = "hashed_password123";
         var expectedAccessToken = "valid_access_token";
-        var testTime = new DateTimeOffset(2026, 5, 25, 12, 0, 0, TimeSpan.Zero);
+        var testTime = DateTimeOffset.UtcNow;
 
         var account = new TaiKhoan(null, username, "testuser@gmail.com", hashedPassword);
         

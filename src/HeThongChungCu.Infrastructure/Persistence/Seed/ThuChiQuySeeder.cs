@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using HeThongChungCu.Domain.Entities;
 using HeThongChungCu.Domain.Enums;
+using Bogus;
 
 namespace HeThongChungCu.Infrastructure.Persistence.Seed;
 
@@ -15,50 +16,19 @@ public static class QuyThuChiSeeder
     {
         logger.LogInformation("Seeding QuyThuChi financial transaction logs...");
 
-        // ── Guard: skip sớm nếu đã có dữ liệu QuyThuChi ────────────────────────
-        // QUAN TRỌNG: phải check TRƯỚC khi seed HoaDonDoiTac.
-        // UpdateStatus(DaThanhToan) raise domain event → SaveChanges tự tạo QuyThu record.
-        // Nếu guard check SAU đó, sẽ thấy 2 record và skip toàn bộ phần seed thủ công.
         if (await context.QuyThuChis.AnyAsync())
         {
             logger.LogInformation("QuyThuChi already seeded. Skipping.");
             return;
         }
 
-        // ── Partner Invoices (HoaDonDoiTac) ─────────────────────────────────────
-        var schindlerContract = await context.HopDongDoiTacs
-            .FirstOrDefaultAsync(h => h.SoHopDong == "HD-SCH-2026");
+        var faker = new Faker("vi");
 
-        if (schindlerContract != null && !await context.HoaDonDoiTacs.AnyAsync())
-        {
-            logger.LogInformation("Seeding HoaDonDoiTac partner invoices...");
-
-            var invoices = new List<HoaDonDoiTac>
-            {
-                new HoaDonDoiTac(schindlerContract.Id, 3, 2026, 15_000_000m, null, "Bảo trì thang máy T3/2026"),
-                new HoaDonDoiTac(schindlerContract.Id, 4, 2026, 15_000_000m, null, "Bảo trì thang máy T4/2026"),
-                new HoaDonDoiTac(schindlerContract.Id, 5, 2026, 15_000_000m, null, "Bảo trì thang máy T5/2026"),
-            };
-            invoices[0].UpdateStatus(TrangThaiThanhToanDoiTac.DaThanhToan);
-            invoices[1].UpdateStatus(TrangThaiThanhToanDoiTac.DaThanhToan);
-
-            await context.HoaDonDoiTacs.AddRangeAsync(invoices);
-            DatabaseSeeder.ClearAllDomainEvents(context);
-            await context.SaveChangesAsync();
-            logger.LogInformation("Seeded 3 partner invoices.");
-        }
-
-        // ── Build QuyThuChi records ────────────────────────────────────────────
-
-        // Lấy các ID thực tế từ database để seed cho phong phú
-        // Dùng StringComparer.OrdinalIgnoreCase để tránh lỗi typo hoa/thường
         var dichVus = await context.DichVus.ToDictionaryAsync(d => d.MaDichVu, d => (int?)d.Id, StringComparer.OrdinalIgnoreCase);
 
-        // Helper để lấy ID an toàn
         int? GetDv(string code)
         {
             if (dichVus.TryGetValue(code, out var id)) return id;
-            logger.LogWarning($"[QuyThuChiSeeder] Service code '{code}' not found in database. DichVuId will be null.");
             return null;
         }
 
@@ -70,253 +40,140 @@ public static class QuyThuChiSeeder
         var dvCar = GetDv("PK_CAR");
         var dvWashBike = GetDv("DV_WASH_BIKE");
         var dvTennis = GetDv("DV_TENNIS");
-
-        var thiCongId = await context.YeuCauThiCongs.Select(d => (int?)d.Id).FirstOrDefaultAsync();
-        var suaChuaId = await context.YeuCauSuaChuas.Select(d => (int?)d.Id).FirstOrDefaultAsync();
+        var dvPool = GetDv("DV_POOL");
+        var dvBBQ = GetDv("DV_BBQ");
 
         var list = new List<QuyThuChi>();
         var gio7 = TimeSpan.FromHours(7);
 
-        // ════════════════════════════════════════════════════════════
-        // THÁNG 1 & 2 / 2026 — tạo số dư đầu kỳ (trước TuNgay kỳ báo cáo)
-        // Mục đích: kiểm tra SoDuDauKy trong BaoCaoThuChi
-        // ════════════════════════════════════════════════════════════
+        int receiptCounter = 1;
+        int paymentCounter = 1;
 
-        // T1: Thu phí quản lý (multi-line chiTiet — 2 nhóm)
-        list.Add(CreateThu("THU-20260110-001",
-            new DateTimeOffset(2026, 1, 10, 8, 0, 0, gio7),
-            PhuongThucThanhToan.ChuyenKhoan,
-            "Cư dân Block A",
-            "BIENlai-T1A",
-            chiTiets:
-            [
-                (dvManagement, 80_000_000m, "Thu phí quản lý vận hành", "Block A - T1/2026"),
-                (dvCar,        30_000_000m, "Thu phí gửi xe",           "Xe ô tô Block A - T1/2026"),
-            ]));
+        for (int year = 2025; year <= 2026; year++)
+        {
+            int endMonth = year == 2026 ? 5 : 12;
+            for (int month = 1; month <= endMonth; month++)
+            {
+                // THU ĐẶC THÙ (Special Income)
+                // 1. Tiện ích (BBQ, Hồ bơi, Tennis)
+                var tienTienIch = faker.Random.Decimal(3_000_000m, 15_000_000m);
+                list.Add(CreateThu($"THU-{year}{month:D2}-{receiptCounter++:D3}",
+                    new DateTimeOffset(year, month, faker.Random.Int(5, 15), 10, 0, 0, gio7),
+                    PhuongThucThanhToan.ChuyenKhoan,
+                    "Cư dân đặt tiện ích",
+                    null,
+                    chiTiets: new[] {
+                        (dvBBQ ?? dvPool ?? dvTennis, tienTienIch, "Thu phí sử dụng tiện ích", $"Phòng SHCD, BBQ, Hồ bơi T{month}/{year}")
+                    }));
 
-        // T1: Chi vận hành (multi-line chiTiet)
-        list.Add(CreateChi("CHI-20260125-001",
-            new DateTimeOffset(2026, 1, 25, 9, 0, 0, gio7),
-            PhuongThucThanhToan.ChuyenKhoan,
-            "Công ty Điện lực EVN",
-            "HD-EVN-T1-2026",
-            chiTiets:
-            [
-                ("Điện tổng tòa nhà",      60_000_000m, "Hóa đơn điện tổng T1/2026", dvElectric),
-                ("Điện sinh hoạt cư dân",  25_000_000m, "Thu hộ tiền điện T1/2026", dvElectric),
-            ]));
+                // 2. Thu khác (Quảng cáo)
+                if (faker.Random.Bool(0.7f)) // 70% có thu quảng cáo
+                {
+                    var tienQuangCao = faker.Random.Decimal(5_000_000m, 12_000_000m);
+                    list.Add(CreateThu($"THU-{year}{month:D2}-{receiptCounter++:D3}",
+                        new DateTimeOffset(year, month, faker.Random.Int(16, 25), 14, 0, 0, gio7),
+                        PhuongThucThanhToan.ChuyenKhoan,
+                        "Công ty Quảng cáo",
+                        $"HD-QC-{year}{month}",
+                        chiTiets: new[] {
+                            ((int?)null, tienQuangCao, "Thu khác", $"Quảng cáo màn hình thang máy T{month}/{year}")
+                        }));
+                }
 
-        // T2: Thu phí gửi xe + tiện ích
-        list.Add(CreateThu("THU-20260205-001",
-            new DateTimeOffset(2026, 2, 5, 10, 0, 0, gio7),
-            PhuongThucThanhToan.TienMat,
-            "Cư dân tòa nhà",
-            "BIENHAI-T2",
-            chiTiets:
-            [
-                (dvManagement, 55_000_000m, "Thu phí quản lý vận hành", "Block B - T2/2026"),
-                (GetDv("DV_POOL"), 8_500_000m, "Thu phí sử dụng tiện ích", "BBQ, hồ bơi T2/2026"),
-            ]));
+                // 3. Đặt cọc thi công (random)
+                if (faker.Random.Bool(0.4f)) // 40% có thu cọc
+                {
+                    list.Add(CreateThu($"THU-{year}{month:D2}-{receiptCounter++:D3}",
+                        new DateTimeOffset(year, month, faker.Random.Int(1, 28), 9, 30, 0, gio7),
+                        PhuongThucThanhToan.ChuyenKhoan,
+                        $"Cư dân {faker.Name.FullName()}",
+                        $"UNC-THC-{year}{month}",
+                        chiTiets: new[] {
+                            ((int?)null, 20_000_000m, "Thu đặt cọc thi công", $"Ký quỹ sửa nội thất căn hộ")
+                        }));
+                }
 
-        // T2: Chi bảo trì thang máy
-        list.Add(CreateChi("CHI-20260220-001",
-            new DateTimeOffset(2026, 2, 20, 14, 0, 0, gio7),
-            PhuongThucThanhToan.ChuyenKhoan,
-            "Schindler Việt Nam",
-            "HD-SCH-T2-2026",
-            chiTiets:
-            [
-                ("Chi trả nhà cung cấp/đối tác", 15_000_000m, "Phí bảo trì thang máy T2/2026", null),
-            ]));
+                // 4. Thu bù đắp (để cân bằng với chi phí lớn do không seed đủ 100% căn hộ)
+                var thuBuDapQuanLy = faker.Random.Decimal(90_000_000m, 120_000_000m);
+                var thuBuDapDien = faker.Random.Decimal(30_000_000m, 50_000_000m);
+                list.Add(CreateThu($"THU-{year}{month:D2}-{receiptCounter++:D3}",
+                    new DateTimeOffset(year, month, faker.Random.Int(18, 28), 16, 0, 0, gio7),
+                    PhuongThucThanhToan.TienMat,
+                    "Đại diện các chủ hộ",
+                    $"PN-T{month}-{year}",
+                    chiTiets: new[] {
+                        (dvManagement, thuBuDapQuanLy, "Thu phí quản lý vận hành", $"Thu phí quản lý T{month}/{year} (thu ngoài hệ thống)"),
+                        (dvElectric, thuBuDapDien, "Thu tiền điện", $"Thu tiền điện T{month}/{year} (thu ngoài hệ thống)")
+                    }));
 
-        // ════════════════════════════════════════════════════════════
-        // THÁNG 3 / 2026 — dữ liệu chính kỳ báo cáo
-        // Mục đích: test BaoCaoThuChi, lọc NhomThongKe, lọc DichVuId
-        // ════════════════════════════════════════════════════════════
+                // CHI VẬN HÀNH (Expenses)
+                // 1. Điện tổng tòa nhà
+                var tienDienTong = faker.Random.Decimal(80_000_000m, 120_000_000m);
+                list.Add(CreateChi($"CHI-{year}{month:D2}-{paymentCounter++:D3}",
+                    new DateTimeOffset(year, month, 20, 10, 0, 0, gio7),
+                    PhuongThucThanhToan.ChuyenKhoan,
+                    "Công ty Điện lực EVN",
+                    $"HD-EVN-{year}{month}",
+                    chiTiets: new[] {
+                        ("Chi vận hành", tienDienTong, $"Điện tổng tòa nhà + sinh hoạt T{month}/{year}", dvElectric)
+                    }));
 
-        // THÔNG BÁO: Kể từ tháng 3/2026, các khoản Thu phí (Quản lý, Điện, Nước, Xe) 
-        // sẽ được HoaDonSeeder tự động hạch toán vào Quỹ thông qua Domain Event.
-        // ThuChiQuySeeder chỉ seed các khoản Thu/Chi đặc thù không qua hóa đơn cư dân.
+                // 2. Nước tổng
+                var tienNuocTong = faker.Random.Decimal(25_000_000m, 40_000_000m);
+                list.Add(CreateChi($"CHI-{year}{month:D2}-{paymentCounter++:D3}",
+                    new DateTimeOffset(year, month, 22, 10, 0, 0, gio7),
+                    PhuongThucThanhToan.ChuyenKhoan,
+                    "Công ty Cấp nước Sawaco",
+                    $"HD-NUOC-{year}{month}",
+                    chiTiets: new[] {
+                        ("Chi vận hành", tienNuocTong, $"Tiền nước sinh hoạt + xịt rửa T{month}/{year}", dvWater)
+                    }));
 
-        // (Thu phí gửi xe T3 đã được HoaDonSeeder tự động hạch toán)
+                // 3. Lương nhân viên
+                var tienLuong = faker.Random.Decimal(90_000_000m, 110_000_000m);
+                list.Add(CreateChi($"CHI-{year}{month:D2}-{paymentCounter++:D3}",
+                    new DateTimeOffset(year, month, 5, 10, 0, 0, gio7),
+                    PhuongThucThanhToan.ChuyenKhoan,
+                    "Nhân viên BQL",
+                    $"LUONG-{year}{month}",
+                    chiTiets: new[] {
+                        ("Lương nhân viên", tienLuong, $"Trả lương nhân viên BQL T{month}/{year}", (int?)null)
+                    }));
 
-        // Thu đặt cọc thi công (test NhomThongKe = "Thu đặt cọc thi công")
-        list.Add(CreateThu("THU-20260310-001",
-            new DateTimeOffset(2026, 3, 10, 9, 0, 0, gio7),
-            PhuongThucThanhToan.ChuyenKhoan,
-            "Cư dân Trần Văn Minh - A-05.12",
-            "UNC-THC-2026-001",
-            chiTiets:
-            [
-                ((int?)null, 20_000_000m, "Thu đặt cọc thi công", "Ký quỹ sửa nội thất căn A-05.12"),
-            ]));
+                // 4. Bảo trì thang máy
+                list.Add(CreateChi($"CHI-{year}{month:D2}-{paymentCounter++:D3}",
+                    new DateTimeOffset(year, month, 25, 9, 0, 0, gio7),
+                    PhuongThucThanhToan.ChuyenKhoan,
+                    "Schindler Việt Nam",
+                    $"HD-SCH-{year}{month}",
+                    chiTiets: new[] {
+                        ("Chi trả nhà cung cấp/đối tác", 15_000_000m, $"Bảo trì thang máy T{month}/{year}", (int?)null)
+                    }));
 
-        // Thu phí sử dụng tiện ích + Thu khác (multi-nhóm, ví điện tử)
-        list.Add(CreateThu("THU-20260315-001",
-            new DateTimeOffset(2026, 3, 15, 11, 0, 0, gio7),
-            PhuongThucThanhToan.ViDienTu,
-            "Nhiều cư dân",
-            null,
-            chiTiets:
-            [
-                (GetDv("DV_BBQ"),  12_000_000m, "Thu phí sử dụng tiện ích", "Sảnh BBQ + hồ bơi T3/2026"),
-                ((int?)null,        5_000_000m, "Thu khác",                  "Quảng cáo thang máy tháng 3"),
-            ]));
+                // 5. Chi phí linh tinh (VPP, In ấn, Cảnh quan)
+                var chiTietLinhTinh = new List<(string, decimal, string?, int?)>();
+                chiTietLinhTinh.Add(("Văn phòng phẩm", faker.Random.Decimal(500_000m, 1_500_000m), "Bút, giấy in cho BQL", null));
+                chiTietLinhTinh.Add(("Chi trả đối tác viễn thông", faker.Random.Decimal(2_000_000m, 5_000_000m), "Cáp quang Viettel", dvInternet));
+                
+                if (faker.Random.Bool(0.5f)) // 50% tháng có chi chăm sóc cây cảnh
+                {
+                    chiTietLinhTinh.Add(("Cảnh quan, vệ sinh", faker.Random.Decimal(3_000_000m, 8_000_000m), "Chăm sóc cây xanh sảnh chính", null));
+                }
 
-        // Thu phí dịch vụ sửa chữa (test NhomThongKe, keyword)
-        list.Add(CreateThu("THU-20260318-001",
-            new DateTimeOffset(2026, 3, 18, 14, 0, 0, gio7),
-            PhuongThucThanhToan.TienMat,
-            "Lê Thị Hoa - B-03.07",
-            "BIENRAI-SC-001",
-            chiTiets:
-            [
-                (GetDv("DV_YC_SUACHUA"), 800_000m, "Thu phí dịch vụ sửa chữa", "Sửa vòi nước, thay bóng đèn"),
-            ]));
+                list.Add(CreateChi($"CHI-{year}{month:D2}-{paymentCounter++:D3}",
+                    new DateTimeOffset(year, month, 28, 14, 0, 0, gio7),
+                    PhuongThucThanhToan.TienMat,
+                    "Các nhà cung cấp",
+                    $"HD-OTHER-{year}{month}",
+                    chiTiets: chiTietLinhTinh));
+            }
+        }
 
-        // Chi vận hành (multi-line — điện + nước + lương)
-        list.Add(CreateChi("CHI-20260320-001",
-            new DateTimeOffset(2026, 3, 20, 10, 0, 0, gio7),
-            PhuongThucThanhToan.ChuyenKhoan,
-            "Công ty Điện lực EVN",
-            "HD-EVN-T3-2026",
-            chiTiets:
-            [
-                ("Chi vận hành", 98_600_000m, "Hóa đơn điện tổng + sinh hoạt T3/2026", dvElectric),
-            ]));
-
-        // Chi bảo trì thang máy Schindler
-        list.Add(CreateChi("CHI-20260325-001",
-            new DateTimeOffset(2026, 3, 25, 9, 0, 0, gio7),
-            PhuongThucThanhToan.ChuyenKhoan,
-            "Schindler Việt Nam",
-            "HD-SCH-T3-2026",
-            chiTiets:
-            [
-                ("Chi trả nhà cung cấp/đối tác", 15_000_000m, "Phí bảo trì thang máy T3/2026", null),
-            ]));
-
-        // Chi văn phòng phẩm + in ấn (tiền mặt, multi-line — test NhomThongKe)
-        list.Add(CreateChi("CHI-20260328-001",
-            new DateTimeOffset(2026, 3, 28, 8, 30, 0, gio7),
-            PhuongThucThanhToan.TienMat,
-            "Nhà sách Nguyễn Huệ",
-            "HD-NSH-9921",
-            chiTiets:
-            [
-                ("Văn phòng phẩm", 450_000m,  "Bút, giấy A4, ghim kẹp cho BQL", null),
-                ("Chi phí in ấn",  180_000m,  "In thông báo cư dân tháng 3",    null),
-            ]));
-
-        // Chi hoàn cọc thi công (test NhomThongKe = "Chi hoàn cọc thi công")
-        list.Add(CreateChi("CHI-20260329-001",
-            new DateTimeOffset(2026, 3, 29, 14, 0, 0, gio7),
-            PhuongThucThanhToan.ChuyenKhoan,
-            "Nguyễn Văn An - A-02.03",
-            "UNC-HOAN-COC-001",
-            chiTiets:
-            [
-                ("Chi hoàn cọc thi công", 20_000_000m, "Hoàn cọc sửa nội thất căn A-02.03 đã nghiệm thu", null),
-            ]));
-
-        // ════════════════════════════════════════════════════════════
-        // THÁNG 4 / 2026
-        // Mục đích: test phân trang (nhiều bản ghi), filter theo tháng
-        // ════════════════════════════════════════════════════════════
-
-        // (Thu phí T4 đã được HoaDonSeeder tự động hạch toán)
-
-        list.Add(CreateThu("THU-20260410-001",
-            new DateTimeOffset(2026, 4, 10, 11, 0, 0, gio7),
-            PhuongThucThanhToan.ViDienTu,
-            "Cư dân đặt tiện ích",
-            null,
-            chiTiets:
-            [
-                (GetDv("DV_COMMUNITY"), 9_500_000m, "Thu phí sử dụng tiện ích", "Phòng SHCD, BBQ T4/2026"),
-            ]));
-
-        list.Add(CreateChi("CHI-20260420-001",
-            new DateTimeOffset(2026, 4, 20, 10, 0, 0, gio7),
-            PhuongThucThanhToan.ChuyenKhoan,
-            "Công ty Điện lực EVN",
-            "HD-EVN-T4-2026",
-            chiTiets:
-            [
-                ("Chi vận hành",               95_000_000m, "Điện tổng + sinh hoạt T4/2026", dvElectric),
-                ("Chi bảo trì, sửa chữa hạ tầng", 8_500_000m, "Thay bóng đèn hành lang, sửa camera", null),
-            ]));
-
-        list.Add(CreateChi("CHI-20260425-001",
-            new DateTimeOffset(2026, 4, 25, 9, 0, 0, gio7),
-            PhuongThucThanhToan.ChuyenKhoan,
-            "Schindler Việt Nam",
-            "HD-SCH-T4-2026",
-            chiTiets:
-            [
-                ("Chi trả nhà cung cấp/đối tác", 15_000_000m, "Phí bảo trì thang máy T4/2026", null),
-            ]));
-
-        // ════════════════════════════════════════════════════════════
-        // THÁNG 5 / 2026 (tháng hiện tại)
-        // Mục đích: test báo cáo kỳ hiện tại, công nợ tháng 5
-        // ════════════════════════════════════════════════════════════
-
-        // (Thu phí T5 đã được HoaDonSeeder tự động hạch toán một phần qua GiaoDichThanhToan)
-
-        // Thu đặt cọc thi công mới trong tháng 5
-        list.Add(CreateThu("THU-20260508-001",
-            new DateTimeOffset(2026, 5, 8, 9, 30, 0, gio7),
-            PhuongThucThanhToan.ChuyenKhoan,
-            "Phạm Thị Lan - C-07.05",
-            "UNC-THC-2026-002",
-            chiTiets:
-            [
-                ((int?)null, 20_000_000m, "Thu đặt cọc thi công", "Ký quỹ sửa nội thất căn C-07.05"),
-            ]));
-
-        // Thu khác (quảng cáo sảnh)
-        list.Add(CreateThu("THU-20260512-001",
-            new DateTimeOffset(2026, 5, 12, 14, 0, 0, gio7),
-            PhuongThucThanhToan.ChuyenKhoan,
-            "Công ty Quảng cáo Kính Vạn Hoa",
-            "HD-QC-KVH-001",
-            chiTiets:
-            [
-                ((int?)null, 6_000_000m, "Thu khác", "Quảng cáo màn hình thang máy T5/2026"),
-            ]));
-
-        // Chi vận hành tháng 5 (multi-line phức tạp)
-        list.Add(CreateChi("CHI-20260514-001",
-            new DateTimeOffset(2026, 5, 14, 10, 0, 0, gio7),
-            PhuongThucThanhToan.ChuyenKhoan,
-            "Công ty Điện lực EVN",
-            "HD-EVN-T5-2026",
-            chiTiets:
-            [
-                ("Chi vận hành",               102_000_000m, "Điện tổng tòa nhà + sinh hoạt T5/2026", dvElectric),
-                ("Chi trả đối tác viễn thông",  18_000_000m, "Thanh toán hạ tầng Viettel T5",        dvInternet),
-                ("Chi dịch vụ rửa xe",           4_200_000m, "Thanh toán đối tác WashUp T5",         dvWashBike),
-                ("Chi bảo trì, sửa chữa hạ tầng",  5_200_000m, "Sửa hệ thống camera an ninh B2", null),
-            ]));
-
-        // Chi bảo trì tháng 5 - Schindler
-        list.Add(CreateChi("CHI-20260514-002",
-            new DateTimeOffset(2026, 5, 14, 11, 0, 0, gio7),
-            PhuongThucThanhToan.ChuyenKhoan,
-            "Schindler Việt Nam",
-            "HD-SCH-T5-2026",
-            chiTiets:
-            [
-                ("Chi trả nhà cung cấp/đối tác", 15_000_000m, "Bảo trì thang máy T5/2026", null),
-            ]));
-
-        // ════════════════════════════════════════════════════════════
         await context.QuyThuChis.AddRangeAsync(list);
         DatabaseSeeder.ClearAllDomainEvents(context);
         await context.SaveChangesAsync();
 
-        logger.LogInformation($"Successfully seeded {list.Count} QuyThuChi records covering T1–T5/2026.");
+        logger.LogInformation($"Successfully seeded {list.Count} QuyThuChi records covering 01/2025 to 05/2026.");
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────────

@@ -45,6 +45,6 @@ public class QuanHeCuTru : AggregateRoot
         ThoiGian = new ThoiGianHieuLuc(ThoiGian.NgayBatDau, ngayKetThuc);
         TrangThaiCuTruId = TrangThaiCuTru.DaKetThuc;
 
-        AddDomainEvent(new KetThucCuTruEvent(CanHoId, LoaiQuanHeCuTruId));
+        AddDomainEvent(new KetThucCuTruEvent(CanHoId, NguoiDungId, LoaiQuanHeCuTruId));
     }
 }

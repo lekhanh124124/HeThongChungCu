@@ -13,7 +13,7 @@ namespace HeThongChungCu.Infrastructure.IntegrationTests.Persistence.Repositorie
 public abstract class BaseIntegrationTest : IAsyncLifetime
 {
     protected readonly AppDbContext DbContext;
-    private readonly string _connectionString = "Server=.;Database=ChungCuThongMinh_IntegrationTests;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True;";
+    private readonly string _connectionString = "Server=(localdb)\\MSSQLLocalDB;Database=ChungCuThongMinh_IntegrationTests;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True;";
     private Respawner? _respawner;
 
     protected BaseIntegrationTest()

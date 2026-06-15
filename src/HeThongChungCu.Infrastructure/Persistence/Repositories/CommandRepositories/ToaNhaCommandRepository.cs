@@ -34,6 +34,7 @@ public class ToaNhaCommandRepository : IToaNhaCommandRepository
     public async Task<IReadOnlyList<ToaNha>> GetToaNhaByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
         return await _dbContext.ToaNhas
+            .Include(t => t.Tangs)
             .Where(t => ids.Contains(t.Id))
             .ToListAsync(cancellationToken);
     }

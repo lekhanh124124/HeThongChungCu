@@ -11,4 +11,6 @@ public interface IDangKyDichVuCommandRepository
     Task<List<DangKyDichVu>> GetActiveSubscriptionsByCanHoAsync(int canHoId, CancellationToken cancellationToken = default);
     Task<List<DangKyDichVu>> GetActiveByCanHoIdsAsync(IEnumerable<int> canHoIds, CancellationToken cancellationToken = default);
     Task<List<DangKyDichVu>> GetAllActiveAsync(CancellationToken cancellationToken = default);
+    Task<bool> AnyByDichVuIdAsync(int dichVuId, CancellationToken cancellationToken = default);
+    void Update(DangKyDichVu dangKyDichVu);
 }

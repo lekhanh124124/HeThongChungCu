@@ -25,6 +25,15 @@ public class DeleteToaNhaCommandHandler : ICommandHandler<DeleteToaNhaCommand, I
                 $"Không tìm thấy tòa nhà với ID: {ids}."));
         }
 
+        var toaNhaCoTang = toaNhas.Where(t => t.Tangs.Any()).ToList();
+        if (toaNhaCoTang.Count > 0)
+        {
+            var names = string.Join(", ", toaNhaCoTang.Select(t => t.TenToaNha));
+            return Result.Failure<IReadOnlyList<ToaNhaDetailResponse>>(new Error(
+                "ToaNha.HasTangs",
+                $"Không thể xóa tòa nhà đã có tầng: {names}."));
+        }
+
         var response = toaNhas.Select(t => new ToaNhaDetailResponse
         {
             Id = t.Id,

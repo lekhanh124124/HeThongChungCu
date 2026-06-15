@@ -218,14 +218,42 @@ public static class DapperQueryBuilder
         string defaultSortCol = "Id")
     {
         var propertyName = spec.SortCol;
+        string columnName;
 
-        // Ưu tiên lấy mapping từ SortCol của Spec, nếu không có thì fallback về defaultSortCol
-        if (string.IsNullOrWhiteSpace(propertyName) || !propertyToColumnMap.TryGetValue(propertyName, out var columnName))
+        // Ưu tiên lấy mapping từ SortCol của Spec
+        if (!string.IsNullOrWhiteSpace(propertyName) && propertyToColumnMap.TryGetValue(propertyName, out var mappedColumn))
         {
+            columnName = mappedColumn;
+        }
+        else
+        {
+            // Fallback về defaultSortCol
             columnName = propertyToColumnMap.GetValueOrDefault(defaultSortCol, defaultSortCol);
         }
 
-        var direction = (spec.IsAsc.HasValue && !spec.IsAsc.Value) ? "DESC" : "ASC";
+        // Tách hướng sắp xếp (DESC/ASC) nếu có sẵn trong columnName (ví dụ: "p.Id DESC")
+        var direction = "ASC";
+        var parts = columnName.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length > 1)
+        {
+            columnName = parts[0];
+            var lastPart = parts[^1].Trim();
+            if (lastPart.Equals("DESC", System.StringComparison.OrdinalIgnoreCase))
+            {
+                direction = "DESC";
+            }
+            else if (lastPart.Equals("ASC", System.StringComparison.OrdinalIgnoreCase))
+            {
+                direction = "ASC";
+            }
+        }
+
+        // Nếu spec chỉ định rõ hướng sắp xếp thì ưu tiên spec
+        if (spec.IsAsc.HasValue)
+        {
+            direction = spec.IsAsc.Value ? "ASC" : "DESC";
+        }
+
         return $"ORDER BY {columnName} {direction}";
     }
 

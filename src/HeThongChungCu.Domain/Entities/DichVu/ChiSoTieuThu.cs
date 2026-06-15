@@ -51,7 +51,7 @@ public class ChiSoTieuThu : AggregateRoot
         Thang = thang;
         Nam = nam;
         NgayGhiNhan = ngayGhiNhan;
-        AnhDongHoId = anhDongHoId;
+        AnhDongHoId = anhDongHoId == 0 ? null : anhDongHoId;
         GhiChu = ghiChu;
         MaTraCuu = maTraCuu;
         TrangThaiChiSoId = TrangThaiChiSo.Draft;
@@ -98,7 +98,7 @@ public class ChiSoTieuThu : AggregateRoot
         Thang = thang;
         Nam = nam;
         NgayGhiNhan = ngayGhiNhan;
-        AnhDongHoId = anhDongHoId;
+        AnhDongHoId = anhDongHoId == 0 ? null : anhDongHoId;
         GhiChu = ghiChu;
     }
 
@@ -128,11 +128,11 @@ public class ChiSoTieuThu : AggregateRoot
         AnhDongHo = tepTaiLieu;
     }
 
-    public void SetAnhDongHo(int anhDongHoId)
+    public void SetAnhDongHo(int? anhDongHoId)
     {
         if (TrangThaiChiSoId == TrangThaiChiSo.Locked)
             throw new BusinessException("Chỉ số đã lập hóa đơn, không thể cập nhật ảnh.");
 
-        AnhDongHoId = anhDongHoId;
+        AnhDongHoId = anhDongHoId == 0 ? null : anhDongHoId;
     }
 }

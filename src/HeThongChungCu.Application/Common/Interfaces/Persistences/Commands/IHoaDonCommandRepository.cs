@@ -13,6 +13,8 @@ public interface IHoaDonCommandRepository
     Task<bool> ExistsByKyThanhToanAsync(int canHoId, KyThanhToan ky, CancellationToken cancellationToken = default);
     Task<HashSet<int>> GetExistingCanHoIdsByKyAsync(KyThanhToan ky, CancellationToken cancellationToken = default);
     Task<bool> AnyByDotThanhToanAsync(int dotId, CancellationToken cancellationToken = default);
+    Task<bool> HasUnpaidInvoicesAsync(int canHoId, CancellationToken cancellationToken = default);
+    Task<bool> AnyInvoicesByCanHoAsync(int canHoId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Lấy tất cả hóa đơn quá hạn của các căn hộ chỉ định, chưa tính lãi trong kỳ hiện tại.

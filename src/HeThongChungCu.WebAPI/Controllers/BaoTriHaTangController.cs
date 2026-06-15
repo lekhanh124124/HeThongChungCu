@@ -20,6 +20,7 @@ using HeThongChungCu.Application.Features.BaoTriHaTang.Queries.GetHangMucBaoTriL
 using HeThongChungCu.Application.Features.BaoTriHaTang.Queries.GetLichBaoTriById;
 using HeThongChungCu.Application.Features.BaoTriHaTang.Queries.GetLichBaoTriList;
 using HeThongChungCu.Application.Features.BaoTriHaTang.Queries.GetPhieuBaoTriById;
+using HeThongChungCu.Application.Features.BaoTriHaTang.Queries.ExportPhieuBaoTri;
 using HeThongChungCu.Application.Features.BaoTriHaTang.Queries.GetPhieuBaoTriList;
 using HeThongChungCu.Application.Features.BaoTriHaTang.Queries.GetThietBiById;
 using HeThongChungCu.Application.Features.BaoTriHaTang.Queries.GetThietBiList;
@@ -221,6 +222,21 @@ public class BaoTriHaTangController : ApiControllerBase
     public async Task<IActionResult> GetPhieuBaoTriList([FromBody] GetPhieuBaoTriListQuery query, CancellationToken cancellationToken)
     {
         return HandleResult(await _sender.Send(query, cancellationToken));
+    }
+
+    /// <summary>
+    /// Xuất file Excel phiếu bảo trì định dạng in ấn thực địa (Print-ready)
+    /// </summary>
+    [HttpPost("phieu-bao-tri/export")]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ExportPhieuBaoTri([FromBody] ExportPhieuBaoTriQuery query, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(query, cancellationToken);
+        if (!result.IsSuccess)
+        {
+            return HandleResult(result);
+        }
+        return File(result.Value.Content, result.Value.ContentType, result.Value.FileName);
     }
 
     #endregion

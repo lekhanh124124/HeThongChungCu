@@ -4,6 +4,7 @@ using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Features.QLChiSoTieuThu.Commands.ConfirmChiSoBatch;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Entities;
+using HeThongChungCu.Domain.Enums;
 using HeThongChungCu.Application.UnitTests.Abstractions;
 using Xunit;
 
@@ -25,12 +26,24 @@ public sealed class ConfirmChiSoBatchCommandHandlerTests : BaseTest
         _handler = new ConfirmChiSoBatchCommandHandler(_chiSoRepository, _dichVuRepository, _unitOfWork);
     }
 
+    private DichVu CreateActiveDichVu()
+    {
+        var dichVu = new DichVu("DV001", "Điện", LoaiDichVu.TienIch, "kWh");
+        dichVu.Activate();
+        dichVu.AddBangGiaLuyTien("Bảng giá điện", DateTimeOffset.Now.AddDays(-1), true);
+        dichVu.BangGias.First().Activate();
+        return dichVu;
+    }
+
     [Fact]
     public async Task Handle_Should_ConfirmAndSaveChanges_When_ValidIds()
     {
         // Arrange
         var chiSo = ChiSoTieuThu.Create(1, 1, 0, 10, 5, 2024, DateTimeOffset.Now);
-        _chiSoRepository.GetByIdAsync(1, CancellationToken).Returns(chiSo);
+        var dichVu = CreateActiveDichVu();
+
+        _dichVuRepository.GetByIdWithBangGiasAsync(1, CancellationToken).Returns(dichVu);
+        _chiSoRepository.GetDraftByPeriodAsync(5, 2024, 1, CancellationToken).Returns(new List<ChiSoTieuThu> { chiSo });
         
         var command = new ConfirmChiSoBatchCommand(5, 2024, 1);
 
@@ -48,15 +61,19 @@ public sealed class ConfirmChiSoBatchCommandHandlerTests : BaseTest
     public async Task Handle_Should_Skip_When_IdNotFound()
     {
         // Arrange
-        _chiSoRepository.GetByIdAsync(1, CancellationToken).Returns((ChiSoTieuThu?)null);
+        var dichVu = CreateActiveDichVu();
+
+        _dichVuRepository.GetByIdWithBangGiasAsync(1, CancellationToken).Returns(dichVu);
+        _chiSoRepository.GetDraftByPeriodAsync(5, 2024, 1, CancellationToken).Returns(new List<ChiSoTieuThu>());
+        
         var command = new ConfirmChiSoBatchCommand(5, 2024, 1);
 
         // Act
         var result = await _handler.Handle(command, CancellationToken);
 
         // Assert
-        result.IsSuccess.Should().BeTrue();
-        result.Value.Should().Be(0);
+        result.IsFailure.Should().BeTrue();
+        result.Errors[0].Code.Should().Be("Confirm.NoDraft");
         _chiSoRepository.DidNotReceive().Update(Arg.Any<ChiSoTieuThu>());
         await _unitOfWork.DidNotReceive().SaveChangesAsync(CancellationToken);
     }
@@ -69,7 +86,11 @@ public sealed class ConfirmChiSoBatchCommandHandlerTests : BaseTest
         chiSo.Confirm(); 
         chiSo.MarkAsBilled(1); // Locked state
         
-        _chiSoRepository.GetByIdAsync(1, CancellationToken).Returns(chiSo);
+        var dichVu = CreateActiveDichVu();
+
+        _dichVuRepository.GetByIdWithBangGiasAsync(1, CancellationToken).Returns(dichVu);
+        _chiSoRepository.GetDraftByPeriodAsync(5, 2024, 1, CancellationToken).Returns(new List<ChiSoTieuThu> { chiSo });
+        
         var command = new ConfirmChiSoBatchCommand(5, 2024, 1);
 
         // Act
@@ -79,5 +100,6 @@ public sealed class ConfirmChiSoBatchCommandHandlerTests : BaseTest
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().Be(0); 
         _chiSoRepository.DidNotReceive().Update(chiSo);
+        await _unitOfWork.DidNotReceive().SaveChangesAsync(CancellationToken);
     }
 }

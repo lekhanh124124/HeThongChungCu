@@ -31,20 +31,19 @@ public static class YeuCauSuaChuaSeeder
         var admin = await context.TaiKhoan.IgnoreQueryFilters().FirstOrDefaultAsync(a => a.Email.Value == "admin@gmail.com");
         var adminId = admin?.Id ?? 0;
 
-        // Get residents grouped by apartment to find requesters
+        // Get residents grouped by apartment to find requesters (allow both active and past)
         var residentsByApartment = await context.QuanHeCuTrus
-            .Where(r => r.TrangThaiCuTruId == TrangThaiCuTru.DangCuTru)
             .Join(context.TaiKhoan,
                 qh => qh.NguoiDungId,
                 tk => tk.NguoiDungId,
-                (qh, tk) => new { qh.CanHoId, tk.Id, qh.LoaiQuanHeCuTruId })
+                (qh, tk) => new { qh.CanHoId, tk.Id, qh.LoaiQuanHeCuTruId, qh.ThoiGian.NgayBatDau, qh.ThoiGian.NgayKetThuc })
             .ToListAsync();
 
         var apartmentRequesters = residentsByApartment
             .GroupBy(r => r.CanHoId)
             .ToDictionary(
                 g => g.Key,
-                g => g.OrderBy(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo ? 0 : 1).First().Id
+                g => g.OrderBy(r => Guid.NewGuid()).First() // Pick a random resident (past or present)
             );
 
         var validApartmentIds = apartmentRequesters.Keys.ToList();
@@ -69,9 +68,14 @@ public static class YeuCauSuaChuaSeeder
             // Khởi tạo request
             var request = YeuCauSuaChua.Create(aptId, phamVi, loaiSuCo, noiDung, moTaViTri);
 
-            var requesterId = apartmentRequesters[aptId];
-            var createdDate = DateTimeOffset.Now.AddDays(-faker.Random.Int(10, 30));
-            request.SetCreated(requesterId, createdDate);
+            var requester = apartmentRequesters[aptId];
+            var minDate = requester.NgayBatDau;
+            var maxDate = requester.NgayKetThuc ?? DateTimeOffset.Now;
+            if (minDate >= maxDate) minDate = maxDate.AddDays(-1);
+
+            // Sinh ngày tạo yêu cầu nằm trong khoảng thời gian sinh sống
+            var createdDate = minDate.AddDays(faker.Random.Number(0, (int)(maxDate - minDate).TotalDays));
+            request.SetCreated(requester.Id, createdDate);
 
             // Quyết định trạng thái mục tiêu
             SeedTargetState[] targetOptions =

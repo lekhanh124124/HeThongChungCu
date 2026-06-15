@@ -8,6 +8,7 @@ public interface IYeuCauPhanAnhCommandRepository
     Task<YeuCauPhanAnh?> GetByIdWithRepliesAsync(int id, CancellationToken cancellationToken = default);
     Task<YeuCauPhanAnh?> GetByIdWithFilesAsync(int id, CancellationToken cancellationToken = default);
     Task<YeuCauPhanAnh?> GetByIdWithAllAsync(int id, CancellationToken cancellationToken = default);
+    Task<List<YeuCauPhanAnh>> GetByCanHoIdAndStatusesAsync(int canHoId, IEnumerable<HeThongChungCu.Domain.Enums.TrangThaiYeuCau> statuses, CancellationToken cancellationToken = default);
     Task<List<YeuCauPhanAnh>> GetOverdueNotNotifiedAsync(DateTimeOffset currentTime, CancellationToken cancellationToken = default);
     
     Task AddAsync(YeuCauPhanAnh phanAnh, CancellationToken cancellationToken = default);

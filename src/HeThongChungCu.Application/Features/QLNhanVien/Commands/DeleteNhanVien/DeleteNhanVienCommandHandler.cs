@@ -1,4 +1,4 @@
-﻿using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
+using HeThongChungCu.Application.Common.Interfaces.Persistences.Commands;
 using HeThongChungCu.Application.Common.Interfaces.Services;
 using HeThongChungCu.Domain.Common;
 using HeThongChungCu.Domain.Enums;
@@ -33,6 +33,12 @@ public class DeleteNhanVienCommandHandler : ICommandHandler<DeleteNhanVienComman
 
         foreach (var nhanVien in nhanViens)
         {
+            var isAssigned = await _nhanVienRepository.HasAssignedRequestsAsync(nhanVien.Id, cancellationToken);
+            if (isAssigned)
+            {
+                return new Error("NhanVien.HasAssignedRequests", "Không được xóa nhân viên đã được phân công xử lý yêu cầu.");
+            }
+
             nhanVien.CapNhatTrangThai(TrangThaiNhanVien.DaNghiViec, _dateTimeProvider.Now.DateTime);
             await _nhanVienRepository.UpdateAsync(nhanVien, cancellationToken);
             await _nhanVienRepository.DeleteAsync(nhanVien, cancellationToken);

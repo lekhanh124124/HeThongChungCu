@@ -13,44 +13,41 @@ public class DangKyDichVuSeeder
 
         logger.LogInformation("Seeding utility bookings (DangKyDichVu)...");
 
-        var apartments = await context.CanHos.ToListAsync();
+        var residents = await context.QuanHeCuTrus
+            .Where(r => r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.ChuHo || r.LoaiQuanHeCuTruId == LoaiQuanHeCuTru.NguoiThue)
+            .Select(r => new { r.CanHoId, r.ThoiGian.NgayBatDau, r.ThoiGian.NgayKetThuc })
+            .ToListAsync();
+
         var services = await context.DichVus.Where(d => d.LoaiDichVuId == LoaiDichVu.TienIch).ToListAsync();
 
-        if (!apartments.Any() || !services.Any())
+        if (!residents.Any() || !services.Any())
         {
-            logger.LogWarning("No apartments or utility services found to seed bookings.");
+            logger.LogWarning("No residents or utility services found to seed bookings.");
             return;
         }
 
         var random = new Random();
         var bookings = new List<DangKyDichVu>();
+        var count = 80;
 
-        // Generate bookings in Month 3, 4, 5 of 2026
-        var dates = new List<DateTimeOffset>();
-        
-        // Month 3
-        for (int i = 0; i < 20; i++)
-            dates.Add(new DateTimeOffset(2026, 3, random.Next(1, 29), random.Next(8, 20), 0, 0, TimeSpan.FromHours(7)));
-        
-        // Month 4
-        for (int i = 0; i < 25; i++)
-            dates.Add(new DateTimeOffset(2026, 4, random.Next(1, 29), random.Next(8, 20), 0, 0, TimeSpan.FromHours(7)));
-            
-        // Month 5
-        // Ensure some bookings are today (May 25, 2026)
-        for (int i = 0; i < 5; i++)
-            dates.Add(new DateTimeOffset(2026, 5, 25, random.Next(8, 20), 0, 0, TimeSpan.FromHours(7)));
-        
-        // Other days in Month 5
-        for (int i = 0; i < 30; i++)
-            dates.Add(new DateTimeOffset(2026, 5, random.Next(1, 25), random.Next(8, 20), 0, 0, TimeSpan.FromHours(7)));
-
-        foreach (var date in dates)
+        for (int i = 0; i < count; i++)
         {
-            var apt = apartments[random.Next(apartments.Count)];
+            var resident = residents[random.Next(residents.Count)];
             var svc = services[random.Next(services.Count)];
             
-            var booking = new DangKyDichVu(apt.Id, svc.Id, date, random.Next(1, 3));
+            var minDate = resident.NgayBatDau;
+            var maxDate = resident.NgayKetThuc ?? DateTimeOffset.Now;
+            if (minDate >= maxDate) minDate = maxDate.AddDays(-1);
+
+            // Sinh ngày booking ngẫu nhiên trong thời gian sống
+            var bookingDate = minDate.AddDays(random.Next(0, (int)(maxDate - minDate).TotalDays));
+
+            // Random time between 8h-20h
+            var dateWithTime = new DateTimeOffset(
+                bookingDate.Year, bookingDate.Month, bookingDate.Day, 
+                random.Next(8, 20), 0, 0, TimeSpan.FromHours(7));
+
+            var booking = new DangKyDichVu(resident.CanHoId, svc.Id, dateWithTime, random.Next(1, 3));
             booking.UpdateStatus(TrangThaiDangKy.DangSuDung);
             
             bookings.Add(booking);

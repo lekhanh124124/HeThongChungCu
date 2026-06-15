@@ -34,8 +34,9 @@ public class SeederV2Controller : ControllerBase
     /// Demo v2: giữ nguyên route/verb nhưng response có thêm ApiVersion.
     /// </remarks>
     [HttpPost]
-    public async Task<IActionResult> SeedDatabase([FromBody] SeedDatabaseCommand command, CancellationToken cancellationToken)
+    public async Task<IActionResult> SeedDatabase(CancellationToken cancellationToken)
     {
+        var command = new SeedDatabaseCommand();
         var result = await _sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
