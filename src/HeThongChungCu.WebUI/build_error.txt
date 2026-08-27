@@ -1,0 +1,44 @@
+- Generating browser application bundles (phase: setup)...
+✔ Browser application bundle generation complete.
+✔ Browser application bundle generation complete.
+- Copying assets...
+✔ Copying assets complete.
+- Generating index html...
+- Generating index html...
+1 rules skipped due to selector errors:
+  span.ant-radio+* -> Cannot read properties of undefined (reading 'type')
+✔ Index html generation complete.
+
+Warning: D:/KhoaLuanKS/quan-ly-chung-cu/libs/core/notification/src/lib/app-notification.service.ts is part of the TypeScript compilation but it's unused.
+Add only entry points to the 'files' or 'include' properties in your tsconfig.
+
+Warning: D:/KhoaLuanKS/quan-ly-chung-cu/libs/features/khao-sat/data-access/src/index.ts is part of the TypeScript compilation but it's unused.
+Add only entry points to the 'files' or 'include' properties in your tsconfig.
+
+Warning: D:/KhoaLuanKS/quan-ly-chung-cu/libs/features/tri-thuc/data-access/src/lib/index.ts is part of the TypeScript compilation but it's unused.
+Add only entry points to the 'files' or 'include' properties in your tsconfig.
+
+Warning: D:/KhoaLuanKS/quan-ly-chung-cu/libs/features/tri-thuc/data-access/src/lib/tri-thuc.model.ts is part of the TypeScript compilation but it's unused.
+Add only entry points to the 'files' or 'include' properties in your tsconfig.
+
+Warning: D:/KhoaLuanKS/quan-ly-chung-cu/libs/shared/models/src/lib/index.ts is part of the TypeScript compilation but it's unused.
+Add only entry points to the 'files' or 'include' properties in your tsconfig.
+
+Warning: D:/KhoaLuanKS/quan-ly-chung-cu/libs/shared/models/src/lib/paging.model.ts is part of the TypeScript compilation but it's unused.
+Add only entry points to the 'files' or 'include' properties in your tsconfig.
+
+Warning: D:/KhoaLuanKS/quan-ly-chung-cu/libs/shared/utils/src/lib/index.ts is part of the TypeScript compilation but it's unused.
+Add only entry points to the 'files' or 'include' properties in your tsconfig.
+
+Warning: D:/KhoaLuanKS/quan-ly-chung-cu/libs/shared/utils/src/lib/safe-any.type.ts is part of the TypeScript compilation but it's unused.
+Add only entry points to the 'files' or 'include' properties in your tsconfig.
+
+Warning: D:/KhoaLuanKS/quan-ly-chung-cu/src/main.ts is part of the TypeScript compilation but it's unused.
+Add only entry points to the 'files' or 'include' properties in your tsconfig.
+
+Warning: D:/KhoaLuanKS/quan-ly-chung-cu/src/polyfills.ts is part of the TypeScript compilation but it's unused.
+Add only entry points to the 'files' or 'include' properties in your tsconfig.
+
+Warning: initial exceeded maximum budget. Budget 5.00 MB was not met by 1.18 MB with a total of 6.18 MB.
+
+

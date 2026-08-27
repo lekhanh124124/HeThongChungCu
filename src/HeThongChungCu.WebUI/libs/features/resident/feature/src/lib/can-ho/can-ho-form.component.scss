@@ -1,0 +1,31 @@
+:host {
+  display: block;
+}
+
+.can-ho-form-wrapper {
+  padding-top: 4px;
+}
+
+.form-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+::ng-deep .can-ho-form-wrapper input[nz-input],
+::ng-deep .can-ho-form-wrapper nz-input-number {
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  padding: 4px 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+::ng-deep .can-ho-form-wrapper input[nz-input]:focus,
+::ng-deep .can-ho-form-wrapper nz-input-number-focused {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.15);
+  outline: none;
+}
+

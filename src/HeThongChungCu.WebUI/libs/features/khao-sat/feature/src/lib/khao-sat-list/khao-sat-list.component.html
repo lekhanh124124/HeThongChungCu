@@ -1,0 +1,172 @@
+<div class="p-3 bg-gray-50/50 min-h-screen">
+  <div class="page-toolbar flex justify-end items-center flex-wrap gap-2 sm:gap-3 mb-3">
+    <!-- <div>
+      <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Quản lý Khảo sát & Bầu cử</h2>
+      <p class="text-gray-500 text-sm">Tổ chức lấy ý kiến cư dân và bầu cử Ban Quản Trị trực tuyến.</p>
+    </div> -->
+    <div class="flex items-center gap-2">
+      <button nz-button nzType="default" (click)="openLichSuModal()"
+        class="btn-lich-su-bieu-quyet">
+        <i nz-icon nzType="history" nzTheme="outline"></i>
+        <span>Lịch sử biểu quyết</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="page-toolbar bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex flex-wrap gap-2 sm:gap-3 items-end justify-between">
+    <div class="flex flex-wrap gap-4 items-end">
+      <div>
+        <label class="text-[10px] font-bold text-gray-400 mb-1 block">Tìm kiếm</label>
+        <input
+          nz-input
+          placeholder="Nhập tiêu đề khảo sát..."
+          [(ngModel)]="keyword"
+          (keyup.enter)="load()"
+          class="w-full sm:w-80"
+          style="border-radius:8px;padding:8px 12px;border:1px solid #e5e7eb;height:40px;box-sizing:border-box"
+        />
+      </div>
+
+      <button nz-button type="button" (click)="load()"
+        style="display:flex;align-items:center;background:#0b84e6;border-color:#0b84e6;color:#fff;border-radius:8px;padding:6px 14px;font-weight:600;height:40px;box-sizing:border-box">
+        <i nz-icon nzType="search" nzTheme="outline"></i>&nbsp;Tìm kiếm
+      </button>
+      <button nz-button type="button" (click)="advancedVisible = true"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;gap:8px;font-weight:600">
+        <i nz-icon nzType="filter" nzTheme="outline"></i>
+        <span class="hidden sm:inline">Tìm nâng cao</span>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button nz-button type="button" (click)="onRefresh()"
+        style="height:40px;width:40px;padding:0;border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid #60a5fa;background:#eff6ff;color:#1e3a8a">
+        <i nz-icon nzType="reload" nzTheme="outline"
+          style="font-size:20px;line-height:20px;transform:scale(1.06);display:inline-block;color:#1e3a8a"></i>
+      </button>
+
+      <button nz-button type="button" (click)="openCreateModal()"
+        style="display:flex;align-items:center;background:#0b84e6;border-color:#0b84e6;color:#fff;border-radius:8px;padding:6px 12px;font-weight:700;height:40px;box-sizing:border-box;box-shadow:0 2px 6px rgba(0,0,0,0.06)">
+        <i nz-icon nzType="plus-circle" nzTheme="outline"></i>
+        <span>Thêm đợt mới</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <app-scroll-table [height]="'calc(100vh - 240px)'" [noBorder]="true">
+      <nz-table #basicTable [nzData]="items" [nzLoading]="loading" [nzFrontPagination]="false" [nzTotal]="totalItems"
+        [nzPageSize]="pageSize" [nzPageIndex]="pageNumber" (nzPageIndexChange)="onPageChange($event)">
+        <thead>
+          <tr>
+            <th nzWidth="120px"
+              class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none first:rounded-l-xl text-center">
+              Thao tác</th>
+            <th nzWidth="60px" class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">STT</th>
+            <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Thông tin khảo sát</th>
+            <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Thời gian</th>
+            <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Cơ chế tính</th>
+            <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of basicTable.data; let i = index" class="group hover:bg-gray-50/80 transition-colors">
+            <td class="text-center align-middle">
+              <button nz-dropdown [nzDropdownMenu]="menu" (click)="$event.stopPropagation()"
+                class="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-all border-none bg-transparent cursor-pointer">
+                <i nz-icon nzType="unordered-list" nzTheme="outline" class="text-lg"></i>
+              </button>
+              <nz-dropdown-menu #menu="nzDropdownMenu">
+                <ul nz-menu class="min-w-[160px] rounded-lg shadow-xl border border-gray-100">
+                  <li nz-menu-item *ngIf="data.trangThaiId === 1" (click)="openCreateModal(data)"
+                    class="flex items-center gap-2 py-2">
+                    <i nz-icon nzType="edit" class="text-blue-500"></i> Sửa thông tin
+                  </li>
+                  <li nz-menu-item *ngIf="data.trangThaiId === 1" (click)="congBo(data)"
+                    class="flex items-center gap-2 py-2 text-green-600">
+                    <i nz-icon nzType="rocket"></i> Công bố ngay
+                  </li>
+                  <li nz-menu-item *ngIf="data.trangThaiId >= 2" (click)="viewResult(data)"
+                    class="flex items-center gap-2 py-2">
+                    <i nz-icon nzType="bar-chart" class="text-indigo-500"></i> Xem kết quả
+                  </li>
+                  <li nz-menu-item *ngIf="data.trangThaiId >= 2" (click)="viewDanhSachThamGia(data)"
+                    class="flex items-center gap-2 py-2">
+                    <i nz-icon nzType="team" class="text-blue-500"></i> Danh sách tham gia
+                  </li>
+                  <li nz-menu-divider *ngIf="data.trangThaiId === 1"></li>
+                  <li nz-menu-item *ngIf="data.trangThaiId === 1" (click)="delete(data)" nzDanger
+                    class="flex items-center gap-2 py-2">
+                    <i nz-icon nzType="delete"></i> Xóa đợt này
+                  </li>
+                </ul>
+              </nz-dropdown-menu>
+            </td>
+            <td class="text-gray-400 text-sm">{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+            <td>
+              <div class="flex flex-col">
+                <span class="font-bold text-gray-800 text-[15px] group-hover:text-indigo-600 transition-colors">{{
+                  data.tieuDe }}</span>
+                <span class="text-xs text-gray-400 mt-0.5">{{ data.loaiKhaoSatTen }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="flex flex-col text-xs text-gray-600">
+                <span class="flex items-center gap-1.5"><i nz-icon nzType="calendar" class="text-[10px]"></i> Từ: {{
+                  data.ngayBatDau | date: 'dd/MM/yyyy HH:mm' }}</span>
+                <span class="flex items-center gap-1.5 mt-1"><i nz-icon nzType="clock-circle" class="text-[10px]"></i>
+                  Đến: {{ data.ngayKetThuc | date: 'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="flex flex-col">
+                <span class="text-xs font-semibold text-gray-700">{{ data.coCheTinhDiemTen }}</span>
+                <span class="text-[10px] text-gray-400 mt-0.5">Tối thiểu: {{ data.tyleThamGiaToiThieu }}% tham
+                  gia</span>
+              </div>
+            </td>
+            <td>
+              <nz-tag [nzColor]="getStatusColor(data.trangThaiId)"
+                class="rounded-full px-3 border-none font-semibold text-[10px] uppercase">
+                {{ data.trangThaiTen }}
+              </nz-tag>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </app-scroll-table>
+  </div>
+
+  <div *ngIf="items.length === 0 && !loading" class="mt-12">
+    <nz-empty nzNotFoundImage="simple" [nzNotFoundContent]="contentTpl">
+      <ng-template #contentTpl>
+        <span class="text-gray-400">Không tìm thấy cuộc khảo sát nào</span>
+      </ng-template>
+    </nz-empty>
+  </div>
+
+  <!-- Advanced Search Modal -->
+  <nz-modal [(nzVisible)]="advancedVisible" nzTitle="Tìm kiếm nâng cao" (nzOnCancel)="advancedVisible = false"
+    (nzOnOk)="load(); advancedVisible = false" nzCancelText="Hủy" nzOkText="Áp dụng">
+    <ng-container *nzModalContent>
+      <div nz-form nzLayout="vertical">
+        <nz-form-item>
+          <nz-form-label class="text-gray-600 font-medium">Trạng thái</nz-form-label>
+          <nz-form-control>
+            <nz-select [(ngModel)]="trangThaiId" class="w-full" nzAllowClear>
+              <nz-option *ngFor="let o of trangThaiOptions" [nzValue]="o.id" [nzLabel]="o.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label class="text-gray-600 font-medium">Loại hình</nz-form-label>
+          <nz-form-control>
+            <nz-select [(ngModel)]="loaiKhaoSatId" class="w-full" nzAllowClear>
+              <nz-option *ngFor="let o of loaiKhaoSatOptions" [nzValue]="o.id" [nzLabel]="o.name"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </ng-container>
+  </nz-modal>
+</div>

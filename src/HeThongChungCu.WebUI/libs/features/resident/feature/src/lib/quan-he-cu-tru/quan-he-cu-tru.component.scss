@@ -1,0 +1,40 @@
+:host ::ng-deep .advanced-search-modal .ant-modal {
+	max-width: 720px;
+	width: 90%;
+}
+
+:host ::ng-deep .advanced-search-modal .ant-modal-body {
+	padding: 16px 20px 18px;
+}
+
+:host ::ng-deep .advanced-search-modal .ant-modal-header {
+	padding: 10px 20px;
+}
+
+.scope-banner {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 14px;
+	border-radius: 8px;
+	background: #dbeafe;
+	border: 1px solid #bfdbfe;
+	color: #0f172a;
+}
+
+.scope-icon {
+	font-size: 18px;
+	color: #1d4ed8;
+}
+
+.scope-label {
+	font-size: 14px;
+	font-weight: 600;
+	margin-bottom: 2px;
+}
+
+.scope-value {
+	font-size: 14px;
+	font-weight: 500;
+}
+

@@ -1,0 +1,39 @@
+<div class="p-2">
+  <div class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 mb-4">
+    <div class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Khảo sát</div>
+    <div class="font-bold text-indigo-900">{{ tieuDe }}</div>
+    <!-- <div class="text-xs text-gray-500 mt-1">{{ totalItems }} căn hộ đã tham gia</div> -->
+  </div>
+
+  <div class="responsive-table">
+  <nz-table #tgTable [nzData]="items" [nzLoading]="loading" [nzFrontPagination]="false" [nzTotal]="totalItems"
+    [nzPageSize]="pageSize" [nzPageIndex]="pageNumber" (nzPageIndexChange)="onPageChange($event)" nzSize="small">
+    <thead>
+      <tr>
+        <th class="bg-gray-50/80 text-gray-500 font-bold text-[11px] py-3 border-none">STT</th>
+        <th class="bg-gray-50/80 text-gray-500 font-bold text-[11px] py-3 border-none">Mã căn hộ</th>
+        <th class="bg-gray-50/80 text-gray-500 font-bold text-[11px] py-3 border-none">Chủ hộ</th>
+        <th class="bg-gray-50/80 text-gray-500 font-bold text-[11px] py-3 border-none">SĐT</th>
+        <th class="bg-gray-50/80 text-gray-500 font-bold text-[11px] py-3 border-none">Thời gian biểu quyết</th>
+        <th class="text-right bg-gray-50/80 text-gray-500 font-bold text-[11px] py-3 border-none">Trọng số</th>
+        <!-- <th class="text-center bg-gray-50/80 text-gray-500 font-bold text-[11px] py-3 border-none">OTP</th> -->
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of tgTable.data; let i = index" class="hover:bg-gray-50/80 transition-colors">
+        <td class="text-gray-400 text-sm">{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+        <td class="font-bold text-indigo-900">{{ row.maCanHo }}</td>
+        <td>{{ row.tenChuHo || '-' }}</td>
+        <td>{{ row.soDienThoai || '-' }}</td>
+        <td>{{ row.thoiGianBieuQuyet | date: 'dd/MM/yyyy HH:mm' }}</td>
+        <td class="text-right font-semibold">{{ row.trongSo != null ? row.trongSo : '-' }}</td>
+        <!-- <td class="text-center">
+          <nz-tag [nzColor]="row.isOtpVerified ? 'green' : 'default'" class="rounded-full border-none text-[10px] font-bold">
+            {{ row.isOtpVerified ? 'Đã X min Thực' : 'Chưa' }}
+          </nz-tag>
+        </td> -->
+      </tr>
+    </tbody>
+  </nz-table>
+  </div>
+</div>

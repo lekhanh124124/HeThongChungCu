@@ -1,0 +1,456 @@
+﻿<div class="p-4">
+  <div class="page-toolbar flex justify-between items-center flex-wrap gap-2 sm:gap-3 mb-4">
+    <div style="display:flex;gap:8px;align-items:center" class="flex-wrap">
+      <input nz-input placeholder="Nhập căn hộ/ nội dung/ người gửi" [(ngModel)]="keyword" (keydown.enter)="onSearch()"
+        class="w-full sm:w-80" style="border-radius:6px;height:40px" />
+      <button nz-button nzType="primary" (click)="onSearch()"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;gap:8px;font-weight:600">
+        <i nz-icon nzType="search" nzTheme="outline"></i>
+        <span>Tìm kiếm</span>
+      </button>
+      <button nz-button (click)="advancedVisible = true"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;gap:8px;font-weight:600">
+        <i nz-icon nzType="filter" nzTheme="outline"></i>
+        <span class="hidden sm:inline">Tìm nâng cao</span>
+      </button>
+    </div>
+    <button nz-button nzType="default" (click)="onRefresh()"
+      style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;border:1px solid #60a5fa;background:#eff6ff;color:#1e3a8a">
+      <i nz-icon nzType="reload" nzTheme="outline"
+        style="font-size:20px;line-height:20px;transform:scale(1.06);display:inline-block;color:#1e3a8a"></i>
+    </button>
+  </div>
+
+  <app-scroll-table [height]="'330px'">
+    <nz-table #reqTable [nzData]="items" [nzLoading]="loading" nzBordered [nzShowPagination]="false"
+      style="min-width:400px">
+      <thead>
+        <tr>
+
+          <th style="width:80px;text-align:center">Thao tác</th>
+          <th style="width:60px;text-align:center">STT</th>
+          <th>Căn hộ</th>
+          <th>Loại sự cố</th>
+          <th>Nội dung</th>
+          <th>Trạng thái</th>
+          <th>Tiến độ sửa chữa</th>
+          <th>Ngày gửi</th>
+          <th>Người gửi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let it of items; let i = index" class="hover:bg-blue-50/30 transition-colors"
+          [ngClass]="{ 'highlight-row': it._highlight }">
+          <td style="text-align:center" (click)="$event.stopPropagation()">
+            <a nz-dropdown nzTrigger="hover" [nzDropdownMenu]="actionMenu"
+              style="display:inline-flex;align-items:center;justify-content:center;width:100%">
+              <i nz-icon nzType="unordered-list" nzTheme="outline" class="cursor-pointer action-icon"
+                style="font-size:18px;line-height:1;display:block"></i>
+            </a>
+            <nz-dropdown-menu #actionMenu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item (click)="openDetail(it)">
+                  <i nz-icon nzType="eye" nzTheme="outline"></i>&nbsp;Xem chi tiết
+                </li>
+                <li nz-menu-item (click)="approveItem(it)"
+                  *ngIf="it.trangThaiYeuCauId === 1 || it.trangThaiYeuCauId === 9">
+                  <i nz-icon nzType="check" nzTheme="outline"></i>&nbsp;Phê duyệt
+                </li>
+                <li nz-menu-item class="text-red-500" (click)="rejectItem(it)"
+                  *ngIf="it.trangThaiYeuCauId === 1 || it.trangThaiYeuCauId === 9">
+                  <i nz-icon nzType="close-circle" nzTheme="outline"></i>&nbsp;Từ chối
+                </li>
+              </ul>
+            </nz-dropdown-menu>
+          </td>
+          <td style="text-align:center">{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+          <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.tenCanHo }}</td>
+          <td>{{ it.loaiSuCoTen }}</td>
+          <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.noiDung }}</td>
+          <td>
+            <nz-tag [nzColor]="getStatusColor(it.trangThaiYeuCauId)"
+              class="rounded-full border-none px-3 font-semibold text-[11px] uppercase">
+              {{ it.trangThaiYeuCauTen }}
+            </nz-tag>
+          </td>
+          <td>
+            <nz-tag *ngIf="it.trangThaiSuaChuaId" [nzColor]="getSubStatusBgColor(it.trangThaiSuaChuaId)"
+              class="rounded-full border-none px-3 font-semibold text-[11px] uppercase">
+              {{ it.trangThaiSuaChuaTen }}
+            </nz-tag>
+            <span *ngIf="!it.trangThaiSuaChuaId" class="text-gray-400">-</span>
+          </td>
+          <td>{{ it.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.tenNguoiGui }}
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </app-scroll-table>
+
+  <div class="flex justify-end mt-4">
+    <nz-pagination [nzPageIndex]="pageNumber" [nzPageSize]="pageSize" [nzTotal]="total"
+      (nzPageIndexChange)="onPageChange($event)"></nz-pagination>
+  </div>
+</div>
+
+<!-- SIDE DRAWER FOR DETAIL -->
+<nz-drawer [nzVisible]="detailVisible" [nzWidth]="800" nzTitle="Chi tiết yêu cầu sửa chữa"
+  (nzOnClose)="detailVisible = false">
+  <ng-container *nzDrawerContent>
+    <div *ngIf="detailLoading" class="flex justify-center py-10">
+      <nz-spin nzSimple></nz-spin>
+    </div>
+
+    <div *ngIf="!detailLoading && selectedRequest" class="detail-container">
+      <!-- PROGRESS STEPS -->
+      <div class="mb-8 p-4 bg-gray-50 rounded-lg">
+        <nz-steps [nzCurrent]="selectedRequest.trangThaiYeuCauId === 7 ? 4 : (selectedRequest.trangThaiSuaChuaId || 0)"
+          nzSize="small">
+          <nz-step nzTitle="Tiếp nhận" nzDescription="Đang chờ duyệt"></nz-step>
+          <nz-step nzTitle="Điều phối" nzDescription="Giao việc"></nz-step>
+          <nz-step nzTitle="Báo giá" nzDescription="Thỏa thuận chi phí"></nz-step>
+          <nz-step nzTitle="Hẹn lịch" nzDescription="Khung giờ xử lý"></nz-step>
+          <nz-step nzTitle="Hoàn tất" nzDescription="Kết thúc"></nz-step>
+        </nz-steps>
+      </div>
+
+      <div class="grid grid-cols-2 gap-6 mb-6">
+        <div>
+          <h4 class="section-title">Thông tin cơ bản</h4>
+          <div class="info-row"><span class="label">Mã yêu cầu:</span><span class="value">#{{ selectedRequest.id
+              }}</span></div>
+          <div class="info-row"><span class="label">Căn hộ:</span><span class="value">{{ selectedRequest.tenCanHo
+              }}</span></div>
+          <div class="info-row"><span class="label">Người gửi:</span><span class="value">{{ selectedRequest.tenNguoiGui
+              }}</span></div>
+          <div class="info-row"><span class="label">Ngày gửi:</span><span class="value">{{ selectedRequest.createdAt |
+              date:'dd/MM/yyyy HH:mm' }}</span></div>
+          <div class="info-row"><span class="label">Loại sự cố:</span><span class="value">{{ selectedRequest.loaiSuCoTen
+              }}</span></div>
+          <div class="info-row"><span class="label">Phạm vi:</span><span class="value">{{ selectedRequest.phamViTen
+              }}</span></div>
+        </div>
+        <div>
+          <h4 class="section-title">Trạng thái hiện tại</h4>
+          <div class="mb-2">
+            <nz-tag [nzColor]="getStatusColor(selectedRequest.trangThaiYeuCauId)"
+              class="rounded-full border-none px-3 font-semibold text-[11px] uppercase">
+              {{ selectedRequest.trangThaiYeuCauTen }}
+            </nz-tag>
+          </div>
+          <div *ngIf="selectedRequest.trangThaiSuaChuaId">
+            <nz-tag [nzColor]="getSubStatusBgColor(selectedRequest.trangThaiSuaChuaId)"
+              class="rounded-full border-none px-3 font-semibold text-[11px] uppercase">
+              {{ selectedRequest.trangThaiSuaChuaTen }}
+            </nz-tag>
+          </div>
+          <div class="mt-4" *ngIf="selectedRequest.lyDo">
+            <span class="label block mb-1">Lý do trả lại:</span>
+            <div class="p-2 bg-amber-50 border border-amber-100 rounded text-amber-900">{{ selectedRequest.lyDo }}</div>
+          </div>
+          <div class="mt-4" *ngIf="selectedRequest.lyDoHuy">
+            <span class="label block mb-1">Lý do hủy:</span>
+            <div class="p-2 bg-red-50 border border-red-100 rounded text-red-900">{{ selectedRequest.lyDoHuy }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-6">
+        <h4 class="section-title">Nội dung yêu cầu</h4>
+        <div class="p-4 bg-white border rounded-lg shadow-sm">
+          <div class="font-medium mb-2">Vị trí: {{ selectedRequest.moTaViTri }}</div>
+          <div class="whitespace-pre-wrap">{{ selectedRequest.noiDung }}</div>
+        </div>
+      </div>
+
+      <!-- MEDIA FILES -->
+      <div class="mb-6" *ngIf="selectedRequest.danhSachTep?.length">
+        <h4 class="section-title">Ảnh hiện trạng</h4>
+        <div class="flex flex-wrap gap-4">
+          <div *ngFor="let file of selectedRequest.danhSachTep"
+            class="relative group cursor-pointer border rounded overflow-hidden shadow-sm"
+            style="width:120px;height:120px">
+            <img [src]="file.fileUrl" class="w-full h-full object-cover" />
+            <a [href]="file.fileUrl" target="_blank"
+              class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <i nz-icon nzType="search" class="text-white text-xl"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- PERSONNEL -->
+      <div class="mb-6" *ngIf="selectedRequest.nhanSuSuaChuas?.length">
+        <h4 class="section-title flex justify-between">
+          <span>Nhân sự thực hiện</span>
+          <span class="text-xs font-normal" *ngIf="selectedRequest.tenDoiTac">Đối tác: {{ selectedRequest.tenDoiTac
+            }}</span>
+        </h4>
+        <div class="responsive-table">
+        <nz-table #nsTable [nzData]="selectedRequest.nhanSuSuaChuas" nzSize="small" [nzShowPagination]="false"
+          nzBordered>
+          <thead>
+            <tr>
+              <th>Họ tên</th>
+              <th>CCCD</th>
+              <th>Số điện thoại</th>
+              <th>Vai trò</th>
+              <th style="width:60px"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ns of nsTable.data">
+              <td>{{ ns.hoTen }}</td>
+              <td>{{ ns.soCCCD }}</td>
+              <td>{{ ns.soDienThoai }}</td>
+              <td>{{ ns.vaiTro }}</td>
+              <td class="text-center">
+                <button nz-button nzType="text" nzDanger (click)="openReasonModal('DeletePersonnel', ns.id)">
+                  <i nz-icon nzType="delete"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+        </div>
+      </div>
+
+      <!-- FINANCE & SCHEDULE -->
+      <div class="grid grid-cols-2 gap-6 mb-6" *ngIf="selectedRequest.trangThaiSuaChuaId >= 2">
+        <div class="info-card p-4 bg-indigo-50 border border-indigo-100 rounded-lg">
+          <h4 class="text-indigo-900 font-semibold mb-2 flex items-center gap-2">
+            <i nz-icon nzType="dollar"></i> Tài chính
+          </h4>
+          <div class="flex justify-between mb-1"><span>Báo giá dự kiến:</span><span class="font-bold">{{
+              selectedRequest.chiPhiDuKien | number }} VNĐ</span></div>
+          <div class="flex justify-between" *ngIf="selectedRequest.trangThaiYeuCauId === 7">
+            <span>Chi phí thực tế:</span><span class="font-bold text-green-600">{{ selectedRequest.chiPhiThucTe | number
+              }} VNĐ</span>
+          </div>
+          <div class="text-xs text-gray-500 mt-2" *ngIf="selectedRequest.ghiChuBaoGia">
+            * {{ selectedRequest.ghiChuBaoGia }}
+          </div>
+        </div>
+        <div class="info-card p-4 bg-purple-50 border border-purple-100 rounded-lg">
+          <h4 class="text-purple-900 font-semibold mb-2 flex items-center gap-2">
+            <i nz-icon nzType="calendar"></i> Lịch hẹn
+          </h4>
+          <div *ngIf="selectedRequest.henTu; else noSchedule">
+            <div class="text-sm">Từ: {{ selectedRequest.henTu | date:'dd/MM/yyyy HH:mm' }}</div>
+            <div class="text-sm">Đến: {{ selectedRequest.henDen | date:'dd/MM/yyyy HH:mm' }}</div>
+          </div>
+          <ng-template #noSchedule>
+            <div class="text-gray-400">Chưa hẹn lịch</div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- ACTIONS BAR -->
+      <div class="sticky-bottom-bar flex gap-2 flex-wrap justify-end">
+        <!-- <button nz-button (click)="exportVoucher()" *ngIf="selectedRequest.trangThaiSuaChuaId >= 1">
+          <i nz-icon nzType="printer"></i> In phiếu
+        </button> -->
+
+        <ng-container *ngIf="canShowAction('Approve')">
+          <button nz-button nzType="primary" class="btn-blue" (click)="approve()">Phê duyệt</button>
+          <button nz-button nzDanger (click)="openReasonModal('Reject')">Từ chối</button>
+          <button nz-button (click)="openReasonModal('Return')">Cần bổ sung</button>
+        </ng-container>
+
+        <ng-container *ngIf="canShowAction('Dispatch')">
+          <button nz-button nzType="primary" (click)="openDispatch('Internal')">Giao kỹ thuật tòa nhà</button>
+          <button nz-button nzType="default" (click)="openDispatch('Partner')">Giao đối tác</button>
+        </ng-container>
+
+        <button nz-button nzType="default" (click)="openDispatch(selectedRequest.tenDoiTac ? 'Partner' : 'Internal')"
+          *ngIf="canShowAction('Supplement')">
+          Bổ sung nhân sự
+        </button>
+
+        <button nz-button nzType="primary" (click)="openQuote()" *ngIf="canShowAction('Quote')">Nhập báo giá</button>
+        <button nz-button nzType="primary" (click)="openSchedule()" *ngIf="canShowAction('Schedule')">Hẹn lịch</button>
+        <button nz-button nzType="primary" (click)="openComplete()" *ngIf="canShowAction('Complete')">Hoàn tất xử
+          lý</button>
+
+        <button nz-button nzDanger nzType="default" (click)="openReasonModal('Cancel')" *ngIf="canShowAction('Cancel')"
+          class="rounded-lg px-4 flex items-center gap-1.5">
+          <i nz-icon nzType="close-circle" nzTheme="outline"></i> Hủy yêu cầu</button>
+      </div>
+    </div>
+  </ng-container>
+</nz-drawer>
+
+<!-- MODAL: REASON (Reject, Return, Cancel, Delete Personnel) -->
+<nz-modal [(nzVisible)]="reasonModalVisible" [nzTitle]="reasonTitle" (nzOnCancel)="reasonModalVisible = false"
+  (nzOnOk)="submitReason()" [nzWidth]="540" nzWrapClassName="compact-modal" nzCancelText="Hủy" nzOkText="Lưu">
+  <ng-container *nzModalContent>
+    <div class="mb-2 font-medium">{{ reasonLabel }}</div>
+    <textarea nz-input rows="4" [(ngModel)]="reasonValue" placeholder="Nhập nội dung..."></textarea>
+  </ng-container>
+</nz-modal>
+
+<!-- MODAL: DISPATCH -->
+<nz-modal [(nzVisible)]="dispatchVisible"
+  [nzTitle]="dispatchType === 'Internal' ? 'Giao việc Kỹ thuật tòa nhà' : 'Giao việc Đối tác'"
+  (nzOnCancel)="dispatchVisible = false"
+  (nzOnOk)="selectedRequest?.trangThaiSuaChuaId ? submitSupplement() : submitDispatch()" [nzWidth]="540"
+  nzWrapClassName="compact-modal" nzCancelText="Hủy" nzOkText="Lưu">
+  <ng-container *nzModalContent>
+    <div *ngIf="dispatchType === 'Partner'" class="mb-4 grid grid-cols-1 gap-4">
+      <div>
+        <label class="block mb-1 font-medium">Đối tác</label>
+        <nz-select class="w-full" [(ngModel)]="selectedPartnerId" (ngModelChange)="onPartnerChange($event)"
+          nzPlaceHolder="Chọn đối tác">
+          <nz-option *ngFor="let p of partnerOptions" [nzValue]="p.id" [nzLabel]="p.tenDoiTac"></nz-option>
+        </nz-select>
+      </div>
+      <div>
+        <label class="block mb-1 font-medium">Hợp đồng</label>
+        <nz-select class="w-full" [(ngModel)]="selectedContractId" [nzDisabled]="!selectedPartnerId"
+          nzPlaceHolder="Chọn hợp đồng">
+          <nz-option *ngFor="let c of contractOptions" [nzValue]="c.id"
+            [nzLabel]="c.soHopDong + ' - ' + c.tenDichVu"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+
+    <div class="mb-2 font-medium flex justify-between items-center">
+      <span>Danh sách nhân sự thực hiện</span>
+      <button nz-button nzType="dashed" nzSize="small" (click)="addPersonnel()"><i nz-icon nzType="plus-circle"></i> Thêm
+        người</button>
+    </div>
+    <div class="max-h-80 overflow-y-auto border rounded p-2">
+      <div *ngFor="let p of dispatchPersonnel; let i = index" class="p-3 border-b last:border-b-0">
+        <div class="flex justify-between mb-2">
+          <span class="text-xs font-bold text-gray-500 uppercase">Nhân sự #{{ i + 1 }}</span>
+          <button nz-button nzType="text" nzDanger nzSize="small" (click)="removePersonnel(i)"
+            *ngIf="dispatchPersonnel.length > 1">
+            <i nz-icon nzType="close"></i>
+          </button>
+        </div>
+        <div class="grid grid-cols-1 gap-3">
+          <div *ngIf="dispatchType === 'Internal'">
+            <nz-select class="w-full" [(ngModel)]="p.nhanVienId" nzShowSearch nzPlaceHolder="Chọn nhân viên">
+              <nz-option *ngFor="let nv of nhanVienOptions" [nzValue]="nv.id"
+                [nzLabel]="nv.hoTen + ' (' + nv.maNhanVien + ')'"></nz-option>
+            </nz-select>
+          </div>
+          <div *ngIf="dispatchType === 'Partner'">
+            <input nz-input [(ngModel)]="p.hoTen" placeholder="Họ tên thợ" />
+          </div>
+          <div>
+            <input nz-input [(ngModel)]="p.vaiTro" placeholder="Vai trò (Thợ chính, Thợ phụ...)" />
+          </div>
+          <ng-container *ngIf="dispatchType === 'Partner'">
+            <div><input nz-input [(ngModel)]="p.soCCCD" placeholder="Số CCCD" /></div>
+            <div><input nz-input [(ngModel)]="p.soDienThoai" placeholder="Số điện thoại" /></div>
+          </ng-container>
+          <div class="col-span-1">
+            <input nz-input [(ngModel)]="p.ghiChu" placeholder="Ghi chú thêm" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>
+
+<!-- MODAL: QUOTE -->
+<nz-modal [(nzVisible)]="quoteVisible" nzTitle="Nhập báo giá sửa chữa" (nzOnCancel)="quoteVisible = false"
+  (nzOnOk)="submitQuote()" [nzWidth]="520" nzWrapClassName="compact-modal" nzCancelText="Hủy" nzOkText="Lưu">
+  <ng-container *nzModalContent>
+    <div class="grid grid-cols-1 gap-4">
+      <div>
+        <label class="block mb-1 font-medium">Hình thức</label>
+        <nz-radio-group [(ngModel)]="quoteForm.isMienPhi">
+          <label nz-radio [nzValue]="false">Có tính phí</label>
+          <label nz-radio [nzValue]="true">Miễn phí (Bảo hành/Bảo trì)</label>
+        </nz-radio-group>
+      </div>
+      <div *ngIf="!quoteForm.isMienPhi">
+        <label class="block mb-1 font-medium">Chi phí dự kiến (VNĐ)</label>
+        <nz-input-number class="w-full" [(ngModel)]="quoteForm.chiPhiDuKien" [nzMin]="0" [nzStep]="50000"
+          [nzFormatter]="formatterVND" [nzParser]="parserVND"></nz-input-number>
+      </div>
+      <div>
+        <label class="block mb-1 font-medium">Ghi chú xác nhận từ cư dân</label>
+        <textarea nz-input rows="3" [(ngModel)]="quoteForm.ghiChuBaoGia"
+          placeholder="Ví dụ: Cư dân đã đồng ý qua điện thoại ngày..."></textarea>
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>
+
+<!-- MODAL: SCHEDULE -->
+<nz-modal [(nzVisible)]="scheduleVisible" nzTitle="Hẹn lịch sửa chữa" (nzOnCancel)="scheduleVisible = false"
+  (nzOnOk)="submitSchedule()" [nzWidth]="520" nzWrapClassName="compact-modal" nzCancelText="Hủy" nzOkText="Lưu">
+  <ng-container *nzModalContent>
+    <div class="mb-4">
+      <label class="block mb-1 font-medium">Chọn khung giờ mẫu</label>
+      <nz-select class="w-full" [(ngModel)]="selectedKhungGioId" (ngModelChange)="onKhungGioChange($event)" nzAllowClear
+        nzPlaceHolder="Chọn khung giờ nhanh">
+        <nz-option *ngFor="let kg of khungGioOptions" [nzValue]="kg.id"
+          [nzLabel]="kg.tenKhungGio + ' (' + kg.gioBatDau + ' - ' + kg.gioKetThuc + ')'"></nz-option>
+      </nz-select>
+    </div>
+
+    <div class="mb-2 font-medium">Thời gian hẹn chính xác</div>
+    <nz-range-picker [(ngModel)]="scheduleRange" [nzShowTime]="{ nzFormat: 'HH:mm' }" nzFormat="dd/MM/yyyy HH:mm"
+      class="w-full"></nz-range-picker>
+    <div class="mt-2 text-xs text-gray-500 italic">* Lưu ý: Đảm bảo đã liên hệ cư dân để chốt khung giờ này.</div>
+  </ng-container>
+</nz-modal>
+
+<!-- MODAL: COMPLETE -->
+<nz-modal [(nzVisible)]="completeVisible" nzTitle="Xác nhận hoàn tất sửa chữa" (nzOnCancel)="completeVisible = false"
+  (nzOnOk)="submitComplete()" [nzWidth]="520" nzWrapClassName="compact-modal" nzCancelText="Hủy" nzOkText="Lưu">
+  <ng-container *nzModalContent>
+    <div class="grid grid-cols-1 gap-4">
+      <div>
+        <label class="block mb-1 font-medium">Kết quả xử lý</label>
+        <textarea nz-input rows="4" [(ngModel)]="completeForm.ketQuaXuLy"
+          placeholder="Nhập kết quả công việc..."></textarea>
+      </div>
+      <div>
+        <label class="block mb-1 font-medium">Chi phí thực tế (VNĐ)</label>
+        <nz-input-number class="w-full" [(ngModel)]="completeForm.chiPhiThucTe" [nzMin]="0"
+          [nzStep]="10000"></nz-input-number>
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>
+
+<!-- MODAL: ADVANCED FILTER -->
+<nz-modal [(nzVisible)]="advancedVisible" nzTitle="Tìm kiếm nâng cao" (nzOnCancel)="advancedVisible = false"
+  (nzOnOk)="load(); advancedVisible = false" nzCancelText="Hủy" nzOkText="Áp dụng">
+  <ng-container *nzModalContent>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block mb-1 font-medium text-gray-700">Loại sự cố</label>
+        <nz-select class="w-full" [(ngModel)]="loaiSuCoId" nzAllowClear nzPlaceHolder="Tất cả">
+          <nz-option *ngFor="let o of loaiSuCoOptions" [nzValue]="o.id" [nzLabel]="o.name"></nz-option>
+        </nz-select>
+      </div>
+      <div>
+        <label class="block mb-1 font-medium text-gray-700">Trạng thái yêu cầu</label>
+        <nz-select class="w-full" [(ngModel)]="trangThaiYeuCauId" nzAllowClear nzPlaceHolder="Tất cả">
+          <nz-option *ngFor="let o of trangThaiOptions" [nzValue]="o.id" [nzLabel]="o.name"></nz-option>
+        </nz-select>
+      </div>
+      <div>
+        <label class="block mb-1 font-medium text-gray-700">Trạng thái sửa chữa</label>
+        <nz-select class="w-full" [(ngModel)]="trangThaiSuaChuaId" nzAllowClear nzPlaceHolder="Tất cả">
+          <nz-option *ngFor="let o of trangThaiSuaChuaOptions" [nzValue]="o.id" [nzLabel]="o.name"></nz-option>
+        </nz-select>
+      </div>
+      <div>
+        <label class="block mb-1 font-medium text-gray-700">Ngày tạo từ</label>
+        <nz-date-picker class="w-full rounded-lg" [(ngModel)]="ngayTaoTu"></nz-date-picker>
+      </div>
+      <div>
+        <label class="block mb-1 font-medium text-gray-700">Ngày tạo đến</label>
+        <nz-date-picker class="w-full rounded-lg" [(ngModel)]="ngayTaoDen"></nz-date-picker>
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>

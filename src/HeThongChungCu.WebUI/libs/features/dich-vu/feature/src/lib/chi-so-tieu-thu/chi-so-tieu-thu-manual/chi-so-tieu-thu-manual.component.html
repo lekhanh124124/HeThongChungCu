@@ -1,0 +1,124 @@
+<div class="p-4 bg-gray-50 min-h-screen">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex items-center gap-4 mb-6">
+      <button nz-button nzType="text" (click)="goBack()"
+        class="flex items-center justify-center h-10 w-10 rounded-full bg-white shadow-sm border">
+        <i nz-icon nzType="arrow-left"></i>
+      </button>
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800 m-0">Ghi nhận chỉ số hàng loạt</h2>
+        <p class="text-gray-500 m-0">Nhập thủ công chỉ số cho các căn hộ theo tầng</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+        <div>
+          <label class="text-xs font-bold text-gray-500 mb-1 block uppercase">Thời điểm</label>
+          <div class="flex gap-2">
+            <nz-select [(ngModel)]="thang" nzAllowClear nzPlaceHolder="Tháng" style="width: 90px" class="rounded-lg">
+              <nz-option *ngFor="let m of [1,2,3,4,5,6,7,8,9,10,11,12]" [nzValue]="m" [nzLabel]="m"></nz-option>
+            </nz-select>
+            <input nz-input type="number" [(ngModel)]="nam" placeholder="Năm" min="2020" max="2100"
+              style="width:100px;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:40px;box-sizing:border-box" />
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-gray-500 mb-1 block uppercase">Tòa nhà</label>
+          <nz-select [(ngModel)]="toaNhaId" (ngModelChange)="onToaNhaChange($event)" nzPlaceHolder="Chọn tòa nhà"
+            class="w-full rounded-lg">
+            <nz-option *ngFor="let o of toaNhaOptions" [nzValue]="o.id" [nzLabel]="o.tenToaNha"></nz-option>
+          </nz-select>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-gray-500 mb-1 block uppercase">Tầng</label>
+          <nz-select [(ngModel)]="tangId" [nzDisabled]="!toaNhaId" nzPlaceHolder="Chọn tầng" class="w-full rounded-lg">
+            <nz-option *ngFor="let o of tangOptions" [nzValue]="o.id" [nzLabel]="o.tenTang"></nz-option>
+          </nz-select>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-gray-500 mb-1 block uppercase">Dịch vụ</label>
+          <nz-select [(ngModel)]="dichVuId" nzPlaceHolder="Chọn dịch vụ" class="w-full rounded-lg">
+            <nz-option *ngFor="let o of dichVuOptions" [nzValue]="o.id || o.dichVuId"
+              [nzLabel]="o.tenDichVu"></nz-option>
+          </nz-select>
+        </div>
+
+        <button nz-button nzType="primary" (click)="generateList()" [nzLoading]="loading"
+          class="h-10 rounded-lg font-bold">
+          <i nz-icon nzType="thunderbolt"></i>&nbsp;Tải danh sách
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="items.length > 0" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="p-4 bg-gray-50 border-b flex justify-between items-center">
+        <span class="font-bold text-gray-700">Danh sách căn hộ ({{items.length}})</span>
+        <div class="flex gap-2 items-center">
+          <label class="text-xs text-gray-500 font-medium">Ngày ghi nhận:</label>
+          <nz-date-picker [(ngModel)]="ngayGhiNhan" class="rounded-lg h-9"></nz-date-picker>
+        </div>
+      </div>
+
+      <app-scroll-table [height]="'calc(100vh - 420px)'">
+        <table class="w-full">
+          <thead class="bg-gray-50 sticky top-0 z-10">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500">Căn hộ</th>
+              <th class="px-6 py-3 text-center text-xs font-bold text-gray-500">Ảnh đồng hồ</th>
+              <th class="px-6 py-3 text-right text-xs font-bold text-gray-500">Chỉ số cũ</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500" style="width: 200px">Chỉ số mới</th>
+              <th class="px-6 py-3 text-right text-xs font-bold text-gray-500">Tiêu thụ</th>
+              <th class="px-6 py-3 text-left text-xs font-bold text-gray-500">Ghi chú</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr *ngFor="let item of items" class="hover:bg-blue-50/30 transition-colors">
+              <td class="px-6 py-4 font-bold text-gray-700">{{ item.maCanHo }}</td>
+              <td class="px-6 py-4 text-center">
+                <img *ngIf="item.anhDongHoUrl" nz-image [nzSrc]="item.anhDongHoUrl"
+                  class="w-12 h-12 object-cover rounded shadow-sm border border-gray-200 cursor-pointer hover:scale-105 transition-transform" />
+                <span *ngIf="!item.anhDongHoUrl" class="text-gray-300 text-xs italic">Chưa có ảnh</span>
+              </td>
+              <td class="px-6 py-4 text-right text-gray-500">{{ item.chiSoCu | number }}</td>
+              <td class="px-6 py-4">
+                <nz-input-number [(ngModel)]="item.chiSoMoi" (ngModelChange)="onChiSoMoiChange(item)"
+                  [nzMin]="item.chiSoCu" [nzStep]="1"
+                  class="w-full rounded-lg border-blue-200 focus:border-blue-500"></nz-input-number>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <span *ngIf="item.chiSoMoi !== null" class="font-bold"
+                  [class.text-blue-600]="item.chiSoMoi >= item.chiSoCu"
+                  [class.text-red-500]="item.chiSoMoi < item.chiSoCu">
+                  {{ (item.chiSoMoi || 0) - (item.chiSoCu || 0) | number }}
+                </span>
+                <span *ngIf="item.chiSoMoi === null" class="text-gray-300">-</span>
+              </td>
+              <td class="px-6 py-4">
+                <input nz-input [(ngModel)]="item.ghiChu" placeholder="..."
+                  class="rounded-lg border-gray-200 text-sm" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </app-scroll-table>
+
+      <div class="p-6 bg-gray-50 border-t flex justify-end gap-3">
+        <button nz-button (click)="goBack()" class="h-11 px-8 rounded-xl font-bold">Hủy</button>
+        <button nz-button nzType="primary" (click)="save()" [nzLoading]="saving"
+          class="h-11 px-8 rounded-xl font-bold bg-emerald-600 border-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-200">
+        Lưu tất cả
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="items.length === 0 && !loading"
+      class="p-12 text-center bg-white rounded-2xl border border-dashed border-gray-300">
+      <i nz-icon nzType="inbox" class="text-5xl text-gray-300 mb-4"></i>
+      <p class="text-gray-400">Chọn thông tin tầng và dịch vụ để bắt đầu nhập chỉ số</p>
+    </div>
+  </div>
+</div>

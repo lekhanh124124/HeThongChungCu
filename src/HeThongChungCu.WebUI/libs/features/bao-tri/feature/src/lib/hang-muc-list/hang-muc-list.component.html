@@ -1,0 +1,163 @@
+<div class="p-3 bg-gray-50 min-h-screen">
+  <div
+    class="page-toolbar bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex flex-wrap gap-2 sm:gap-3 items-end"
+  >
+    <div>
+      <!-- <label class="text-[10px] font-semibold text-gray-400 mb-1 block"
+        >Tìm kiếm hạng mục</label
+      > -->
+      <input
+        nz-input
+        placeholder="Mã hoặc tên hạng mục..."
+        [(ngModel)]="keyword"
+        (keyup.enter)="load()"
+        style="min-width:260px;width:320px;border-radius:8px;padding:8px 12px;border:1px solid #e5e7eb;height:40px;box-sizing:border-box"
+      />
+    </div>
+    <button
+      nz-button
+      type="button"
+      (click)="load()"
+      style="display:flex;align-items:center;background:#0b84e6;border-color:#0b84e6;color:#fff;border-radius:8px;padding:6px 14px;font-weight:600;height:40px;box-sizing:border-box"
+    >
+      <i nz-icon nzType="search" nzTheme="outline"></i>&nbsp;Tìm kiếm
+    </button>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button
+        nz-button
+        type="button"
+        (click)="load()"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;border:1px solid #60a5fa;background:#eff6ff;color:#1e3a8a"
+      >
+        <i
+          nz-icon
+          nzType="reload"
+          nzTheme="outline"
+          style="font-size:20px;line-height:20px;transform:scale(1.06);display:inline-block;color:#1e3a8a"
+        ></i>
+      </button>
+      <button
+        nz-button
+        type="button"
+        (click)="openForm()"
+        style="display:flex;align-items:center;background:#0b84e6;border-color:#0b84e6;color:#fff;border-radius:8px;padding:6px 12px;font-weight:700;height:40px;box-sizing:border-box;box-shadow:0 2px 6px rgba(0,0,0,0.06)"
+      >
+        <i nz-icon nzType="plus-circle" nzTheme="outline"></i>
+        <span>Thêm hạng mục</span>
+      </button>
+    </div>
+  </div>
+
+  <div
+    class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
+  >
+    <app-scroll-table [height]="'calc(100vh - 240px)'" [noBorder]="true">
+      <nz-table
+        #basicTable
+        [nzData]="items"
+        [nzLoading]="loading"
+        [nzFrontPagination]="false"
+        [nzTotal]="totalItems"
+        [nzPageSize]="pageSize"
+        [nzPageIndex]="pageNumber"
+        (nzPageIndexChange)="onPageChange($event)"
+      >
+        <thead>
+          <tr>
+            <th
+              nzWidth="120px"
+              class="bg-gray-50/50 text-[11px] font-bold text-gray-400 py-4 text-center"
+            >
+              Thao tác
+            </th>
+            <th
+              class="bg-gray-50/50 text-[11px] font-bold text-gray-400 py-4"
+            >
+              Mã hạng mục
+            </th>
+            <th
+              class="bg-gray-50/50 text-[11px] font-bold text-gray-400 py-4"
+            >
+              Tên hạng mục
+            </th>
+            <th
+              class="bg-gray-50/50 text-[11px] font-bold text-gray-400 py-4 text-right"
+            >
+              Thời gian ước tính
+            </th>
+            <th
+              class="bg-gray-50/50 text-[11px] font-bold text-gray-400 py-4 text-right"
+            >
+              Chi phí dự kiến
+            </th>
+            <th
+              class="bg-gray-50/50 text-[11px] font-bold text-gray-400 py-4 text-center"
+            >
+              Checklist
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let data of basicTable.data"
+            class="group hover:bg-indigo-50/30 transition-colors"
+          >
+            <td class="py-4 text-center align-middle">
+              <a
+                nz-dropdown
+                [nzDropdownMenu]="menu"
+                nzTrigger="click"
+                (click)="$event.stopPropagation()"
+                class="text-gray-400 inline-flex items-center justify-center"
+              >
+                <i
+                  nz-icon
+                  nzType="unordered-list"
+                  nzTheme="outline"
+                  class="text-lg cursor-pointer"
+                ></i>
+              </a>
+              <nz-dropdown-menu #menu="nzDropdownMenu">
+                <ul nz-menu>
+                  <li nz-menu-item (click)="openForm(data)">
+                    <i nz-icon nzType="edit" nzTheme="outline"></i>&nbsp;Chỉnh sửa
+                  </li>
+                  <li
+                    nz-menu-item
+                    (click)="delete(data)"
+                    class="text-red-500"
+                  >
+                    <i nz-icon nzType="delete" nzTheme="outline"></i>&nbsp;Xóa
+                  </li>
+                </ul>
+              </nz-dropdown-menu>
+            </td>
+            <td class="py-4 font-mono text-xs font-bold text-indigo-600">
+              {{ data.maHangMuc }}
+            </td>
+            <td class="py-4">
+              <div class="font-bold text-gray-800">
+                {{ data.tenHangMuc }}
+              </div>
+              <div class="text-xs text-gray-400 line-clamp-1">
+                {{ data.moTa }}
+              </div>
+            </td>
+            <td class="py-4 text-right font-medium">
+              {{ data.thoiGianUocTinhPhut }} phút
+            </td>
+            <td class="py-4 text-right font-bold text-emerald-600">
+              {{ data.chiPhiUocTinh | number }} đ
+            </td>
+            <td class="py-4 text-center">
+              <nz-badge
+                [nzCount]="data.checklistTieuChuan?.length || 0"
+                [nzStyle]="{ backgroundColor: '#6366f1' }"
+              ></nz-badge>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </app-scroll-table>
+  </div>
+</div>

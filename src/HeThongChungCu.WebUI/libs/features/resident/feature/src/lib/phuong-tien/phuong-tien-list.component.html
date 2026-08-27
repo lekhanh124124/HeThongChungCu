@@ -1,0 +1,308 @@
+﻿<div class="p-4">
+  <ng-template #bulkStatusTpl>
+    <div style="min-width:320px">
+      <p>Áp dụng trạng thái cho <strong>{{ setOfCheckedId.size }}</strong> phương tiện đã chọn</p>
+      <nz-select [(ngModel)]="selectedTrangThaiId" [ngModelOptions]="{standalone:true}" nzPlaceHolder="Chọn trạng thái"
+        style="width:100%">
+        <nz-option *ngFor="let s of trangThaiOptions" [nzValue]="s.id" [nzLabel]="s.name || s.ten"></nz-option>
+      </nz-select>
+    </div>
+  </ng-template>
+  <div class="page-toolbar flex justify-between items-center flex-wrap gap-2 sm:gap-3 mb-4">
+    <div *ngIf="setOfCheckedId.size === 0" style="display:flex;gap:8px;align-items:center">
+      <input nz-input placeholder="Nhập từ khóa (Tên, Biển số, Màu)" [(ngModel)]="keyword" (keydown.enter)="onSearch()"
+        style="width:230px;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:40px;box-sizing:border-box" />
+      <button nz-button nzType="primary" (click)="onSearch()"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;gap:8px;font-weight:600">
+        <i nz-icon nzType="search" nzTheme="outline"></i>
+        <span>Tìm kiếm</span>
+      </button>
+      <button nz-button type="button" (click)="openAdvanced()"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;gap:8px;font-weight:600">
+        <i nz-icon nzType="filter" nzTheme="outline"></i>
+        <span>Tìm nâng cao</span>
+      </button>
+    </div>
+    <div class="flex items-center" style="gap:8px">
+      <button *ngIf="setOfCheckedId.size === 0" nz-button nzType="default" type="button" (click)="onRefresh()"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;border:1px solid #60a5fa;background:#eff6ff;color:#1e3a8a">
+        <i nz-icon nzType="reload" nzTheme="outline"
+          style="font-size:20px;line-height:20px;transform:scale(1.06);display:inline-block;color:#1e3a8a"></i>
+      </button>
+      <ng-container *ngIf="setOfCheckedId.size > 0">
+        <a nz-dropdown nzTrigger="click" [nzDropdownMenu]="bulkMenu" style="margin-left:4px">
+          <button nz-button
+            style="height:40px;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:600">
+            <i nz-icon nzType="edit" nzTheme="outline"></i>
+            <span>Thao tác</span>
+          </button>
+        </a>
+
+        <!-- <button nz-button nzType="primary" (click)="create()"
+          style="height:40px;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.06)">
+          <i nz-icon nzType="plus-circle" nzTheme="outline"></i>
+          <span>Đăng ký phương tiện mới</span>
+        </button> -->
+
+        <nz-dropdown-menu #bulkMenu="nzDropdownMenu">
+          <ul nz-menu>
+            <li nz-menu-item (click)="batchActivateSelected()"><i nz-icon nzType="play-circle"
+                nzTheme="outline"></i>&nbsp;Kích hoạt</li>
+            <li nz-menu-item (click)="batchBlockSelected()"><i nz-icon nzType="stop" nzTheme="outline"></i>&nbsp;Khóa
+              phương tiện</li>
+            <li nz-menu-item (click)="khoaTheSelected()"><i nz-icon nzType="lock" nzTheme="outline"></i>&nbsp;Khóa thẻ
+              phương tiện</li>
+            <li nz-menu-item class="text-red-500" (click)="batchCancelSelected()"><i nz-icon nzType="close-circle"
+                nzTheme="outline"></i>&nbsp;Hủy</li>
+          </ul>
+        </nz-dropdown-menu>
+      </ng-container>
+      <ng-container *ngIf="setOfCheckedId.size === 0">
+        <button nz-button nzType="primary" (click)="create()"
+          style="height:40px;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.06)">
+          <i nz-icon nzType="plus-circle" nzTheme="outline"></i>
+          <span>Đăng ký phương tiện</span>
+        </button>
+      </ng-container>
+    </div>
+  </div>
+
+  <app-scroll-table [height]="'420px'">
+    <nz-table #ptTable [nzData]="items" [nzLoading]="loading" nzBordered [nzShowPagination]="false"
+      style="min-width:1100px" (nzCurrentPageDataChange)="onCurrentPageDataChange($event)">
+      <thead>
+        <tr>
+          <th style="width:48px" [(nzChecked)]="checked" [nzIndeterminate]="indeterminate"
+            (nzCheckedChange)="onAllChecked($event)"></th>
+          <th>Thao tác</th>
+          <th style="width:48px">STT</th>
+          <th style="cursor:pointer" (click)="onSortSelect('MaToaNha')">Tòa nhà
+            <i nz-icon [nzType]="sortCol === 'MaToaNha' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'MaToaNha' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSortSelect('MaTang')">Tầng
+            <i nz-icon [nzType]="sortCol === 'MaTang' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'MaTang' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSortSelect('MaCanHo')">Căn hộ
+            <i nz-icon [nzType]="sortCol === 'MaCanHo' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'MaCanHo' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSortSelect('TenPhuongTien')">Tên phương tiện
+            <i nz-icon [nzType]="sortCol === 'TenPhuongTien' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'TenPhuongTien' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSortSelect('LoaiPhuongTien')">Loại phương tiện
+            <i nz-icon [nzType]="sortCol === 'LoaiPhuongTien' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'LoaiPhuongTien' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSortSelect('BienSo')">Biển số
+            <i nz-icon [nzType]="sortCol === 'BienSo' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'BienSo' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSortSelect('MauXe')">Màu xe
+            <i nz-icon [nzType]="sortCol === 'MauXe' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline" [ngStyle]="{'margin-left':'6px','color': sortCol === 'MauXe' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSortSelect('TrangThaiPhuongTienId')">Trạng thái
+            <i nz-icon
+              [nzType]="sortCol === 'TrangThaiPhuongTienId' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'TrangThaiPhuongTienId' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let it of items; let i = index">
+          <td [nzChecked]="setOfCheckedId.has(it.id)" (nzCheckedChange)="onItemChecked(it.id, $event)"></td>
+          <td style="text-align:center;vertical-align:middle" class="action-cell">
+            <a nz-dropdown nzTrigger="hover" [nzDropdownMenu]="actionMenu" class="action-btn">
+              <i nz-icon nzType="unordered-list" nzTheme="outline" class="text-lg cursor-pointer action-icon"></i>
+            </a>
+            <nz-dropdown-menu #actionMenu="nzDropdownMenu">
+              <ul nz-menu>
+                <!-- <li nz-menu-item (click)="edit(it.id)"><i nz-icon nzType="edit" nzTheme="outline"></i>&nbsp;Chỉnh sửa
+                </li> -->
+                <li nz-menu-item (click)="viewThePhuongTien(it)"><i nz-icon nzType="file-text"
+                    nzTheme="outline"></i>&nbsp;Danh sách thẻ
+                </li>
+                <li nz-menu-item (click)="taoThe(it)"><i nz-icon nzType="credit-card" nzTheme="outline"></i>&nbsp;Tạo
+                  thẻ
+                </li>
+                <li nz-menu-item class="text-red-500" (click)="deleteOne(it.id)"><i nz-icon nzType="close-circle"
+                    nzTheme="outline"></i>&nbsp;Hủy</li>
+              </ul>
+            </nz-dropdown-menu>
+          </td>
+          <td>{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+          <td>{{ it.maToaNha }}</td>
+          <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ it.maTang }}</td>
+          <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ it.maCanHo }}</td>
+          <td>{{ it.tenPhuongTien }}</td>
+          <td>{{ it.tenLoaiPhuongTien || loaiDict[it.loaiPhuongTienId]?.name || loaiDict[it.loaiPhuongTienId]?.ten ||
+            it.loaiPhuongTienId }}</td>
+          <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ it.bienSo }}</td>
+          <td>{{ it.mauXe }}</td>
+          <td>
+            <nz-tag class="rounded-full border-none px-3 font-medium text-[11px] uppercase"
+              [ngClass]="getTrangThaiClass(it.trangThaiPhuongTienId, it.tenTrangThaiPhuongTien)">
+              {{ it.tenTrangThaiPhuongTien || trangThaiDict[it.trangThaiPhuongTienId]?.name ||
+              trangThaiDict[it.trangThaiPhuongTienId]?.ten || it.trangThaiPhuongTienId }}
+            </nz-tag>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </app-scroll-table>
+  <div style="display:flex;justify-content:flex-end;margin-top:12px">
+    <nz-pagination [nzPageIndex]="pageNumber" [nzPageSize]="pageSize" [nzTotal]="total"
+      (nzPageIndexChange)="onPageChange($event)" (nzPageSizeChange)="onPageSizeChange($event)"></nz-pagination>
+  </div>
+
+  <nz-modal [(nzVisible)]="advancedVisible" nzTitle="Tìm kiếm nâng cao" (nzOnCancel)="closeAdvanced()" [nzFooter]="null"
+    nzWrapClassName="advanced-search-modal">
+    <ng-container *nzModalContent>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3" style="margin-top:4px">
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Mã tòa nhà</label>
+          <input nz-input [(ngModel)]="maToaNha" [ngModelOptions]="{standalone:true}"
+            style="border-radius:8px;border:1px solid #e5e7eb;padding:8px 10px;box-sizing:border-box;width:100%" />
+        </div>
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Mã tầng</label>
+          <input nz-input [(ngModel)]="maTang" [ngModelOptions]="{standalone:true}"
+            style="border-radius:8px;border:1px solid #e5e7eb;padding:8px 10px;box-sizing:border-box;width:100%" />
+        </div>
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Mã căn hộ</label>
+          <input nz-input [(ngModel)]="maCanHo" [ngModelOptions]="{standalone:true}"
+            style="border-radius:8px;border:1px solid #e5e7eb;padding:8px 10px;box-sizing:border-box;width:100%" />
+        </div>
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Loại phương tiện</label>
+          <nz-select [(ngModel)]="loaiPhuongTienId" [ngModelOptions]="{standalone:true}" nzAllowClear
+            nzPlaceHolder="-- Tất cả --" style="width:100%;border-radius:8px;border:1px solid #e5e7eb;">
+            <nz-option *ngFor="let l of loaiPhuongTienOptions" [nzValue]="l.id" [nzLabel]="l.name || l.ten"></nz-option>
+          </nz-select>
+        </div>
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Màu xe</label>
+          <input nz-input [(ngModel)]="mauXe" [ngModelOptions]="{standalone:true}"
+            style="border-radius:8px;border:1px solid #e5e7eb;padding:8px 10px;box-sizing:border-box;width:100%" />
+        </div>
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Trạng thái</label>
+          <nz-select [(ngModel)]="trangThaiPhuongTienId" [ngModelOptions]="{standalone:true}" nzAllowClear
+            nzPlaceHolder="-- Tất cả --" style="width:100%;border-radius:8px;border:1px solid #e5e7eb;">
+            <nz-option *ngFor="let s of trangThaiOptions" [nzValue]="s.id" [nzLabel]="s.name || s.ten"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px">
+        <button nz-button type="button" (click)="closeAdvanced()" class="rounded-lg">Hủy</button>
+        <button nz-button nzType="primary" type="button" (click)="applyAdvanced()" class="rounded-lg">Áp dụng</button>
+      </div>
+    </ng-container>
+  </nz-modal>
+  <nz-modal [(nzVisible)]="isModalVisible" [nzTitle]="modalTitle" nzWidth="480" nzWrapClassName="custom-modal"
+    [nzOkLoading]="saving" (nzOnOk)="onModalOk()" (nzOnCancel)="cancelModal()" nzOkText="Lưu" nzCancelText="Hủy"
+    nzOkType="primary">
+    <ng-container *nzModalContent>
+      <app-phuong-tien-form [inModal]="true" [phuongTienId]="editingId" (saved)="onSaved()"
+        (canceled)="cancelModal()"></app-phuong-tien-form>
+    </ng-container>
+  </nz-modal>
+
+  <!-- Modal danh sách thẻ của 1 phương tiện -->
+  <nz-modal [(nzVisible)]="cardModalVisible" nzTitle="Danh sách thẻ phương tiện" nzWidth="720"
+    [nzStyle]="{ width: '720px', maxWidth: '720px' }" (nzOnCancel)="closeCardModal()" [nzFooter]="null">
+    <ng-container *nzModalContent>
+      <div *ngIf="selectedPhuongTien as pt">
+        <div class="mb-3">
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <div class="text-lg font-semibold truncate">{{ pt.tenPhuongTien }} <span
+                  class="text-sm text-gray-500">(Biển số: {{ pt.bienSo }})</span></div>
+              <div class="text-sm text-gray-500">Căn hộ: {{ pt.maCanHo }}</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button nz-button nzType="primary" (click)="taoThe(pt)" class="rounded-lg inline-flex items-center gap-1.5">
+                <i nz-icon nzType="plus-circle" nzTheme="outline"></i>
+                <span>Tạo thẻ</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <div class="flex items-center justify-between mb-2">
+              <div class="font-semibold">Danh sách thẻ</div>
+              <div class="text-sm text-gray-500">{{ (pt.thePhuongTiens || []).length }} thẻ</div>
+            </div>
+
+            <ng-container *ngIf="(pt.thePhuongTiens || []).length > 0; else noCardsTpl">
+              <div class="space-y-3">
+                <div *ngFor="let t of pt.thePhuongTiens"
+                  class="p-3 bg-white rounded-lg shadow-sm flex items-center justify-between">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="h-10 w-10 flex items-center justify-center rounded-md bg-indigo-50 text-indigo-600">
+                      <i nz-icon nzType="credit-card" nzTheme="outline"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <div class="font-medium truncate">{{ t.maThe || '-' }}</div>
+                        <nz-tag class="rounded-full border-none px-3 font-medium text-[11px] uppercase"
+                          [ngClass]="getCardClass(t)">{{ isCardActive(t) ? 'Đang hoạt động' : 'Đã khóa' }}</nz-tag>
+                      </div>
+                      <div class="text-xs text-gray-500" style="line-height:1.2">
+                        <div><span class="font-medium">Bắt đầu:</span> {{ t.ngayBatDau ? (t.ngayBatDau |
+                          date:'dd/MM/yyyy') : '-' }}</div>
+                        <div><span class="font-medium">Kết thúc:</span> {{ t.ngayKetThuc ? (t.ngayKetThuc |
+                          date:'dd/MM/yyyy') : '-' }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:8px;align-items:center">
+                    <button nz-button nzType="text" nzShape="circle" nz-tooltip nzTooltipTitle="Khóa thẻ"
+                      *ngIf="isCardActive(t)" (click)="khoaTheThe(t)">
+                      <i nz-icon nzType="lock" nzTheme="outline"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+            <ng-template #noCardsTpl>
+              <div class="text-center text-gray-500 py-6">Chưa có thẻ nào</div>
+            </ng-template>
+          </div>
+        </div>
+        <!-- Hình ảnh phương tiện -->
+        <div *ngIf="pt.hinhAnhPhuongTiens && pt.hinhAnhPhuongTiens.length" class="mt-4">
+          <h4 class="section-title">Hình ảnh phương tiện</h4>
+          <div class="grid grid-cols-3 gap-3 mt-2">
+            <div *ngFor="let img of pt.hinhAnhPhuongTiens" class="rounded overflow-hidden border bg-white">
+              <a *ngIf="img.fileUrl || img.fileUrl" target="_blank" rel="noopener noreferrer">
+                <img
+                  [src]="(img.fileUrl || '') + ((img.fileUrl && img.fileUrl.indexOf('?')>-1)?'&':'?') + 'v=' + (img.fileId || img.fileName || '')"
+                  [alt]="img.fileName || 'Hình ảnh'" style="width:100%;height:160px;object-fit:cover" />
+              </a>
+              <div class="p-2 text-sm text-gray-600 flex justify-between items-center">
+                <span class="truncate">{{ img.fileName || 'Ảnh' }}</span>
+                <a *ngIf="img.fileUrl" [href]="img.fileUrl" download class="text-blue-600">Xem</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!selectedPhuongTien" class="text-center text-gray-500">
+        Không có dữ liệu phương tiện.
+      </div>
+    </ng-container>
+  </nz-modal>
+</div>

@@ -1,0 +1,29 @@
+<div class="tree-search mb-3" style="display:flex;gap:8px;align-items:center">
+  <input nz-input placeholder="Tìm kiếm tòa nhà / tầng / căn hộ" [(ngModel)]="keyword" (keydown.enter)="search()" />
+  <button nz-button nzType="primary" nzShape="circle" aria-label="Tìm" (click)="search()">
+    <i nz-icon nzType="search"></i>
+  </button>
+  <button *ngIf="keyword" nz-button nzType="default" nzShape="circle" aria-label="Xóa" (click)="clear()">
+    <i nz-icon nzType="clear"></i>
+  </button>
+</div>
+
+<nz-tree-view [nzTreeControl]="treeControl" [nzDataSource]="dataSource">
+  <nz-tree-node *nzTreeNodeDef="let node" nzTreeNodePadding>
+    <nz-tree-node-toggle nzTreeNodeNoopToggle></nz-tree-node-toggle>
+    <nz-tree-node-option [nzDisabled]="node.disabled" [nzSelected]="selectListSelection.isSelected(node)"
+      (nzClick)="onNodeClick(node)">
+      {{ node.name }}
+    </nz-tree-node-option>
+  </nz-tree-node>
+
+  <nz-tree-node *nzTreeNodeDef="let node; when: hasChild" nzTreeNodePadding>
+    <nz-tree-node-toggle>
+      <i nz-icon nzType="caret-down" nzTreeNodeToggleRotateIcon></i>
+    </nz-tree-node-toggle>
+    <nz-tree-node-option [nzDisabled]="node.disabled" [nzSelected]="selectListSelection.isSelected(node)"
+      (nzClick)="onNodeClick(node)">
+      {{ node.name }}
+    </nz-tree-node-option>
+  </nz-tree-node>
+</nz-tree-view>

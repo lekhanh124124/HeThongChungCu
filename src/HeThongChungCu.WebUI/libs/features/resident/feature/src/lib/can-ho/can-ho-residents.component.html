@@ -1,0 +1,192 @@
+﻿<div>
+  <!-- Modal thêm cư dân -->
+  <nz-modal [(nzVisible)]="isAddingResident" nzTitle="Thêm cư dân vào căn hộ" (nzOnCancel)="cancelRegister()"
+    [nzFooter]="null" nzWidth="520" nzWrapClassName="custom-modal">
+    <ng-container *nzModalContent>
+
+      <form [formGroup]="registerForm" (ngSubmit)="submitRegister()" style="margin-top:8px">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="flex flex-col md:col-span-2">
+            <label class="mb-2 font-medium text-gray-700">Số điện thoại</label>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <input nz-input formControlName="phoneNumber" (keydown.enter)="onSearchUserByPhone()"
+                style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+              <button nz-button nzType="default" type="button" (click)="onSearchUserByPhone()"
+                [nzLoading]="searchLoading"
+                style="display:flex;align-items:center;border-radius:6px;padding:4px 12px;font-weight:500;height:36px;box-sizing:border-box">
+                Tìm cư dân
+              </button>
+            </div>
+          </div>
+
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Username</label>
+            <input nz-input formControlName="username"
+              style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Email</label>
+            <input nz-input formControlName="email"
+              style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Mật khẩu</label>
+            <input nz-input type="password" formControlName="password"
+              style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Họ</label>
+            <input nz-input formControlName="lastName"
+              style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Tên</label>
+            <input nz-input formControlName="firstName"
+              style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">CMND/CCCD</label>
+            <input nz-input formControlName="idCard"
+              style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Ngày sinh</label>
+            <input nz-input type="date" formControlName="dob"
+              style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Giới tính</label>
+            <nz-radio-group formControlName="gioiTinhId" style="display:flex;gap:8px;flex-wrap:wrap">
+              <label nz-radio *ngFor="let g of gioiTinhOptions" [nzValue]="g.id">{{ g.name || g.ten || g.label
+                }}</label>
+            </nz-radio-group>
+          </div>
+          <div class="flex flex-col md:col-span-2">
+            <label class="mb-2 font-medium text-gray-700">Địa chỉ</label>
+            <input nz-input formControlName="diaChi"
+              style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+          <div class="flex flex-col md:col-span-2" *ngIf="foundUser">
+            <label class="mb-2 font-medium text-gray-700">Loại quan hệ cư trú</label>
+            <nz-select [(ngModel)]="selectedLoaiQuanHeCuTruId" [ngModelOptions]="{standalone: true}" nzAllowClear
+              nzPlaceHolder="-- Chọn loại quan hệ cư trú --" style="width:100%" class="rounded-[10px]">
+              <nz-option *ngFor="let t of loaiQuanHeOptions" [nzValue]="t.id"
+                [nzLabel]="t.name || t.ten || t.tenLoaiQuanHeCuTru || t.label"></nz-option>
+            </nz-select>
+          </div>
+        </div>
+
+        <div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end">
+          <button nz-button type="button" (click)="cancelRegister()">Hủy</button>
+          <button nz-button nzType="primary" [nzLoading]="registerLoading" type="submit">Đăng ký</button>
+          <button nz-button nzType="primary" (click)="setResidence()" [nzLoading]="setResidenceLoading"
+            style="display:flex;align-items:center;border-radius:6px;padding:6px 14px;font-weight:600;height:36px;">
+            Thiết lập cư trú
+          </button>
+        </div>
+      </form>
+    </ng-container>
+  </nz-modal>
+
+  <!-- Modal chỉnh sửa quan hệ cư trú -->
+  <nz-modal [(nzVisible)]="editModalVisible" nzTitle="Cập nhật quan hệ cư trú" (nzOnCancel)="closeEdit()"
+    [nzFooter]="null" nzWidth="520" nzWrapClassName="custom-modal">
+    <ng-container *nzModalContent>
+      <form [formGroup]="editForm" (ngSubmit)="submitEdit()" style="margin-top:8px">
+        <div class="grid grid-cols-1 gap-3">
+          <div class="flex flex-col">
+            <label class="mb-1 text-sm text-gray-700">Loại quan hệ cư trú</label>
+            <nz-select formControlName="loaiQuanHeCuTruId" nzAllowClear nzPlaceHolder="-- Chọn loại quan hệ cư trú --"
+              style="width:100%">
+              <nz-option *ngFor="let t of loaiQuanHeOptions" [nzValue]="t.id"
+                [nzLabel]="t.name || t.ten || t.tenLoaiQuanHeCuTru || t.label"></nz-option>
+            </nz-select>
+          </div>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end">
+          <button nz-button type="button" (click)="closeEdit()" class="rounded-lg">Hủy</button>
+          <button nz-button nzType="primary" [nzLoading]="editLoading" type="submit" class="rounded-lg">Lưu</button>
+        </div>
+      </form>
+    </ng-container>
+  </nz-modal>
+
+  <!-- Thanh tìm kiếm và hành động trên danh sách cư dân hiện tại -->
+  <div class="page-toolbar flex flex-wrap items-center gap-2 sm:gap-3" style="justify-content:space-between;margin-bottom:12px">
+    <div style="display:flex; gap:8px; align-items:center; max-width:70%">
+      <input nz-input placeholder="Nhập tên/ điện thoại" [(ngModel)]="keyword" (keydown.enter)="applyFilter()"
+        style="width:360px;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:40px;box-sizing:border-box" />
+      <button nz-button nzType="primary" (click)="applyFilter()"
+        style="display:flex;align-items:center;border:1px solid #e5e7eb;border-radius:6px;padding:6px 12px;font-weight:600;height:40px;box-sizing:border-box">
+        <i nz-icon nzType="search" nzTheme="outline"></i>&nbsp;Tìm kiếm
+      </button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button *ngIf="setOfCheckedId.size > 0" nz-button nzType="primary" nzDanger (click)="deleteSelectedMultiple()"
+        style="display:flex;align-items:center;border:1px solid #e5e7eb;border-radius:6px;padding:6px 12px;font-weight:600;height:40px;box-sizing:border-box">
+        <i nz-icon nzType="delete" nzTheme="outline"></i>Xóa đã chọn</button>
+      <button nz-button nzType="default" (click)="refresh()"
+        style="display:flex;align-items:center;justify-content:center;border:1px solid #60a5fa;background:#eff6ff;color:#1e3a8a;border-radius:6px;padding:6px 12px;font-weight:600;height:40px;box-sizing:border-box">
+        <i nz-icon nzType="reload" nzTheme="outline"
+          style="font-size:20px;line-height:20px;transform:scale(1.06);display:inline-block;color:#1e3a8a"></i>
+      </button>
+      <!-- <button nz-button nzType="primary" (click)="isAddingResident = true"
+        style="display:flex;align-items:center;border-radius:6px;padding:6px 12px;font-weight:600;height:40px;box-sizing:border-box">
+        <i nz-icon nzType="plus-circle" nzTheme="outline"></i>&nbsp;Thêm cư dân
+      </button> -->
+    </div>
+  </div>
+  <app-scroll-table [height]="'450px'">
+    <nz-table #rTable [nzData]="filtered" [nzLoading]="loading" [nzShowPagination]="false"
+      (nzCurrentPageDataChange)="onCurrentPageDataChange($event)">
+      <thead>
+        <tr>
+          <th style="width:48px">
+            <label nz-checkbox [(ngModel)]="checked" [nzIndeterminate]="indeterminate"
+              (ngModelChange)="onAllChecked($event)"></label>
+          </th>
+          <th style="width:64px; text-align:center">Thao tác</th>
+          <th style="width:48px">STT</th>
+          <th>Họ tên</th>
+          <th>Điện thoại</th>
+          <th>Quan hệ</th>
+          <th>Ngày bắt đầu</th>
+          <th>Ngày kết thúc</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let it of rTable.data; let i = index">
+          <td>
+            <label nz-checkbox [ngModel]="setOfCheckedId.has(it.quanHeCuTruId || it.userId)"
+              (ngModelChange)="onItemChecked(it.quanHeCuTruId || it.userId, $event)"></label>
+          </td>
+          <td style="text-align:center">
+            <a nz-dropdown nzTrigger="hover" [nzDropdownMenu]="actionMenu">
+              <i nz-icon nzType="unordered-list" nzTheme="outline" class="text-lg cursor-pointer"></i>
+            </a>
+            <nz-dropdown-menu #actionMenu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item (click)="editResident(it)"><i nz-icon nzType="edit" nzTheme="outline"></i>&nbsp;Chỉnh
+                  sửa
+                </li>
+                <li nz-menu-item class="text-red-500" (click)="deleteOne(it.quanHeCuTruId || it.userId)"><i nz-icon
+                    nzType="stop" nzTheme="outline"></i>&nbsp;Kết thúc cư trú</li>
+              </ul>
+            </nz-dropdown-menu>
+          </td>
+          <td>{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+          <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ it.hoTen }}</td>
+          <td>{{ it.phoneNumber || '-' }}</td>
+          <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ it.tenLoaiQuanHeCuTru || (it.loaiQuanHeCuTruId ? it.loaiQuanHeCuTruId : '-') }}</td>
+          <td>{{ it.ngayBatDau ? (it.ngayBatDau | date:'dd/MM/yyyy') : '-' }}</td>
+          <td>{{ it.ngayKetThuc ? (it.ngayKetThuc | date:'dd/MM/yyyy') : '-' }}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </app-scroll-table>
+
+  <div style="display:flex;justify-content:flex-end;margin-top:12px">
+    <nz-pagination [nzPageIndex]="pageNumber" [nzPageSize]="pageSize" [nzTotal]="totalItems"
+      (nzPageIndexChange)="onPageChange($event)" (nzPageSizeChange)="onPageSizeChange($event)"></nz-pagination>
+  </div>
+</div>

@@ -1,0 +1,111 @@
+<div class="p-3">
+  <div class="page-toolbar bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex flex-wrap gap-2 sm:gap-3 items-end">
+    <input nz-input [(ngModel)]="keyword" (keyup.enter)="load()" placeholder="Tìm kiếm đợt..."
+      style="min-width:260px;width:320px;border-radius:8px;padding:8px 12px;border:1px solid #e5e7eb;height:40px;box-sizing:border-box">
+
+    <div style="width: 100px">
+      <label class="text-[11px] font-bold text-gray-400 mb-1.5 block ml-1">Tháng</label>
+      <nz-select [(ngModel)]="thang" class="w-full rounded-lg overflow-hidden" nzAllowClear nzPlaceHolder="Tất cả">
+        <nz-option *ngFor="let m of [1,2,3,4,5,6,7,8,9,10,11,12]" [nzValue]="m" [nzLabel]="'Tháng ' + m"></nz-option>
+      </nz-select>
+    </div>
+
+    <div style="width: 100px">
+      <label class="text-[11px] font-bold text-gray-400 mb-1.5 block ml-1">Năm</label>
+      <input nz-input type="number" [(ngModel)]="nam" placeholder="Nhập năm" min="2020" max="2100"
+        style="border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:40px;box-sizing:border-box" />
+    </div>
+
+    <button nz-button (click)="load()"
+      style="display:flex;align-items:center;background:#0b84e6;border-color:#0b84e6;color:#fff;border-radius:8px;padding:6px 14px;font-weight:600;height:40px;box-sizing:border-box">
+      <i nz-icon nzType="search" nzTheme="outline"></i>&nbsp;Tìm kiếm</button>
+
+    <button nz-button type="button" (click)="onRefresh()" class="ml-auto"
+      style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;border:1px solid #60a5fa;background:#eff6ff;color:#1e3a8a">
+      <i nz-icon nzType="reload" nzTheme="outline"
+        style="font-size:20px;line-height:20px;transform:scale(1.06);display:inline-block;color:#1e3a8a"></i>
+    </button>
+
+    <button nz-button nzType="primary" type="button" (click)="openCreateModal()"
+      style="height:40px;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.06)">
+      <i nz-icon nzType="plus-circle" nzTheme="outline"></i>
+      <span>Thêm đợt mới</span>
+    </button>
+  </div>
+
+  <app-scroll-table [height]="'calc(100vh - 240px)'">
+    <nz-table #basicTable [nzData]="items" [nzLoading]="loading" [nzFrontPagination]="false" [nzTotal]="totalItems"
+      [nzPageSize]="pageSize" [nzPageIndex]="pageNumber" (nzPageIndexChange)="onPageChange($event)">
+      <thead>
+        <tr>
+          <th nzWidth="120px"
+            class="text-center bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none last:rounded-r-xl pr-6">
+            Thao tác</th>
+          <th nzWidth="60px"
+            class="text-center bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none first:rounded-l-xl">
+            STT</th>
+          <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Tên đợt</th>
+          <th class="text-center bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Kỳ thanh toán</th>
+          <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Trạng thái</th>
+          <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Ngày phát hành</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of basicTable.data; let i = index">
+          <td class="text-center align-middle">
+            <a nz-dropdown [nzDropdownMenu]="menu" (click)="$event.stopPropagation()"
+              class="text-gray-400 hover:text-indigo-600">
+              <i nz-icon nzType="unordered-list" nzTheme="outline" class="text-xl"></i>
+            </a>
+            <nz-dropdown-menu #menu="nzDropdownMenu">
+              <ul nz-menu>
+                <!-- Bước 1: Chỉnh sửa đợt (trạng thái Tạo mới) -->
+                <li nz-menu-item (click)="openCreateModal(data)" *ngIf="data.trangThaiDotThanhToanId === 1">
+                  <i nz-icon nzType="edit"></i>&nbsp;Chỉnh sửa thông tin
+                </li>
+
+                <!-- Bước 2: Duyệt đợt (chỉ khi Tạo mới) -->
+                <li nz-menu-item (click)="approve(data)" *ngIf="data.trangThaiDotThanhToanId === 1">
+                  <i nz-icon nzType="check-circle"></i>&nbsp;Duyệt đợt
+                </li>
+
+                <!-- Bước 3: Lập hóa đơn dự thảo (chỉ khi Đã duyệt, sau khi duyệt đợt) -->
+                <li nz-menu-item (click)="lapHoaDon(data)" *ngIf="data.trangThaiDotThanhToanId === 3">
+                  <i nz-icon nzType="file-add"></i>&nbsp;Lập hóa đơn dự thảo
+                </li>
+
+                <li nz-menu-divider></li>
+
+                <!-- Bước 4 & 5: Xem/Quản lý hóa đơn (mọi trạng thái) -->
+                <li nz-menu-item (click)="viewInvoices(data)">
+                  <i nz-icon nzType="profile"></i>&nbsp;Quản lý hóa đơn
+                </li>
+
+                <!-- Bước 6: Đóng đợt (chỉ khi Đã duyệt = 3) -->
+                <li nz-menu-item (click)="dongDot(data)" *ngIf="data.trangThaiDotThanhToanId === 3">
+                  <i nz-icon nzType="lock"></i>&nbsp;Đóng đợt
+                </li>
+
+                <li nz-menu-divider *ngIf="data.trangThaiDotThanhToanId === 1"></li>
+
+                <!-- Xóa đợt (chỉ khi Tạo mới) -->
+                <li nz-menu-item nzDanger (click)="delete(data)" *ngIf="data.trangThaiDotThanhToanId === 1">
+                  <i nz-icon nzType="delete"></i>&nbsp;Xóa đợt
+                </li>
+              </ul>
+            </nz-dropdown-menu>
+          </td>
+          <td class="text-center text-gray-400">{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+          <td><span class="font-bold text-indigo-900">{{ data.tenDot }}</span></td>
+          <td class="text-center"><nz-tag nzColor="blue">Tháng {{ data.thang }}/{{ data.nam }}</nz-tag></td>
+          <td>
+            <nz-tag [nzColor]="getStatusColor(data.trangThaiDotThanhToanId)">
+              {{ data.trangThaiDotThanhToanTen }}
+            </nz-tag>
+          </td>
+          <td>{{ data.ngayPhatHanh | date: 'dd/MM/yyyy' }}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </app-scroll-table>
+</div>

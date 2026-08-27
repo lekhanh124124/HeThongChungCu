@@ -1,0 +1,100 @@
+<div class="profile-container">
+  <div class="profile-card">
+    <div class="profile-header">
+      <div class="avatar-placeholder">
+        <i nz-icon nzType="user" nzTheme="outline"></i>
+      </div>
+      <div class="header-info">
+        <div class="profile-name">{{ profile?.fullName || '-' }}</div>
+        <div class="profile-sub" *ngIf="profile?.maDinhDanh">Mã định danh: {{ profile.maDinhDanh }}</div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="section-title">
+        Thông tin cá nhân
+      </div>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">CCCD/CMND</span>
+          <span class="info-value">{{ profile?.idCard || '-' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Số điện thoại</span>
+          <span class="info-value">{{ profile?.phoneNumber || '-' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Ngày sinh</span>
+          <span class="info-value">{{ profile?.dob ? (profile.dob | date:'dd/MM/yyyy') : '-' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Giới tính</span>
+          <span class="info-value">{{ profile?.gioiTinhName || '-' }}</span>
+        </div>
+        <div class="info-item info-item-full">
+          <span class="info-label">Địa chỉ</span>
+          <span class="info-value">{{ profile?.diaChi || '-' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="section-title">
+        Thông tin cư trú
+      </div>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Quan hệ cư trú</span>
+          <span class="info-value">{{ profile?.loaiQuanHeTen || profile?.tenLoaiQuanHeCuTru || '-' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Trạng thái</span>
+          <span class="info-value">
+            <span class="status-badge" [class.active]="profile?.trangThaiCuTruId === 1" [class.inactive]="profile?.trangThaiCuTruId !== 1">
+              {{ profile?.trangThaiCuTruTen || (profile?.trangThaiCuTruId ? profile.trangThaiCuTruId : '-') }}
+            </span>
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Ngày bắt đầu</span>
+          <span class="info-value">{{ profile?.ngayBatDau ? (profile.ngayBatDau | date:'dd/MM/yyyy') : '-' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Ngày kết thúc</span>
+          <span class="info-value">{{ profile?.ngayKetThuc ? (profile.ngayKetThuc | date:'dd/MM/yyyy') : '-' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <div class="section-title">
+        <i nz-icon nzType="file-text" nzTheme="outline"></i>
+        Tài liệu cư trú
+      </div>
+      <div *ngIf="profile?.taiLieuCuTrus?.length; else noDocs" class="docs-list">
+        <div *ngFor="let d of profile.taiLieuCuTrus" class="doc-card">
+          <div class="doc-icon">
+            <i nz-icon nzType="file" nzTheme="outline"></i>
+          </div>
+          <div class="doc-body">
+            <div class="doc-title">{{ d.tenLoaiGiayTo || d.loaiGiayToId || 'Giấy tờ' }}</div>
+            <div class="doc-meta" *ngIf="d.soGiayTo">Số: <span>{{ d.soGiayTo }}</span></div>
+            <div class="doc-meta" *ngIf="d.ngayPhatHanh">Ngày phát hành: <span>{{ d.ngayPhatHanh | date:'dd/MM/yyyy' }}</span></div>
+            <div *ngIf="d.files && d.files.length" class="doc-files">
+              <a *ngFor="let f of d.files" class="file-link" [href]="f.fileUrl" target="_blank">
+                <i nz-icon nzType="paper-clip" nzTheme="outline"></i>
+                {{ f.fileName || f.fileUrl }}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ng-template #noDocs>
+        <div class="no-docs">
+          <i nz-icon nzType="inbox" nzTheme="outline"></i>
+          <span>Không có tài liệu</span>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

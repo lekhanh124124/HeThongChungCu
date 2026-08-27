@@ -1,0 +1,239 @@
+<div class="p-3">
+  <div class="page-toolbar flex items-center justify-between flex-wrap gap-2 sm:gap-3 mb-3">
+    <h2 class="text-lg font-semibold">Báo cáo tài chính</h2>
+    <button nz-button nzType="default" routerLink="/dashboard/quy-thu-chi"
+      style="height:40px;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:600">
+      <i nz-icon nzType="arrow-left" nzTheme="outline"></i>
+      <span>Quay lại nhật ký</span>
+    </button>
+  </div>
+
+  <nz-tabset [(nzSelectedIndex)]="selectedTab" (nzSelectChange)="onTabChange($event.index)">
+    <!-- Tab 1: Báo cáo Thu-Chi -->
+    <nz-tab nzTitle="Báo cáo Thu-Chi">
+      <div class="page-toolbar bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex flex-wrap gap-2 sm:gap-3 items-end">
+        <div style="width: 160px">
+          <label class="text-[11px] font-bold text-gray-400 mb-1.5 block ml-1">Từ ngày</label>
+          <nz-date-picker [(ngModel)]="bcTuNgay" class="w-full rounded-lg"></nz-date-picker>
+        </div>
+        <div style="width: 160px">
+          <label class="text-[11px] font-bold text-gray-400 mb-1.5 block ml-1">Đến ngày</label>
+          <nz-date-picker [(ngModel)]="bcDenNgay" class="w-full rounded-lg"></nz-date-picker>
+        </div>
+        <button nz-button nzType="primary" (click)="loadBaoCaoThuChi()"
+          style="display:flex;align-items:center;border-radius:8px;padding:6px 14px;font-weight:600;height:40px">
+          <i nz-icon nzType="search" nzTheme="outline"></i>&nbsp;Xem báo cáo
+        </button>
+      </div>
+
+      <nz-spin [nzSpinning]="bcLoading">
+        <div *ngIf="bcData" class="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-4">
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <div class="text-xs font-bold text-gray-400 uppercase mb-1">Số dư đầu kỳ</div>
+            <div class="text-xl font-black text-gray-700">{{ formatCurrency(bcData.soDuDauKy) }} đ</div>
+          </div>
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-green-100">
+            <div class="text-xs font-bold text-green-500 uppercase mb-1">Tổng thu</div>
+            <div class="text-xl font-black text-green-600">{{ formatCurrency(bcData.tongThu) }} đ</div>
+          </div>
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-red-100">
+            <div class="text-xs font-bold text-red-500 uppercase mb-1">Tổng chi</div>
+            <div class="text-xl font-black text-red-600">{{ formatCurrency(bcData.tongChi) }} đ</div>
+          </div>
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-blue-100">
+            <div class="text-xs font-bold text-blue-500 uppercase mb-1">Dòng tiền thuần</div>
+            <div class="text-xl font-black" [ngClass]="bcData.dongTienThuan >= 0 ? 'text-blue-600' : 'text-red-600'">
+              {{ formatCurrency(bcData.dongTienThuan) }} đ
+            </div>
+          </div>
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <div class="text-xs font-bold text-gray-400 uppercase mb-1">Số dư cuối kỳ</div>
+            <div class="text-xl font-black text-gray-700">{{ formatCurrency(bcData.soDuCuoiKy) }} đ</div>
+          </div>
+        </div>
+
+        <div *ngIf="bcData" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Khoản thu -->
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <h4 class="text-sm font-bold text-green-600 uppercase mb-3 flex items-center gap-2">
+              <i nz-icon nzType="arrow-up"></i> Các khoản thu
+            </h4>
+            <div class="responsive-table">
+            <nz-table #thuTable [nzData]="bcData.danhSachKhoanThu" [nzFrontPagination]="false" [nzShowPagination]="false" nzSize="small">
+              <thead>
+                <tr>
+                  <th>Nhóm thống kê</th>
+                  <th class="text-right">Số GD</th>
+                  <th class="text-right">Số tiền</th>
+                  <th class="text-right">Tỷ lệ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of thuTable.data">
+                  <td class="font-semibold">{{ row.nhomThongKe || 'N/A' }}</td>
+                  <td class="text-right">{{ row.soGiaoDich }}</td>
+                  <td class="text-right text-green-600 font-bold">{{ formatCurrency(row.tongSoTien) }} đ</td>
+                  <td class="text-right">
+                    <nz-tag [nzColor]="getTyLeColor(row.tyLePhanTram)">{{ row.tyLePhanTram | number:'1.2-2' }}%</nz-tag>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+            </div>
+          </div>
+
+          <!-- Khoản chi -->
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <h4 class="text-sm font-bold text-red-600 uppercase mb-3 flex items-center gap-2">
+              <i nz-icon nzType="arrow-down"></i> Các khoản chi
+            </h4>
+            <div class="responsive-table">
+            <nz-table #chiTable [nzData]="bcData.danhSachKhoanChi" [nzFrontPagination]="false" [nzShowPagination]="false" nzSize="small">
+              <thead>
+                <tr>
+                  <th>Nhóm thống kê</th>
+                  <th class="text-right">Số GD</th>
+                  <th class="text-right">Số tiền</th>
+                  <th class="text-right">Tỷ lệ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of chiTable.data">
+                  <td class="font-semibold">{{ row.nhomThongKe || 'N/A' }}</td>
+                  <td class="text-right">{{ row.soGiaoDich }}</td>
+                  <td class="text-right text-red-600 font-bold">{{ formatCurrency(row.tongSoTien) }} đ</td>
+                  <td class="text-right">
+                    <nz-tag [nzColor]="getTyLeColor(row.tyLePhanTram)">{{ row.tyLePhanTram | number:'1.2-2' }}%</nz-tag>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+            </div>
+          </div>
+        </div>
+
+        <nz-empty *ngIf="!bcLoading && !bcData" nzNotFoundContent="Chọn kỳ báo cáo và nhấn 'Xem báo cáo'"></nz-empty>
+      </nz-spin>
+    </nz-tab>
+
+    <!-- Tab 2: Công nợ căn hộ -->
+    <nz-tab nzTitle="Công nợ căn hộ">
+      <div class="page-toolbar bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex flex-wrap gap-2 sm:gap-3 items-end">
+        <div style="width: 100px">
+          <label class="text-[11px] font-bold text-gray-400 mb-1.5 block ml-1">Tháng</label>
+          <nz-select [(ngModel)]="cnThang" class="w-full rounded-lg overflow-hidden">
+            <nz-option *ngFor="let m of [1,2,3,4,5,6,7,8,9,10,11,12]" [nzValue]="m" [nzLabel]="'Tháng ' + m"></nz-option>
+          </nz-select>
+        </div>
+        <div style="width: 120px">
+          <label class="text-[11px] font-bold text-gray-400 mb-1.5 block ml-1">Năm</label>
+          <nz-select [(ngModel)]="cnNam" class="w-full rounded-lg overflow-hidden">
+            <nz-option *ngFor="let y of [2024,2025,2026,2027,2028,2029,2030]" [nzValue]="y" [nzLabel]="y"></nz-option>
+          </nz-select>
+        </div>
+        <button nz-button nzType="primary" (click)="loadCongNoCanHo()"
+          style="display:flex;align-items:center;border-radius:8px;padding:6px 14px;font-weight:600;height:40px">
+          <i nz-icon nzType="search" nzTheme="outline"></i>&nbsp;Xem báo cáo
+        </button>
+        <button nz-button nzType="default" (click)="exportCongNoCanHo()" [nzLoading]="cnExportLoading"
+          style="height:40px;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:600;border:1px solid #10b981;background:#ecfdf5;color:#065f46">
+          <i nz-icon nzType="file-excel" nzTheme="outline"></i>
+          <span>Xuất Excel</span>
+        </button>
+      </div>
+
+      <app-scroll-table [height]="'calc(100vh - 280px)'">
+        <nz-table #cnTable [nzData]="cnItems" [nzLoading]="cnLoading" [nzFrontPagination]="false" [nzShowPagination]="false">
+          <thead>
+            <tr>
+              <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none first:rounded-l-xl">Mã căn hộ</th>
+              <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Tòa nhà</th>
+              <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Tầng</th>
+              <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Chủ hộ</th>
+              <th class="text-right bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Nợ đầu kỳ</th>
+              <th class="text-right bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Phát sinh</th>
+              <th class="text-right bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Đã thanh toán</th>
+              <th class="text-right bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none last:rounded-r-xl">Nợ cuối kỳ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of cnTable.data">
+              <td class="font-bold text-indigo-900">{{ row.maCanHo }}</td>
+              <td>{{ row.tenToaNha }}</td>
+              <td>{{ row.tenTang }}</td>
+              <td>{{ row.tenChuHo || '-' }}</td>
+              <td class="text-right text-gray-500">{{ formatCurrency(row.noDauKy) }} đ</td>
+              <td class="text-right text-blue-600">{{ formatCurrency(row.phatSinhTrongKy) }} đ</td>
+              <td class="text-right text-green-600">{{ formatCurrency(row.daThanhToanTrongKy) }} đ</td>
+              <td class="text-right font-bold" [ngClass]="row.noCuoiKy > 0 ? 'text-red-600' : 'text-green-600'">
+                {{ formatCurrency(row.noCuoiKy) }} đ
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </app-scroll-table>
+    </nz-tab>
+
+    <!-- Tab 3: Công nợ tòa nhà -->
+    <nz-tab nzTitle="Công nợ tòa nhà">
+      <div class="page-toolbar bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex flex-wrap gap-2 sm:gap-3 items-end">
+        <div style="width: 100px">
+          <label class="text-[11px] font-bold text-gray-400 mb-1.5 block ml-1">Tháng</label>
+          <nz-select [(ngModel)]="tnThang" class="w-full rounded-lg overflow-hidden">
+            <nz-option *ngFor="let m of [1,2,3,4,5,6,7,8,9,10,11,12]" [nzValue]="m" [nzLabel]="'Tháng ' + m"></nz-option>
+          </nz-select>
+        </div>
+        <div style="width: 120px">
+          <label class="text-[11px] font-bold text-gray-400 mb-1.5 block ml-1">Năm</label>
+          <nz-select [(ngModel)]="tnNam" class="w-full rounded-lg overflow-hidden">
+            <nz-option *ngFor="let y of [2024,2025,2026,2027,2028,2029,2030]" [nzValue]="y" [nzLabel]="y"></nz-option>
+          </nz-select>
+        </div>
+        <button nz-button nzType="primary" (click)="loadCongNoToaNha()"
+          style="display:flex;align-items:center;border-radius:8px;padding:6px 14px;font-weight:600;height:40px">
+          <i nz-icon nzType="search" nzTheme="outline"></i>&nbsp;Xem báo cáo
+        </button>
+        <button nz-button nzType="default" (click)="exportCongNoToaNha()" [nzLoading]="tnExportLoading"
+          style="height:40px;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:600;border:1px solid #10b981;background:#ecfdf5;color:#065f46">
+          <i nz-icon nzType="file-excel" nzTheme="outline"></i>
+          <span>Xuất Excel</span>
+        </button>
+      </div>
+
+      <app-scroll-table [height]="'calc(100vh - 280px)'">
+        <nz-table #tnTable [nzData]="tnItems" [nzLoading]="tnLoading" [nzFrontPagination]="false" [nzShowPagination]="false">
+          <thead>
+            <tr>
+              <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none first:rounded-l-xl">Tòa nhà</th>
+              <th class="text-right bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Tổng số căn hộ</th>
+              <th class="text-right bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Số căn nợ phí</th>
+              <th class="text-right bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Nợ đầu kỳ</th>
+              <th class="text-right bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Phát sinh</th>
+              <th class="text-right bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Đã thu</th>
+              <th class="text-right bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Nợ còn lại</th>
+              <th class="text-right bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none last:rounded-r-xl">Tỷ lệ thu hồi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of tnTable.data">
+              <td class="font-bold text-indigo-900">{{ row.tenToaNha }}</td>
+              <td class="text-right">{{ row.tongSoCanHo }}</td>
+              <td class="text-right font-bold" [ngClass]="row.soCanHoNoPhi > 0 ? 'text-red-600' : 'text-green-600'">
+                {{ row.soCanHoNoPhi }}
+              </td>
+              <td class="text-right text-gray-500">{{ formatCurrency(row.tongNoDauKy) }} đ</td>
+              <td class="text-right text-blue-600">{{ formatCurrency(row.tongPhatSinh) }} đ</td>
+              <td class="text-right text-green-600">{{ formatCurrency(row.tongDaThu) }} đ</td>
+              <td class="text-right font-bold" [ngClass]="row.tongNoConLai > 0 ? 'text-red-600' : 'text-green-600'">
+                {{ formatCurrency(row.tongNoConLai) }} đ
+              </td>
+              <td class="text-right">
+                <nz-tag [nzColor]="getTyLeColor(row.tyLeThuHoi)">{{ row.tyLeThuHoi }}%</nz-tag>
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </app-scroll-table>
+    </nz-tab>
+  </nz-tabset>
+</div>

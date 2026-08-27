@@ -1,0 +1,48 @@
+.resident-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 16px;
+}
+
+.resident-layout.no-tree {
+  grid-template-columns: 1fr;
+}
+
+.resident-layout__tree {
+  max-height: calc(100vh - 160px);
+  overflow: auto;
+}
+
+.resident-layout__content {
+  min-width: 0;
+}
+
+/* Responsive: stack tree above content on tablet & mobile */
+@media (max-width: 1024px) {
+  .resident-layout {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .resident-layout__tree {
+    max-height: none;
+    overflow: visible;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 12px;
+    margin-bottom: 4px;
+  }
+}
+
+@media (max-width: 768px) {
+  .resident-layout {
+    gap: 8px;
+  }
+}
+
+/* Mobile toggle for tree (TS handles showTree) */
+@media (max-width: 640px) {
+  .resident-layout__tree {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+}

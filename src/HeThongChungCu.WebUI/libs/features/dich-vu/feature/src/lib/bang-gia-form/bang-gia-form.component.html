@@ -1,0 +1,268 @@
+﻿<nz-spin [nzSpinning]="loading">
+  <div class="p-4">
+    <!-- Progress Steps -->
+    <div class="mb-8 px-4">
+      <nz-steps [nzCurrent]="step - 1" nzSize="small">
+        <nz-step nzTitle="Lịch trình" nzDescription="Thời gian & Tên"></nz-step>
+        <nz-step nzTitle="Mô hình" nzDescription="Chọn cách định giá"></nz-step>
+        <nz-step nzTitle="Cấu hình" nzDescription="Thiết lập đơn giá"></nz-step>
+      </nz-steps>
+    </div>
+
+    <div class="min-h-[380px] px-2">
+      <!-- Step 1: Schedule & Base Info -->
+      <div *ngIf="step === 1" class="animate-in fade-in slide-in-from-right-4 duration-300">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="col-span-2">
+            <label class="block text-sm font-bold text-gray-700 mb-2">Tên định danh bảng giá <span
+                class="text-red-500">*</span></label>
+            <input nz-input [(ngModel)]="model.tenBangGia"
+              placeholder="Ví dụ: Bảng giá điện 2024, Phí vệ sinh căn hộ..." [readonly]="readOnly"
+              class="rounded-lg h-11" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2">Ngày bắt đầu áp dụng <span
+                class="text-red-500">*</span></label>
+            <div *ngIf="!readOnly">
+              <nz-date-picker [(ngModel)]="model.ngayApDung" class="w-full rounded-lg h-11" nzFormat="dd/MM/yyyy"
+                nzPlaceHolder="Chọn ngày"></nz-date-picker>
+            </div>
+            <div *ngIf="readOnly" class="w-full rounded-lg h-11 flex items-center px-3 bg-white border border-gray-100">
+              <span class="text-sm">{{ model.ngayApDung ? (model.ngayApDung | date:'dd/MM/yyyy') : '-' }}</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-2">Ngày kết thúc (Tùy chọn)</label>
+            <div *ngIf="!readOnly">
+              <nz-date-picker [(ngModel)]="model.ngayKetThuc" class="w-full rounded-lg h-11" nzFormat="dd/MM/yyyy"
+                nzPlaceHolder="Để trống nếu vô hạn"></nz-date-picker>
+            </div>
+            <div *ngIf="readOnly" class="w-full rounded-lg h-11 flex items-center px-3 bg-white border border-gray-100">
+              <span class="text-sm">{{ model.ngayKetThuc ? (model.ngayKetThuc | date:'dd/MM/yyyy') : 'vô thời hạn'
+                }}</span>
+            </div>
+          </div>
+
+          <div class="col-span-2">
+            <label class="block text-sm font-bold text-gray-700 mb-2">Định kỳ</label>
+            <div *ngIf="!readOnly">
+              <label nz-checkbox [(ngModel)]="model.isDinhKy" [ngModelOptions]="{standalone:true}">
+                <span class="ml-2">Là bảng giá định kỳ</span>
+              </label>
+            </div>
+            <div *ngIf="readOnly" class="flex items-center gap-3">
+              <div
+                [ngClass]="model.isDinhKy ? 'w-5 h-5 rounded-sm bg-blue-500 text-white flex items-center justify-center' : 'w-5 h-5 rounded-sm bg-white border border-gray-300 text-gray-400 flex items-center justify-center'">
+                <i *ngIf="model.isDinhKy" nz-icon nzType="check" class="text-xs"></i>
+              </div>
+              <div class="text-sm text-gray-700 font-medium">Là bảng giá định kỳ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="step === 2" class="animate-in fade-in slide-in-from-right-4 duration-300">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">Chọn mô hình định giá</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div *ngFor="let opt of loaiDinhGiaOptions" (click)="!readOnly && onSelectLoaiDinhGia(opt.id)"
+            [ngClass]="model.loaiDinhGiaId === opt.id ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-100' : 'border-gray-200 bg-white hover:border-blue-300'"
+            class="border-2 rounded-2xl p-4 transition-all flex items-start gap-3 group"
+            [class.cursor-pointer]="!readOnly">
+            <div
+              [ngClass]="model.loaiDinhGiaId === opt.id ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-400 group-hover:bg-blue-100 group-hover:text-blue-500'"
+              class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors">
+              <i nz-icon [nzType]="getStrategyIcon(opt.code)" class="text-xl"></i>
+            </div>
+            <div>
+              <p class="font-bold text-gray-900 mb-1">{{ opt.ten || opt.name }}</p>
+              <p class="text-[11px] text-gray-500 leading-tight font-medium">{{ getStrategyDesc(opt.code) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Detailed Configuration -->
+      <div *ngIf="step === 3" class="animate-in fade-in slide-in-from-right-4 duration-300">
+        <div class="max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
+          <div [ngSwitch]="model.loaiDinhGiaCode">
+            <!-- FIXED PRICE -->
+            <div *ngSwitchCase="'CoDinh'">
+              <div class="bg-gray-50 p-6 rounded-2xl border border-gray-200 text-center">
+                <label class="block text-sm font-bold text-gray-500 mb-3">Đơn giá duy nhất</label>
+                <div class="flex items-center justify-center gap-2">
+                  <div *ngIf="!readOnly">
+                    <nz-input-number [(ngModel)]="model.donGia" [nzMin]="0" [nzStep]="1000"
+                      class="w-64 rounded-xl h-14 text-2xl font-black"></nz-input-number>
+                  </div>
+                  <div *ngIf="readOnly" class="w-64 h-14 flex items-center justify-center text-2xl font-black">
+                    <span>{{ model.donGia != null ? (model.donGia | number:'1.0-0') : '-' }}</span>
+                    <span class="ml-2 text-xl font-bold text-gray-400">VNĐ</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TIERED PRICE -->
+            <div *ngSwitchCase="'LuyTien'" class="space-y-4">
+              <div class="flex justify-between items-center px-2">
+                <label class="text-sm font-bold text-gray-700">Cấu hình bậc thang (Lũy tiến)</label>
+                <button *ngIf="!readOnly" nz-button nzType="dashed" (click)="addTier()"
+                  class="rounded-lg text-blue-600 border-blue-200">
+                  <i nz-icon nzType="plus-circle"></i> Thêm bậc mới
+                </button>
+              </div>
+              <div class="space-y-2">
+                <div *ngFor="let t of model.giaLuyTiens; let i = index"
+                  class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-white p-3 rounded-xl border border-gray-100 shadow-sm items-center">
+                  <div>
+                    <label class="text-[11px] font-bold text-gray-400">Từ mức</label>
+                    <div *ngIf="!readOnly">
+                      <nz-input-number [(ngModel)]="t.tuMuc" [nzMin]="0" class="w-full rounded-lg"></nz-input-number>
+                    </div>
+                    <div *ngIf="readOnly" class="w-full text-sm text-gray-800">{{ t.tuMuc != null ? (t.tuMuc |
+                      number:'1.0-0') : '-' }}</div>
+                  </div>
+                  <div>
+                    <label class="text-[11px] font-bold text-gray-400">Đến mức</label>
+                    <div *ngIf="!readOnly">
+                      <nz-input-number [(ngModel)]="t.denMuc" [nzMin]="0" class="w-full rounded-lg"
+                        nzPlaceHolder="∞"></nz-input-number>
+                    </div>
+                    <div *ngIf="readOnly" class="w-full text-sm text-gray-800">{{ t.denMuc != null ? (t.denMuc |
+                      number:'1.0-0') : '∞' }}</div>
+                  </div>
+                  <div>
+                    <label class="text-[11px] font-bold text-gray-400">Đơn giá</label>
+                    <div *ngIf="!readOnly">
+                      <nz-input-number [(ngModel)]="t.donGia" [nzMin]="0"
+                        class="w-full rounded-lg font-bold text-blue-600"></nz-input-number>
+                    </div>
+                    <div *ngIf="readOnly" class="w-full font-bold text-blue-600">{{ t.donGia != null ? (t.donGia |
+                      number:'1.0-0') + ' VNĐ' : '-' }}</div>
+                  </div>
+                  <div class="text-right pt-4">
+                    <button *ngIf="!readOnly" nz-button nzType="text" nzDanger (click)="removeTier(i)"><i nz-icon
+                        nzType="delete"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- HOURLY PRICE -->
+            <div *ngSwitchCase="'TheoKhungGio'" class="space-y-4">
+              <div class="flex justify-between items-center px-2">
+                <label class="text-sm font-bold text-gray-700 uppercase tracking-wider">Giá theo khung giờ</label>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div *ngFor="let g of model.giaKhungGios; let i = index"
+                  class="bg-gray-50 p-4 rounded-xl border border-gray-200 relative group">
+                  <div class="flex justify-between items-start gap-2 mb-3">
+                    <div class="flex items-center gap-2 flex-1">
+                      <i nz-icon nzType="clock-circle" class="text-blue-500 mt-1"></i>
+                      <div *ngIf="!readOnly" class="w-full">
+                        <nz-select [(ngModel)]="g.khungGioId" nzPlaceHolder="Chọn khung giờ" class="w-full rounded-lg">
+                          <nz-option *ngFor="let kg of khungGioOptions" [nzValue]="kg.id"
+                            [nzLabel]="kg.tenKhungGio + ' (' + kg.gioBatDau + ' - ' + kg.gioKetThuc + ')'"></nz-option>
+                        </nz-select>
+                      </div>
+                      <div *ngIf="readOnly" class="w-full text-sm text-gray-800">{{ getKhungGioLabel(g.khungGioId) }}
+                      </div>
+                    </div>
+                    <button *ngIf="!readOnly" nz-button nzType="text" nzDanger (click)="removeKhungGio(i)"
+                      class="text-gray-400 hover:text-red-500 p-0 h-auto">
+                      <i nz-icon nzType="close-circle" nzTheme="fill" class="text-lg"></i>
+                    </button>
+                  </div>
+                  <div>
+                    <label class="text-[11px] font-bold text-gray-400 block mb-1">Đơn giá áp dụng</label>
+                    <div *ngIf="!readOnly">
+                      <nz-input-number [(ngModel)]="g.donGia" [nzMin]="0"
+                        class="w-full rounded-lg font-bold text-blue-600 h-10"></nz-input-number>
+                    </div>
+                    <div *ngIf="readOnly" class="font-bold text-blue-600 h-10 flex items-center">{{ g.donGia != null ?
+                      (g.donGia | number:'1.0-0') + ' VNĐ' : '-' }}</div>
+                  </div>
+                </div>
+                <button *ngIf="!readOnly" nz-button nzType="dashed" (click)="addKhungGio()"
+                  class="h-32 rounded-xl border-2 border-dashed border-gray-200 text-gray-400 hover:text-blue-500 hover:border-blue-300 transition-all flex flex-col items-center justify-center gap-2">
+                  <i nz-icon nzType="plus-circle" class="text-2xl"></i>
+                  <span>Thêm khung giờ khác</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- UNIT TYPE PRICE -->
+            <div *ngSwitchCase="'TheoDienTich'" class="space-y-4">
+              <div class="flex justify-between items-center px-2">
+                <label class="text-sm font-bold text-gray-700 uppercase tracking-wider">Giá theo loại căn hộ</label>
+              </div>
+              <div class="space-y-3">
+                <div *ngFor="let u of model.giaLoaiCanHos; let i = index"
+                  class="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                  <div class="flex-1">
+                    <label class="text-[11px] font-bold text-gray-400 block mb-1">Loại căn hộ</label>
+                    <div *ngIf="!readOnly">
+                      <nz-select [(ngModel)]="u.loaiCanHoId" nzPlaceHolder="Chọn loại căn hộ" class="w-full rounded-lg">
+                        <nz-option *ngFor="let lc of loaiCanHoOptions" [nzValue]="lc.id"
+                          [nzLabel]="lc.tenLoaiCanHo || lc.ten || lc.name || lc.label"></nz-option>
+                      </nz-select>
+                    </div>
+                    <div *ngIf="readOnly" class="w-full text-sm text-gray-800">{{ getLoaiCanHoLabel(u.loaiCanHoId) }}
+                    </div>
+                  </div>
+                  <div class="w-48">
+                    <label class="text-[11px] font-bold text-gray-400 block mb-1">Đơn giá</label>
+                    <div *ngIf="!readOnly">
+                      <nz-input-number [(ngModel)]="u.donGia" [nzMin]="0"
+                        class="w-full rounded-lg font-bold text-blue-600 h-10"></nz-input-number>
+                    </div>
+                    <div *ngIf="readOnly" class="w-full font-bold text-blue-600 h-10 flex items-center">{{ u.donGia !=
+                      null ? (u.donGia | number:'1.0-0') + ' VNĐ' : '-' }}</div>
+                  </div>
+                  <div class="pt-4">
+                    <button *ngIf="!readOnly" nz-button nzType="text" nzDanger (click)="removeLoaiCanHo(i)"><i nz-icon
+                        nzType="delete"></i></button>
+                  </div>
+                </div>
+                <button *ngIf="!readOnly" nz-button nzType="dashed" nzBlock (click)="addLoaiCanHo()"
+                  class="rounded-xl h-12 text-blue-600 border-blue-200">
+                  <i nz-icon nzType="plus-circle"></i> Thêm loại căn hộ
+                </button>
+              </div>
+            </div>
+
+            <!-- DEFAULT / UNKNOWN -->
+            <div *ngSwitchDefault class="py-10 text-center">
+              <i nz-icon nzType="warning" class="text-4xl text-amber-500 mb-2"></i>
+              <p class="text-gray-500 italic">Vui lòng chọn mô hình định giá ở Bước 2 để cấu hình chi tiết.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wizard Footer Actions -->
+    <div class="mt-10 pt-6 border-t border-gray-100 flex justify-between items-center">
+      <button *ngIf="!readOnly" nz-button nzType="default" (click)="cancel()" class="rounded-lg px-6 font-medium">Hủy
+        bỏ</button>
+      <button *ngIf="readOnly" nz-button nzType="default" (click)="cancel()"
+        class="rounded-lg px-6 font-medium">Đóng</button>
+
+      <div class="flex gap-3">
+        <button *ngIf="step > 1" nz-button (click)="prevStep()" class="rounded-lg px-6">Quay lại</button>
+
+        <button *ngIf="step < 3" nz-button nzType="primary" (click)="nextStep()"
+          [disabled]="!readOnly && step === 1 && (!model.tenBangGia || !model.ngayApDung)"
+          class="rounded-lg px-8 font-bold shadow-md shadow-blue-100">
+          Tiếp theo <i nz-icon nzType="arrow-right"></i>
+        </button>
+
+        <button *ngIf="!readOnly && step === 3" nz-button nzType="primary" (click)="save()" [nzLoading]="loading"
+          class="rounded-lg px-10 font-bold shadow-md shadow-blue-100">
+          Hoàn tất & Lưu
+        </button>
+      </div>
+    </div>
+  </div>
+</nz-spin>

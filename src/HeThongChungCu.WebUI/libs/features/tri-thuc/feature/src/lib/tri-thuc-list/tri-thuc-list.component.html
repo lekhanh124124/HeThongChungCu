@@ -1,0 +1,187 @@
+<div class="tri-thuc-list">
+  <!-- Toolbar -->
+  <div class="toolbar-container" style="margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px;">
+    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+      <button nz-button (click)="openImportModal()"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;gap:8px;font-weight:600;border:1px solid #10b981;background:#ecfdf5;color:#065f46">
+        <i nz-icon nzType="upload" nzTheme="outline" style="color:#065f46"></i>
+        <span>Import .md</span>
+      </button>
+
+      <button nz-button nzType="primary" (click)="onSync()" [nzLoading]="syncing"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;gap:8px;font-weight:600">
+        <i nz-icon nzType="sync" nzTheme="outline"></i>
+        <span>Đồng bộ tri thức</span>
+        <span *ngIf="getUnsyncedCount() > 0" class="unsynced-badge">{{ getUnsyncedCount() }}</span>
+      </button>
+    </div>
+    <div class="page-toolbar toolbar" style="margin-bottom: 0;">
+      <div class="toolbar-left">
+        <input nz-input placeholder="Tìm kiếm tiêu đề..." [(ngModel)]="keyword" (keydown.enter)="onSearch()"
+          style="width:280px;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:40px;box-sizing:border-box" />
+        <nz-select [(ngModel)]="danhMucFilter" nzPlaceHolder="Danh mục" style="width:200px" nzAllowClear
+          (ngModelChange)="onSearch()">
+          <nz-option *ngFor="let dm of danhMucOptions" [nzValue]="dm" [nzLabel]="dm"></nz-option>
+        </nz-select>
+        <!-- <nz-select [(ngModel)]="isActiveFilter" nzPlaceHolder="Trạng thái" style="width:150px" nzAllowClear (ngModelChange)="onSearch()">
+          <nz-option nzValue="true" nzLabel="Đang hoạt động"></nz-option>
+          <nz-option nzValue="false" nzLabel="Vô hiệu hóa"></nz-option>
+        </nz-select>
+        <nz-select [(ngModel)]="isSyncedFilter" nzPlaceHolder="Đồng bộ" style="width:150px" nzAllowClear (ngModelChange)="onSearch()">
+          <nz-option nzValue="true" nzLabel="Đã đồng bộ"></nz-option>
+          <nz-option nzValue="false" nzLabel="Chưa đồng bộ"></nz-option>
+        </nz-select> -->
+        <button nz-button nzType="primary" (click)="onSearch()"
+          style="height:40px;padding:6px 16px;border-radius:6px;display:flex;align-items:center;gap:8px;font-weight:600">
+          <i nz-icon nzType="search" nzTheme="outline"></i>
+          <span>Tìm kiếm</span>
+        </button>
+      </div>
+
+      <div class="toolbar-right">
+        <button *ngIf="setOfCheckedId.size > 0" nz-button nzType="primary" nzDanger (click)="deleteSelectedMultiple()"
+          style="display:flex;align-items:center;border-radius:8px;padding:6px 12px;font-weight:600;height:40px">
+          <i nz-icon nzType="delete" nzTheme="outline"></i>&nbsp;Xóa ({{ setOfCheckedId.size }})
+        </button>
+
+        <button nz-button (click)="onRefresh()"
+          style="height:40px;width:40px;padding:0;border-radius:6px;display:flex;align-items:center;justify-content:center;border:1px solid #60a5fa;background:#eff6ff;color:#1e3a8a">
+          <i nz-icon nzType="reload" nzTheme="outline" style="font-size:20px;color:#1e3a8a"></i>
+        </button>
+
+        <button nz-button nzType="primary" (click)="openCreateModal()"
+          style="height:40px;padding:6px 16px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.06)">
+          <i nz-icon nzType="plus-circle" nzTheme="outline"></i>
+          <span>Thêm tri thức</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <app-scroll-table [height]="'460px'">
+    <nz-table #dt [nzData]="items" [nzLoading]="loading" nzBordered [nzShowPagination]="false" style="min-width:900px"
+      (nzCurrentPageDataChange)="onCurrentPageDataChange($event)">
+      <thead>
+        <tr>
+          <th style="width:44px">
+            <label nz-checkbox [(ngModel)]="checked" [nzIndeterminate]="indeterminate"
+              (ngModelChange)="onAllChecked($event)"></label>
+          </th>
+          <th style="width:80px;text-align:center">Thao tác</th>
+          <th style="width:48px">STT</th>
+          <th style="cursor:pointer;min-width:180px" (click)="onSortSelect('TieuDe')">
+            Tiêu đề
+            <i nz-icon [nzType]="sortCol === 'TieuDe' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'TieuDe' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer;width:140px" (click)="onSortSelect('DanhMuc')">
+            Danh mục
+            <i nz-icon [nzType]="sortCol === 'DanhMuc' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'DanhMuc' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer;width:100px" (click)="onSortSelect('ThuTuHienThi')">
+            Thứ tự
+            <i nz-icon [nzType]="sortCol === 'ThuTuHienThi' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'ThuTuHienThi' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="width:130px">Trạng thái</th>
+          <th style="cursor:pointer;width:80px" (click)="onSortSelect('IsActive')">
+            Kích hoạt
+            <i nz-icon [nzType]="sortCol === 'IsActive' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'IsActive' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="width:150px">Ngày tạo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let it of items; let i = index">
+          <td (click)="$event.stopPropagation()">
+            <label nz-checkbox [ngModel]="setOfCheckedId.has(it.id)"
+              (ngModelChange)="onItemChecked(it.id, $event)"></label>
+          </td>
+          <td style="text-align:center">
+            <a nz-dropdown nzTrigger="hover" [nzDropdownMenu]="actionMenu"
+              style="display:inline-flex;align-items:center;justify-content:center;width:100%">
+              <i nz-icon nzType="unordered-list" nzTheme="outline" class="cursor-pointer"
+                style="font-size:18px;line-height:1;display:block"></i>
+            </a>
+            <nz-dropdown-menu #actionMenu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item (click)="edit(it)">
+                  <i nz-icon nzType="edit" nzTheme="outline"></i>&nbsp;Chỉnh sửa
+                </li>
+                <li nz-menu-item (click)="deleteOne(it.id)">
+                  <i nz-icon nzType="delete" nzTheme="outline" class="text-red-500"></i>&nbsp;<span
+                    class="text-red-500">Xóa</span>
+                </li>
+              </ul>
+            </nz-dropdown-menu>
+          </td>
+          <td>{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+          <td>
+            <span class="font-medium text-gray-800">{{ it.tieuDe }}</span>
+          </td>
+          <td>
+            <span class="danh-muc-tag">{{ it.danhMuc }}</span>
+          </td>
+          <td style="text-align:center">{{ it.thuTuHienThi }}</td>
+          <td>
+            <span class="status-badge {{ getStatusInfo(it).class }}">{{ getStatusInfo(it).text }}</span>
+          </td>
+          <td>
+            <nz-switch [ngModel]="it.isActive" (ngModelChange)="toggleActive(it)" nzSize="small"></nz-switch>
+          </td>
+          <td class="text-gray-500 text-xs">{{ formatDate(it.createdAt) }}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </app-scroll-table>
+
+  <!-- Pagination -->
+  <div style="display:flex;justify-content:flex-end;margin-top:12px">
+    <nz-pagination [nzPageIndex]="pageNumber" [nzPageSize]="pageSize" [nzTotal]="total"
+      (nzPageIndexChange)="onPageChange($event)" (nzPageSizeChange)="onPageSizeChange($event)"></nz-pagination>
+  </div>
+
+  <!-- Create/Edit Modal -->
+  <nz-modal [(nzVisible)]="isModalVisible" [nzTitle]="modalTitle" (nzOnCancel)="cancelModal()" (nzOnOk)="onModalOk()"
+    [nzOkLoading]="saving" nzOkText="Lưu" nzCancelText="Hủy" nzWidth="760" nzWrapClassName="custom-modal wide-modal">
+    <ng-container *nzModalContent>
+      <app-tri-thuc-form #formComp [inModal]="true" [id]="editingId" (saved)="onSaved()"></app-tri-thuc-form>
+    </ng-container>
+  </nz-modal>
+
+  <!-- Import Modal -->
+  <nz-modal [(nzVisible)]="importModalVisible" [nzTitle]="'Import tri thức từ file .md'" (nzOnCancel)="cancelImport()"
+    [nzOkLoading]="importing" (nzOnOk)="doImport()" nzOkText="Import" nzCancelText="Hủy" [nzWidth]="700">
+    <ng-container *nzModalContent>
+      <div class="space-y-4">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
+          <i nz-icon nzType="info-circle" nzTheme="outline" class="mr-1"></i>
+          File .md với cấu trúc: <code class="bg-blue-100 px-1 rounded"># Danh mục</code> (H1) và <code
+            class="bg-blue-100 px-1 rounded">## Tiêu đề</code> (H2) cho mỗi mục tri thức.
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Chọn file (.md)</label>
+          <input type="file" accept=".md" (change)="onImportFileChange($event)"
+            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+          <span class="text-xs text-gray-400 mt-1">Tối đa 5MB</span>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Danh mục ghi đè (tùy chọn)</label>
+          <nz-select [(ngModel)]="importDanhMuc" nzPlaceHolder="Để trống để lấy từ H1 trong file" nzAllowClear
+            style="width:100%">
+            <nz-option *ngFor="let dm of danhMucOptions" [nzValue]="dm" [nzLabel]="dm"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+    </ng-container>
+  </nz-modal>
+</div>

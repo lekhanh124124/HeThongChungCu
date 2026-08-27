@@ -1,0 +1,140 @@
+.section-title {
+  @apply text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 border-b pb-2;
+}
+
+.info-row {
+  @apply flex items-center mb-3 text-sm;
+  .label {
+    @apply w-32 text-gray-500 font-medium;
+  }
+  .value {
+    @apply text-gray-900 font-medium;
+  }
+}
+
+.detail-container {
+  @apply pb-10;
+}
+
+.info-card {
+  @apply transition-all duration-300;
+  &:hover {
+    @apply shadow-md;
+    transform: translateY(-2px);
+  }
+}
+
+// Custom styles for steps
+::ng-deep {
+  .ant-steps-item-title {
+    font-weight: bold !important;
+  }
+  .ant-steps-item-description {
+    font-size: 12px !important;
+  }
+}
+
+// Action buttons hover effects
+button[nz-button] {
+  @apply rounded-lg transition-all duration-200;
+  &:hover {
+    transform: scale(1.02);
+  }
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.badge-large {
+  @apply px-4 py-1 rounded-full font-bold shadow-sm;
+}
+
+.status-pill {
+  @apply inline-flex items-center justify-center text-white text-xs whitespace-nowrap rounded-full;
+  min-width: 100px;
+  padding: 4px 12px;
+  font-weight: 700;
+  border-radius: 9999px !important;
+}
+
+.btn-green {
+  background-color: #16a34a !important;
+  border-color: #16a34a !important;
+  color: white !important;
+  &:hover, &:focus {
+    background-color: #15803d !important;
+    border-color: #15803d !important;
+    color: white !important;
+  }
+}
+
+.btn-blue {
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+  color: white !important;
+  &:hover, &:focus {
+    background-color: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+    color: white !important;
+  }
+}
+
+.content-textarea {
+  @apply leading-relaxed text-gray-700 bg-gray-50 border-gray-200;
+  line-height: 1.625 !important;
+  color: #374151 !important;
+  background-color: #f9fafb !important;
+  border-color: #e5e7eb !important;
+}
+
+// Animation for rows
+tr {
+  @apply transition-colors duration-200;
+  &:hover {
+    @apply bg-indigo-50;
+    background-color: #eef2ff !important;
+  }
+}
+
+.meta-label {
+  @apply text-xs font-bold text-gray-400 uppercase mb-1 block;
+}
+
+.meta-value {
+  @apply text-sm text-gray-800 font-medium;
+}
+
+.doc-item {
+  @apply transition-all duration-300 border-l-4 border-indigo-500;
+  &:hover {
+     @apply bg-indigo-50;
+  }
+}
+
+.sticky-bottom-bar {
+  @apply bg-white pt-6 mt-8 border-t z-10;
+}
+
+.action-icon {
+  @apply text-gray-900 transition-colors duration-200;
+  color: #000 !important;
+  &:hover {
+    @apply text-blue-500;
+    color: #1890ff !important;
+  }
+}
+
+::ng-deep {
+  .compact-modal .ant-modal {
+    width: 540px !important;
+    max-width: 95vw;
+  }
+}
+
+.highlight-row {
+  background-color: #fef9c3 !important; /* Yellow-100 */
+  transition: background-color 0.5s ease;
+  td {
+    background-color: #fef9c3 !important;
+  }
+}

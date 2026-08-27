@@ -1,0 +1,83 @@
+.yeu-cau-thi-cong-list {
+  background: transparent;
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  :host ::ng-deep {
+    .custom-table {
+      .ant-table {
+        background: transparent;
+        border: none;
+      }
+      .ant-table-thead > tr > th {
+        background: #f8fafc;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 11px;
+        color: #64748b;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid #e2e8f0;
+      }
+      .ant-table-tbody > tr > td {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 12px 16px;
+      }
+    }
+  }
+}
+
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+:host ::ng-deep {
+  .ant-drawer-header {
+    border-bottom: 1px solid #f1f5f9;
+    padding: 16px 24px;
+    .ant-drawer-title {
+      font-weight: 800;
+      color: #1e293b;
+      font-size: 18px;
+    }
+  }
+
+  .ant-modal-header {
+    border-bottom: none;
+    .ant-modal-title {
+      font-weight: 800;
+      font-size: 18px;
+    }
+  }
+}
+
+:host ::ng-deep {
+  .highlight-row {
+    background-color: #fef9c3 !important; /* Yellow-100 */
+    transition: background-color 0.5s ease;
+    td {
+      background-color: #fef9c3 !important;
+    }
+  }
+}
+
+// Button utility styles reused across request detail components
+.btn-blue {
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+  color: white !important;
+  &:hover, &:focus {
+    background-color: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+    color: white !important;
+  }
+}

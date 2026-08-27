@@ -1,0 +1,51 @@
+<div class="can-ho-form-wrapper">
+  <form [formGroup]="form" (ngSubmit)="save()" class="pt-2 pb-1">
+    <div class="form-card w-full" style="max-width:480px;margin:0 auto;">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Mã căn hộ</label>
+          <input nz-input formControlName="maCanHo" />
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Tên căn hộ</label>
+          <input nz-input formControlName="tenCanHo" />
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Diện tích (m²)</label>
+          <nz-input-number formControlName="dienTich" [nzMin]="0" style="width:100%"></nz-input-number>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Tầng (ID)</label>
+          <input nz-input type="number" formControlName="tangId" />
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Số phòng ngủ</label>
+          <input nz-input type="number" formControlName="soPhongNgu" />
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Số phòng tắm</label>
+          <input nz-input type="number" formControlName="soPhongTam" />
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Loại căn hộ</label>
+          <nz-select formControlName="loaiCanHoId" nzAllowClear nzPlaceHolder="-- Chọn loại căn hộ --" style="width:100%" class="rounded-[10px]">
+            <nz-option *ngFor="let o of loaiCanHoOptions" [nzValue]="o.id" [nzLabel]="o.name || o.ten || o.label"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Trạng thái</label>
+          <nz-select formControlName="tinhTrangCanHoId" nzAllowClear nzPlaceHolder="-- Chọn trạng thái --" style="width:100%" class="rounded-[10px]">
+            <nz-option *ngFor="let s of tinhTrangOptions" [nzValue]="s.id" [nzLabel]="s.name || s.ten || s.label"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

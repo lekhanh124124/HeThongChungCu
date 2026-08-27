@@ -1,0 +1,137 @@
+﻿<div>
+  <h2 class="text-lg font-semibold mb-3">Danh sách căn hộ <span *ngIf="tangName">- {{ tangName }}</span></h2>
+
+  <nz-modal [(nzVisible)]="isModalVisible" [nzTitle]="modalTitle" (nzOnCancel)="cancelModal()" (nzOnOk)="onModalOk()"
+    [nzOkLoading]="saving" nzOkText="Lưu" nzCancelText="Hủy" nzWidth="480" nzWrapClassName="custom-modal">
+    <ng-container *nzModalContent>
+      <app-can-ho-form [inModal]="true" [id]="editingId" [initialTangId]="tangId" (saved)="onSaved()"
+        (done)="onDone()"></app-can-ho-form>
+    </ng-container>
+  </nz-modal>
+
+  <div class="page-toolbar flex flex-wrap items-center gap-2 sm:gap-3" style="justify-content:space-between;margin-bottom:12px">
+    <div style="display:flex; gap:8px; align-items:center; max-width:70%">
+      <input nz-input placeholder="Nhập từ khóa" [(ngModel)]="keyword"
+        style="width:360px;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:40px;box-sizing:border-box" />
+      <button nz-button nzType="primary" (click)="onSearch()"
+        style="display:flex;align-items:center;border:1px solid #e5e7eb;border-radius:6px;padding:6px 12px;font-weight:600;height:40px;box-sizing:border-box"><i
+          nz-icon nzType="search" nzTheme="outline"></i>&nbsp;Tìm kiếm</button>
+      <!-- <button nz-button
+        style="display:flex;align-items:center;border:1px solid #e5e7eb;background:#fff;border-radius:6px;padding:6px 12px;font-weight:600;height:40px;box-sizing:border-box"><i
+          nz-icon nzType="filter" nzTheme="outline"></i>&nbsp;Tìm nâng cao</button> -->
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px">
+      <button *ngIf="setOfCheckedId.size > 0" nz-button nzType="primary" nzDanger (click)="deleteSelectedMultiple()"
+        style="display:flex;align-items:center;border:1px solid #e5e7eb;border-radius:6px;padding:6px 12px;font-weight:600;height:40px;box-sizing:border-box"><i
+          nz-icon nzType="delete" nzTheme="outline"></i>&nbsp;Xóa đã chọn</button>
+      <button nz-button nzType="default" (click)="onRefresh()"
+        style="display:flex;align-items:center;justify-content:center;border:1px solid #60a5fa;background:#eff6ff;color:#1e3a8a;border-radius:6px;padding:6px 12px;font-weight:600;height:40px;box-sizing:border-box">
+        <i nz-icon nzType="reload" nzTheme="outline"
+          style="font-size:20px;line-height:20px;transform:scale(1.06);display:inline-block;color:#1e3a8a"></i></button>
+      <button nz-button nzType="primary" (click)="openCreateModal()"
+        style="display:flex;align-items:center;border:1px solid #e5e7eb;border-radius:6px;padding:6px 12px;font-weight:600;height:40px;box-sizing:border-box"><i
+          nz-icon nzType="plus-circle" nzTheme="outline"></i>&nbsp;Thêm căn hộ</button>
+    </div>
+  </div>
+
+
+  <app-scroll-table [height]="'390px'">
+    <nz-table #chTable [nzData]="items" [nzLoading]="loading" [nzShowPagination]="false"
+      (nzCurrentPageDataChange)="onCurrentPageDataChange($event)">
+      <thead>
+        <tr>
+          <th style="width:48px" [(nzChecked)]="checked" [nzIndeterminate]="indeterminate"
+            (nzCheckedChange)="onAllChecked($event)"></th>
+          <th style="width:64px; white-space:nowrap; text-align:center">Thao tác</th>
+          <th style="width:48px">STT</th>
+          <th style="width:120px; cursor:pointer" (click)="onSort('maCanHo')">
+            Mã căn hộ
+            <i nz-icon [nzType]="sortCol === 'maCanHo' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'maCanHo' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer; max-width:240px;" (click)="onSort('tenCanHo')">
+            Tên căn hộ
+            <i nz-icon [nzType]="sortCol === 'tenCanHo' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'tenCanHo' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSort('tenTang')">
+            Tầng
+            <i nz-icon [nzType]="sortCol === 'tenTang' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'tenTang' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSort('dienTich')">
+            Diện tích
+            <i nz-icon [nzType]="sortCol === 'dienTich' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'dienTich' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="width:30px; cursor:pointer" (click)="onSort('soPhongNgu')">Phòng ngủ
+            <i nz-icon [nzType]="sortCol === 'soPhongNgu' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'soPhongNgu' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="width:30px; cursor:pointer" (click)="onSort('soPhongTam')">Phòng tắm
+            <i nz-icon [nzType]="sortCol === 'soPhongTam' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'soPhongTam' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSort('loaiCanHoId')">
+            Loại
+            <i nz-icon [nzType]="sortCol === 'loaiCanHoId' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'loaiCanHoId' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSort('tinhTrangCanHoId')">Trạng thái
+            <i nz-icon [nzType]="sortCol === 'tinhTrangCanHoId' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'tinhTrangCanHoId' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let it of chTable.data; let i = index">
+          <td [nzChecked]="setOfCheckedId.has(it.id!)" (nzCheckedChange)="onItemChecked(it.id!, $event)"></td>
+          <td style="text-align:center">
+            <a nz-dropdown nzTrigger="hover" [nzDropdownMenu]="actionMenu">
+              <i nz-icon nzType="unordered-list" nzTheme="outline" class="text-lg cursor-pointer"></i>
+            </a>
+            <nz-dropdown-menu #actionMenu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item (click)="editCanHo(it.id)"><i nz-icon nzType="edit" nzTheme="outline"></i>&nbsp;Chỉnh
+                  sửa
+                </li>
+                <li nz-menu-item class="text-red-500" (click)="deleteOne(it.id)"><i nz-icon nzType="delete"
+                    nzTheme="outline"></i>&nbsp;Xóa</li>
+              </ul>
+            </nz-dropdown-menu>
+          </td>
+          <td>{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+          <td>{{ it.maCanHo }}</td>
+          <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ it.tenCanHo || '-'
+            }}</td>
+          <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ it.tenTang ||
+            it.tangId || '-' }}</td>
+          <td>{{ it.dienTich ? (it.dienTich + 'm²') : '-' }}</td>
+          <td>{{ it.soPhongNgu != null ? it.soPhongNgu : '-' }}</td>
+          <td>{{ it.soPhongTam != null ? it.soPhongTam : '-' }}</td>
+          <td>{{ it.tenLoaiCanHo || (it.loaiCanHoId != null ? it.loaiCanHoId : '-') }}</td>
+          <td>
+            <nz-tag class="rounded-full border-none px-3 font-semibold text-[11px] uppercase"
+              [ngClass]="getStatusClass(it.tinhTrangCanHoId)">
+              {{ getTinhTrangName(it.tinhTrangCanHoId, it.tenTinhTrangCanHo) }}
+            </nz-tag>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </app-scroll-table>
+
+  <div style="display:flex;justify-content:flex-end;margin-top:12px">
+    <nz-pagination [nzPageIndex]="pageNumber" [nzPageSize]="pageSize" [nzTotal]="totalItems"
+      (nzPageIndexChange)="onPageChange($event)" (nzPageSizeChange)="onPageSizeChange($event)"></nz-pagination>
+  </div>
+</div>

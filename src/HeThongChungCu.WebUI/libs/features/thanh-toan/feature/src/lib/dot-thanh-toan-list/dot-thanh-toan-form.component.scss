@@ -1,0 +1,27 @@
+:host ::ng-deep {
+  nz-form {
+    .ant-form-item {
+      margin-bottom: 16px;
+    }
+
+    .ant-form-label {
+      font-weight: 600;
+      color: #374151;
+    }
+
+    input[nz-input],
+    textarea[nz-input] {
+      border-radius: 6px;
+      border-color: #e5e7eb;
+
+      &:hover {
+        border-color: #9ca3af;
+      }
+
+      &:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+.scroll-table-wrapper {
+  overflow: hidden;
+  border: 1px solid #eee;
+  border-radius: 6px;
+}
+.scroll-table-wrapper.no-border { border: none; }
+.scroll-table-inner {
+  overflow-y: auto;
+  height: 100%;
+}
+
+/* Horizontal scroll on mobile */
+@media (max-width: 768px) {
+  .scroll-table-inner {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .scroll-table-wrapper {
+    border-radius: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .scroll-table-inner {
+    overflow-x: auto;
+  }
+}
+
+/*ko scroll header*/
+:host ::ng-deep .scroll-table-inner table {
+  border-collapse: collapse;
+  width: 100%;
+  border-spacing: 0;
+}
+
+:host ::ng-deep .scroll-table-inner thead th,
+:host ::ng-deep .scroll-table-inner thead td {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #fafafa;
+}
+
+:host ::ng-deep .scroll-table-inner th {
+  background: #fafafa;
+  border-bottom: 1px solid #eee;
+}
+:host ::ng-deep .scroll-table-inner td { vertical-align: top; }

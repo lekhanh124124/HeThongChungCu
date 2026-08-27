@@ -1,0 +1,206 @@
+<div class="min-h-screen flex items-center justify-center bg-background-light p-3 sm:p-4">
+  <div class="w-full max-w-6xl rounded-2xl overflow-hidden shadow-2xl flex bg-white">
+    <div class="hidden lg:flex lg:w-2/5 relative overflow-hidden">
+      <div class="absolute inset-0 bg-cover bg-center filter brightness-75"
+        style="background-image:url('/assets/images/login.jpg')">
+      </div>
+      <div class="absolute inset-0"
+        style="background: linear-gradient(135deg, rgba(91, 130, 206, 0.9) 0%, rgba(193, 204, 249, 0.35) 100%);">
+      </div>
+      <div class="relative z-10 flex flex-col justify-end p-12 text-white max-w-2xl">
+        <h1 class="text-4xl font-black leading-tight mb-4 text-white">Hệ thống Quản lý Vận hành Chung cư Thông minh
+        </h1>
+        <p class="text-lg text-white font-medium opacity-90">Giải pháp quản lý vận hành chung cư hiện đại, tối ưu hóa
+          quy trình và nâng cao hiệu quả quản trị.</p>
+      </div>
+    </div>
+    <div class="hidden lg:block w-px bg-slate-100/40"></div>
+    <div class="w-full lg:w-3/5 flex items-center justify-center bg-white px-6 sm:px-8 md:px-16 lg:px-24">
+      <div class="w-full max-w-xl flex flex-col gap-5 sm:gap-6 py-8 sm:py-12">
+        <div class="flex flex-col gap-3 items-center text-center">
+          <div class="login-logo mt-2 mb-2">
+            <img src="/assets/images/logo.jpg" alt="Logo" class="login-logo-img" />
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="w-1.5 h-8 bg-primary rounded-md"></span>
+            <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Chào mừng trở lại</h3>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-400">Quản lý vận hành chung cư — hiệu quả, an toàn, thông minh.</p>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4 sm:gap-5">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-sm font-semibold text-slate-700 ml-1">Tên đăng nhập<span
+                class="text-red-600">*</span></label>
+            <div class="relative flex items-center">
+              <span class="absolute left-4 text-slate-400">
+                <i nz-icon nzType="user" nzTheme="outline" class="text-slate-400"></i>
+              </span>
+              <input formControlName="username"
+                [class.input-error]="((form.get('username')?.invalid && (submitted || form.get('username')?.dirty)) || usernameErrors.length>0)"
+                class="w-full h-12 sm:h-14 pl-12 pr-10 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm sm:text-base"
+                placeholder="Tên đăng nhập" />
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <div class="flex justify-between items-center ml-1">
+              <label class="text-sm font-semibold text-slate-700">Mật khẩu <span class="text-red-600">*</span></label>
+            </div>
+            <div class="relative flex items-center">
+              <span class="absolute left-4 text-slate-400">
+                <i nz-icon nzType="lock" nzTheme="outline" class="text-slate-400"></i>
+              </span>
+              <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                [class.input-error]="((form.get('password')?.invalid && (submitted || form.get('password')?.dirty)) || passwordErrors.length>0)"
+                class="w-full h-12 sm:h-14 pl-12 pr-14 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary outline-none text-sm sm:text-base"
+                placeholder="••••••••" />
+              <button type="button" class="absolute right-3 text-slate-400 hover:text-primary"
+                (click)="togglePassword(); $event.stopPropagation(); $event.preventDefault();"
+                aria-label="Toggle password visibility">
+                <i *ngIf="!showPassword" nz-icon nzType="eye-invisible" nzTheme="outline" class="text-slate-400"></i>
+                <i *ngIf="showPassword" nz-icon nzType="eye" nzTheme="outline" class="text-slate-400"></i>
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between mt-1">
+            <button type="button" class="ml-auto text-sm font-semibold text-primary" (click)="openForgotPassword()">
+              Quên mật khẩu?
+            </button>
+          </div>
+
+          <app-alert *ngIf="(usernameErrors?.length || passwordErrors?.length || errorMessages?.length)"
+            [messages]="usernameErrors.concat(passwordErrors).concat(errorMessages)" [duration]="3000">
+          </app-alert>
+          <button type="submit" [disabled]="loading"
+            class="w-full h-12 sm:h-14 bg-primary text-white font-bold rounded-xl shadow-lg hover:bg-primary/90 flex items-center justify-center gap-2 text-sm sm:text-base">
+            <span *ngIf="!loading">Đăng nhập hệ thống</span>
+            <span *ngIf="loading">Đang xử lý...</span>
+            <i nz-icon nzType="login" nzTheme="outline" class="text-white text-lg"></i>
+          </button>
+        </form>
+
+        <!-- password modal -->
+        <div *ngIf="showForgotModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto p-5 sm:p-6 relative"
+            (click)="$event.stopPropagation()">
+            <button type="button" class="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
+              (click)="closeForgotPassword()">
+              <i nz-icon nzType="close" nzTheme="outline"></i>
+            </button>
+
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-1">Quên mật khẩu</h2>
+            <p class="text-sm text-slate-500 mb-4" *ngIf="forgotStep === 1">
+              Nhập tên đăng nhập, hệ thống sẽ gửi mã khôi phục tới email của bạn.
+            </p>
+            <p class="text-sm text-slate-500 mb-4" *ngIf="forgotStep === 2">
+              Nhập mã khôi phục đã nhận được và mật khẩu mới.
+            </p>
+            <div class="mb-3" *ngIf="forgotErrors?.length">
+              <ul class="text-sm text-red-600 list-disc ml-4">
+                <li *ngFor="let e of forgotErrors">{{ e }}</li>
+              </ul>
+            </div>
+            <div class="mb-3" *ngIf="forgotMessages?.length">
+              <ul class="text-sm text-emerald-600 list-disc ml-4">
+                <li *ngFor="let m of forgotMessages">{{ m }}</li>
+              </ul>
+            </div>
+
+            <form *ngIf="forgotStep === 1" [formGroup]="forgotFormStep1" (ngSubmit)="submitForgotStep1()"
+              class="flex flex-col gap-4 mt-2">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-semibold text-slate-700 ml-1">Tên đăng nhập<span
+                    class="text-red-600">*</span></label>
+                <div class="relative flex items-center">
+                  <span class="absolute left-4 text-slate-400">
+                    <i nz-icon nzType="user" nzTheme="outline" class="text-slate-400"></i>
+                  </span>
+                  <input formControlName="username"
+                    class="w-full h-12 pl-12 pr-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
+                    placeholder="Tên đăng nhập" />
+                </div>
+              </div>
+              <div class="flex flex-col sm:flex-row justify-end gap-2 mt-2">
+                <button type="button"
+                  class="w-full sm:w-auto px-4 h-10 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium order-2 sm:order-1"
+                  (click)="closeForgotPassword()">Hủy</button>
+                <button type="submit" [disabled]="forgotLoading"
+                  class="w-full sm:w-auto px-4 h-10 rounded-lg bg-primary text-white text-sm font-semibold flex items-center justify-center gap-2 order-1 sm:order-2">
+                  <span *ngIf="!forgotLoading">Gửi mã khôi phục</span>
+                  <span *ngIf="forgotLoading">Đang gửi...</span>
+                </button>
+              </div>
+            </form>
+
+            <form *ngIf="forgotStep === 2" [formGroup]="forgotFormStep2" (ngSubmit)="submitForgotStep2()"
+              class="flex flex-col gap-4 mt-2">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-semibold text-slate-700 ml-1">Mã khôi phục<span
+                    class="text-red-600">*</span></label>
+                <input formControlName="resetCode"
+                  class="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
+                  placeholder="Nhập mã khôi phục" />
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-semibold text-slate-700 ml-1">Mật khẩu mới<span
+                    class="text-red-600">*</span></label>
+                <div class="relative flex items-center">
+                  <input [type]="showNewPassword ? 'text' : 'password'" formControlName="newPassword"
+                    class="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
+                    placeholder="Mật khẩu mới" />
+                  <button type="button" class="absolute right-3 text-slate-400 hover:text-primary"
+                    (click)="toggleNewPassword(); $event.stopPropagation(); $event.preventDefault();"
+                    aria-label="Toggle new password visibility">
+                    <i *ngIf="!showNewPassword" nz-icon nzType="eye-invisible" nzTheme="outline"
+                      class="text-slate-400"></i>
+                    <i *ngIf="showNewPassword" nz-icon nzType="eye" nzTheme="outline" class="text-slate-400"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-semibold text-slate-700 ml-1">Xác nhận mật khẩu mới<span
+                    class="text-red-600">*</span></label>
+                <div class="relative flex items-center">
+                  <input [type]="showConfirmNewPassword ? 'text' : 'password'" formControlName="confirmNewPassword"
+                    class="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
+                    placeholder="Nhập lại mật khẩu mới" />
+                  <button type="button" class="absolute right-3 text-slate-400 hover:text-primary"
+                    (click)="toggleConfirmNewPassword(); $event.stopPropagation(); $event.preventDefault();"
+                    aria-label="Toggle confirm new password visibility">
+                    <i *ngIf="!showConfirmNewPassword" nz-icon nzType="eye-invisible" nzTheme="outline"
+                      class="text-slate-400"></i>
+                    <i *ngIf="showConfirmNewPassword" nz-icon nzType="eye" nzTheme="outline"
+                      class="text-slate-400"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="flex flex-col sm:flex-row justify-between gap-2 mt-2">
+                <button type="button"
+                  class="w-full sm:w-auto px-4 h-10 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium"
+                  (click)="forgotStep = 1; forgotErrors = []; forgotMessages = []">Quay lại</button>
+                <div class="flex gap-2 sm:ml-auto">
+                  <button type="button"
+                    class="px-3 h-10 rounded-lg border border-slate-200 text-slate-600 text-xs font-medium"
+                    (click)="submitForgotStep1()">Gửi lại mã</button>
+                  <button type="submit" [disabled]="forgotLoading"
+                    class="px-4 h-10 rounded-lg bg-primary text-white text-sm font-semibold flex items-center justify-center gap-2">
+                    <span *ngIf="!forgotLoading">Đặt lại mật khẩu</span>
+                    <span *ngIf="forgotLoading">Đang xử lý...</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <div *ngIf="forgotStep === 3" class="mt-4 flex flex-col gap-4">
+              <button type="button" class="w-full h-10 rounded-lg bg-primary text-white text-sm font-semibold"
+                (click)="closeForgotPassword()">
+                Quay lại đăng nhập
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

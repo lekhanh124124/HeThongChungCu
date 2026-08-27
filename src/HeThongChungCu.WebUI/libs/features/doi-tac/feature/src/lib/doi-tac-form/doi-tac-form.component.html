@@ -1,0 +1,61 @@
+<div class="doi-tac-form">
+  <h3 *ngIf="!inModal">{{ form.value.id ? 'Cập nhật đối tác' : 'Tạo mới đối tác' }}</h3>
+  <form [formGroup]="form" (ngSubmit)="submit()" class="pt-2 pb-1">
+        <div class="form-card w-full" style="max-width:720px;margin:0 auto;padding:0 12px;">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Tên đối tác</label>
+            <input nz-input formControlName="tenDoiTac" placeholder="Nhập tên đối tác" style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Tên công ty</label>
+            <input nz-input formControlName="tenCongTy" placeholder="Nhập tên công ty" style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Người đại diện</label>
+            <input nz-input class="rounded-[10px]" formControlName="nguoiDaiDien" placeholder="Nhập người đại diện" style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Số giấy phép KD</label>
+            <input nz-input formControlName="soGiayPhepKD" placeholder="Nhập số giấy phép kinh doanh" style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Số điện thoại </label>
+            <input nz-input formControlName="soDienThoai" placeholder="Nhập số điện thoại" style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Mã số thuế</label>
+            <input nz-input formControlName="maSoThue" placeholder="Nhập mã số thuế" style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Địa chỉ </label>
+            <input nz-input formControlName="diaChi" placeholder="Nhập địa chỉ" style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+
+          <div class="flex flex-col">
+            <label class="mb-2 font-medium text-gray-700">Email</label>
+            <input nz-input formControlName="email" placeholder="Nhập email" style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+          </div>
+
+          <div class="flex flex-col md:col-span-2">
+            <label class="mb-2 font-medium text-gray-700">Ghi chú</label>
+            <textarea nz-input class="rounded-[10px]" rows="4" formControlName="ghiChu" placeholder="Ghi chú" style="border-radius:6px;padding:8px 12px;border:1px solid #e5e7eb;box-sizing:border-box;min-height:88px;width:100%"></textarea>
+          </div>
+        </div>
+
+        
+      </div>
+
+    <!-- Hide inline action buttons when used inside modal (use modal footer instead) -->
+    <div class="actions" style="margin-top:16px; text-align:center;" *ngIf="!inModal">
+      <button nz-button nzType="primary" type="submit" class="rounded-lg">Lưu</button>
+      <button nz-button type="button" (click)="cancel()" style="margin-left:8px" class="rounded-lg">Hủy</button>
+    </div>
+  </form>
+</div>

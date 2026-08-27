@@ -1,0 +1,36 @@
+
+Initial Chunk Files               | Names         |      Size
+styles.03f3a28b5520b0016bb0.css   | styles        |   5.31 MB
+main.559fcca4fcd4fa348141.js      | main          | 851.55 kB
+polyfills.b47ae4406d7b27d3d755.js | polyfills     |  33.12 kB
+runtime.903af98dec391ecb0545.js   | runtime       |   3.36 kB
+
+| Initial Total |   6.18 MB
+
+Lazy Chunk Files                  | Names         |      Size
+364.f09bd85e444ac4ea6d07.js       | -             | 484.36 kB
+138.8648170d63001d7afaca.js       | -             | 142.82 kB
+805.1613047289d9f78b3795.js       | -             | 122.89 kB
+792.ae6ce8a9bfb494c5888e.js       | -             |  99.11 kB
+234.64afe2df4f6c238ba40f.js       | -             |  83.63 kB
+161.05320861629999ed3b2c.js       | -             |  69.04 kB
+905.6b72af77370d75c71f4a.js       | -             |  67.29 kB
+553.1a6fdd201d9ba5f8e5d1.js       | -             |  62.65 kB
+881.6eb4f7dd6d844bcfe36c.js       | -             |  54.94 kB
+129.54ed8683a1cfae6d41ce.js       | -             |  52.06 kB
+463.8bbdbaad98b5ebb12f53.js       | -             |  45.61 kB
+871.fd0967df57c58b0ee48c.js       | -             |  45.38 kB
+437.c767d5a01d38910b733a.js       | -             |  36.81 kB
+828.c13833e642a27caaddd8.js       | -             |  35.93 kB
+749.648aadc62124863ace1b.js       | -             |  33.92 kB
+864.7d200aaf26730ee65882.js       | -             |  33.07 kB
+135.4ed792afa68a19ac1f16.js       | -             |  31.19 kB
+23.e72933a2acd5adc2ac7c.js        | -             |  25.03 kB
+143.fb4cc7713ecfff6c08a9.js       | -             |  21.74 kB
+721.a44ed96c01e1f0636d69.js       | -             |  13.71 kB
+376.fdc0711c70e68e4fd230.js       | -             |  11.17 kB
+850.c91bdb2aad2974d411ae.js       | -             |   8.35 kB
+326.4cb33fd9ed674a6bb90b.js       | -             |   3.63 kB
+common.e44a23d5ea376140965f.js    | common        |   1.83 kB
+
+Build at: 2026-06-02T09:13:30.002Z - Hash: cfa60f0effbfeed4b1e6 - Time: 165721ms

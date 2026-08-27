@@ -1,0 +1,137 @@
+﻿<div class="p-4">
+  <div class="page-toolbar flex justify-between items-center flex-wrap gap-2 sm:gap-3 mb-4" style="width:100%">
+     <div style="display:flex;align-items:center;gap:12px;width:100%;flex-wrap:wrap">
+       <div style="display:flex;align-items:center;gap:8px;flex:0 0 auto" class="flex-wrap">
+         <input nz-input placeholder="Tìm theo mã, tên, điện thoại" [(ngModel)]="keyword" (keydown.enter)="load()"
+           class="w-full sm:w-80" style="border-radius:8px;padding:8px 12px;border:1px solid #e5e7eb;height:40px;box-sizing:border-box" />
+         <button nz-button (click)="load()"
+           style="display:flex;align-items:center;background:#0b84e6;border-color:#0b84e6;color:#fff;border-radius:8px;padding:6px 14px;font-weight:600;height:40px;box-sizing:border-box">
+           <i nz-icon nzType="search" nzTheme="outline"></i>&nbsp;Tìm kiếm</button>
+         <button nz-button type="button" (click)="openAdvanced()"
+           style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;gap:8px;font-weight:600;margin-left:6px">
+           <i nz-icon nzType="filter" nzTheme="outline"></i>
+           <span class="hidden sm:inline">Tìm nâng cao</span>
+         </button>
+       </div>
+
+       <div style="margin-left:auto;display:flex;align-items:center;gap:8px" class="flex-wrap">
+         <button *ngIf="setOfCheckedId.size > 0" nz-button nzType="primary" nzDanger (click)="deleteSelectedMultiple()"
+           style="display:flex;align-items:center;border-radius:8px;padding:6px 12px;font-weight:600;height:40px;box-sizing:border-box">
+           <i nz-icon nzType="delete" nzTheme="outline"></i>&nbsp;<span class="hidden sm:inline">Xóa đã chọn</span></button>
+
+         <button nz-button type="button" (click)="onRefresh()"
+           style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;border:1px solid #60a5fa;background:#eff6ff;color:#1e3a8a">
+           <i nz-icon nzType="reload" nzTheme="outline"
+             style="font-size:20px;line-height:20px;transform:scale(1.06);display:inline-block;color:#1e3a8a"></i>
+         </button>
+
+         <button nz-button nzType="primary" (click)="create()"
+           style="height:40px;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.06)">
+           <i nz-icon nzType="plus-circle" nzTheme="outline"></i>
+           <span class="hidden sm:inline">Thêm nhân viên</span>
+         </button>
+       </div>
+     </div>
+  </div>
+
+  <nz-modal [(nzVisible)]="advancedVisible" nzTitle="Tìm kiếm nâng cao" (nzOnCancel)="toggleAdvanced()"
+    [nzFooter]="null" nzWrapClassName="advanced-search-modal">
+    <ng-container *nzModalContent>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3" style="margin-top:4px">
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Loại nhân viên</label>
+          <nz-select [(ngModel)]="loaiNhanVienId" [ngModelOptions]="{standalone:true}" nzAllowClear
+            nzPlaceHolder="-- Tất cả --" style="width:100%;border-radius:8px;border:1px solid #e5e7eb;">
+            <nz-option *ngFor="let o of loaiNhanVienOptions" [nzValue]="o.id"
+              [nzLabel]="o.name || o.ten || o.label"></nz-option>
+          </nz-select>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Trạng thái</label>
+          <nz-select [(ngModel)]="trangThaiNhanVienId" [ngModelOptions]="{standalone:true}" nzAllowClear
+            nzPlaceHolder="-- Tất cả --" style="width:100%;border-radius:8px;border:1px solid #e5e7eb;">
+            <nz-option *ngFor="let o of trangThaiNhanVienOptions" [nzValue]="o.id"
+              [nzLabel]="o.name || o.ten || o.label"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px">
+        <button nz-button type="button" (click)="toggleAdvanced()" class="rounded-lg">Hủy</button>
+        <button nz-button nzType="primary" type="button" (click)="applyAdvanced()" class="rounded-lg">Áp dụng</button>
+      </div>
+    </ng-container>
+  </nz-modal>
+
+  <nz-modal [(nzVisible)]="isModalVisible" [nzTitle]="modalTitle" (nzOnCancel)="cancelModal()" (nzOnOk)="onModalOk()"
+    [nzOkLoading]="saving" nzOkText="Lưu" nzCancelText="Hủy" nzWidth="480" nzWrapClassName="custom-modal wide-modal"
+    [nzBodyStyle]="{ 'max-height': '80vh', 'overflow': 'auto' }">
+    <ng-container *nzModalContent>
+      <app-nhan-vien-form [nhanVienId]="editingId" [inModal]="true" (saved)="onSaved($event)"></app-nhan-vien-form>
+    </ng-container>
+  </nz-modal>
+
+  <app-scroll-table [height]="'420px'">
+    <nz-table [nzData]="items" [nzLoading]="loading" nzBordered [nzShowPagination]="false" style="min-width:980px"
+      (nzCurrentPageDataChange)="onCurrentPageDataChange($event)">
+      <thead>
+        <tr>
+          <th style="width:48px">
+            <label nz-checkbox [(ngModel)]="checked" [nzIndeterminate]="indeterminate"
+              (ngModelChange)="onAllChecked($event)"></label>
+          </th>
+          <th>Thao tác</th>
+          <th style="width:48px">STT</th>
+          <th style="width:72px;text-align:center">Ảnh</th>
+          <th>Mã NV</th>
+          <th>Họ tên</th>
+          <th>Email</th>
+          <th>Điện thoại</th>
+          <th>Loại</th>
+          <th>Trạng thái</th>
+          <th>Ngày vào làm</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let it of items; let i = index">
+          <td>
+            <label nz-checkbox [ngModel]="setOfCheckedId.has(it.id)"
+              (ngModelChange)="onItemChecked(it.id, $event)"></label>
+          </td>
+          <td style="text-align:center">
+            <a nz-dropdown nzTrigger="hover" [nzDropdownMenu]="actionMenu"><i nz-icon nzType="unordered-list"
+                nzTheme="outline" class="text-lg cursor-pointer"></i></a>
+            <nz-dropdown-menu #actionMenu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item (click)="edit(it.id)"><i nz-icon nzType="edit" nzTheme="outline"></i>&nbsp;Chỉnh sửa</li>
+                <li nz-menu-item class="text-red-500" (click)="deleteOne(it.id)"><i nz-icon nzType="delete" nzTheme="outline"></i>&nbsp;Xóa</li>
+              </ul>
+            </nz-dropdown-menu>
+          </td>
+          <td>{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+          <td style="padding:6px;text-align:center;vertical-align:middle">
+            <ng-container *ngIf="it.anhDaiDienUrl; else noAvatar">
+              <img [src]="it.anhDaiDienUrl" alt="avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:1px solid #e5e7eb" />
+            </ng-container>
+            <ng-template #noAvatar>
+              <div style="width:40px;height:40px;border-radius:50%;background:#f3f4f6;display:inline-block;border:1px solid #e5e7eb"></div>
+            </ng-template>
+          </td>
+          <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ it.maNhanVien || '-' }}</td>
+          <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ it.hoTen }}</td>
+          <td>{{ it.email || '-' }}</td>
+          <td>{{ it.soDienThoai || '-' }}</td>
+          <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ it.loaiNhanVienTen || '-' }}</td>
+          <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ it.trangThaiNhanVienTen || '-' }}</td>
+          <td>{{ it.ngayVaoLam ? (it.ngayVaoLam | date:'dd/MM/yyyy') : '-' }}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </app-scroll-table>
+
+  <div style="display:flex;justify-content:flex-end;margin-top:12px">
+    <nz-pagination [nzPageIndex]="pageNumber" [nzPageSize]="pageSize" [nzTotal]="total"
+      (nzPageIndexChange)="onPageChange($event)" (nzPageSizeChange)="onPageSizeChange($event)"></nz-pagination>
+  </div>
+</div>

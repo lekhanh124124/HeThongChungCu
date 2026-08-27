@@ -1,0 +1,55 @@
+.dich-vu-overview {
+	.overview-top {
+		display: flex;
+		gap: 20px;
+		align-items: flex-start;
+		flex-wrap: wrap;
+	}
+
+	.overview-card {
+		background: #ffffff;
+		padding: 16px;
+		border-radius: 8px;
+		box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+		min-width: 240px;
+		max-width: 360px;
+	}
+
+	.overview-card .title {
+		font-size: 18px;
+		font-weight: 700;
+		color: #0f172a;
+		margin-bottom: 8px;
+		line-height: 1.2;
+	}
+
+	.overview-card .meta {
+		color: #6b7280;
+		font-size: 13px;
+		margin-bottom: 12px;
+	}
+
+	.overview-card .code {
+		margin-top: 6px;
+		font-weight: 600;
+		color: #111827;
+	}
+
+	.overview-desc {
+		flex: 1 1 320px;
+		min-width: 280px;
+	}
+
+	nz-descriptions ::ng-deep .ant-descriptions-item-label {
+		font-weight: 600;
+		color: #374151;
+	}
+
+	nz-descriptions ::ng-deep .ant-descriptions-item-content {
+		color: #111827;
+	}
+
+	.status nz-tag {
+		margin-top: 8px;
+	}
+}

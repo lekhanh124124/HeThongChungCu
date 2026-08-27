@@ -1,0 +1,26 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/app",
+    "types": []
+  },
+  "files": [
+    "apps/resident-portal/src/main.ts",
+    "apps/resident-portal/src/polyfills.ts",
+    "src/main.ts",
+    "src/polyfills.ts"
+  ],
+  "include": [
+    "apps/resident-portal/src/**/*.d.ts",
+    "apps/resident-portal/src/**/*.ts",
+    "libs/**/*.ts",
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "apps/resident-portal/src/test.ts",
+    "apps/resident-portal/src/**/*.spec.ts",
+    "libs/**/*.spec.ts",
+    "libs/**/*.spec.tsx"
+  ]
+}

@@ -1,0 +1,28 @@
+.chi-so-list-container {
+  background-color: #f8fafc;
+  min-height: calc(100vh - 64px);
+
+  .nz-table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  th {
+    background-color: #f1f5f9 !important;
+    font-weight: 700 !important;
+    color: #475569 !important;
+    font-size: 11px;
+    letter-spacing: 0.025em;
+  }
+
+  tr:hover {
+    td {
+      background-color: rgba(#f1f5f9, 0.5) !important;
+    }
+  }
+
+  .ant-btn-primary {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+}

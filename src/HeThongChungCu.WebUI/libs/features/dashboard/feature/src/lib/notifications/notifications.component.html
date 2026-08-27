@@ -1,0 +1,54 @@
+<div class="p-3 sm:p-4">
+  <div class="flex items-center justify-between mb-3">
+    <div class="flex items-center gap-2">
+      <h3 class="text-base sm:text-lg font-semibold mb-0">Thông báo</h3>
+      <nz-badge *ngIf="unreadCount > 0" [nzCount]="unreadCount"></nz-badge>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap gap-2 mb-4 items-center">
+    <input nz-input placeholder="Tìm kiếm" [(ngModel)]="keyword" (keyup.enter)="onSearch()"
+      class="!w-full sm:!w-auto" style="min-width:160px;max-width:100%" />
+
+    <nz-select [(ngModel)]="filterType" nzAllowClear nzPlaceHolder="Bộ lọc"
+      class="w-full sm:w-auto" style="min-width:140px">
+      <nz-option nzValue="all" nzLabel="Tất cả"></nz-option>
+      <nz-option nzValue="unread" nzLabel="Chưa đọc"></nz-option>
+      <nz-option nzValue="important" nzLabel="Quan trọng"></nz-option>
+    </nz-select>
+
+    <button nz-button nzType="primary" (click)="onSearch()">Tìm</button>
+    <button nz-button (click)="keyword=''; filterType='all'; onSearch()">Đặt lại</button>
+    <button nz-button nzType="default" (click)="reload()">Tải lại</button>
+  </div>
+
+  <div *ngIf="pagedNotifications && pagedNotifications.length > 0" class="grid gap-3">
+    <ng-container *ngFor="let n of pagedNotifications">
+      <nz-card [ngClass]="{'border-l-4 border-primary': !n._read && !n.isRead}" nzSize="small">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-start gap-2">
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-sm sm:text-base mb-1">{{ n.tieuDe || n.title || '-' }}</div>
+            <div class="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">{{ n.noiDung || n.content || '' }}</div>
+            <div class="text-xs text-gray-400">{{ n.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+          </div>
+          <div class="flex sm:flex-col items-center sm:items-end gap-2 sm:ml-3">
+            <nz-tag *ngIf="n.isImportant || n.priority === 'high'" nzColor="red"
+              class="rounded-full border-none px-2 sm:px-3 font-semibold text-[10px] sm:text-[11px] uppercase">Quan trọng</nz-tag>
+            <button nz-button nzType="link" nzSize="small" (click)="openDetail(n)">Xem chi tiết</button>
+          </div>
+        </div>
+      </nz-card>
+    </ng-container>
+  </div>
+
+  <div *ngIf="!pagedNotifications || pagedNotifications.length === 0" class="py-6">
+    <nz-empty nzNotFoundImage="simple" nzNotFoundContent="Không có thông báo"></nz-empty>
+  </div>
+
+  <div class="mt-4 flex justify-center">
+    <nz-pagination [nzTotal]="filteredNotifications.length" [nzPageIndex]="pageNumber" [nzPageSize]="pageSize"
+      [nzPageSizeOptions]="[5,10,20]" (nzPageIndexChange)="onPageChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)">
+    </nz-pagination>
+  </div>
+</div>

@@ -1,0 +1,139 @@
+<div class="p-3">
+  <!-- Filter bar -->
+  <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex flex-wrap gap-4 items-end">
+    <div>
+      <!-- <label class="text-[11px] font-bold text-gray-400 mb-1.5 block ml-1">Tìm kiếm</label> -->
+      <div style="display:flex;align-items:center;gap:8px" class="flex-wrap">
+        <input nz-input placeholder="Mã giao dịch, người giao dịch..." [(ngModel)]="keyword" (keydown.enter)="load()"
+          class="w-full sm:w-80" style="border-radius:8px;padding:8px 12px;border:1px solid #e5e7eb;height:40px;box-sizing:border-box" />
+        <button nz-button (click)="load()"
+          style="display:flex;align-items:center;background:#0b84e6;border-color:#0b84e6;color:#fff;border-radius:8px;padding:6px 14px;font-weight:600;height:40px;box-sizing:border-box">
+          <i nz-icon nzType="search" nzTheme="outline"></i>&nbsp;Tìm kiếm</button>
+        <button nz-button type="button" (click)="advancedVisible = true"
+          style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;gap:8px;font-weight:600">
+          <i nz-icon nzType="filter" nzTheme="outline"></i>
+          <span class="hidden sm:inline">Tìm nâng cao</span>
+        </button>
+        <button nz-button type="button" (click)="onRefresh()"
+          style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;border:1px solid #60a5fa;background:#eff6ff;color:#1e3a8a">
+          <i nz-icon nzType="reload" nzTheme="outline" style="font-size:20px;line-height:20px;transform:scale(1.06);display:inline-block;color:#1e3a8a"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action bar -->
+  <div class="page-toolbar flex items-center justify-between flex-wrap gap-2 sm:gap-3 mb-3">
+    <div class="flex items-center gap-2">
+      <button nz-button nzType="primary" (click)="openTaoPhieuThu()"
+        style="height:40px;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.06)">
+        <i nz-icon nzType="plus-circle" nzTheme="outline"></i>
+        <span>Tạo phiếu thu</span>
+      </button>
+      <button nz-button nzType="default" (click)="openTaoPhieuChi()"
+        style="height:40px;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:600;border:1px solid #f59e0b;background:#fffbeb;color:#92400e">
+        <i nz-icon nzType="minus-circle" nzTheme="outline"></i>
+        <span>Tạo phiếu chi</span>
+      </button>
+    </div>
+    <div class="flex items-center gap-2">
+      <button nz-button nzType="default" (click)="exportExcel()" [nzLoading]="exportLoading"
+        style="height:40px;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:600;border:1px solid #10b981;background:#ecfdf5;color:#065f46">
+        <i nz-icon nzType="file-excel" nzTheme="outline"></i>
+        <span>Xuất Excel</span>
+      </button>
+      <button nz-button nzType="primary" nzGhost (click)="router.navigate(['/dashboard/quy-thu-chi/bao-cao'])"
+        style="height:40px;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:600">
+        <i nz-icon nzType="bar-chart" nzTheme="outline"></i>
+        <span>Báo cáo</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <app-scroll-table [height]="'calc(100vh - 280px)'">
+    <nz-table #basicTable [nzData]="items" [nzLoading]="loading" [nzFrontPagination]="false" [nzTotal]="totalItems"
+      [nzPageSize]="pageSize" [nzPageIndex]="pageNumber" (nzPageIndexChange)="onPageChange($event)">
+      <thead>
+        <tr>
+          <th nzWidth="100px" class="text-center bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none last:rounded-r-xl">Thao tác</th>
+          <th nzWidth="60px" class="text-center bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none first:rounded-l-xl">STT</th>
+          <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Mã giao dịch</th>
+          <th nzWidth="90px" class="text-center bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Loại</th>
+          <th class="text-right bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Số tiền</th>
+          <th nzWidth="150px" class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Ngày GD</th>
+          <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Phương thức</th>
+          <th class="bg-gray-50/80 text-gray-500 font-bold text-[12px] py-4 border-none">Người GD</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of basicTable.data; let i = index" (dblclick)="openDetail(data)" class="cursor-pointer hover:bg-gray-50 transition-colors">
+          <td class="text-center align-middle" (click)="$event.stopPropagation()">
+            <a nz-dropdown [nzDropdownMenu]="menu" class="text-gray-400 hover:text-indigo-600">
+              <i nz-icon nzType="unordered-list" nzTheme="outline" class="text-xl"></i>
+            </a>
+            <nz-dropdown-menu #menu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item (click)="openDetail(data)">
+                  <i nz-icon nzType="eye" nzTheme="outline"></i>&nbsp;Xem chi tiết
+                </li>
+              </ul>
+            </nz-dropdown-menu>
+          </td>
+          <td class="text-center text-gray-400">{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+          <td><span class="font-bold text-indigo-900">{{ data.maGiaoDich }}</span></td>
+          <td class="text-center">
+            <nz-tag [nzColor]="getLoaiGiaoDichColor(data.loaiGiaoDichId)">
+              {{ getLoaiGiaoDichLabel(data.loaiGiaoDichId) }}
+            </nz-tag>
+          </td>
+          <td class="text-right font-bold" [ngClass]="data.loaiGiaoDichId === 1 ? 'text-green-600' : 'text-red-600'">
+            {{ data.tongSoTien | number }} đ
+          </td>
+          <td>{{ data.ngayGiaoDich | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ data.tenPhuongThucThanhToan || '-' }}</td>
+          <td>{{ data.nguoiGiaoDich || '-' }}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </app-scroll-table>
+
+  <!-- Detail Drawer -->
+  <nz-drawer [nzVisible]="detailDrawerVisible" [nzTitle]="'Chi tiết giao dịch'"
+    (nzOnClose)="closeDetail()" nzPlacement="right" nzWidth="50%">
+    <ng-container *nzDrawerContent>
+      <app-giao-dich-detail [item]="detailItem" [loading]="detailLoading"></app-giao-dich-detail>
+    </ng-container>
+  </nz-drawer>
+
+  <!-- Advanced Search Modal -->
+  <nz-modal [(nzVisible)]="advancedVisible" nzTitle="Tìm kiếm nâng cao" (nzOnCancel)="advancedVisible = false"
+    (nzOnOk)="load(); advancedVisible = false" nzCancelText="Hủy" nzOkText="Áp dụng">
+    <ng-container *nzModalContent>
+      <div nz-form nzLayout="vertical">
+        <nz-form-item>
+          <nz-form-label>Loại giao dịch</nz-form-label>
+          <nz-form-control>
+            <nz-select [(ngModel)]="loaiGiaoDichId" class="w-full" nzAllowClear nzPlaceHolder="Tất cả">
+              <nz-option *ngFor="let o of loaiThuChiOptions" [nzValue]="o.id" [nzLabel]="o.name || o.ten || o.label"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <div class="grid grid-cols-2 gap-4">
+          <nz-form-item>
+            <nz-form-label>Từ ngày</nz-form-label>
+            <nz-form-control>
+              <nz-date-picker [(ngModel)]="tuNgay" class="w-full rounded-lg"></nz-date-picker>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label>Đến ngày</nz-form-label>
+            <nz-form-control>
+              <nz-date-picker [(ngModel)]="denNgay" class="w-full rounded-lg"></nz-date-picker>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </ng-container>
+  </nz-modal>
+</div>

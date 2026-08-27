@@ -1,0 +1,35 @@
+<form nz-form [formGroup]="form" (ngSubmit)="submit()" nzLayout="vertical" class="p-6">
+  <div class="space-y-4">
+    <nz-form-item>
+      <nz-form-label class="text-gray-600 font-medium">Tháng/Năm</nz-form-label>
+      <nz-form-control>
+        <div class="flex gap-2">
+          <nz-select formControlName="thang" class="rounded-lg h-10" style="width:80px">
+            <nz-option *ngFor="let m of [1,2,3,4,5,6,7,8,9,10,11,12]" [nzValue]="m" [nzLabel]="m"></nz-option>
+          </nz-select>
+          <nz-input-number formControlName="nam" [nzMin]="2020" [nzMax]="2100" class="rounded-lg h-10" style="width:120px"></nz-input-number>
+        </div>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item *ngIf="item">
+      <nz-form-label class="text-gray-600 font-medium">Tên đợt</nz-form-label>
+      <nz-form-control>
+        <input nz-input formControlName="tenDot" placeholder="Nhập tên đợt thanh toán" class="rounded-lg h-10" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label class="text-gray-600 font-medium">Ghi chú</nz-form-label>
+      <nz-form-control>
+        <textarea nz-input formControlName="ghiChu" placeholder="Nhập ghi chú" rows="3" class="rounded-lg"></textarea>
+      </nz-form-control>
+    </nz-form-item>
+  </div>
+
+  <div class="flex justify-end gap-3 mt-6 pt-6 border-t">
+    <button nz-button type="button" (click)="modalRef.destroy()" class="rounded-lg px-6">Hủy</button>
+    <button nz-button nzType="primary" [nzLoading]="loading"
+      class="rounded-lg px-8 border-none font-semibold">Lưu</button>
+  </div>
+</form>

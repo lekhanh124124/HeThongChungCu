@@ -1,0 +1,24 @@
+/* To learn more about this file see: https://angular.io/config/tsconfig. */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/spec",
+    "types": [
+      "jasmine"
+    ]
+  },
+  "files": [
+    "apps/resident-portal/src/test.ts",
+    "apps/resident-portal/src/polyfills.ts",
+    "src/test.ts",
+    "src/polyfills.ts"
+  ],
+  "include": [
+    "apps/resident-portal/src/**/*.spec.ts",
+    "apps/resident-portal/src/**/*.d.ts",
+    "libs/**/*.spec.ts",
+    "libs/**/*.d.ts",
+    "src/**/*.spec.ts",
+    "src/**/*.d.ts"
+  ]
+}

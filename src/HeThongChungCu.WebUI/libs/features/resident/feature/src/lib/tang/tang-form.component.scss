@@ -1,0 +1,28 @@
+:host {
+  display: block;
+}
+
+.tang-form-wrapper {
+  padding-top: 4px;
+}
+
+.form-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+}
+
+::ng-deep .tang-form-wrapper input[nz-input] {
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  padding: 8px 10px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+::ng-deep .tang-form-wrapper input[nz-input]:focus {
+  border-color: #1677ff;
+  box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.15);
+  outline: none;
+}

@@ -1,0 +1,47 @@
+<nz-spin [nzSpinning]="loading">
+  <div *ngIf="items.length > 0" class="space-y-4">
+    <div *ngFor="let row of items; let i = index"
+      class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:border-indigo-200 transition-colors">
+      <div class="p-4 flex items-start justify-between cursor-pointer" (click)="toggleExpand(row)">
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
+              {{ i + 1 }}
+            </div>
+            <span class="font-bold text-gray-800">{{ row.tieuDeKhaoSat }}</span>
+          </div>
+          <div class="flex items-center gap-4 mt-2 text-xs text-gray-500 ml-9">
+            <span class="flex items-center gap-1">
+              <i nz-icon nzType="clock-circle" class="text-[10px]"></i>
+              {{ row.ngayThamGia | date: 'dd/MM/yyyy HH:mm' }}
+            </span>
+          </div>
+        </div>
+        <button nz-button nzType="link" class="text-gray-400">
+          <i nz-icon [nzType]="row._expanded ? 'up' : 'down'" nzTheme="outline"></i>
+        </button>
+      </div>
+
+      <div *ngIf="row._expanded && row.chiTietLuaChon?.length > 0" class="border-t border-gray-50 bg-gray-50/50 p-4 space-y-4">
+        <div *ngFor="let ct of row.chiTietLuaChon" class="bg-white rounded-lg p-3 border border-gray-100">
+          <div class="text-xs font-bold text-gray-500 mb-2">{{ ct.cauHoi }}</div>
+          <div class="space-y-1">
+            <div *ngFor="let lc of ct.luaChons" class="flex items-center gap-2 py-0.5">
+              <i nz-icon [nzType]="lc.isSelected ? 'check-circle' : 'circle'" nzTheme="outline"
+                class="text-sm" [ngClass]="lc.isSelected ? 'text-green-500' : 'text-gray-300'">
+              </i>
+              <span class="text-sm" [ngClass]="lc.isSelected ? 'font-semibold text-gray-800' : 'text-gray-500'">
+                {{ lc.noiDungLuaChon }}
+              </span>
+            </div>
+            <div *ngIf="ct.noiDungTuDo" class="mt-2 p-2 bg-gray-50 rounded-lg text-sm text-gray-600 italic">
+              "{{ ct.noiDungTuDo }}"
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nz-empty *ngIf="!loading && items.length === 0" nzNotFoundContent="Căn hộ này chưa tham gia biểu quyết nào"></nz-empty>
+</nz-spin>

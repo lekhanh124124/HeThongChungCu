@@ -1,0 +1,36 @@
+<div class="toa-nha-form-wrapper">
+  <form [formGroup]="form" (ngSubmit)="save()" class="pt-2 pb-1">
+    <div class="form-card w-full" style="max-width:480px;margin:0 auto;">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Mã tòa nhà <span class="text-red-500">*</span></label>
+          <input nz-input formControlName="maToaNha" placeholder="Nhập mã tòa nhà" />
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Tên tòa nhà <span class="text-red-500">*</span></label>
+          <input nz-input formControlName="tenToaNha" placeholder="Nhập tên tòa nhà" />
+        </div>
+
+        <div class="flex flex-col md:col-span-2">
+          <label class="mb-2 font-medium text-gray-700">Địa chỉ <span class="text-red-500">*</span></label>
+          <input nz-input formControlName="diaChi" placeholder="Nhập địa chỉ" />
+        </div>
+
+        <div class="flex flex-col md:col-span-2">
+          <label class="mb-2 font-medium text-gray-700">Mô tả</label>
+          <textarea nz-input rows="3" formControlName="moTa" placeholder="Mô tả thêm"></textarea>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-5 font-medium text-gray-700">Trạng thái</label>
+          <nz-select formControlName="trangThaiToaNhaId" nzAllowClear nzPlaceHolder="-- Chọn trạng thái --"
+            style="width:100%" class="rounded-[10px]">
+            <nz-option *ngFor="let st of statusOptions" [nzValue]="st.id"
+              [nzLabel]="st.name || st.ten || st.label"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

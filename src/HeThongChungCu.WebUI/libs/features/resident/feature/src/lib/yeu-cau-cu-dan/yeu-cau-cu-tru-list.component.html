@@ -1,0 +1,318 @@
+<div class="p-4">
+  <div class="page-toolbar flex justify-between items-center flex-wrap gap-2 sm:gap-3 mb-4">
+    <div style="display:flex;gap:8px;align-items:center" class="flex-wrap">
+      <input nz-input placeholder="Nhập người gửi/ người xử lý" [(ngModel)]="keyword" (keydown.enter)="onSearch()"
+        class="w-full sm:w-80" style="border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:40px;box-sizing:border-box" />
+      <button nz-button nzType="primary" (click)="onSearch()"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;gap:8px;font-weight:600">
+        <i nz-icon nzType="search" nzTheme="outline"></i>
+        <span>Tìm kiếm</span>
+      </button>
+      <button nz-button type="button" (click)="openAdvanced()"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;gap:8px;font-weight:600">
+        <i nz-icon nzType="filter" nzTheme="outline"></i>
+        <span class="hidden sm:inline">Tìm nâng cao</span>
+      </button>
+    </div>
+    <div class="flex items-center flex-wrap" style="gap:8px">
+      <button *ngIf="setOfCheckedId.size > 0" nz-button nzType="primary" nzDanger (click)="deleteSelected()"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600">
+        <i nz-icon nzType="delete" nzTheme="outline"></i>&nbsp;Xóa đã chọn
+      </button>
+      <button nz-button nzType="default" (click)="onRefresh()"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;border:1px solid #60a5fa;background:#eff6ff;color:#1e3a8a">
+        <i nz-icon nzType="reload" nzTheme="outline"
+          style="font-size:20px;line-height:20px;transform:scale(1.06);display:inline-block;color:#1e3a8a"></i>
+      </button>
+    </div>
+  </div>
+
+  <app-scroll-table [height]="'330px'">
+    <nz-table #reqTable [nzData]="items" [nzLoading]="loading" nzBordered [nzShowPagination]="false"
+      style="min-width:400px" (nzCurrentPageDataChange)="onCurrentPageDataChange($event)">
+      <thead>
+        <tr>
+          <th style="width:48px" [(nzChecked)]="checked" [nzIndeterminate]="indeterminate"
+            (nzCheckedChange)="onAllChecked($event)"></th>
+          <th style="width:90px; text-align:center; vertical-align:middle">Thao tác</th>
+          <th style="width:48px">STT</th>
+          <th style="cursor:pointer" (click)="onSortSelect('NguoiGui')">Người gửi
+            <i nz-icon [nzType]="sortCol === 'NguoiGui' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'NguoiGui' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="text-align:center; cursor:pointer" (click)="onSortSelect('LoaiYeuCau')">Loại yêu cầu
+            <i nz-icon [nzType]="sortCol === 'LoaiYeuCau' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'LoaiYeuCau' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSortSelect('NoiDung')">Nội dung
+            <i nz-icon [nzType]="sortCol === 'NoiDung' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'NoiDung' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSortSelect('LyDo')">Lý do từ chối
+            <i nz-icon [nzType]="sortCol === 'LyDo' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline" [ngStyle]="{'margin-left':'6px','color': sortCol === 'LyDo' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSortSelect('NguoiXuLy')">Người xử lý
+            <i nz-icon [nzType]="sortCol === 'NguoiXuLy' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'NguoiXuLy' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSortSelect('CreatedAt')">Ngày tạo
+            <i nz-icon [nzType]="sortCol === 'CreatedAt' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'CreatedAt' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSortSelect('NgayXuLy')">Ngày xử lý
+            <i nz-icon [nzType]="sortCol === 'NgayXuLy' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'NgayXuLy' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer" (click)="onSortSelect('TrangThaiId')">Trạng thái
+            <i nz-icon [nzType]="sortCol === 'TrangThaiId' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'TrangThaiId' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let it of items; let i = index" class="hover:bg-blue-50/30 transition-colors"
+          [ngClass]="{ 'highlight-row': it._highlight }">
+          <td [nzChecked]="setOfCheckedId.has(it.id)" (nzCheckedChange)="onItemChecked(it.id, $event)"></td>
+          <td>
+            <a nz-dropdown nzTrigger="hover" [nzDropdownMenu]="actionMenu"
+              style="display:inline-flex;align-items:center;justify-content:center;width:100%">
+              <i nz-icon nzType="unordered-list" nzTheme="outline" class="cursor-pointer action-icon"
+                style="font-size:18px;line-height:1;display:block"></i>
+            </a>
+            <nz-dropdown-menu #actionMenu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item (click)="openDetail(it)"><i nz-icon nzType="eye" nzTheme="outline"></i>&nbsp;Xem chi
+                  tiết</li>
+                <li nz-menu-item (click)="approve(it)"><i nz-icon nzType="check" nzTheme="outline"></i>&nbsp;Phê duyệt
+                </li>
+                <li nz-menu-item class="text-red-500" (click)="reject(it)"><i nz-icon nzType="close-circle"
+                    nzTheme="outline"></i>&nbsp;Từ chối</li>
+                <li nz-menu-item class="text-red-500" (click)="deleteOne(it.id)"><i nz-icon nzType="delete"
+                    nzTheme="outline"></i>&nbsp;Xóa</li>
+              </ul>
+            </nz-dropdown-menu>
+          </td>
+          <td>{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+          <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.tenNguoiGui ||
+            it.createdBy || '-' }}</td>
+          <td style="text-align:center;vertical-align:middle">
+            <span class="type-label" [ngClass]="getLoaiYeuCauClass(it.loaiYeuCauId)">
+              {{ it.tenLoaiYeuCau || it.loaiYeuCauId }}
+            </span>
+          </td>
+          <td style="max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.noiDung || '-' }}
+          </td>
+          <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.lyDo || '-' }}
+          </td>
+          <td>{{ it.tenNguoiXuLy || it.nguoiXuLyId || '-' }}</td>
+          <td>{{ it.createdAt ? (it.createdAt | date:'dd/MM/yyyy HH:mm') : '-' }}</td>
+          <td>{{ it.ngayXuLy ? (it.ngayXuLy | date:'dd/MM/yyyy HH:mm') : '-' }}</td>
+          <td>
+            <nz-tag [nzColor]="getTrangThaiBgColor(it.trangThaiId)"
+              class="rounded-full border-none px-3 font-semibold text-[11px] uppercase"
+              [ngClass]="getTrangThaiBadgeClass(it.trangThaiId)">
+              {{ it.tenTrangThai || it.trangThaiId }}
+            </nz-tag>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </app-scroll-table>
+
+  <div style="display:flex;justify-content:flex-end;margin-top:12px">
+    <nz-pagination [nzPageIndex]="pageNumber" [nzPageSize]="pageSize" [nzTotal]="total"
+      (nzPageIndexChange)="onPageChange($event)" (nzPageSizeChange)="onPageSizeChange($event)"></nz-pagination>
+  </div>
+
+  <!-- SIDE DRAWER FOR DETAIL -->
+  <nz-drawer [nzVisible]="detailVisible" [nzWidth]="800" nzTitle="Chi tiết yêu cầu cư trú"
+    (nzOnClose)="closeDetail()">
+    <ng-container *nzDrawerContent>
+      <div *ngIf="detailLoading" class="flex justify-center py-10">
+        <nz-spin nzSimple></nz-spin>
+      </div>
+
+      <div *ngIf="!detailLoading && selectedRequest as r" class="detail-container">
+        <!-- HEADER SUMMARY -->
+        <div class="mb-8 p-4 bg-gray-50 rounded-lg flex justify-between items-center relative">
+          <div class="min-w-0 flex-1 pr-20">
+            <div class="text-sm text-indigo-600 font-medium uppercase tracking-wide mb-2">Yêu cầu cư trú</div>
+            <div class="text-sm text-gray-700">
+              <div class="grid grid-cols-2 gap-x-12 gap-y-1">
+                <div class="flex items-center">
+                  <span class="w-28 font-medium text-gray-500">Người gửi:</span>
+                  <span class="font-semibold">{{ r.tenNguoiGui || '-' }}</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="w-28 font-medium text-gray-500">Tạo lúc:</span>
+                  <span class="font-semibold">{{ r.createdAt ? (r.createdAt | date:'dd/MM/yyyy HH:mm') : '-' }}</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="w-28 font-medium text-gray-500">Người xử lý:</span>
+                  <span class="font-semibold">{{ r.tenNguoiXuLy || '-' }}</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="w-28 font-medium text-gray-500">Xử lý lúc:</span>
+                  <span class="font-semibold">{{ r.ngayXuLy ? (r.ngayXuLy | date:'dd/MM/yyyy HH:mm') : '-' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="absolute right-4 top-4">
+            <div
+              class="inline-flex items-center px-4 py-2 rounded-full text-white text-sm font-bold shadow-sm badge-large"
+              [style.backgroundColor]="getTrangThaiBgColor(r.trangThaiId)">
+              <i nz-icon [nzType]="getTrangThaiIcon(r.trangThaiId)" nzTheme="outline" class="mr-2"
+                style="font-size:16px"></i>
+              <span class="leading-none uppercase">{{ r.tenTrangThai || r.trangThaiId }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 mb-6">
+          <div>
+            <h4 class="section-title">Thông tin người được thêm</h4>
+            <div class="grid grid-cols-1 gap-4">
+              <div class="info-row"><span class="label">Họ:</span><span class="value">{{ r.yeuCauHo || '-' }}</span></div>
+              <div class="info-row"><span class="label">Tên:</span><span class="value">{{ r.yeuCauTen || '-' }}</span></div>
+              <div class="info-row"><span class="label">Ngày sinh:</span><span class="value">{{ r.yeuCauNgaySinh ? (r.yeuCauNgaySinh | date:'dd/MM/yyyy') : '-' }}</span></div>
+              <div class="info-row"><span class="label">Giới tính:</span><span class="value">{{ r.yeuCauGioiTinhTen || '-' }}</span></div>
+              <div class="info-row"><span class="label">CCCD/CMND:</span><span class="value">{{ r.yeuCauCCCD || '-' }}</span></div>
+              <div class="info-row"><span class="label">SĐT:</span><span class="value">{{ r.yeuCauSoDienThoai || '-' }}</span></div>
+              <div class="info-row items-start"><span class="label">Địa chỉ:</span><span class="value whitespace-pre-wrap">{{ r.yeuCauDiaChi || '-' }}</span></div>
+            </div>
+          </div>
+          <div>
+            <h4 class="section-title">Thông tin cư trú</h4>
+            <div class="grid grid-cols-1 gap-4">
+              <div class="info-row"><span class="label">Tòa nhà:</span><span class="value">{{ r.tenToaNha || '-' }}</span></div>
+              <div class="info-row"><span class="label">Tầng:</span><span class="value">{{ r.tenTang || '-' }}</span></div>
+              <div class="info-row"><span class="label">Căn hộ:</span><span class="value">{{ r.tenCanHo || '-' }}</span></div>
+              <div class="info-row"><span class="label">Loại yêu cầu:</span><span class="value">{{ r.tenLoaiYeuCau || '-' }}</span></div>
+              <div class="info-row"><span class="label">Loại quan hệ:</span><span class="value">{{ r.yeuCauLoaiQuanHeTen || '-' }}</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h4 class="section-title">Nội dung & Ghi chú</h4>
+          <div class="p-4 bg-white border rounded-lg shadow-sm mb-4">
+            <div class="font-medium mb-2 text-gray-500 uppercase text-xs tracking-wider">Nội dung yêu cầu:</div>
+            <div class="whitespace-pre-wrap text-gray-700 leading-relaxed">{{ r.noiDung || '-' }}</div>
+          </div>
+          <div *ngIf="r.lyDo" class="p-4 bg-amber-50 border border-amber-100 rounded-lg">
+            <div class="font-medium mb-2 text-amber-700 uppercase text-xs tracking-wider">Lý do quyết định:</div>
+            <div class="text-amber-900">{{ r.lyDo }}</div>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h4 class="section-title">Tài liệu đính kèm</h4>
+          <div class="grid gap-4">
+            <ng-container *ngIf="r.documents && r.documents.length; else noDocsTpl">
+              <div *ngFor="let d of r.documents" class="doc-item p-4 border rounded-lg bg-white shadow-sm flex flex-col gap-3">
+                <div class="flex items-start gap-3">
+                  <div class="h-10 w-10 flex items-center justify-center rounded-full bg-indigo-50 text-indigo-600 text-xl">
+                    <i nz-icon nzType="file-text" nzTheme="outline"></i>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-bold text-gray-800">{{ d.tenLoaiGiayTo || ('Giấy tờ #' + d.id) }}</div>
+                    <div class="text-xs text-gray-500 mt-1">
+                      Số: {{ d.soGiayTo || '-' }} · Ngày: {{ d.ngayPhatHanh ? (d.ngayPhatHanh | date:'dd/MM/yyyy') : '-' }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pl-12 space-y-2">
+                  <ng-container *ngIf="d.files && d.files.length; else noFilesTpl">
+                    <div *ngFor="let f of d.files" class="flex items-center gap-2 p-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors group">
+                      <i nz-icon nzType="paper-clip" class="text-gray-400 group-hover:text-indigo-500"></i>
+                      <a class="text-sm font-medium text-blue-600 truncate flex-1 hover:underline" [href]="f.fileUrl" target="_blank">
+                        {{ f.fileName || 'Tải file' }}
+                      </a>
+                      <i nz-icon nzType="download" class="text-gray-300 group-hover:text-gray-500 cursor-pointer"></i>
+                    </div>
+                  </ng-container>
+                  <ng-template #noFilesTpl>
+                    <span class="text-xs text-gray-400 italic">Không có file đính kèm</span>
+                  </ng-template>
+                </div>
+              </div>
+            </ng-container>
+            <ng-template #noDocsTpl>
+              <div class="py-10 text-center text-gray-400 border-2 border-dashed border-gray-100 rounded-xl bg-gray-50">
+                <i nz-icon nzType="inbox" class="text-3xl mb-2"></i>
+                <div class="text-sm">Không có tài liệu đính kèm</div>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+
+        <!-- ACTIONS BAR -->
+        <div class="sticky-bottom-bar flex gap-3 justify-end">
+          <button nz-button nzType="default" (click)="closeDetail()">
+            Đóng
+          </button>
+
+          <ng-container *ngIf="r.trangThaiId === 1">
+            <button nz-button nzType="primary" class="btn-blue" (click)="approve(r)">Phê duyệt
+            </button>
+            <button nz-button nzDanger nzType="primary" (click)="reject(r)">Từ chối
+            </button>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </nz-drawer>
+
+  <ng-template #rejectTpl>
+    <div style="min-width:420px">
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">Vui lòng nhập lý do từ chối yêu cầu:</label>
+        <textarea nz-input [(ngModel)]="rejectReason" [ngModelOptions]="{standalone:true}" rows="4"
+          style="width:100%;box-sizing:border-box;padding:8px;border-radius:6px;border:1px solid #e5e7eb"></textarea>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+        <button nz-button type="button" (click)="cancelReject()">Hủy</button>
+        <button nz-button nzType="primary" type="button" (click)="submitReject()">Gửi</button>
+      </div>
+    </div>
+  </ng-template>
+
+  <nz-modal [(nzVisible)]="advancedVisible" nzTitle="Tìm kiếm nâng cao" (nzOnCancel)="closeAdvanced()" [nzFooter]="null"
+    nzWrapClassName="advanced-search-modal">
+    <ng-container *nzModalContent>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3" style="margin-top:4px">
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Loại yêu cầu</label>
+          <nz-select [(ngModel)]="loaiYeuCauId" [ngModelOptions]="{standalone:true}" nzAllowClear
+            nzPlaceHolder="-- Tất cả --" style="width:100%">
+            <nz-option *ngFor="let o of loaiYeuCauOptions" [nzValue]="o.id"
+              [nzLabel]="o.name || o.label || o.text"></nz-option>
+          </nz-select>
+        </div>
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Trạng thái</label>
+          <nz-select [(ngModel)]="trangThaiId" [ngModelOptions]="{standalone:true}" nzAllowClear
+            nzPlaceHolder="-- Tất cả --" style="width:100%">
+            <nz-option *ngFor="let o of trangThaiOptions" [nzValue]="o.id"
+              [nzLabel]="o.name || o.label || o.text"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px">
+        <button nz-button type="button" (click)="closeAdvanced()" class="rounded-lg">Hủy</button>
+        <button nz-button nzType="primary" type="button" (click)="applyAdvanced()" class="rounded-lg">Áp dụng</button>
+      </div>
+    </ng-container>
+  </nz-modal>
+</div>

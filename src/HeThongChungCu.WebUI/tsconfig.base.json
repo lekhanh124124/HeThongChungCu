@@ -1,0 +1,143 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "./dist/out-tsc",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "sourceMap": true,
+    "declaration": false,
+    "downlevelIteration": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "es2017",
+    "module": "es2020",
+    "lib": [
+      "es2018",
+      "dom"
+    ],
+    "paths": {
+      "@app/*": [
+        "apps/resident-portal/src/app/*"
+      ],
+      "@env/*": [
+        "apps/resident-portal/src/environments/*"
+      ],
+      "@core/auth/data-access": [
+        "libs/core/auth/data-access/src/lib/index.ts"
+      ],
+      "@core/auth/data-access/*": [
+        "libs/core/auth/data-access/src/lib/*"
+      ],
+      "@core/guards": [
+        "libs/core/guards/src/lib/index.ts"
+      ],
+      "@core/interceptors": [
+        "libs/core/interceptors/src/lib/index.ts"
+      ],
+      "@features/auth/feature": [
+        "libs/features/auth/feature/src/lib/index.ts"
+      ],
+      "@features/auth/data-access": [
+        "libs/features/auth/data-access/src/lib/index.ts"
+      ],
+      "@features/dashboard/feature": [
+        "libs/features/dashboard/feature/src/lib/index.ts"
+      ],
+      "@features/dashboard/data-access": [
+        "libs/features/dashboard/data-access/src/lib/index.ts"
+      ],
+      "@features/resident/feature": [
+        "libs/features/resident/feature/src/lib/index.ts"
+      ],
+      "@features/profile/feature": [
+        "libs/features/profile/feature/src/lib/index.ts"
+      ],
+      "@features/profile/data-access": [
+        "libs/features/profile/data-access/src/lib/index.ts"
+      ],
+      "@features/resident/data-access": [
+        "libs/features/resident/data-access/src/lib/index.ts"
+      ],
+      "@features/doi-tac/feature": [
+        "libs/features/doi-tac/feature/src/lib/index.ts"
+      ],
+      "@features/doi-tac/data-access": [
+        "libs/features/doi-tac/data-access/src/lib/index.ts"
+      ],
+      "@features/dich-vu/feature": [
+        "libs/features/dich-vu/feature/src/lib/index.ts"
+      ],
+      "@features/dich-vu/data-access": [
+        "libs/features/dich-vu/data-access/src/lib/index.ts"
+      ],
+      "@features/thanh-toan/feature": [
+        "libs/features/thanh-toan/feature/src/lib/index.ts"
+      ],
+      "@features/thanh-toan/data-access": [
+        "libs/features/thanh-toan/data-access/src/lib/index.ts"
+      ],
+      "@features/bao-tri/feature": [
+        "libs/features/bao-tri/feature/src/lib/index.ts"
+      ],
+      "@features/bao-tri/data-access": [
+        "libs/features/bao-tri/data-access/src/lib/index.ts"
+      ],
+      "@shared/ui": [
+        "libs/shared/ui/src/lib/index.ts"
+      ],
+      "@shared/utils": [
+        "libs/shared/utils/src/lib/index.ts"
+      ],
+      "@shared/models": [
+        "libs/shared/models/src/lib/index.ts"
+      ]
+      ,
+      "@core/signalr": [
+        "libs/core/signalr/src/lib/index.ts"
+      ],
+      "@core/signalr/*": [
+        "libs/core/signalr/src/lib/*"
+      ]
+      ,
+      "@core/notification": [
+        "libs/core/notification/src/lib/index.ts"
+      ],
+      "@core/notification/*": [
+        "libs/core/notification/src/lib/*"
+      ],
+      "@features/khao-sat/feature": [
+        "libs/features/khao-sat/feature/src/lib/index.ts"
+      ],
+      "@features/khao-sat/data-access": [
+        "libs/features/khao-sat/data-access/src/lib/index.ts"
+      ],
+      "@features/phan-anh/feature": [
+        "libs/features/phan-anh/feature/src/lib/index.ts"
+      ],
+      "@features/phan-anh/data-access": [
+        "libs/features/phan-anh/data-access/src/lib/index.ts"
+      ],
+      "@features/sao-luu/feature": [
+        "libs/features/sao-luu/feature/src/lib/index.ts"
+      ],
+      "@features/sao-luu/data-access": [
+        "libs/features/sao-luu/data-access/src/lib/index.ts"
+      ],
+      "@features/quy-thu-chi/feature": [
+        "libs/features/quy-thu-chi/feature/src/lib/index.ts"
+      ],
+      "@features/quy-thu-chi/data-access": [
+        "libs/features/quy-thu-chi/data-access/src/lib/index.ts"
+      ],
+      "@features/tri-thuc/feature": [
+        "libs/features/tri-thuc/feature/src/lib/index.ts"
+      ],
+      "@features/tri-thuc/data-access": [
+        "libs/features/tri-thuc/data-access/src/lib/index.ts"
+      ]
+    }
+  }
+}

@@ -1,0 +1,98 @@
+﻿<div class="khung-gio-list">
+  <!-- Toolbar -->
+  <div class="page-toolbar flex justify-between items-center flex-wrap gap-2 sm:gap-3 mb-4">
+    <div class="flex items-center gap-2">
+      <input nz-input placeholder="Tìm theo tên khung giờ" [(ngModel)]="keyword" (keydown.enter)="onSearch()"
+        class="w-80 rounded-lg h-10 border-gray-200" />
+      <button nz-button nzType="primary" (click)="onSearch()"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;gap:8px;font-weight:600">
+        <i nz-icon nzType="search" nzTheme="outline"></i>
+        <span>Tìm kiếm</span>
+      </button>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button nz-button type="button" (click)="onRefresh()" [nzLoading]="loading"
+        style="height:40px;padding:6px 12px;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;border:1px solid #60a5fa;background:#eff6ff;color:#1e3a8a">
+        <i nz-icon nzType="reload" nzTheme="outline" style="font-size:18px;color:#1e3a8a"></i>
+      </button>
+      <button nz-button nzType="primary" (click)="openCreateModal()"
+        style="height:40px;padding:6px 12px;border-radius:8px;display:flex;align-items:center;gap:8px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.06)">
+        <i nz-icon nzType="plus-circle" nzTheme="outline"></i>
+        <span>Tạo khung giờ</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="responsive-table">
+  <nz-table [nzData]="list" [nzLoading]="loading" [nzShowPagination]="false" class="modern-table">
+      <thead>
+        <tr>
+          <th style="width:80px; text-align:center">Thao tác</th>
+          <th>Tên khung giờ</th>
+          <th>Giờ bắt đầu</th>
+          <th>Giờ kết thúc</th>
+          <th>Ngày trong tuần</th>
+          <th>Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of list">
+          <td class="text-center">
+            <a nz-dropdown nzTrigger="hover" [nzDropdownMenu]="actionMenu">
+              <i nz-icon nzType="unordered-list" class="text-lg cursor-pointer text-gray-500"></i>
+            </a>
+            <nz-dropdown-menu #actionMenu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item (click)="view(item)"><i nz-icon nzType="eye" class="mr-2"></i>Xem chi tiết</li>
+                <li nz-menu-item (click)="activate(item)"><i nz-icon nzType="check" class="mr-2"></i>Kích hoạt</li>
+                <li nz-menu-item nzDanger nz-popconfirm nzPopconfirmTitle="Thu hồi khung giờ này?"
+                  (nzOnConfirm)="revoke(item)">
+                  <i nz-icon nzType="stop" class="mr-2"></i>Thu hồi
+                </li>
+                <li nz-menu-item nzDanger nz-popconfirm nzPopconfirmTitle="Xóa khung giờ này?"
+                  (nzOnConfirm)="delete(item)">
+                  <i nz-icon nzType="delete" class="mr-2"></i>Xóa vĩnh viễn
+                </li>
+              </ul>
+            </nz-dropdown-menu>
+          </td>
+          <td class="font-bold text-gray-800">{{ item.tenKhungGio || '-' }}</td>
+          <td><span class="bg-blue-50 text-blue-600 px-2 py-1 rounded font-medium">{{ item.gioBatDau || '-' }}</span>
+          </td>
+          <td><span class="bg-amber-50 text-amber-600 px-2 py-1 rounded font-medium">{{ item.gioKetThuc || '-' }}</span>
+          </td>
+          <td>
+            <nz-tag [nzColor]="item.ngayTrongTuan !== null ? 'blue' : 'default'"
+              class="rounded-full border-none px-3 font-semibold text-[11px] uppercase">
+              {{ getNgayTrongTuanLabel(item.ngayTrongTuan) }}
+            </nz-tag>
+          </td>
+          <td>
+            <nz-tag [nzColor]="item.isActive ? 'green' : 'red'"
+              class="rounded-full border-none px-3 font-semibold text-[11px] uppercase">
+              {{ item.isActive ? 'Đang hoạt động' : 'Ngừng' }}
+            </nz-tag>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;margin-top:12px">
+    <nz-pagination [nzTotal]="total" [nzPageIndex]="pageNumber" [nzPageSize]="pageSize"
+      (nzPageIndexChange)="onPageChange($event)" (nzPageSizeChange)="onPageSizeChange($event)"></nz-pagination>
+  </div>
+</div>
+
+<nz-modal [(nzVisible)]="isModalVisible" [nzTitle]="modalHeader" (nzOnCancel)="cancelModal()" [nzFooter]="null"
+  nzWidth="500px">
+  <ng-template #modalHeader>
+    <span class="font-bold">{{ editingId ? 'Chi tiết khung giờ' : 'Tạo mới khung giờ' }}</span>
+  </ng-template>
+  <ng-container *nzModalContent>
+    <app-khung-gio-form [inModal]="true" [itemId]="editingId" [dichVuId]="dichVuId" [readOnly]="readOnly"
+      (saved)="onSaved()" (cancelled)="cancelModal()"></app-khung-gio-form>
+  </ng-container>
+</nz-modal>

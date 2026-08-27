@@ -1,0 +1,135 @@
+<div *ngIf="loading && !data" class="flex justify-center items-center h-96">
+  <nz-spin nzSimple nzTip="Đang tải chi tiết phản ánh..."></nz-spin>
+</div>
+
+<div *ngIf="data" class="grid grid-cols-1 lg:grid-cols-12 gap-0 lg:min-h-[85vh] lg:h-[85vh]">
+  <!-- Left Side: Information -->
+  <div class="lg:col-span-4 bg-gray-50/50 lg:border-r border-b lg:border-b-0 border-gray-100 p-4 sm:p-6 lg:overflow-y-auto">
+    <div class="space-y-8">
+      <section>
+        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 block">Thông tin phản ánh</label>
+        <h3 class="text-xl font-black text-gray-800 leading-tight mb-2">{{ data.tieuDe }}</h3>
+        <p class="text-sm text-gray-600 leading-relaxed">{{ data.noiDung }}</p>
+      </section>
+
+      <section>
+        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 block">Đính kèm</label>
+        <div class="grid grid-cols-3 sm:grid-cols-2 gap-2" *ngIf="data.danhSachTep.length > 0; else noFiles">
+          <div *ngFor="let file of data.danhSachTep" class="relative aspect-square rounded-xl overflow-hidden border border-gray-200 group cursor-pointer shadow-sm">
+            <img nz-image [nzSrc]="file.fileUrl" class="w-full h-full object-cover transition-transform group-hover:scale-110" />
+            <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <i nz-icon nzType="zoom-in" class="text-white text-xl"></i>
+            </div>
+          </div>
+        </div>
+        <ng-template #noFiles>
+          <p class="text-xs text-gray-400 italic">Không có tệp đính kèm</p>
+        </ng-template>
+      </section>
+
+      <section class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+        <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-3 block">Đối tượng gửi</label>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-black shadow-lg shadow-indigo-100">
+            {{ data.tenCanHo.substring(0, 2) }}
+          </div>
+          <div>
+            <p class="font-bold text-gray-800 leading-none mb-1">{{ data.tenCanHo }}</p>
+            <p class="text-xs text-gray-400 font-medium">{{ data.tenNguoiGui }}</p>
+          </div>
+        </div>
+      </section>
+
+      <section *ngIf="data.nguoiXuLyId" class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
+        <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-3 block">Người đang xử lý</label>
+        <div class="flex items-center gap-3">
+          <nz-avatar nzIcon="user" [nzSize]="32" class="bg-indigo-400 shadow-sm"></nz-avatar>
+          <span class="text-sm font-bold text-indigo-900">{{ data.tenNguoiXuLy }}</span>
+        </div>
+      </section>
+
+      <section *ngIf="data.trangThaiPhanAnhId === 6" class="bg-green-50 p-4 rounded-2xl border border-green-100">
+        <label class="text-[10px] font-bold text-green-500 uppercase tracking-widest mb-3 block">Đánh giá chất lượng</label>
+        <div class="flex items-center gap-2 mb-2">
+          <nz-rate [ngModel]="data.diemDanhGia" nzDisabled class="text-green-500"></nz-rate>
+          <span class="text-sm font-bold text-green-700">{{ data.diemDanhGia }}/5</span>
+        </div>
+        <p class="text-xs text-green-600 italic">"{{ data.nhanXetDanhGia }}"</p>
+      </section>
+    </div>
+  </div>
+
+  <!-- Right Side: Interaction & Chat -->
+  <div class="lg:col-span-8 flex flex-col lg:h-full bg-white relative">
+    <!-- Header with Actions -->
+    <div class="p-3 sm:p-4 border-b border-gray-100 flex flex-wrap gap-2 justify-between items-start sm:items-center bg-white">
+      <div class="flex items-center gap-3">
+        <div class="w-2 h-2 rounded-full animate-pulse" [class.bg-green-500]="data.trangThaiPhanAnhId === 6" [class.bg-blue-500]="data.trangThaiPhanAnhId === 2"></div>
+        <span class="text-xs sm:text-sm font-black text-gray-800 uppercase tracking-wider">{{ data.trangThaiPhanAnhTen }}</span>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        <button *ngIf="data.trangThaiPhanAnhId === 1" nz-button nzType="primary" (click)="tiepNhan()" class="bg-blue-600 border-blue-600 rounded-lg font-bold shadow-md shadow-blue-100">
+          <i nz-icon nzType="check"></i> Tiếp nhận
+        </button>
+        <button *ngIf="data.trangThaiPhanAnhId >= 2 && data.trangThaiPhanAnhId <= 4" nz-button nzType="default" (click)="xacNhanHoanThanh()" class="bg-green-600 border-green-600 rounded-lg font-bold shadow-md shadow-green-100 hover:bg-green-700 hover:border-green-700 text-white hover:text-white">
+          <i nz-icon nzType="check-circle"></i> Hoàn thành
+        </button>
+        <button *ngIf="data.trangThaiPhanAnhId < 5" nz-button nzDanger nzType="default" (click)="huy()" class="rounded-lg font-bold border-red-100 text-red-500 hover:bg-red-50">
+          <i nz-icon nzType="stop"></i> Từ chối
+        </button>
+      </div>
+    </div>
+
+    <!-- Chat/History Area -->
+    <div #scrollMe class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-4 sm:space-y-6 bg-gray-50/30">
+      <div class="flex justify-center">
+        <span class="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] bg-white px-4 py-1 rounded-full border border-gray-100 shadow-sm">Ngày gửi: {{ data.createdAt | date: 'dd/MM/yyyy' }}</span>
+      </div>
+
+      <!-- Initial Content as First Message -->
+      <div class="flex gap-4">
+        <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center font-bold shadow-sm border border-indigo-100 flex-shrink-0">
+          CD
+        </div>
+        <div class="max-w-[90%] sm:max-w-[80%]">
+          <div class="bg-white p-3 sm:p-4 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm">
+            <p class="text-xs sm:text-sm font-bold text-gray-800 mb-1">{{ data.tenNguoiGui }}</p>
+            <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">{{ data.noiDung }}</p>
+          </div>
+          <span class="text-[9px] text-gray-400 font-bold uppercase mt-1.5 block ml-1">{{ data.createdAt | date: 'HH:mm' }}</span>
+        </div>
+      </div>
+
+      <!-- Replies -->
+      <div *ngFor="let msg of data.traLoiPhanAnhs" class="flex gap-4" [class.flex-row-reverse]="msg.isNhanVien">
+        <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-bold shadow-sm flex-shrink-0"
+             [class.bg-indigo-50]="!msg.isNhanVien" [class.text-indigo-500]="!msg.isNhanVien" [class.border-indigo-100]="!msg.isNhanVien"
+             [class.bg-gradient-to-br]="msg.isNhanVien" [class.from-indigo-600]="msg.isNhanVien" [class.to-indigo-400]="msg.isNhanVien" [class.text-white]="msg.isNhanVien" [class.shadow-indigo-100]="msg.isNhanVien">
+          {{ msg.isNhanVien ? 'BQL' : 'CD' }}
+        </div>
+        <div class="max-w-[90%] sm:max-w-[80%]" [class.text-right]="msg.isNhanVien">
+          <div class="p-3 sm:p-4 rounded-2xl shadow-sm border transition-all"
+               [class.bg-white]="!msg.isNhanVien" [class.border-gray-100]="!msg.isNhanVien" [class.rounded-tl-none]="!msg.isNhanVien"
+               [class.bg-indigo-600]="msg.isNhanVien" [class.border-indigo-500]="msg.isNhanVien" [class.text-white]="msg.isNhanVien" [class.rounded-tr-none]="msg.isNhanVien">
+            <p class="text-[10px] font-black uppercase mb-1 opacity-60 tracking-wider">{{ msg.tenNguoiGui }}</p>
+            <p class="text-xs sm:text-sm leading-relaxed">{{ msg.noiDung }}</p>
+          </div>
+          <span class="text-[9px] text-gray-400 font-bold uppercase mt-1.5 block" [class.mr-1]="msg.isNhanVien" [class.ml-1]="!msg.isNhanVien">
+            {{ msg.createdAt | date: 'HH:mm' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message Input -->
+    <div class="p-3 sm:p-6 bg-white border-t border-gray-100" *ngIf="data.trangThaiPhanAnhId >= 2 && data.trangThaiPhanAnhId < 5">
+      <div class="relative flex items-center gap-3 bg-gray-50 p-2 rounded-2xl border border-gray-200 focus-within:border-indigo-400 focus-within:ring-4 focus-within:ring-indigo-50 transition-all">
+        <textarea nz-input [(ngModel)]="replyContent" [nzAutosize]="{ minRows: 1, maxRows: 4 }" placeholder="Nhập phản hồi cho cư dân..." class="flex-1 bg-transparent border-none shadow-none focus:ring-0 text-xs sm:text-sm py-2 px-2"></textarea>
+        <button nz-button nzType="primary" (click)="sendReply()" [nzLoading]="submittingReply" class="h-10 w-10 p-0 rounded-xl bg-indigo-600 border-indigo-600 shadow-lg shadow-indigo-100 flex items-center justify-center flex-shrink-0">
+          <i nz-icon nzType="send" class="text-lg"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

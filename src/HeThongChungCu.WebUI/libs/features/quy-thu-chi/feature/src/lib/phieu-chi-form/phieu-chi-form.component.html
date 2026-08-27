@@ -1,0 +1,78 @@
+﻿<form nz-form [formGroup]="form" nzLayout="vertical" class="p-2">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <nz-form-item>
+      <nz-form-label class="font-medium text-gray-700">Ngày giao dịch</nz-form-label>
+      <nz-form-control [nzErrorTip]="'Vui lòng chọn ngày'">
+        <nz-date-picker formControlName="ngayGiaoDich" class="w-full rounded-lg"></nz-date-picker>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label class="font-medium text-gray-700">Phương thức thanh toán</nz-form-label>
+      <nz-form-control [nzErrorTip]="'Vui lòng nhập phương thức'">
+        <input nz-input formControlName="phuongThucThanhToanId" placeholder="VD: Tiền mặt, Chuyển khoản..."
+          style="border-radius:6px;border:1px solid #e5e7eb;padding:6px 12px;height:36px;box-sizing:border-box" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label class="font-medium text-gray-700">Người giao dịch</nz-form-label>
+      <nz-form-control [nzErrorTip]="'Vui lòng nhập người giao dịch'">
+        <input nz-input formControlName="nguoiGiaoDich" placeholder="Tên người nhận"
+          style="border-radius:6px;border:1px solid #e5e7eb;padding:6px 12px;height:36px;box-sizing:border-box" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label class="font-medium text-gray-700">Chứng từ gốc</nz-form-label>
+      <nz-form-control>
+        <input nz-input formControlName="chungTuGoc" placeholder="Số chứng từ"
+          style="border-radius:6px;border:1px solid #e5e7eb;padding:6px 12px;height:36px;box-sizing:border-box" />
+      </nz-form-control>
+    </nz-form-item>
+  </div>
+
+  <nz-divider nzText="Chi tiết các khoản chi" nzOrientation="left" class="text-sm font-bold"></nz-divider>
+
+  <div formArrayName="chiTiets">
+    <div *ngFor="let ct of chiTiets.controls; let i = index" [formGroupName]="i" class="p-3 mb-3 border border-gray-200 rounded-xl bg-gray-50">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold text-gray-400 uppercase">Khoản chi {{ i + 1 }}</span>
+        <button nz-button nzDanger nzType="default" nzSize="small" *ngIf="chiTiets.length > 1" (click)="removeChiTiet(i)"
+          class="rounded-lg inline-flex items-center gap-1 text-xs px-2.5 py-1 h-auto">
+          <i nz-icon nzType="delete"></i> Xóa
+        </button>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <nz-form-item>
+          <nz-form-label nzFor="soTien" class="font-medium text-gray-700">Số tiền</nz-form-label>
+          <nz-form-control [nzErrorTip]="'Vui lòng nhập số tiền > 0'">
+            <nz-input-number formControlName="soTien" class="w-full rounded-lg" [nzMin]="1" [nzFormatter]="formatter" [nzParser]="parser"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="nhomThongKe" class="font-medium text-gray-700">Nhóm thống kê</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="nhomThongKe" placeholder="VD: Chi phí QL, Chi phí bảo trì..."
+              style="border-radius:6px;border:1px solid #e5e7eb;padding:6px 12px;height:36px;box-sizing:border-box" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzFor="ghiChu" class="font-medium text-gray-700">Ghi chú</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="ghiChu" placeholder="Ghi chú khoản chi"
+              style="border-radius:6px;border:1px solid #e5e7eb;padding:6px 12px;height:36px;box-sizing:border-box" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+  </div>
+
+  <button nz-button nzType="dashed" (click)="addChiTiet()" class="w-full mb-4" style="border-radius:8px">
+    <i nz-icon nzType="plus-circle"></i> Thêm khoản chi
+  </button>
+
+  <div class="flex justify-end gap-3 pt-2 border-t border-gray-100">
+    <button nz-button nzType="default" (click)="cancel()" class="rounded-lg">Hủy</button>
+    <button nz-button nzType="primary" (click)="save()" [nzLoading]="saving"
+      class="rounded-lg">Lưu phiếu chi
+    </button>
+  </div>
+</form>

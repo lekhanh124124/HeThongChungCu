@@ -1,0 +1,31 @@
+<div class="tang-form-wrapper">
+  <form [formGroup]="form" (ngSubmit)="save()" class="pt-2 pb-1">
+    <div class="form-card w-full" style="max-width:480px;margin:0 auto;">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Tòa nhà <span class="text-red-500">*</span></label>
+          <input nz-input type="number" formControlName="toaNhaId" placeholder="ID tòa nhà" />
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Mã tầng <span class="text-red-500">*</span></label>
+          <input nz-input formControlName="maTang" placeholder="Nhập mã tầng" />
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Tên tầng <span class="text-red-500">*</span></label>
+          <input nz-input formControlName="tenTang" placeholder="Nhập tên tầng" />
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Loại tầng</label>
+          <nz-select formControlName="loaiTangId" nzAllowClear nzPlaceHolder="-- Chọn loại tầng --" style="width:100%"
+            class="rounded-[10px]">
+            <nz-option *ngFor="let lt of loaiTangOptions" [nzValue]="lt.id"
+              [nzLabel]="lt.name || lt.ten || lt.label || lt.title || lt.value"></nz-option>
+          </nz-select>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,8 @@
+<div class="resident-layout" [class.no-tree]="!showTree">
+  <div class="resident-layout__tree" *ngIf="showTree">
+    <app-cau-truc-chung-cu-tree></app-cau-truc-chung-cu-tree>
+  </div>
+  <div class="resident-layout__content">
+    <router-outlet></router-outlet>
+  </div>
+</div>

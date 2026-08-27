@@ -1,0 +1,30 @@
+<div class="p-4">
+  <div class="mb-6">
+    <label class="text-[11px] font-bold text-gray-400 mb-1.5 block">Chọn căn hộ</label>
+    <nz-select
+      [(ngModel)]="selectedCanHoId"
+      nzShowSearch
+      nzAllowClear
+      nzPlaceHolder="-- Tìm kiếm căn hộ --"
+      [nzLoading]="loading"
+      class="w-full rounded-lg"
+      nzServerSearch
+      style="width:100%">
+      <nz-option
+        *ngFor="let o of canHoOptions"
+        [nzValue]="o.id"
+        [nzLabel]="o.label">
+      </nz-option>
+    </nz-select>
+    <p class="text-xs text-gray-400 mt-2">Có thể nhập mã căn hộ hoặc tên chủ hộ để tìm kiếm</p>
+  </div>
+
+  <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+    <button nz-button nzType="default" (click)="cancel()"
+      class="h-10 px-6 rounded-lg font-semibold">Hủy</button>
+    <button nz-button nzType="primary" (click)="traCuu()" [disabled]="!selectedCanHoId"
+      class="h-10 px-6 rounded-lg font-bold">
+      <i nz-icon nzType="search"></i> Tra cứu
+    </button>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<form nz-form (ngSubmit)="save()" #f="ngForm">
+  <div class="form-card w-full" style="max-width:720px;margin:0 auto;padding:0 12px;">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">Mã dịch vụ</label>
+        <input nz-input [(ngModel)]="model.maDichVu" name="maDichVu" placeholder="Nhập mã dịch vụ" required
+          style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+      </div>
+
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">Tên dịch vụ</label>
+        <input nz-input [(ngModel)]="model.tenDichVu" name="tenDichVu" placeholder="Nhập tên dịch vụ" required
+          style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+      </div>
+
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">Loại dịch vụ</label>
+        <nz-select class="rounded-select" [(ngModel)]="model.loaiDichVuId" name="loaiDichVuId"
+          nzPlaceHolder="-- Chọn --" nzAllowClear required style="border-radius:6px">
+          <nz-option *ngFor="let o of loaiDichVuOptions" [nzValue]="o.id"
+            [nzLabel]="o.tenDichVu || o.name || o.ten || o.label"></nz-option>
+        </nz-select>
+      </div>
+
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">Đơn vị tính</label>
+        <input nz-input [(ngModel)]="model.donViTinh" name="donViTinh" placeholder="Ví dụ: chuyến, giờ, phần..."
+          required
+          style="flex:1;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:36px;box-sizing:border-box" />
+      </div>
+
+      <div class="flex flex-col md:col-span-2">
+        <label class="mb-2 font-medium text-gray-700">Mô tả</label>
+        <textarea nz-input rows="4" [(ngModel)]="model.moTa" name="moTa" placeholder="Mô tả"
+          style="border-radius:6px;padding:8px 12px;border:1px solid #e5e7eb;box-sizing:border-box;min-height:88px;width:100%"></textarea>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="actions" style="margin-top:16px; text-align:center;" *ngIf="!inModal">
+    <button nz-button nzType="primary" type="submit" class="rounded-lg">Lưu</button>
+    <button nz-button type="button" (click)="cancel()" style="margin-left:8px" class="rounded-lg">Hủy</button>
+  </div>
+</form>

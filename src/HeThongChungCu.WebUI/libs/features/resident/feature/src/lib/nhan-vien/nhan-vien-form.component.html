@@ -1,0 +1,172 @@
+﻿<div style="padding:12px">
+  <div [formGroup]="form">
+    <div class="form-root">
+      <div class="modal-left">
+        <div class="modal-avatar">
+          <img [src]="avatarPreview || null" alt="Ảnh đại diện" />
+        </div>
+        <label class="file-input-label">
+          <input class="hidden" type="file" #avatarInput (change)="onAvatarFileInput($event)" accept="image/*" />
+          <span class="choose-txt">Thay ảnh</span>
+        </label>
+        <button nz-button nzType="link" *ngIf="avatarDisplay" (click)="removeAvatarFile()">Xóa</button>
+      </div>
+
+      <div class="modal-right">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">Họ</label>
+        <input nz-input formControlName="ho" />
+      </div>
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">Tên</label>
+        <input nz-input formControlName="ten" />
+      </div>
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">Email</label>
+        <input nz-input formControlName="email" />
+      </div>
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">Số điện thoại</label>
+        <input nz-input formControlName="soDienThoai" />
+      </div>
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">CCCD</label>
+        <input nz-input formControlName="cccd" />
+      </div>
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">Ngày sinh</label>
+        <input nz-input type="date" formControlName="ngaySinh" />
+      </div>
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">Giới tính</label>
+        <nz-select formControlName="gioiTinhId" nzPlaceHolder="-- Chọn --" style="width:100%;border-radius:8px;border:1px solid #e5e7eb;">
+          <nz-option *ngFor="let o of gioiTinhOptions" [nzValue]="o.id ?? o.value ?? o.key" [nzLabel]="o.name || o.ten || o.label"></nz-option>
+        </nz-select>
+      </div>
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">Loại nhân viên</label>
+        <nz-select formControlName="loaiNhanVienId" nzPlaceHolder="-- Chọn --" style="width:100%;border-radius:8px;border:1px solid #e5e7eb;">
+          <nz-option *ngFor="let o of loaiNhanVienOptions" [nzValue]="o.id" [nzLabel]="o.name || o.ten || o.label"></nz-option>
+        </nz-select>
+      </div>
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">Ngày vào làm</label>
+        <input nz-input type="date" formControlName="ngayVaoLam" />
+      </div>
+      <div class="flex flex-col">
+        <label class="mb-2 font-medium text-gray-700">Trạng thái</label>
+        <nz-select formControlName="trangThaiNhanVienId" nzPlaceHolder="-- Chọn --" style="width:100%;border-radius:8px;border:1px solid #e5e7eb;">
+          <nz-option *ngFor="let o of trangThaiNhanVienOptions" [nzValue]="o.id" [nzLabel]="o.name || o.ten || o.label"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <div class="flex gap-3">
+        <div style="flex:1">
+          <label class="mb-2 font-medium text-gray-700">Ghi chú</label>
+          <textarea nz-input rows="3" formControlName="ghiChu"></textarea>
+        </div>
+      </div>
+
+      <div style="margin-top:12px">
+        <label class="mb-2 font-medium text-gray-700">Tài liệu</label>
+        <div style="border-radius:8px;border:1px solid #e5e7eb;padding:10px;background:#fafafa">
+
+          <div *ngIf="existingDocs.length" style="margin-bottom:12px">
+            <div style="font-weight:600;font-size:13px;color:#374151;margin-bottom:8px">Tài liệu có sẵn:</div>
+            <div *ngFor="let d of existingDocs" style="padding:10px;border:1px solid #eef2f6;border-radius:8px;background:#fff;margin-bottom:8px">
+              <div style="font-weight:600;font-size:13px;color:#0f172a">{{ d.tenLoaiGiayTo || d.loaiGiayToId || 'Giấy tờ' }}</div>
+              <div style="font-size:12px;color:#64748b;margin-top:2px" *ngIf="d.soGiayTo">Số: {{ d.soGiayTo }}</div>
+              <div style="font-size:12px;color:#64748b" *ngIf="d.ngayPhatHanh">Ngày phát hành: {{ d.ngayPhatHanh | date:'dd/MM/yyyy' }}</div>
+              <div *ngIf="d.files?.length" style="margin-top:6px">
+                <a *ngFor="let f of d.files" [href]="f.fileUrl" target="_blank" style="display:block;font-size:12px;color:#2563eb;margin-bottom:2px">
+                  <i nz-icon nzType="paper-clip" nzTheme="outline"></i> {{ f.fileName || f.fileUrl }}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <button nz-button nzType="default" type="button" (click)="addDocumentCard()" style="display:flex;align-items:center;gap:8px">
+              <i nz-icon nzType="upload" nzTheme="outline"></i>
+              <span style="margin-left:6px">Tải tài liệu từ thiết bị</span>
+            </button>
+          </div>
+
+          <input type="file" #cardFileInput multiple style="display:none" (change)="onCardFileInput($event)" />
+
+          <div style="padding-right:2px;clear:both">
+            <div *ngFor="let card of documentCards; let i = index" style="margin-top:12px;border:1px solid #e5e7eb;border-radius:8px;padding:10px;display:flex;gap:12px;align-items:start;background:#fff">
+              <div style="flex:1">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div style="font-weight:600">Giấy tờ #{{ i + 1 }}</div>
+                  <div style="font-size:12px;color:#6b7280">{{ (card.displayFiles?.length || 0) }} file</div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+                  <div>
+                    <label class="mb-1 text-sm text-gray-700">Loại giấy tờ</label>
+                    <nz-select [(ngModel)]="card.meta.loaiGiayToId" [ngModelOptions]="{standalone:true}" nzPlaceHolder="-- Chọn --" style="width:100%;border-radius:8px;border:1px solid #e5e7eb;">
+                      <nz-option *ngFor="let o of loaiGiayToOptions" [nzValue]="o.id" [nzLabel]="o.name || o.ten || o.label"></nz-option>
+                    </nz-select>
+                  </div>
+                  <div>
+                    <label class="mb-1 text-sm text-gray-700">Số giấy tờ</label>
+                    <input nz-input [(ngModel)]="card.meta.soGiayTo" [ngModelOptions]="{standalone:true}" />
+                  </div>
+                </div>
+
+                <div style="margin-top:8px">
+                  <label class="mb-1 text-sm text-gray-700">Ngày phát hành</label>
+                  <input nz-input type="date" [(ngModel)]="card.meta.ngayPhatHanh" [ngModelOptions]="{standalone:true}" />
+                </div>
+
+                <div style="margin-top:10px;font-size:13px;color:#374151">
+                  <div>File đã thêm:</div>
+                  <div *ngIf="card.displayFiles?.length; else noFiles" style="margin-top:6px">
+                    <div *ngFor="let df of card.displayFiles; let fileIndex = index" style="padding:6px 8px;border:1px dashed #e5e7eb;border-radius:6px;background:#fff;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:8px">
+                      <span style="word-break:break-all">{{ df.name }}</span>
+                      <button nz-button nzType="text" nzDanger type="button" (click)="removeDocumentFile(i, fileIndex)" nz-tooltip nzTooltipTitle="Xóa file">
+                        <i nz-icon nzType="delete" nzTheme="outline"></i>
+                      </button>
+                    </div>
+                    <div style="margin-top:8px; width:100%; box-sizing:border-box;">
+                      <div style="width:100%; padding:8px; border:1px dashed #e5e7eb; border-radius:6px; background:#fff; display:flex; justify-content:center; align-items:center; box-sizing:border-box">
+                        <button nz-button nzType="dashed" type="button" (click)="startAddFileToCard(i, cardFileInput)" style="border-color:#60a5fa;color:#0ea5e9;border-radius:6px;padding:6px 12px;font-weight:600;height:36px;box-sizing:border-box;display:flex;align-items:center;gap:8px">
+                          <i nz-icon nzType="plus-circle" nzTheme="outline" style="font-size:16px;line-height:1;color:currentColor"></i>
+                          <span style="font-weight:600;color:currentColor;text-align:center">Thêm file</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <ng-template #noFiles>
+                    <div style="margin-top:6px;padding:12px;border:1px dashed #e5e7eb;border-radius:6px;background:#fff;color:#6b7280;display:flex;align-items:center;justify-content:center;width:100%;box-sizing:border-box">
+                      <button nz-button nzType="dashed" type="button" (click)="startAddFileToCard(i, cardFileInput)" style="border-color:#60a5fa;color:#0ea5e9;border-radius:6px;padding:6px 12px;font-weight:600;height:36px;box-sizing:border-box;display:flex;align-items:center;gap:8px">
+                        <i nz-icon nzType="plus-circle" nzTheme="outline" style="font-size:18px;line-height:1;color:currentColor"></i>
+                        <span style="font-weight:600;color:currentColor">Thêm file</span>
+                      </button>
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+                <button nz-button nzType="default" nzDanger (click)="removeDocumentCard(i)" type="button" style="display:flex;align-items:center;gap:8px">
+                  <i nz-icon nzType="delete" nzTheme="outline"></i>
+                  <span>Xóa giấy tờ</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <div *ngIf="!inModal" style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px">
+      <button nz-button type="button" (click)="saved.emit()" class="rounded-lg">Hủy</button>
+      <button nz-button nzType="primary" [nzLoading]="loading" type="button" (click)="submit()" class="rounded-lg">Lưu</button>
+    </div>
+  </div>
+</div>

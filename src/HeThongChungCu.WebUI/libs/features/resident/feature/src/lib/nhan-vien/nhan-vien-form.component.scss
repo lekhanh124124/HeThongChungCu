@@ -1,0 +1,100 @@
+.grid { display: grid; gap: 8px; }
+.flex { display:flex; }
+.flex-col { flex-direction: column; }
+
+/* Rounded inputs and selects */
+:host ::ng-deep input[nz-input],
+:host ::ng-deep textarea[nz-input],
+:host ::ng-deep .ant-select-selector {
+	border-radius: 8px !important;
+	border: 1px solid #e5e7eb !important;
+	padding: 6px 12px !important;
+	min-height: 40px !important;
+	display: flex;
+	align-items: center;
+}
+
+:host ::ng-deep .ant-select-selector .ant-select-selection-placeholder {
+  line-height: normal !important;
+}
+
+:host ::ng-deep .ant-select-selector .ant-select-selection-item,
+:host ::ng-deep .ant-select-selector .ant-select-selection-placeholder {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+:host ::ng-deep .ant-select-arrow {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
+/* Form layout matching profile modal */
+.form-root {
+	display: flex;
+	gap: 16px;
+	align-items: flex-start;
+}
+.modal-left {
+	width: 160px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+}
+.modal-left .modal-avatar {
+	width: 96px;
+	height: 96px;
+	border-radius: 50%;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #fff;
+	border: 1px solid #e5e7eb;
+}
+.modal-left .modal-avatar img {
+	width:100%;height:100%;object-fit:cover;border-radius:50%;
+}
+.modal-right { flex: 1; }
+.choose-txt {
+	display:inline-block;padding:6px 10px;border-radius:8px;background:#fff;border:1px solid #e5e7eb;color:#374151;font-size:13px;cursor:pointer
+}
+
+.form-actions { display:flex;justify-content:flex-end;gap:8px;margin-top:12px }
+
+/* Make tables inside modals scrollable */
+:host ::ng-deep .ant-modal-body table {
+	display: block;
+	max-height: 60vh;
+	overflow: auto;
+	width: 100%;
+}
+
+/* Utility class for scrollable containers inside modals */
+.modal-scroll-table {
+	display: block;
+	box-sizing: border-box;
+	max-height: 60vh;
+	overflow: auto;
+	padding-right: 8px;
+}
+
+:host ::ng-deep .modal-scroll-table {
+	display: block;
+	box-sizing: border-box;
+	max-height: 60vh;
+	overflow: auto;
+}
+
+/* Make the entire modal body scrollable (limit height and enable scroll) */
+:host ::ng-deep .ant-modal-body {
+	max-height: 80vh;
+	overflow: auto;
+}
+
+/* Target custom modal wrappers (if used) to avoid affecting all modals */
+:host ::ng-deep .custom-modal .ant-modal-body {
+	max-height: 80vh;
+	overflow: auto;
+}

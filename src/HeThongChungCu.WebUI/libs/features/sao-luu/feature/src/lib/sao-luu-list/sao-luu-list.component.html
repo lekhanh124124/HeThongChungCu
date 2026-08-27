@@ -1,0 +1,88 @@
+﻿<div>
+  <!-- <h2 class="text-lg font-semibold mb-3">Sao lưu &amp; Khôi phục CSDL</h2> -->
+
+  <div class="page-toolbar flex flex-wrap items-center gap-2 sm:gap-3" style="justify-content:space-between;margin-bottom:12px">
+    <div style="display:flex; gap:8px; align-items:center; max-width:70%">
+      <input nz-input placeholder="Nhập tên file" [(ngModel)]="keyword"
+        style="width:360px;border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:40px;box-sizing:border-box" />
+      <button nz-button nzType="primary" (click)="onSearch()"
+        style="display:flex;align-items:center;border:1px solid #e5e7eb;border-radius:6px;padding:6px 12px;font-weight:600;height:40px;box-sizing:border-box"><i
+          nz-icon nzType="search" nzTheme="outline"></i>&nbsp;Tìm kiếm</button>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px">
+      <button nz-button nzType="default" (click)="onRefresh()"
+        style="display:flex;align-items:center;justify-content:center;border:1px solid #60a5fa;background:#eff6ff;color:#1e3a8a;border-radius:6px;padding:6px 12px;font-weight:600;height:40px;box-sizing:border-box">
+        <i nz-icon nzType="reload" nzTheme="outline"
+          style="font-size:20px;line-height:20px;transform:scale(1.06);display:inline-block;color:#1e3a8a"></i></button>
+      <button nz-button nzType="primary" (click)="openCreateModal()"
+        style="display:flex;align-items:center;border:1px solid #e5e7eb;border-radius:6px;padding:6px 12px;font-weight:600;height:40px;box-sizing:border-box"><i
+          nz-icon nzType="plus-circle" nzTheme="outline"></i>&nbsp;Tạo bản sao lưu</button>
+    </div>
+  </div>
+
+  <app-scroll-table [height]="'390px'">
+    <nz-table #slTable [nzData]="items" [nzLoading]="loading" [nzShowPagination]="false">
+      <thead>
+        <tr>
+          <th style="width:64px; white-space:nowrap; text-align:center">Thao tác</th>
+          <th style="width:48px">STT</th>
+          <th style="cursor:pointer" (click)="onSort('fileName')">
+            Tên file
+            <i nz-icon [nzType]="sortCol === 'fileName' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'fileName' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer; width:120px" (click)="onSort('size')">
+            Kích thước
+            <i nz-icon [nzType]="sortCol === 'size' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'size' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="cursor:pointer; width:180px" (click)="onSort('createdAt')">
+            Ngày tạo
+            <i nz-icon [nzType]="sortCol === 'createdAt' ? (isAsc ? 'caret-up' : 'caret-down') : 'caret-down'"
+              nzTheme="outline"
+              [ngStyle]="{'margin-left':'6px','color': sortCol === 'createdAt' ? '#000' : '#c7c7c7'}"></i>
+          </th>
+          <th style="width:100px">Định dạng</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let it of slTable.data; let i = index">
+          <td style="text-align:center">
+            <a nz-dropdown nzTrigger="hover" [nzDropdownMenu]="actionMenu">
+              <i nz-icon nzType="unordered-list" nzTheme="outline" class="text-lg cursor-pointer"></i>
+            </a>
+            <nz-dropdown-menu #actionMenu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item (click)="confirmRestore(it)"><i nz-icon nzType="rollback" nzTheme="outline"></i>&nbsp;Khôi phục</li>
+                <li nz-menu-item class="text-red-500" (click)="confirmDelete(it)"><i nz-icon nzType="delete" nzTheme="outline"></i>&nbsp;Xóa</li>
+              </ul>
+            </nz-dropdown-menu>
+          </td>
+          <td>{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+          <td style="max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">{{ it.fileName || '-' }}</td>
+          <td>{{ formatSize(it.size) }}</td>
+          <td>{{ it.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>
+            <nz-tag class="rounded-full border-none px-3 font-semibold text-[11px] uppercase"
+              [ngClass]="it.contentType?.includes('zip') ? 'tag-zip' : 'tag-other'">
+              {{ it.contentType || 'N/A' }}
+            </nz-tag>
+          </td>
+        </tr>
+        <!-- <tr *ngIf="!loading && items.length === 0">
+          <td colspan="6">
+            <nz-empty nzNotFoundContent="Không có bản sao lưu nào"></nz-empty>
+          </td>
+        </tr> -->
+      </tbody>
+    </nz-table>
+  </app-scroll-table>
+
+  <div style="display:flex;justify-content:flex-end;margin-top:12px">
+    <nz-pagination [nzPageIndex]="pageNumber" [nzPageSize]="pageSize" [nzTotal]="totalItems"
+      (nzPageIndexChange)="onPageChange($event)" (nzPageSizeChange)="onPageSizeChange($event)"></nz-pagination>
+  </div>
+</div>

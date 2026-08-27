@@ -1,0 +1,41 @@
+<div nz-dropdown [nzDropdownMenu]="menu" [nzVisible]="dropdownVisible" nzTrigger="click" (nzVisibleChange)="onDropdownVisibleChange($event)" class="notification-bell-wrapper cursor-pointer flex items-center h-8" title="Thông báo">
+  <nz-badge [nzCount]="unreadCount" [nzOverflowCount]="99" class="flex items-center">
+    <i nz-icon nzType="bell" nzTheme="outline" class="text-lg sm:text-xl text-gray-600 icon-center"></i>
+  </nz-badge>
+</div>
+
+<nz-dropdown-menu #menu nzPlacement="bottomRight">
+  <div class="notification-panel p-2 max-w-sm sm:max-w-sm w-screen sm:w-auto">
+    <div class="notification-header">
+      <div class="notification-title">
+        <!-- <i nz-icon nzType="notification" nzTheme="outline" class="header-icon"></i> -->
+        Thông báo
+      </div>
+    </div>
+    <div *ngIf="notifications && notifications.length > 0; else noItems">
+      <div *ngFor="let n of notifications | slice:0:6" class="ant-list-item notification-row" [class.unread]="!n._read && !n.isRead">
+        <div class="icon-col">
+          <div class="icon-circle" [class.unread]="!n._read && !n.isRead">
+            <i nz-icon [nzType]="(n.icon || 'notification')" nzTheme="outline"></i>
+          </div>
+        </div>
+        <div class="content-col">
+          <div class="row-top">
+            <div class="title">
+              {{ n.tieuDe || n.title }}
+              <!-- <span *ngIf="n.tenLoaiThongBao" class="type-pill">{{ n.tenLoaiThongBao }}</span> -->
+            </div>
+            <div class="meta">{{ n.createdAt | date:'short' }}</div>
+          </div>
+          <div class="body">{{ n.noiDung || n.content }}</div>
+          <div class="row-actions">
+            <a class="detail-link" (click)="openDetail(n); $event.stopPropagation()">Xem chi tiết</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-template #noItems>
+      <div class="p-4 text-center text-gray-500">Không có thông báo</div>
+    </ng-template>
+  </div>
+</nz-dropdown-menu>

@@ -1,0 +1,409 @@
+<div *ngIf="loading" class="flex justify-center p-20">
+  <nz-spin nzSimple nzSize="large"></nz-spin>
+</div>
+
+<div *ngIf="data && !loading" class="p-2 sm:max-h-[85vh] overflow-y-auto">
+  <div class="flex justify-between items-start flex-wrap gap-2 mb-6 border-b pb-4">
+    <div class="flex items-center gap-4">
+      <div
+        class="h-12 w-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg"
+      >
+        <i nz-icon nzType="tool" class="text-2xl"></i>
+      </div>
+      <div>
+        <h3
+          class="text-base sm:text-xl font-black text-indigo-900 leading-none mb-1 uppercase tracking-tight"
+        >
+          {{ data.tenThietBi }}
+        </h3>
+        <p
+          class="text-xs text-gray-500 font-bold uppercase tracking-widest"
+        >
+          {{ data.tenHangMuc }} • {{ data.maPhieu }}
+        </p>
+      </div>
+    </div>
+    <div class="text-right">
+      <nz-tag
+        [nzColor]="getStatusColor(data.trangThaiPhieuBaoTriId)"
+        class="font-bold text-xs"
+      >
+        {{ data.tenTrangThaiPhieuBaoTri }}
+      </nz-tag>
+      <span class="text-[10px] text-gray-400 font-bold"
+        >Ngày lập: {{ data.ngayLapPhieu | date: 'dd/MM/yyyy HH:mm' }}</span
+      >
+    </div>
+  </div>
+
+  <nz-tabset
+    [nzSelectedIndex]="activeTab"
+    (nzSelectedIndexChange)="activeTab = $any($event)"
+  >
+    <nz-tab nzTitle="Thông tin chung">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mt-4">
+        <div class="lg:col-span-2 space-y-4 sm:space-y-6">
+          <div class="bg-gray-50 p-4 sm:p-6 rounded-2xl border border-gray-100">
+            <h4
+              class="text-[11px] font-black text-indigo-400 uppercase tracking-widest mb-4"
+            >
+              Chi tiết công việc
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-sm">
+              <div>
+                <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Thiết bị</div>
+                <div class="font-bold text-gray-800">{{ data.tenThietBi }}</div>
+              </div>
+              <div>
+                <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Mã thiết bị</div>
+                <div class="font-bold text-gray-800">{{ data.maThietBi }}</div>
+              </div>
+              <div>
+                <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Vị trí</div>
+                <div class="font-bold text-gray-800">{{ data.viTri || 'Chưa cập nhật' }}</div>
+              </div>
+              <div>
+                <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Hạng mục</div>
+                <div class="font-bold text-gray-800">{{ data.tenHangMuc }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 p-4 sm:p-6 rounded-2xl border border-gray-100">
+            <h4
+              class="text-[11px] font-black text-indigo-400 uppercase tracking-widest mb-4"
+            >
+              Nhân sự thực hiện
+            </h4>
+
+            <div
+              *ngIf="!data.tenDoiTac && !data.nhanSuBaoTris?.length"
+              class="text-gray-400 italic text-sm py-4 text-center"
+            >
+              Chưa có nhân sự được phân công.
+            </div>
+
+            <div *ngIf="data.tenDoiTac"
+              class="flex items-center gap-3 bg-white p-3 rounded-xl border border-indigo-100 mb-3 shadow-sm">
+              <div class="h-10 w-10 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600">
+                <i nz-icon nzType="shop" nzTheme="outline"></i>
+              </div>
+              <div class="flex-1">
+                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Đối tác dịch vụ</div>
+                <div class="font-bold text-gray-800 text-sm">{{ data.tenDoiTac }}</div>
+              </div>
+              <div class="text-right">
+                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Hợp đồng</div>
+                <div class="font-bold text-indigo-600 text-sm">{{ data.soHopDong }}</div>
+              </div>
+            </div>
+
+            <div *ngIf="data.nhanSuBaoTris?.length"
+              class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div *ngFor="let ns of data.nhanSuBaoTris"
+                class="flex items-center gap-3 bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                <div class="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                  {{ ns.hoTen.charAt(0) }}
+                </div>
+                <div>
+                  <div class="text-sm font-bold text-gray-800">{{ ns.hoTen }}</div>
+                  <div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ ns.vaiTro }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4 sm:space-y-6">
+          <div class="bg-indigo-900 p-4 sm:p-6 rounded-2xl text-white shadow-xl">
+            <h4
+              class="text-[10px] font-black text-indigo-300 uppercase tracking-widest mb-4"
+            >
+              Lịch trình & Chi phí
+            </h4>
+            <div class="space-y-4">
+              <div>
+                <label class="text-[10px] text-indigo-300 block mb-1"
+                  >NGÀY DỰ KIẾN</label
+                >
+                <div class="text-lg font-black">
+                  {{ data.ngayDuKien | date: 'dd/MM/yyyy' }}
+                </div>
+              </div>
+              <div>
+                <label class="text-[10px] text-indigo-300 block mb-1"
+                  >NGÀY THỰC TẾ</label
+                >
+                <div class="text-lg font-black">
+                  {{
+                    (data.ngayThucTe | date: 'dd/MM/yyyy') || '--/--/----'
+                  }}
+                </div>
+              </div>
+              <nz-divider class="bg-indigo-800 my-4"></nz-divider>
+              <div>
+                <label class="text-[10px] text-indigo-300 block mb-1"
+                  >TỔNG CHI PHÍ THỰC TẾ</label
+                >
+                <div class="text-2xl font-black text-yellow-400">
+                  {{ data.chiPhiThucTe | number }} đ
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            *ngIf="data.trangThaiPhieuBaoTriId === 1"
+            class="bg-white p-4 sm:p-6 rounded-2xl border-2 border-dashed border-indigo-100"
+          >
+            <h4
+              class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3"
+            >
+              Phân công công việc
+            </h4>
+            <nz-select
+              [(ngModel)]="selectedNhanVienId"
+              nzShowSearch
+              nzAllowClear
+              nzPlaceHolder="Chọn nhân viên kỹ thuật"
+              class="w-full mb-4 rounded-lg"
+            >
+              <nz-option
+                *ngFor="let nv of nhanVienOptions"
+                [nzValue]="nv.id"
+                [nzLabel]="nv.hoTen + ' (' + nv.maNhanVien + ')'"
+              ></nz-option>
+            </nz-select>
+            <button
+              nz-button
+              nzType="primary"
+              block
+              (click)="assign()"
+              class="border-none font-bold rounded-lg h-10"
+            >
+              Xác nhận phân công
+            </button>
+          </div>
+        </div>
+      </div>
+    </nz-tab>
+
+    <nz-tab nzTitle="Tiến độ & Checklist">
+      <div class="mt-4 space-y-6">
+        <div
+          class="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm"
+        >
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+            <h4
+              class="text-[11px] font-black text-indigo-900 uppercase tracking-widest"
+            >
+              Nội dung kiểm tra (Checklist)
+            </h4>
+            <span class="text-[10px] font-bold text-gray-400 uppercase"
+              >{{ data.checklists?.length || 0 }} ĐẦU VIỆC</span
+            >
+          </div>
+
+          <div class="space-y-2">
+            <div
+              *ngFor="let c of data.checklists"
+              class="flex items-center gap-4 p-3 rounded-xl border border-gray-50 hover:border-indigo-100 transition-all"
+            >
+              <label
+                nz-checkbox
+                [(ngModel)]="c.datYeuCau"
+                [disabled]="data.trangThaiPhieuBaoTriId >= 5"
+              ></label>
+              <div class="flex-1">
+                <div class="text-sm font-bold text-gray-700">
+                  {{ c.noiDungChecklist }}
+                </div>
+                <input
+                  *ngIf="data.trangThaiPhieuBaoTriId < 5"
+                  nz-input
+                  nzSize="small"
+                  [(ngModel)]="c.ghiChuThucTe"
+                  placeholder="Ghi chú thực tế..."
+                  class="text-[10px] mt-1 border-none bg-gray-50 p-1 px-2 rounded-lg"
+                />
+                <div
+                  *ngIf="data.trangThaiPhieuBaoTriId >= 5"
+                  class="text-[10px] text-gray-400 italic mt-1"
+                >
+                  {{ c.ghiChuThucTe }}
+                </div>
+              </div>
+              <div
+                class="h-10 w-10 bg-gray-50 rounded flex items-center justify-center text-gray-300 cursor-pointer hover:text-indigo-600 border border-dashed border-gray-200"
+              >
+                <i nz-icon nzType="camera"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-sm"
+        >
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+            <h4
+              class="text-[11px] font-black text-indigo-900 uppercase tracking-widest"
+            >
+              Vật tư & Linh kiện thay thế
+            </h4>
+            <button
+              *ngIf="data.trangThaiPhieuBaoTriId < 5"
+              type="button"
+              (click)="addVatTu()"
+              class="flex items-center gap-1.5 h-9 px-4 rounded-lg font-bold text-xs bg-indigo-50 text-indigo-500 border border-indigo-200 hover:bg-indigo-100 hover:border-indigo-300 transition-all cursor-pointer"
+            >
+              <i nz-icon nzType="plus-circle" nzTheme="outline" class="text-sm"></i>
+              <span>THÊM VẬT TƯ</span>
+            </button>
+          </div>
+
+          <div class="responsive-table">
+          <nz-table
+            #vtTable
+            [nzData]="data.vatTus || []"
+            nzSize="small"
+            [nzShowPagination]="false"
+          >
+            <thead>
+              <tr>
+                <th>Tên vật tư</th>
+                <th nzWidth="100px" class="text-center">Số lượng</th>
+                <th nzWidth="150px" class="text-right">Đơn giá</th>
+                <th nzWidth="150px" class="text-right">Thành tiền</th>
+                <th
+                  *ngIf="data.trangThaiPhieuBaoTriId < 5"
+                  nzWidth="50px"
+                ></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let v of vtTable.data; let i = index">
+                <td>
+                  <input
+                    nz-input
+                    [(ngModel)]="v.tenVatTu"
+                    [disabled]="data.trangThaiPhieuBaoTriId >= 5"
+                    class="border-none bg-transparent rounded-lg"
+                  />
+                </td>
+                <td class="text-center">
+                  <nz-input-number
+                    [(ngModel)]="v.soLuong"
+                    [nzMin]="1"
+                    [nzDisabled]="data.trangThaiPhieuBaoTriId >= 5"
+                    class="w-full rounded-lg"
+                  ></nz-input-number>
+                </td>
+                <td class="text-right">
+                  <nz-input-number
+                    [(ngModel)]="v.donGia"
+                    [nzMin]="0"
+                    [nzStep]="1000"
+                    [nzDisabled]="data.trangThaiPhieuBaoTriId >= 5"
+                    class="w-full rounded-lg"
+                  ></nz-input-number>
+                </td>
+                <td class="text-right font-bold">
+                  {{ v.soLuong * v.donGia | number }} đ
+                </td>
+                <td class="td-actions" *ngIf="data.trangThaiPhieuBaoTriId < 5">
+                  <button
+                    nz-button
+                    nzType="text"
+                    nzDanger
+                    (click)="removeVatTu(i)"
+                  >
+                    <i nz-icon nzType="delete"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+          </div>
+          <div class="text-right mt-4 pt-4 border-t">
+            <span class="text-xs text-gray-400 font-bold mr-4"
+              >TỔNG CỘNG VẬT TƯ:</span
+            >
+            <span class="text-xl font-black text-indigo-600"
+              >{{ getTotalChiPhi() | number }} đ</span
+            >
+          </div>
+        </div>
+
+        <div
+          class="flex justify-end gap-3"
+          *ngIf="data.trangThaiPhieuBaoTriId < 5"
+        >
+          <button
+            nz-button
+            nzType="primary"
+            (click)="updateProgress()"
+            [nzLoading]="submittingProgress"
+            class="h-10 sm:h-12 px-6 sm:px-10 rounded-xl border-none font-bold shadow-lg shadow-indigo-100 tracking-widest text-[11px]"
+          >
+            Lưu tiến độ thực tế
+          </button>
+        </div>
+      </div>
+    </nz-tab>
+  </nz-tabset>
+
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mt-6 sm:mt-10 pt-6 border-t">
+    <div>
+      <button
+        *ngIf="data.trangThaiPhieuBaoTriId < 5"
+        type="button"
+        (click)="cancelTicket()"
+        class="flex items-center gap-1.5 h-9 px-4 rounded-lg font-bold text-xs bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 hover:border-red-300 transition-all cursor-pointer"
+      >
+        <i nz-icon nzType="close-circle" nzTheme="outline" class="text-sm"></i>
+        <span>HỦY PHIẾU NÀY</span>
+      </button>
+    </div>
+    <div class="flex flex-wrap gap-2 sm:gap-3">
+      <button
+        nz-button
+        (click)="close()"
+
+        class="rounded-xl px-4 sm:px-8 h-10 sm:h-12 font-bold text-xs sm:text-sm"
+      >
+        Đóng
+      </button>
+      <div *ngIf="data.trangThaiPhieuBaoTriId === 4" class="flex flex-wrap gap-2">
+        <button
+          nz-button
+          nzType="primary"
+          (click)="complete()"
+          class="rounded-xl px-4 sm:px-8 h-10 sm:h-12 bg-emerald-600 border-none font-bold tracking-widest text-[11px] shadow-lg shadow-emerald-100"
+        >
+          Hoàn thành
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #completeModal>
+  <div class="space-y-3">
+    <p class="text-sm text-gray-600">Bạn có chắc chắn muốn hoàn thành phiếu bảo trì này?</p>
+    <div>
+      <label class="text-xs font-bold text-gray-500 mb-1 block">Ghi chú xử lý</label>
+      <textarea id="completeNote" rows="3" placeholder="Nhập ghi chú..." class="w-full rounded-lg border border-gray-300 p-2 resize-y"></textarea>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #cancelModal>
+  <div class="space-y-3">
+    <p class="text-sm text-gray-600">Bạn có chắc chắn muốn hủy phiếu bảo trì này?</p>
+    <div>
+      <label class="text-xs font-bold text-gray-500 mb-1 block">Lý do hủy</label>
+      <textarea id="cancelReason" rows="3" placeholder="Nhập lý do hủy..." class="w-full rounded-lg border border-gray-300 p-2 resize-y"></textarea>
+    </div>
+  </div>
+</ng-template>

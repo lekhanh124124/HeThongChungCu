@@ -1,0 +1,35 @@
+<div class="tri-thuc-form">
+  <form [formGroup]="form" (ngSubmit)="submit()" class="pt-2 pb-1">
+    <div class="w-full" style="max-width:720px;margin:0 auto;padding:0 12px;">
+      <div class="grid grid-cols-1 gap-4">
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Tiêu đề <span class="text-red-500">*</span></label>
+          <input nz-input formControlName="tieuDe" placeholder="Nhập tiêu đề mục tri thức" style="border-radius:6px;padding:6px 12px;border:1px solid #e5e7eb;height:40px" />
+          <span class="text-red-500 text-xs mt-1" *ngIf="form.get('tieuDe')?.dirty && form.get('tieuDe')?.invalid">Vui lòng nhập tiêu đề</span>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Danh mục <span class="text-red-500">*</span></label>
+          <nz-select formControlName="danhMuc" nzPlaceHolder="Chọn danh mục" style="width:100%" nzAllowClear>
+            <nz-option *ngFor="let dm of danhMucList" [nzValue]="dm" [nzLabel]="dm"></nz-option>
+          </nz-select>
+          <span class="text-red-500 text-xs mt-1" *ngIf="form.get('danhMuc')?.dirty && form.get('danhMuc')?.invalid">Vui lòng chọn danh mục</span>
+        </div>
+
+        <div class="flex flex-col">
+          <label class="mb-2 font-medium text-gray-700">Nội dung <span class="text-red-500">*</span></label>
+          <div class="text-xs text-gray-400 mb-1">
+            Hỗ trợ Markdown. Dùng <code>##</code> cho heading H2, <code>###</code> cho H3, <code>-</code> cho bullet list.
+          </div>
+          <textarea nz-input formControlName="noiDung" rows="14" placeholder="Nhập nội dung bằng Markdown..." style="border-radius:6px;padding:8px 12px;border:1px solid #e5e7eb;font-family:monospace;font-size:13px;line-height:1.6;resize:vertical"></textarea>
+          <span class="text-red-500 text-xs mt-1" *ngIf="form.get('noiDung')?.dirty && form.get('noiDung')?.invalid">Vui lòng nhập nội dung</span>
+        </div>
+
+        <div class="flex flex-col" style="max-width:200px">
+          <label class="mb-2 font-medium text-gray-700">Thứ tự hiển thị</label>
+          <nz-input-number formControlName="thuTuHienThi" [nzMin]="0" style="width:100%"></nz-input-number>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,383 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "~ng-zorro-antd/ng-zorro-antd.min.css";
+
+body {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+
+/* ======================== */
+/* Responsive Breakpoints   */
+/* ======================== */
+$phone: 480px;
+$tablet: 768px;
+$laptop: 1024px;
+$desktop: 1280px;
+
+/* ======================== */
+/* MODAL RESPONSIVE         */
+/* ======================== */
+.custom-modal .ant-modal {
+  max-width: 520px !important;
+  width: 100% !important;
+}
+.custom-modal .ant-modal-content {
+  border-radius: 8px;
+}
+
+.wide-modal .ant-modal {
+  max-width: 50% !important;
+  width: 50% !important;
+}
+.wide-modal .ant-modal-content {
+  max-height: 90vh !important;
+  display: flex;
+  flex-direction: column;
+}
+.wide-modal .ant-modal-body {
+  overflow: auto !important;
+  max-height: calc(90vh - 120px) !important;
+}
+
+.modal-xl .ant-modal {
+  max-width: 1100px !important;
+  width: 1100px !important;
+}
+.modal-xl .ant-modal-content {
+  max-height: 95vh !important;
+  display: flex;
+  flex-direction: column;
+}
+.modal-xl .ant-modal-body {
+  overflow: auto !important;
+  max-height: calc(95vh - 120px) !important;
+}
+
+/* Responsive Modals */
+@media (max-width: $tablet) {
+  .custom-modal .ant-modal {
+    max-width: 100% !important;
+    width: calc(100% - 16px) !important;
+    margin: 8px auto !important;
+  }
+
+  .wide-modal .ant-modal {
+    max-width: 100% !important;
+    width: calc(100% - 16px) !important;
+    margin: 8px auto !important;
+  }
+
+  .modal-xl .ant-modal {
+    max-width: 100% !important;
+    width: calc(100% - 16px) !important;
+    margin: 8px auto !important;
+  }
+}
+
+@media (max-width: $phone) {
+  .wide-modal .ant-modal,
+  .modal-xl .ant-modal,
+  .custom-modal .ant-modal {
+    max-width: 100% !important;
+    width: calc(100% - 8px) !important;
+    margin: 4px auto !important;
+  }
+
+  .wide-modal .ant-modal-content,
+  .modal-xl .ant-modal-content {
+    max-height: 96vh !important;
+    border-radius: 12px !important;
+  }
+
+  .wide-modal .ant-modal-header,
+  .modal-xl .ant-modal-header {
+    padding: 12px 16px !important;
+  }
+
+  .wide-modal .ant-modal-body,
+  .modal-xl .ant-modal-body {
+    padding: 12px !important;
+    max-height: calc(96vh - 100px) !important;
+  }
+
+  .wide-modal .ant-modal-footer {
+    padding: 8px 12px !important;
+  }
+}
+
+/* ======================== */
+/* TABLE RESPONSIVE         */
+/* ======================== */
+/* Enable horizontal scroll on small screens */
+.responsive-table {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.responsive-table .ant-table {
+  min-width: 600px;
+}
+
+/* Card-style table on very small screens */
+@media (max-width: $phone) {
+  .responsive-table .ant-table {
+    min-width: 500px;
+  }
+}
+
+/* ======================== */
+/* TABLE HEADERS            */
+/* ======================== */
+.ant-table-thead > tr > th {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ======================== */
+/* SIDEBAR MENU             */
+/* ======================== */
+.menu-sidebar .ant-menu-item .ant-menu-title-content,
+.menu-sidebar .ant-menu-submenu-title .ant-menu-title-content,
+.menu-sidebar .menu-title,
+.menu-sidebar .submenu-title-link .menu-title {
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  color: #4a4b4d !important;
+}
+
+.menu-sidebar .ant-menu-item-selected .menu-title,
+.menu-sidebar .ant-menu-item .ant-menu-item-selected .menu-title {
+  color: #08306b !important;
+}
+
+.menu-sidebar .ant-menu-item .ant-menu-title-content {
+  line-height: 1.2;
+}
+
+/* ======================== */
+/* BUTTONS & CONTROLS       */
+/* ======================== */
+.ant-modal-footer .ant-btn {
+  border-radius: 8px !important;
+}
+
+.ant-select .ant-select-selector {
+  border-radius: 10px !important;
+  overflow: hidden;
+}
+
+.ant-select .ant-select-selection-item {
+  color: #0f172a;
+}
+
+/* ======================== */
+/* RESPONSIVE UTILITY       */
+/* ======================== */
+/* Hide on mobile */
+.hide-phone {
+  display: block;
+}
+.show-phone {
+  display: none;
+}
+
+@media (max-width: $phone) {
+  .hide-phone {
+    display: none !important;
+  }
+  .show-phone {
+    display: block !important;
+  }
+}
+
+/* Hide on tablet */
+.hide-tablet {
+  display: block;
+}
+.show-tablet {
+  display: none;
+}
+
+@media (min-width: ($phone + 1)) and (max-width: $tablet) {
+  .hide-tablet {
+    display: none !important;
+  }
+  .show-tablet {
+    display: block !important;
+  }
+}
+
+/* Stack items vertically on mobile */
+@media (max-width: $tablet) {
+  .stack-on-mobile {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .stack-on-mobile > * {
+    width: 100% !important;
+  }
+}
+
+/* Full width on mobile */
+@media (max-width: $phone) {
+  .full-width-phone {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ======================== */
+/* NG-ZORRO TABLES MOBILE   */
+/* ======================== */
+@media (max-width: $tablet) {
+  .ant-table {
+    font-size: 13px !important;
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 6px 8px !important;
+  }
+}
+
+/* ======================== */
+/* FORM MOBILE              */
+/* ======================== */
+@media (max-width: $phone) {
+  .ant-form-item {
+    margin-bottom: 12px !important;
+  }
+
+  .ant-form-item-label {
+    padding-bottom: 2px !important;
+  }
+
+  .ant-form-item-label > label {
+    height: auto !important;
+  }
+}
+
+/* ======================== */
+/* PAGE TOOLBAR RESPONSIVE  */
+/* ======================== */
+@media (max-width: $tablet) {
+  .page-toolbar {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .page-toolbar .toolbar-search {
+    width: 100% !important;
+  }
+
+  .page-toolbar .toolbar-actions {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+  }
+}
+
+/* ======================== */
+/* TOOLBAR SEARCH RESPONSIVE */
+/* ======================== */
+@media (max-width: $phone) {
+  .page-toolbar input[nz-input],
+  .page-toolbar .ant-input {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .page-toolbar nz-select,
+  .page-toolbar .ant-select {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .page-toolbar nz-date-picker,
+  .page-toolbar .ant-picker {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ======================== */
+/* SMOOTH TRANSITIONS      */
+/* ======================== */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ======================== */
+/* CUSTOM SCROLLBAR        */
+/* ======================== */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+
+/* Sidebar menu title prominence */
+.menu-sidebar .ant-menu-item .ant-menu-title-content,
+.menu-sidebar .ant-menu-submenu-title .ant-menu-title-content,
+.menu-sidebar .menu-title,
+.menu-sidebar .submenu-title-link .menu-title {
+	font-size: 17px !important;
+	font-weight: 700 !important;
+	color: #4a4b4d !important;
+}
+
+.menu-sidebar .ant-menu-item-selected .menu-title,
+.menu-sidebar .ant-menu-item .ant-menu-item-selected .menu-title {
+	color: #08306b !important;
+}
+
+/* Ensure sidebar titles remain readable when collapsed */
+.menu-sidebar .ant-menu-item .ant-menu-title-content {
+	line-height: 1.2;
+}
+
+/* Rounded buttons in modal footer */
+.ant-modal-footer .ant-btn {
+  border-radius: 8px !important;
+}
+
+/* Rounded nz-select (ant-select) controls */
+.ant-select .ant-select-selector {
+	border-radius: 10px !important;
+	overflow: hidden;
+}
+
+/* Slightly increase contrast for selected value text */
+.ant-select .ant-select-selection-item {
+	color: #0f172a;
+}
+
+// .ant-btn-primary {
+// background-color: #0075E1 !important;
+// border-color: #0075E1 !important;
+// }
+// .ant-btn-primary:hover { background-color: #1983E4 !important; }
+
+/* Make footer buttons more prominent */
+// .ant-modal-footer .ant-btn,
+// .ant-layout-footer .ant-btn,
+// .ant-drawer-footer .ant-btn {
+// 	font-weight: 700;
+// }
+

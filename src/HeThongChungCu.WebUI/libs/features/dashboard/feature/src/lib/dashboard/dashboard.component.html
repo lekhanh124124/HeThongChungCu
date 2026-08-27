@@ -1,0 +1,121 @@
+<nz-layout class="app-layout h-screen">
+  <nz-sider class="menu-sidebar" [class.mobile-overlay]="isMobile && !isCollapsed"
+    nzCollapsible nzWidth="280px" nzBreakpoint="md" [(nzCollapsed)]="isCollapsed" [nzCollapsedWidth]="isMobile ? 0 : 64"
+    (nzBreakpoint)="onBreakpoint($event)" [nzTrigger]="null" [@.disabled]="true">
+
+    <div class="sidebar-header">
+      <button class="sidebar-close-btn" *ngIf="isMobile" (click)="toggleSidebar()" aria-label="Đóng menu">
+        <i nz-icon nzType="close" nzTheme="outline"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-logo">
+      <div class="logo-inner">
+        <div class="logo-mark">
+          <img src="assets/images/logo.jpg" alt="Logo" />
+        </div>
+        <div class="logo-text" *ngIf="!isCollapsed">
+          <span class="logo-sub">Hệ Thống Quản Lý</span>
+          <span class="logo-title">Chung Cư Thông Minh</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-area">
+      <ul nz-menu nzMode="inline" [nzInlineCollapsed]="isCollapsed" nzTheme="dark" [@.disabled]="true">
+        <ng-container *ngFor="let item of menuItems">
+          <li *ngIf="item.children && item.title !== 'Trang chủ'; else normalItem"
+            nz-submenu [nzTitle]="submenuTitle">
+            <ng-template #submenuTitle>
+              <span class="ant-menu-item-icon"><span nz-icon [nzType]="item.icon || 'file-text'"
+                  nzTheme="outline"></span></span>
+              <span class="ant-menu-title-content">
+                <a *ngIf="item.route; else plainTitle" [routerLink]="item.route" class="submenu-title-link"><span
+                    class="menu-title">{{ item.title }}</span></a>
+                <ng-template #plainTitle><span class="menu-title">{{ item.title }}</span></ng-template>
+              </span>
+            </ng-template>
+            <ul>
+              <li *ngFor="let child of item.children" nz-menu-item [routerLink]="child.route"
+                routerLinkActive="ant-menu-item-selected">
+                <span class="ant-menu-item-icon"><span nz-icon [nzType]="child.icon || 'file-text'"
+                    nzTheme="outline"></span></span>
+                <span class="ant-menu-title-content">{{ child.title }}</span>
+              </li>
+            </ul>
+          </li>
+
+          <ng-template #normalItem>
+            <li nz-menu-item [routerLink]="item.route" routerLinkActive="ant-menu-item-selected">
+              <span class="ant-menu-item-icon"><span nz-icon [nzType]="item.icon || 'file-text'"
+                  nzTheme="outline"></span></span>
+              <span class="ant-menu-title-content">{{ item.title }}</span>
+            </li>
+          </ng-template>
+        </ng-container>
+      </ul>
+    </div>
+  </nz-sider>
+
+  <nz-layout [class.overlay-open]="isMobile && !isCollapsed">
+    <nz-header class="app-header">
+      <div class="header-left">
+        <button class="toggle-btn" (click)="toggleSidebar()" aria-label="Toggle menu">
+          <i nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></i>
+        </button>
+        <div class="header-breadcrumb">
+          <h1 class="header-title">{{currentTitle}}</h1>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <i nz-icon nzType="home" class="header-icon" title="Trang chủ" (click)="goHome()"></i>
+
+        <app-notification-bell></app-notification-bell>
+
+        <a nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu" class="user-profile-trigger">
+          <div class="user-profile-info">
+            <div class="avatar-container">
+              <img [src]="avatarUrl || defaultAvatar" (error)="onAvatarError($event)" alt="Avatar"
+                class="avatar-img" />
+              <div class="status-indicator"></div>
+            </div>
+            <div class="user-details hide-phone">
+              <span class="user-role">Quản trị viên</span>
+              <span class="user-name">{{ username }}</span>
+            </div>
+            <i nz-icon nzType="down" class="user-arrow"></i>
+          </div>
+        </a>
+
+        <nz-dropdown-menu #menu="nzDropdownMenu">
+          <ul nz-menu class="w-48">
+            <li nz-menu-item class="text-gray-600">Vai trò: <strong class="ml-1">{{ role }}</strong></li>
+            <li nz-menu-divider></li>
+            <li nz-menu-item (click)="goProfile()">Thông tin cá nhân</li>
+            <li nz-menu-item (click)="goChangePassword()">Đổi mật khẩu</li>
+            <li nz-menu-item (click)="logout()" class="text-red-500">
+              <div class="flex items-center gap-2">
+                <span nz-icon nzType="logout" nzTheme="outline" class="text-lg"></span>
+                <span>Đăng xuất</span>
+              </div>
+            </li>
+          </ul>
+        </nz-dropdown-menu>
+      </div>
+    </nz-header>
+
+    <nz-content>
+      <div class="inner-content">
+        <div class="content-wrapper">
+          <div class="content-card">
+            <router-outlet></router-outlet>
+          </div>
+        </div>
+      </div>
+    </nz-content>
+  </nz-layout>
+</nz-layout>
+
+<!-- Mobile overlay backdrop -->
+<div class="mobile-overlay-backdrop" *ngIf="isMobile && !isCollapsed" (click)="toggleSidebar()"></div>
