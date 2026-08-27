@@ -61,5 +61,5 @@ wwwroot/
 docs/
 PublishProfiles/
 knowledge-base/
-HeThongChungCu.MobileUI/
+HeThongChungCu.MobileUI/build/
 database/
